@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réservations — Restaurants pédagogiques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#2B2622; --panel:#37312A; --panel-light:#413A32; --line:#54493A;
+    --cream:#F2ECDC; --muted:#B4A996; --gold:#C9A227; --sage:#8FA06B; --brick:#B5533C; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--cream);font-family:'Work Sans', sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Fraunces', serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 18px 60px;}
+  header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:22px;}
+  .brand h1{font-size:1.5rem;font-weight:700;margin:0 0 4px;}
+  .brand p{margin:0;color:var(--muted);font-size:0.87rem;}
+  .mode-box{text-align:right;}
+  .btn{font-family:'Work Sans',sans-serif;background:var(--panel-light);color:var(--cream);border:1px solid var(--line);border-radius:var(--radius);padding:9px 14px;font-size:0.84rem;cursor:pointer;}
+  .btn:hover{background:#4A4238;}
+  .btn:disabled{opacity:0.55;cursor:default;}
+  .btn.gold{background:var(--gold);color:#2B2622;border-color:var(--gold);font-weight:600;}
+  .btn.gold:hover{background:#DDB53A;}
+  .btn.ghost{background:transparent;}
+  .btn.small{padding:5px 10px;font-size:0.75rem;}
+  .btn.active-toggle{background:var(--gold);color:#2B2622;border-color:var(--gold);font-weight:600;}
+  .btn.danger{border-color:var(--brick);color:var(--brick);background:transparent;}
+  .btn.danger:hover{background:rgba(181,83,60,.15);}
+  input{font-family:'Work Sans',sans-serif;background:#241F1A;border:1px solid var(--line);color:var(--cream);border-radius:8px;padding:8px 10px;font-size:0.87rem;width:100%;}
+  input::placeholder{color:#7A7062;}
+  label{display:block;font-size:0.73rem;color:var(--muted);margin:0 0 4px;}
+  .field{margin-bottom:10px;}
+  .admin-login{display:flex;gap:8px;margin-top:8px;justify-content:flex-end;flex-wrap:wrap;}
+  .admin-login input{width:150px;}
+  .tag{display:inline-block;font-size:0.7rem;padding:2px 8px;border-radius:20px;border:1px solid var(--line);color:var(--muted);}
+  .tag.admin-on{border-color:var(--gold);color:var(--gold);}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+  .summary-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;}
+  .summary-item b{color:var(--gold);}
+  .columns{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  @media (max-width:760px){.columns{grid-template-columns:1fr;}}
+  .col-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px;}
+  .col-head h2{font-size:1.06rem;margin:0;}
+  .desc{color:var(--muted);font-size:0.81rem;margin:0 0 14px;}
+  .day-card{background:var(--panel-light);border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;margin-bottom:14px;}
+  .day-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .day-date{font-weight:600;font-size:0.95rem;}
+  .menu-block{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
+  .menu-label{font-size:0.7rem;color:var(--muted);}
+  .menu-text{font-size:0.9rem;margin-top:2px;}
+  .capacity-pill{font-size:0.76rem;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap;}
+  .cap-ok{background:rgba(143,160,107,.18);color:var(--sage);}
+  .cap-low{background:rgba(201,162,39,.18);color:var(--gold);}
+  .cap-full{background:rgba(181,83,60,.18);color:var(--brick);}
+  .day-actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
+  .item-row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#302A23;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:8px;}
+  .item-name{font-weight:600;font-size:0.87rem;}
+  .draft-item-row{display:grid;grid-template-columns:1fr 90px 34px;gap:6px;margin-bottom:6px;align-items:center;}
+  .booking-form{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .mode-choice{display:flex;gap:8px;margin-bottom:10px;}
+  .mode-choice button{flex:1;}
+  .mode-choice button.active{background:var(--gold);color:#2B2622;border-color:var(--gold);font-weight:600;}
+  .bookings-list{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;}
+  .booking-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:0.78rem;padding:4px 0;color:var(--muted);}
+  .booking-row b{color:var(--cream);}
+  .empty{color:var(--muted);font-size:0.85rem;padding:10px 0;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel-light);border:1px solid var(--gold);color:var(--cream);padding:10px 18px;border-radius:8px;font-size:0.85rem;box-shadow:0 6px 18px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:99;max-width:80%;text-align:center;}
+  .toast.show{opacity:1;}
+  .toast.error{border-color:var(--brick);}
+  .foot-note{margin-top:30px;color:var(--muted);font-size:0.76rem;text-align:center;}
+  .new-day-form{display:none;}
+  .new-day-form.open{display:block;}
+  .loader{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);padding:30px;border-radius:10px;z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.3s ease;}
+  .loader.show{opacity:1;pointer-events:all;}
+  .spinner{width:40px;height:40px;border:4px solid rgba(201,162,39,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .cal-label{font-weight:600;font-size:0.87rem;text-align:center;flex:1;}
+  .cal-toggle{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;}
+  .wd-label{text-align:center;font-size:0.68rem;color:var(--muted);padding-bottom:2px;}
+  .cal-cell{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel-light);border:1px solid var(--line);border-radius:7px;cursor:pointer;font-size:0.78rem;position:relative;}
+  .cal-cell:hover{background:#4A4238;}
+  .cal-cell.cal-dim{opacity:0.35;}
+  .cal-cell.cal-today{border-color:var(--muted);}
+  .cal-cell.cal-selected{border-color:var(--gold);border-width:2px;}
+  .cal-num{line-height:1;}
+  .cal-dot{width:6px;height:6px;border-radius:50%;margin-top:3px;}
+  .dot-cap-ok{background:var(--sage);}
+  .dot-cap-low{background:var(--gold);}
+  .dot-cap-full{background:var(--brick);}
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:600px){.settings-grid{grid-template-columns:1fr;}}
+  .setup-banner{background:#B5533C;color:#F2ECDC;padding:10px 16px;text-align:center;font-size:0.82rem;}
+</style>
+</head>
+<body>
+<div class="setup-banner" id="setupBanner" style="display:none;">
+  ⚠ Configuration manquante : ouvre ce fichier et remplace APPS_SCRIPT_URL par l'URL de ton déploiement Apps Script (tout en haut du script).
+</div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Réservations des restaurants pédagogiques</h1>
+      <p>Table côté restaurant 1 · Plats à emporter ou sur place côté restaurant 2</p>
+    </div>
+    <div class="mode-box" id="modeBox"></div>
+  </header>
+
+  <div id="dashboard"></div>
+  <div id="settings"></div>
+
+  <div class="columns">
+    <div class="col" id="col-r1">
+      <div class="col-head"><h2 id="title-r1">Restaurant 1</h2></div>
+      <p class="desc">Table réservée par nombre de couverts, avec le menu du jour.</p>
+      <div id="admin-r1" class="new-day-form"></div>
+      <div id="cal-r1"></div>
+      <div id="detail-r1"></div>
+    </div>
+
+    <div class="col" id="col-r2">
+      <div class="col-head"><h2 id="title-r2">Restaurant 2</h2></div>
+      <p class="desc">Plats à emporter ou sur place, chacun avec son propre stock.</p>
+      <div id="admin-r2" class="new-day-form"></div>
+      <div id="cal-r2"></div>
+      <div id="detail-r2"></div>
+    </div>
+  </div>
+
+  <p class="foot-note">Les places se mettent à jour automatiquement toutes les 30 secondes. Vous pouvez aussi actualiser la page.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="loader" id="loader"><div class="spinner"></div><p style="color:var(--cream);margin:0;font-size:0.9rem;text-align:center;">Chargement...</p></div>
+
+<script>
+// ============================================================
+// ⚠ À CONFIGURER : colle ici l'URL de ton déploiement Apps Script
+// (celle qui se termine par /exec)
+// ============================================================
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVjIIYT3gxB99UJHnkDJxNsz-93n50QlBc4QMrZ1XQTBRIaNYjP-gn52Ru5glKq0kd/exec";
+
+if (APPS_SCRIPT_URL.indexOf('COLLE_ICI') !== -1) {
+  document.getElementById('setupBanner').style.display = 'block';
+}
+
+let isAdmin = false;
+let adminPassword = '';
+let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant 1', name2:'Restaurant 2', contactAnnulation:"l'établissement" };
+let draftItems = [{name:'', stock:''}];
+let openBookingTarget = null;
+let chosenServiceMode = 'emporter';
+
+function showLoader(){document.getElementById('loader').classList.add('show');}
+function hideLoader(){document.getElementById('loader').classList.remove('show');}
+
+async function apiGet(){
+  showLoader();
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    return data;
+  }finally{hideLoader();}
+}
+async function apiPost(action, payload={}){
+  showLoader();
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, ...payload })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    return data;
+  }finally{hideLoader();}
+}
+
+function toISO(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function todayISO(){ return toISO(new Date()); }
+function addDaysISO(iso, n){ const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return toISO(d); }
+function mondayOf(dateObj){ const day=dateObj.getDay(); const diff = day===0?-6:1-day; const d=new Date(dateObj); d.setDate(d.getDate()+diff); d.setHours(0,0,0,0); return d; }
+
+let calState = {
+  r1: { mode:'week', anchor: todayISO(), selected: todayISO() },
+  r2: { mode:'week', anchor: todayISO(), selected: todayISO() }
+};
+
+function showToast(msg, isError){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(()=>{ t.className = 'toast'; }, 3500);
+}
+function formatDate(iso){
+  try{ const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
+  catch(e){ return iso; }
+}
+function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+async function loadAll(){
+  try{
+    state = await apiGet();
+    render();
+  }catch(e){
+    showToast("Impossible de charger les données. Réessaie.", true);
+  }
+}
+
+function remainingR1(day){
+  const used = state.r1Bookings.filter(b => b.Date === day.Date).reduce((s,b)=> s + Number(b.Qte), 0);
+  return Number(day.Capacite) - used;
+}
+function remainingItem(item){
+  const used = state.r2Bookings.filter(b => b.ItemID === item.ID).reduce((s,b)=> s + Number(b.Qte), 0);
+  return Number(item.Stock) - used;
+}
+function capacityClass(rem, cap){
+  if(rem <= 0) return 'cap-full';
+  if(rem <= Math.max(2, Math.round(cap*0.2))) return 'cap-low';
+  return 'cap-ok';
+}
+function dayStatusR1(iso){
+  const day = state.r1Days.find(d=>d.Date===iso);
+  if(!day) return null;
+  return capacityClass(remainingR1(day), day.Capacite);
+}
+function dayStatusR2(iso){
+  const day = state.r2Days.find(d=>d.Date===iso);
+  const items = state.r2Items.filter(it => it.Date === iso);
+  if(!day || items.length===0) return null;
+  const totalStock = items.reduce((s,it)=>s+Number(it.Stock),0);
+  const totalRem = items.reduce((s,it)=>s+remainingItem(it),0);
+  return capacityClass(totalRem, totalStock);
+}
+
+function renderModeBox(){
+  const box = document.getElementById('modeBox');
+  if(isAdmin){
+    box.innerHTML = `<span class="tag admin-on">Mode collègue actif</span><br><button class="btn ghost small" style="margin-top:8px;" onclick="logoutAdmin()">Revenir en mode client</button>`;
+  } else {
+    box.innerHTML = `<span class="tag">Mode client</span>
+      <div class="admin-login">
+        <input type="text" id="pwdInput" placeholder="Mot de passe collègue">
+        <button class="btn small" onclick="tryLogin()">Mode collègue</button>
+      </div>`;
+  }
+}
+function logoutAdmin(){ isAdmin = false; adminPassword=''; render(); }
+async function tryLogin(){
+  const val = document.getElementById('pwdInput').value;
+  try{
+    const res = await apiPost('checkPassword', { password: val });
+    if(res.ok){ isAdmin = true; adminPassword = val; showToast('Mode collègue activé.'); render(); }
+    else { showToast('Mot de passe incorrect.', true); }
+  }catch(e){ showToast('Erreur de connexion, réessaie.', true); }
+}
+
+function renderDashboard(){
+  const el = document.getElementById('dashboard');
+  if(!isAdmin){ el.innerHTML=''; return; }
+  const tomorrow = addDaysISO(todayISO(), 1);
+  const r1Qty = state.r1Bookings.filter(b=>b.Date===tomorrow).reduce((s,b)=>s+Number(b.Qte),0);
+  const r2Qty = state.r2Bookings.filter(b=>b.Date===tomorrow).reduce((s,b)=>s+Number(b.Qte),0);
+  el.innerHTML = `
+    <div class="panel">
+      <h3 style="margin:0 0 2px;font-size:0.95rem;">Demain (${formatDate(tomorrow)})</h3>
+      <div class="summary-row">
+        <div class="summary-item">${state.name1} : <b>${r1Qty}</b> couvert(s) réservé(s)</div>
+        <div class="summary-item">${state.name2} : <b>${r2Qty}</b> portion(s) réservée(s)</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSettings(){
+  const el = document.getElementById('settings');
+  if(!isAdmin){ el.innerHTML=''; return; }
+  el.innerHTML = `
+    <div class="panel">
+      <h3 style="margin:0 0 10px;font-size:0.95rem;">Paramètres</h3>
+      <div class="settings-grid">
+        <div class="field"><label>Nom du restaurant 1</label><input type="text" id="cfg-name1" value="${escapeHtml(state.name1)}"></div>
+        <div class="field"><label>Nom du restaurant 2</label><input type="text" id="cfg-name2" value="${escapeHtml(state.name2)}"></div>
+        <div class="field" style="grid-column:1/-1;"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="ex: le secrétariat au 03 XX XX XX XX"></div>
+      </div>
+      <button class="btn small" onclick="saveSettings(this)">Enregistrer les paramètres</button>
+    </div>
+  `;
+}
+async function saveSettings(btn){
+  const name1 = document.getElementById('cfg-name1').value.trim();
+  const name2 = document.getElementById('cfg-name2').value.trim();
+  const contact = document.getElementById('cfg-contact').value.trim();
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  try{
+    if(name1) state = await apiPost('setConfigField', { password: adminPassword, key: 'name1', value: name1 });
+    if(name2) state = await apiPost('setConfigField', { password: adminPassword, key: 'name2', value: name2 });
+    if(contact) state = await apiPost('setConfigField', { password: adminPassword, key: 'contactAnnulation', value: contact });
+    showToast('Paramètres enregistrés.');
+    render();
+  }catch(e){
+    showToast(e.message || 'Erreur', true);
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+function renderAdminFormR1(){
+  const el = document.getElementById('admin-r1');
+  if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
+  el.className = 'new-day-form open panel';
+  el.innerHTML = `
+    <h3 style="margin:0 0 10px;font-size:0.96rem;">Ouvrir un jour</h3>
+    <div class="field"><label>Date</label><input type="date" id="date-r1" value="${calState.r1.selected}"></div>
+    <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="cap-r1" placeholder="ex: 20"></div>
+    <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="note-r1" placeholder="ex: Menu gastronomique classe TS2"></div>
+    <button class="btn gold small" onclick="addDayR1(this)">Ajouter ce jour</button>
+  `;
+}
+async function addDayR1(btn){
+  const dateVal = document.getElementById('date-r1').value;
+  const capVal = parseInt(document.getElementById('cap-r1').value, 10);
+  const noteVal = document.getElementById('note-r1').value.trim();
+  if(!dateVal || !capVal || capVal <= 0){ showToast('Merci de renseigner une date et un nombre de couverts valide.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
+  try{
+    state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal });
+    showToast('Jour ajouté.');
+    calState.r1.selected = dateVal; calState.r1.anchor = dateVal;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+
+function renderAdminFormR2(){
+  const el = document.getElementById('admin-r2');
+  if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
+  el.className = 'new-day-form open panel';
+  const itemsHtml = draftItems.map((it, i) => `
+    <div class="draft-item-row">
+      <input type="text" placeholder="Nom du plat" value="${escapeHtml(it.name)}" oninput="updateDraftItem(${i}, 'name', this.value)">
+      <input type="number" min="1" placeholder="Stock" value="${it.stock}" oninput="updateDraftItem(${i}, 'stock', this.value)">
+      <button class="btn danger small" onclick="removeDraftItem(${i})" type="button">✕</button>
+    </div>
+  `).join('');
+  el.innerHTML = `
+    <h3 style="margin:0 0 10px;font-size:0.96rem;">Ouvrir un jour</h3>
+    <div class="field"><label>Date</label><input type="date" id="date-r2" value="${calState.r2.selected}"></div>
+    <div class="field"><label>Note (optionnel)</label><input type="text" id="note-r2" placeholder="ex: Semaine du menu bistrot"></div>
+    <label>Plats disponibles ce jour-là</label>
+    ${itemsHtml}
+    <button class="btn ghost small" style="margin-top:4px;" onclick="addDraftItemRow()" type="button">+ Ajouter un plat</button>
+    <div style="margin-top:12px;"><button class="btn gold small" onclick="addDayR2(this)">Ouvrir ce jour</button></div>
+  `;
+}
+function updateDraftItem(i, field, value){ draftItems[i][field] = value; }
+function addDraftItemRow(){ draftItems.push({name:'', stock:''}); render(); }
+function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push({name:'',stock:''}); render(); }
+
+async function addDayR2(btn){
+  const dateVal = document.getElementById('date-r2').value;
+  const noteVal = document.getElementById('note-r2').value.trim();
+  const items = draftItems
+    .filter(it => it.name.trim() && parseInt(it.stock,10) > 0)
+    .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10) }));
+  if(!dateVal || items.length === 0){ showToast('Merci de renseigner une date et au moins un plat avec un stock valide.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ouverture en cours…';
+  try{
+    state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items });
+    showToast('Jour ajouté.');
+    draftItems = [{name:'',stock:''}];
+    calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+
+async function deleteDayR1(date){
+  if(!confirm('Supprimer ce jour et toutes ses réservations ?')) return;
+  try{ state = await apiPost('deleteDayR1', { password: adminPassword, date }); showToast('Jour supprimé.'); render(); }
+  catch(e){ showToast(e.message || 'Erreur', true); }
+}
+async function deleteDayR2(date){
+  if(!confirm('Supprimer ce jour et toutes ses réservations ?')) return;
+  try{ state = await apiPost('deleteDayR2', { password: adminPassword, date }); showToast('Jour supprimé.'); render(); }
+  catch(e){ showToast(e.message || 'Erreur', true); }
+}
+async function deleteBookingR1(id){
+  if(!confirm('Supprimer cette réservation ?')) return;
+  try{ state = await apiPost('deleteBookingR1', { password: adminPassword, id }); showToast('Réservation supprimée.'); render(); }
+  catch(e){ showToast(e.message || 'Erreur', true); }
+}
+async function deleteBookingR2(id){
+  if(!confirm('Supprimer cette réservation ?')) return;
+  try{ state = await apiPost('deleteBookingR2', { password: adminPassword, id }); showToast('Réservation supprimée.'); render(); }
+  catch(e){ showToast(e.message || 'Erreur', true); }
+}
+
+function openBookingR1(date){ openBookingTarget = { rest:'r1', date }; render(); }
+function openBookingR2(date, itemId){ openBookingTarget = { rest:'r2', date, itemId }; chosenServiceMode='emporter'; render(); }
+function closeBooking(){ openBookingTarget = null; render(); }
+function setServiceMode(mode){ chosenServiceMode = mode; render(); }
+
+async function submitBookingR1(date, btn){
+  const name = document.getElementById('bk-name').value.trim();
+  const contact = document.getElementById('bk-contact').value.trim();
+  const classe = document.getElementById('bk-classe').value.trim();
+  const qty = parseInt(document.getElementById('bk-qty').value, 10);
+  if(!name || !contact || !classe || !qty || qty <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
+  try{
+    state = await apiPost('addBookingR1', { date, nom:name, contact, classe, qte: qty });
+    showToast('Réservation confirmée !');
+    openBookingTarget = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+async function submitBookingR2(date, itemId, btn){
+  const name = document.getElementById('bk-name').value.trim();
+  const contact = document.getElementById('bk-contact').value.trim();
+  const classe = document.getElementById('bk-classe').value.trim();
+  const qty = parseInt(document.getElementById('bk-qty').value, 10);
+  if(!name || !contact || !classe || !qty || qty <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
+  try{
+    state = await apiPost('addBookingR2', { date, itemId, nom:name, contact, classe, qte: qty, mode: chosenServiceMode });
+    showToast('Réservation confirmée !');
+    openBookingTarget = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+
+function bookingFormHtml(rest, date, itemId, rem){
+  const isR2 = rest === 'r2';
+  const submitCall = isR2 ? `submitBookingR2('${date}','${itemId}', this)` : `submitBookingR1('${date}', this)`;
+  return `
+    <div class="booking-form">
+      ${isR2 ? `
+        <div class="mode-choice">
+          <button class="btn small ${chosenServiceMode==='emporter'?'active':''}" onclick="setServiceMode('emporter')" type="button">À emporter</button>
+          <button class="btn small ${chosenServiceMode==='surplace'?'active':''}" onclick="setServiceMode('surplace')" type="button">Sur place</button>
+        </div>
+      ` : ''}
+      <div class="field"><label>Nom</label><input type="text" id="bk-name" placeholder="Nom et prénom"></div>
+      <div class="row2">
+        <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
+        <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
+      </div>
+      <div class="field"><label>${isR2 ? 'Nombre de portions' : 'Nombre de couverts'}</label><input type="number" min="1" max="${rem}" id="bk-qty" placeholder="ex: 2"></div>
+      <div class="day-actions">
+        <button class="btn gold small" onclick="${submitCall}">Confirmer la réservation</button>
+        <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildWeekCells(anchorISO){
+  const mon = mondayOf(new Date(anchorISO+'T00:00:00'));
+  const cells=[];
+  for(let i=0;i<7;i++){ const d=new Date(mon); d.setDate(mon.getDate()+i); cells.push({iso:toISO(d), inMonth:true, dayNum:d.getDate()}); }
+  return cells;
+}
+function buildMonthCells(anchorISO){
+  const anchor = new Date(anchorISO+'T00:00:00');
+  const year=anchor.getFullYear(), month=anchor.getMonth();
+  const mon = mondayOf(new Date(year, month, 1));
+  const cells=[];
+  for(let i=0;i<42;i++){ const d=new Date(mon); d.setDate(mon.getDate()+i); cells.push({iso:toISO(d), inMonth: d.getMonth()===month, dayNum:d.getDate()}); }
+  return cells;
+}
+function weekLabel(anchorISO){
+  const mon = mondayOf(new Date(anchorISO+'T00:00:00'));
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  const startStr = mon.toLocaleDateString('fr-FR',{day:'numeric'});
+  const endStr = sun.toLocaleDateString('fr-FR',{day:'numeric', month:'short'});
+  return `${startStr} – ${endStr} ${sun.getFullYear()}`;
+}
+function monthLabel(anchorISO){
+  const d = new Date(anchorISO+'T00:00:00');
+  const s = d.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
+function setCalMode(rest, mode){ calState[rest].mode = mode; render(); }
+function navCal(rest, dir){
+  const st = calState[rest];
+  const d = new Date(st.anchor + 'T00:00:00');
+  if(st.mode === 'week'){ d.setDate(d.getDate() + dir*7); }
+  else { d.setDate(1); d.setMonth(d.getMonth() + dir); }
+  st.anchor = toISO(d);
+  render();
+}
+function jumpToday(rest){ const t = todayISO(); calState[rest].anchor = t; calState[rest].selected = t; render(); }
+function selectDate(rest, iso){ calState[rest].selected = iso; openBookingTarget = null; render(); }
+
+function renderCalendar(rest, containerId, statusFn){
+  const cs = calState[rest];
+  const cells = cs.mode==='week' ? buildWeekCells(cs.anchor) : buildMonthCells(cs.anchor);
+  const today = todayISO();
+  const label = cs.mode==='week' ? weekLabel(cs.anchor) : monthLabel(cs.anchor);
+  const weekdayHeader = ['L','M','M','J','V','S','D'].map(l=>`<div class="wd-label">${l}</div>`).join('');
+  const cellsHtml = cells.map(c=>{
+    const status = statusFn(c.iso);
+    const classes = ['cal-cell'];
+    if(!c.inMonth) classes.push('cal-dim');
+    if(c.iso===today) classes.push('cal-today');
+    if(c.iso===cs.selected) classes.push('cal-selected');
+    const dotHtml = status ? `<span class="cal-dot dot-${status}"></span>` : '';
+    return `<div class="${classes.join(' ')}" onclick="selectDate('${rest}','${c.iso}')"><span class="cal-num">${c.dayNum}</span>${dotHtml}</div>`;
+  }).join('');
+  document.getElementById(containerId).innerHTML = `
+    <div class="cal-header">
+      <button class="btn ghost small" onclick="navCal('${rest}',-1)">←</button>
+      <div class="cal-label">${label}</div>
+      <button class="btn ghost small" onclick="navCal('${rest}',1)">→</button>
+    </div>
+    <div class="cal-toggle">
+      <button class="btn small ${cs.mode==='week'?'active-toggle':''}" onclick="setCalMode('${rest}','week')">Semaine</button>
+      <button class="btn small ${cs.mode==='month'?'active-toggle':''}" onclick="setCalMode('${rest}','month')">Mois</button>
+      <button class="btn ghost small" onclick="jumpToday('${rest}')">Aujourd'hui</button>
+    </div>
+    <div class="cal-grid">${weekdayHeader}${cellsHtml}</div>
+  `;
+}
+
+function renderDetailR1(){
+  const iso = calState.r1.selected;
+  const day = state.r1Days.find(d=>d.Date===iso);
+  const today = todayISO();
+  const isPast = iso < today;
+  const el = document.getElementById('detail-r1');
+  if(!day){
+    el.innerHTML = `<div class="day-card"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilise le formulaire ci-dessus pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
+    return;
+  }
+  const rem = remainingR1(day);
+  const capClass = capacityClass(rem, day.Capacite);
+  const bookingsForDay = state.r1Bookings.filter(b=>b.Date===day.Date);
+  const isOpenForm = openBookingTarget && openBookingTarget.rest==='r1' && openBookingTarget.date===day.Date;
+  let adminHtml='';
+  if(isAdmin){
+    adminHtml = `
+      <div class="bookings-list">
+        ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>`).join('')}
+      </div>
+      <div class="day-actions"><button class="btn danger small" onclick="deleteDayR1('${day.Date}')">Supprimer ce jour</button></div>
+    `;
+  }
+  el.innerHTML = `
+    <div class="day-card" style="${isPast?'opacity:0.55;':''}">
+      <div class="day-top">
+        <div class="day-date">${formatDate(day.Date)}</div>
+        <span class="capacity-pill ${capClass}">${rem} / ${day.Capacite} couverts</span>
+      </div>
+      ${day.Menu ? `<div class="menu-block"><span class="menu-label">Menu du jour</span><div class="menu-text">${escapeHtml(day.Menu)}</div></div>` : ''}
+      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn small" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
+      ${!isAdmin && isOpenForm ? bookingFormHtml('r1', day.Date, null, rem) : ''}
+      ${adminHtml}
+    </div>
+  `;
+}
+
+function renderDetailR2(){
+  const iso = calState.r2.selected;
+  const day = state.r2Days.find(d=>d.Date===iso);
+  const today = todayISO();
+  const isPast = iso < today;
+  const el = document.getElementById('detail-r2');
+  if(!day){
+    el.innerHTML = `<div class="day-card"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilise le formulaire ci-dessus pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
+    return;
+  }
+  const items = state.r2Items.filter(it => it.Date === iso);
+  const itemsHtml = items.map(item=>{
+    const rem = remainingItem(item);
+    const capClass = capacityClass(rem, item.Stock);
+    const isOpenForm = openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso && openBookingTarget.itemId===item.ID;
+    const bookingsForItem = state.r2Bookings.filter(b => b.ItemID===item.ID);
+    let adminBookings = '';
+    if(isAdmin){
+      adminBookings = `<div class="bookings-list">
+        ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>`).join('')}
+      </div>`;
+    }
+    return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <span class="item-name">${escapeHtml(item.Nom)}</span>
+        <span class="capacity-pill ${capClass}">${rem} / ${item.Stock}</span>
+      </div>
+      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions" style="margin-top:6px;"><button class="btn small" onclick="openBookingR2('${iso}','${item.ID}')">Réserver ce plat</button></div>` : ''}
+      ${!isAdmin && isOpenForm ? bookingFormHtml('r2', iso, item.ID, rem) : ''}
+      ${adminBookings}
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="day-card" style="${isPast?'opacity:0.55;':''}">
+      <div class="day-top"><div class="day-date">${formatDate(day.Date)}</div></div>
+      ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
+      ${itemsHtml}
+      ${isAdmin ? `<div class="day-actions"><button class="btn danger small" onclick="deleteDayR2('${day.Date}')">Supprimer ce jour</button></div>` : ''}
+    </div>
+  `;
+}
+
+function render(){
+  document.getElementById('title-r1').textContent = state.name1;
+  document.getElementById('title-r2').textContent = state.name2;
+  renderModeBox();
+  renderDashboard();
+  renderSettings();
+  renderAdminFormR1();
+  renderAdminFormR2();
+  renderCalendar('r1', 'cal-r1', dayStatusR1);
+  renderCalendar('r2', 'cal-r2', dayStatusR2);
+  renderDetailR1();
+  renderDetailR2();
+}
+
+loadAll();
+setInterval(()=>{
+  const active = document.activeElement;
+  const isTypingSomewhere = active && active.tagName === 'INPUT';
+  if(openBookingTarget !== null || isTypingSomewhere) return;
+  loadAll();
+}, 30000);
+</script>
+</body>
+</html>
