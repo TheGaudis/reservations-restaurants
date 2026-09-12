@@ -324,9 +324,10 @@ function renderAdminFormR1(){
   el.innerHTML = `
     <h3 style="margin:0 0 10px;font-size:0.96rem;">Ouvrir un jour</h3>
     <div class="field"><label>Date</label><input type="date" id="date-r1" value="${calState.r1.selected}"></div>
+    <div class="field"><label>Ton nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r1" placeholder="ex: M. Dupont"></div>
     <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="cap-r1" placeholder="ex: 20"></div>
-    <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="note-r1" placeholder="ex: Menu gastronomique classe TS2"></div>
     <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r1" placeholder="ex: Cuisine italienne"></div>
+    <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="note-r1" placeholder="ex: Menu gastronomique classe TS2"></div>
     <button class="btn gold small" onclick="addDayR1(this)">Ajouter ce jour</button>
   `;
 }
@@ -335,10 +336,11 @@ async function addDayR1(btn){
   const capVal = parseInt(document.getElementById('cap-r1').value, 10);
   const noteVal = document.getElementById('note-r1').value.trim();
   const themeVal = document.getElementById('theme-r1').value.trim();
+  const collegueVal = document.getElementById('collegue-r1').value.trim();
   if(!dateVal || !capVal || capVal <= 0){ showToast('Merci de renseigner une date et un nombre de couverts valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
   try{
-    state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal, theme: themeVal });
+    state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
     calState.r1.selected = dateVal; calState.r1.anchor = dateVal;
     render();
@@ -359,6 +361,7 @@ function renderAdminFormR2(){
   el.innerHTML = `
     <h3 style="margin:0 0 10px;font-size:0.96rem;">Ouvrir un jour</h3>
     <div class="field"><label>Date</label><input type="date" id="date-r2" value="${calState.r2.selected}"></div>
+    <div class="field"><label>Ton nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r2" placeholder="ex: Mme Martin"></div>
     <div class="field"><label>Note (optionnel)</label><input type="text" id="note-r2" placeholder="ex: Semaine du menu bistrot"></div>
     <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r2" placeholder="ex: Semaine italienne"></div>
     <label>Plats disponibles ce jour-là</label>
@@ -375,13 +378,14 @@ async function addDayR2(btn){
   const dateVal = document.getElementById('date-r2').value;
   const noteVal = document.getElementById('note-r2').value.trim();
   const themeVal = document.getElementById('theme-r2').value.trim();
+  const collegueVal = document.getElementById('collegue-r2').value.trim();
   const items = draftItems
     .filter(it => it.name.trim() && parseInt(it.stock,10) > 0)
     .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10) }));
   if(!dateVal || items.length === 0){ showToast('Merci de renseigner une date et au moins un plat avec un stock valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ouverture en cours…';
   try{
-    state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal });
+    state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
     draftItems = [{name:'',stock:''}];
     calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
@@ -572,7 +576,8 @@ function renderDetailR1(){
       </div>
       ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Menu ? `<div class="menu-block"><span class="menu-label">Menu du jour</span><div class="menu-text">${escapeHtml(day.Menu)}</div></div>` : ''}
-      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn small" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
+      ${isAdmin && day.OuvertPar ? `<p style="color:var(--muted);font-size:0.76rem;margin:4px 0 0;">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
+      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn gold small" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
       ${!isAdmin && isOpenForm ? bookingFormHtml('r1', day.Date, null, rem) : ''}
       ${adminHtml}
     </div>
@@ -607,7 +612,7 @@ function renderDetailR2(){
         <span class="item-name">${escapeHtml(item.Nom)}</span>
         <span class="capacity-pill ${capClass}">${rem} / ${item.Stock}</span>
       </div>
-      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions" style="margin-top:6px;"><button class="btn small" onclick="openBookingR2('${iso}','${item.ID}')">Réserver ce plat</button></div>` : ''}
+      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions" style="margin-top:6px;"><button class="btn gold small" onclick="openBookingR2('${iso}','${item.ID}')">Réserver ce plat</button></div>` : ''}
       ${!isAdmin && isOpenForm ? bookingFormHtml('r2', iso, item.ID, rem) : ''}
       ${adminBookings}
     </div>`;
@@ -617,6 +622,7 @@ function renderDetailR2(){
       <div class="day-top"><div class="day-date">${formatDate(day.Date)}</div></div>
       ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
+      ${isAdmin && day.OuvertPar ? `<p style="color:var(--muted);font-size:0.76rem;margin:4px 0 0;">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${itemsHtml}
       ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">🖨️ Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}')">Supprimer ce jour</button></div>` : ''}
     </div>
