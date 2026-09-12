@@ -117,7 +117,7 @@
   <div class="columns">
     <div class="col" id="col-r1">
       <div class="col-head"><h2 id="title-r1">Restaurant 1</h2></div>
-      <p class="desc">Table réservée par nombre de couverts, avec le menu du jour.</p>
+      <p class="desc" id="desc-r1">Table réservée par nombre de couverts, avec le menu du jour.</p>
       <div id="admin-r1" class="new-day-form"></div>
       <div id="cal-r1"></div>
       <div id="detail-r1"></div>
@@ -125,7 +125,7 @@
 
     <div class="col" id="col-r2">
       <div class="col-head"><h2 id="title-r2">Restaurant 2</h2></div>
-      <p class="desc">Plats à emporter ou sur place, chacun avec son propre stock.</p>
+      <p class="desc" id="desc-r2">Plats à emporter ou sur place, chacun avec son propre stock.</p>
       <div id="admin-r2" class="new-day-form"></div>
       <div id="cal-r2"></div>
       <div id="detail-r2"></div>
@@ -151,7 +151,7 @@ if (APPS_SCRIPT_URL.indexOf('COLLE_ICI') !== -1) {
 
 let isAdmin = false;
 let adminPassword = '';
-let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant 1', name2:'Restaurant 2', contactAnnulation:"l'établissement" };
+let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant 1', name2:'Restaurant 2', desc1:"Table réservée par nombre de couverts, avec le menu du jour.", desc2:"Plats à emporter ou sur place, chacun avec son propre stock.", contactAnnulation:"l'établissement" };
 let draftItems = [{name:'', stock:''}];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
@@ -288,6 +288,8 @@ function renderSettings(){
       <div class="settings-grid">
         <div class="field"><label>Nom du restaurant 1</label><input type="text" id="cfg-name1" value="${escapeHtml(state.name1)}"></div>
         <div class="field"><label>Nom du restaurant 2</label><input type="text" id="cfg-name2" value="${escapeHtml(state.name2)}"></div>
+        <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 1</label><input type="text" id="cfg-desc1" value="${escapeHtml(state.desc1)}"></div>
+        <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 2</label><input type="text" id="cfg-desc2" value="${escapeHtml(state.desc2)}"></div>
         <div class="field" style="grid-column:1/-1;"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="ex: le secrétariat au 03 XX XX XX XX"></div>
       </div>
       <button class="btn small" onclick="saveSettings(this)">Enregistrer les paramètres</button>
@@ -297,11 +299,15 @@ function renderSettings(){
 async function saveSettings(btn){
   const name1 = document.getElementById('cfg-name1').value.trim();
   const name2 = document.getElementById('cfg-name2').value.trim();
+  const desc1 = document.getElementById('cfg-desc1').value.trim();
+  const desc2 = document.getElementById('cfg-desc2').value.trim();
   const contact = document.getElementById('cfg-contact').value.trim();
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
   try{
     if(name1) state = await apiPost('setConfigField', { password: adminPassword, key: 'name1', value: name1 });
     if(name2) state = await apiPost('setConfigField', { password: adminPassword, key: 'name2', value: name2 });
+    if(desc1) state = await apiPost('setConfigField', { password: adminPassword, key: 'desc1', value: desc1 });
+    if(desc2) state = await apiPost('setConfigField', { password: adminPassword, key: 'desc2', value: desc2 });
     if(contact) state = await apiPost('setConfigField', { password: adminPassword, key: 'contactAnnulation', value: contact });
     showToast('Paramètres enregistrés.');
     render();
@@ -320,6 +326,7 @@ function renderAdminFormR1(){
     <div class="field"><label>Date</label><input type="date" id="date-r1" value="${calState.r1.selected}"></div>
     <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="cap-r1" placeholder="ex: 20"></div>
     <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="note-r1" placeholder="ex: Menu gastronomique classe TS2"></div>
+    <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r1" placeholder="ex: Cuisine italienne"></div>
     <button class="btn gold small" onclick="addDayR1(this)">Ajouter ce jour</button>
   `;
 }
@@ -327,10 +334,11 @@ async function addDayR1(btn){
   const dateVal = document.getElementById('date-r1').value;
   const capVal = parseInt(document.getElementById('cap-r1').value, 10);
   const noteVal = document.getElementById('note-r1').value.trim();
+  const themeVal = document.getElementById('theme-r1').value.trim();
   if(!dateVal || !capVal || capVal <= 0){ showToast('Merci de renseigner une date et un nombre de couverts valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
   try{
-    state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal });
+    state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal, theme: themeVal });
     showToast('Jour ajouté.');
     calState.r1.selected = dateVal; calState.r1.anchor = dateVal;
     render();
@@ -352,6 +360,7 @@ function renderAdminFormR2(){
     <h3 style="margin:0 0 10px;font-size:0.96rem;">Ouvrir un jour</h3>
     <div class="field"><label>Date</label><input type="date" id="date-r2" value="${calState.r2.selected}"></div>
     <div class="field"><label>Note (optionnel)</label><input type="text" id="note-r2" placeholder="ex: Semaine du menu bistrot"></div>
+    <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r2" placeholder="ex: Semaine italienne"></div>
     <label>Plats disponibles ce jour-là</label>
     ${itemsHtml}
     <button class="btn ghost small" style="margin-top:4px;" onclick="addDraftItemRow()" type="button">+ Ajouter un plat</button>
@@ -365,13 +374,14 @@ function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) d
 async function addDayR2(btn){
   const dateVal = document.getElementById('date-r2').value;
   const noteVal = document.getElementById('note-r2').value.trim();
+  const themeVal = document.getElementById('theme-r2').value.trim();
   const items = draftItems
     .filter(it => it.name.trim() && parseInt(it.stock,10) > 0)
     .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10) }));
   if(!dateVal || items.length === 0){ showToast('Merci de renseigner une date et au moins un plat avec un stock valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ouverture en cours…';
   try{
-    state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items });
+    state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal });
     showToast('Jour ajouté.');
     draftItems = [{name:'',stock:''}];
     calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
@@ -548,7 +558,10 @@ function renderDetailR1(){
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
           bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>`).join('')}
       </div>
-      <div class="day-actions"><button class="btn danger small" onclick="deleteDayR1('${day.Date}')">Supprimer ce jour</button></div>
+      <div class="day-actions">
+        <button class="btn small" onclick="printDayR1('${day.Date}')">🖨️ Imprimer la liste</button>
+        <button class="btn danger small" onclick="deleteDayR1('${day.Date}')">Supprimer ce jour</button>
+      </div>
     `;
   }
   el.innerHTML = `
@@ -557,6 +570,7 @@ function renderDetailR1(){
         <div class="day-date">${formatDate(day.Date)}</div>
         <span class="capacity-pill ${capClass}">${rem} / ${day.Capacite} couverts</span>
       </div>
+      ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Menu ? `<div class="menu-block"><span class="menu-label">Menu du jour</span><div class="menu-text">${escapeHtml(day.Menu)}</div></div>` : ''}
       ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn small" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
       ${!isAdmin && isOpenForm ? bookingFormHtml('r1', day.Date, null, rem) : ''}
@@ -601,16 +615,65 @@ function renderDetailR2(){
   el.innerHTML = `
     <div class="day-card" style="${isPast?'opacity:0.55;':''}">
       <div class="day-top"><div class="day-date">${formatDate(day.Date)}</div></div>
+      ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
       ${itemsHtml}
-      ${isAdmin ? `<div class="day-actions"><button class="btn danger small" onclick="deleteDayR2('${day.Date}')">Supprimer ce jour</button></div>` : ''}
+      ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">🖨️ Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}')">Supprimer ce jour</button></div>` : ''}
     </div>
   `;
+}
+
+function printDayR1(date){
+  const day = state.r1Days.find(d=>d.Date===date);
+  const bookings = state.r1Bookings.filter(b=>b.Date===date);
+  const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
+  const rows = bookings.length===0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
+    bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name1)} — ${formatDate(date)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:14px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}.total{margin-top:14px;font-weight:bold;}</style>
+    </head><body>
+    <h1>${escapeHtml(state.name1)}</h1>
+    <p>${formatDate(date)}</p>
+    ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
+    ${day && day.Menu ? `<p><b>Menu :</b> ${escapeHtml(day.Menu)}</p>` : ''}
+    <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Contact</th></tr>${rows}</table>
+    <p class="total">Total : ${total} couvert(s)${day ? ' / ' + day.Capacite + ' disponibles' : ''}</p>
+    </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>w.print(), 300);
+}
+function printDayR2(date){
+  const day = state.r2Days.find(d=>d.Date===date);
+  const items = state.r2Items.filter(it=>it.Date===date);
+  let body = '';
+  items.forEach(item=>{
+    const bookings = state.r2Bookings.filter(b=>b.ItemID===item.ID);
+    const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
+    const rows = bookings.length===0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
+      bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.Mode==='emporter'?'À emporter':'Sur place'}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
+    body += `<h2>${escapeHtml(item.Nom)} — ${total} / ${item.Stock}</h2>
+      <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Mode</th><th>Contact</th></tr>${rows}</table>`;
+  });
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name2)} — ${formatDate(date)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
+    </head><body>
+    <h1>${escapeHtml(state.name2)}</h1>
+    <p>${formatDate(date)}</p>
+    ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
+    ${day && day.Note ? `<p><b>Note :</b> ${escapeHtml(day.Note)}</p>` : ''}
+    ${body}
+    </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>w.print(), 300);
 }
 
 function render(){
   document.getElementById('title-r1').textContent = state.name1;
   document.getElementById('title-r2').textContent = state.name2;
+  document.getElementById('desc-r1').textContent = state.desc1;
+  document.getElementById('desc-r2').textContent = state.desc2;
   renderModeBox();
   renderDashboard();
   renderSettings();
