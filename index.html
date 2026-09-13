@@ -127,6 +127,7 @@
       <div class="col-head"><h2 id="title-r2">Restaurant 2</h2></div>
       <p class="desc" id="desc-r2">Plats à emporter ou sur place, chacun avec son propre stock.</p>
       <div id="admin-r2" class="new-day-form"></div>
+      <div id="summary-tomorrow" style="margin-top:16px;"></div>
       <div id="cal-r2"></div>
       <div id="detail-r2"></div>
     </div>
@@ -714,16 +715,75 @@ function printDayR2(date){
   setTimeout(()=>w.print(), 300);
 }
 
+function getTomorrowISO() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().substring(0, 10);
+}
+
+function showTomorrowSummary(){
+  const tomorrow = getTomorrowISO();
+  const r1Day = state.r1Days.find(d => d.Date === tomorrow);
+  const r2Day = state.r2Days.find(d => d.Date === tomorrow);
+  const r1Bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
+  const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
+  const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
+  
+  let html = `<div class="summary-panel" style="background:#F7F3ED;border:1px solid #D4CFC3;border-radius:8px;padding:12px;margin:10px 0;font-size:0.9rem;">
+    <div style="font-weight:600;margin-bottom:8px;color:#2B2622;">📊 Résumé pour demain (${formatDate(tomorrow)})</div>`;
+  
+  if (!r1Day && !r2Day) {
+    html += '<p style="color:var(--muted);margin:0;">Aucun jour ouvert pour demain.</p>';
+  } else {
+    if (r1Day) {
+      const totalCouverts = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
+      const collegueR1 = r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)';
+      html += `<div style="margin:6px 0;padding:6px 0;border-bottom:1px solid #D4CFC3;">
+        <b style="color:#8B4513;">${escapeHtml(state.name1)}</b> (ouvert par ${collegueR1})<br>
+        <span style="color:var(--muted);">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts</span>`;
+      if (r1Bookings.length > 0) {
+        html += '<br><span style="font-size:0.8rem;color:var(--muted);">Clients : ' + 
+          r1Bookings.map(b => escapeHtml(b.Nom) + ' (' + escapeHtml(b.Classe) + ')').join(', ') + '</span>';
+      }
+      html += '</div>';
+    }
+    if (r2Day) {
+      const collegueR2 = r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)';
+      html += `<div style="margin:6px 0;">
+        <b style="color:#8B4513;">${escapeHtml(state.name2)}</b> (ouvert par ${collegueR2})`;
+      if (r2Items.length > 0) {
+        html += '<br>';
+        r2Items.forEach(item => {
+          const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
+          const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
+          if (total > 0 || bookings.length > 0) {
+            html += `<span style="display:block;font-size:0.85rem;color:var(--muted);margin:2px 0;">
+              • ${escapeHtml(item.Nom)}: ${total} portion(s)${bookings.length > 0 ? ' (' + bookings.map(b => escapeHtml(b.Nom)).join(', ') + ')' : ''}
+            </span>`;
+          }
+        });
+      } else {
+        html += '<br><span style="font-size:0.8rem;color:var(--muted);">Aucun plat ouvert.</span>';
+      }
+      html += '</div>';
+    }
+  }
+  html += '</div>';
+  
+  const el = document.getElementById('summary-tomorrow');
+  if (el) el.innerHTML = html;
+}
+
 function render(){
   document.getElementById('title-r1').textContent = state.name1;
   document.getElementById('title-r2').textContent = state.name2;
   document.getElementById('desc-r1').textContent = state.desc1;
   document.getElementById('desc-r2').textContent = state.desc2;
-  renderModeBox();
   renderDashboard();
   renderSettings();
   renderAdminFormR1();
   renderAdminFormR2();
+  if(isAdmin) { showTomorrowSummary(); }
   renderCalendar('r1', 'cal-r1', dayStatusR1);
   renderCalendar('r2', 'cal-r2', dayStatusR2);
   renderDetailR1();
