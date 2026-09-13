@@ -155,6 +155,7 @@ let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], na
 let draftItems = [{name:'', stock:''}];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
+let multiBookingQty = {};
 
 function showLoader(){document.getElementById('loader').classList.add('show');}
 function hideLoader(){document.getElementById('loader').classList.remove('show');}
@@ -415,9 +416,13 @@ async function deleteBookingR2(id){
 }
 
 function openBookingR1(date){ openBookingTarget = { rest:'r1', date }; render(); }
-function openBookingR2(date, itemId){ openBookingTarget = { rest:'r2', date, itemId }; chosenServiceMode='emporter'; render(); }
-function closeBooking(){ openBookingTarget = null; render(); }
+function openBookingR2Day(date){ openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; render(); }
+function closeBooking(){ openBookingTarget = null; multiBookingQty = {}; render(); }
 function setServiceMode(mode){ chosenServiceMode = mode; render(); }
+function setMultiQty(itemId, value){
+  const n = parseInt(value, 10);
+  if(n > 0) multiBookingQty[itemId] = n; else delete multiBookingQty[itemId];
+}
 
 async function submitBookingR1(date, btn){
   const name = document.getElementById('bk-name').value.trim();
@@ -433,45 +438,78 @@ async function submitBookingR1(date, btn){
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
 }
-async function submitBookingR2(date, itemId, btn){
+async function submitBookingR2Multi(date, btn){
   const name = document.getElementById('bk-name').value.trim();
   const contact = document.getElementById('bk-contact').value.trim();
   const classe = document.getElementById('bk-classe').value.trim();
-  const qty = parseInt(document.getElementById('bk-qty').value, 10);
-  if(!name || !contact || !classe || !qty || qty <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
+  const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
+  if(!name || !contact || !classe || items.length === 0){ showToast('Merci de remplir tes infos et de choisir au moins un plat.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
   try{
-    state = await apiPost('addBookingR2', { date, itemId, nom:name, contact, classe, qte: qty, mode: chosenServiceMode });
-    showToast('Réservation confirmée !');
+    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items });
+    const r = res._bookingResult || { confirmed:[], adjusted:[], skipped:[] };
+    delete res._bookingResult;
+    state = res;
+    if(r.confirmed.length === 0){
+      showToast('Aucun des plats choisis n\'est disponible en quantité suffisante.', true);
+    } else if(r.adjusted.length > 0 || r.skipped.length > 0){
+      showToast('Réservation partielle : certaines quantités ont été ajustées faute de stock. Vérifie ton email.', true);
+    } else {
+      showToast('Réservation confirmée !');
+    }
     openBookingTarget = null;
+    multiBookingQty = {};
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
 }
 
-function bookingFormHtml(rest, date, itemId, rem){
-  const isR2 = rest === 'r2';
-  const submitCall = isR2 ? `submitBookingR2('${date}','${itemId}', this)` : `submitBookingR1('${date}', this)`;
+function bookingFormHtml(date, rem){
   return `
     <div class="booking-form">
-      ${isR2 ? `
-        <div class="mode-choice">
-          <button class="btn small ${chosenServiceMode==='emporter'?'active':''}" onclick="setServiceMode('emporter')" type="button">À emporter</button>
-          <button class="btn small ${chosenServiceMode==='surplace'?'active':''}" onclick="setServiceMode('surplace')" type="button">Sur place</button>
-        </div>
-      ` : ''}
       <div class="field"><label>Nom</label><input type="text" id="bk-name" placeholder="Nom et prénom"></div>
       <div class="row2">
         <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
         <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
       </div>
-      <div class="field"><label>${isR2 ? 'Nombre de portions' : 'Nombre de couverts'}</label><input type="number" min="1" max="${rem}" id="bk-qty" placeholder="ex: 2"></div>
+      <div class="field"><label>Nombre de couverts</label><input type="number" min="1" max="${rem}" id="bk-qty" placeholder="ex: 2"></div>
       <div class="day-actions">
-        <button class="btn gold small" onclick="${submitCall}">Confirmer la réservation</button>
+        <button class="btn gold small" onclick="submitBookingR1('${date}', this)">Confirmer la réservation</button>
         <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
       </div>
     </div>
   `;
 }
+function bookingFormMultiHtml(date, items){
+  const rows = items.map(item=>{
+    const rem = remainingItem(item);
+    if(rem <= 0) return `<div class="item-row"><span class="item-name">${escapeHtml(item.Nom)}</span><span style="color:var(--muted);font-size:0.8rem;">Épuisé</span></div>`;
+    const qtyVal = multiBookingQty[item.ID] || '';
+    return `<div class="item-row">
+      <span class="item-name">${escapeHtml(item.Nom)} <span style="color:var(--muted);font-size:0.78rem;">(${rem} dispo)</span></span>
+      <input type="number" min="0" max="${rem}" value="${qtyVal}" style="width:70px;" placeholder="0" oninput="setMultiQty('${item.ID}', this.value)">
+    </div>`;
+  }).join('');
+  return `
+    <div class="booking-form">
+      <div class="mode-choice">
+        <button class="btn small ${chosenServiceMode==='emporter'?'active':''}" onclick="setServiceMode('emporter')" type="button">À emporter</button>
+        <button class="btn small ${chosenServiceMode==='surplace'?'active':''}" onclick="setServiceMode('surplace')" type="button">Sur place</button>
+      </div>
+      <label style="margin:10px 0 4px;">Choisis tes plats et quantités</label>
+      ${rows}
+      <div class="field" style="margin-top:10px;"><label>Nom</label><input type="text" id="bk-name" placeholder="Nom et prénom"></div>
+      <div class="row2">
+        <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
+        <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
+      </div>
+      <div class="day-actions">
+        <button class="btn gold small" onclick="submitBookingR2Multi('${date}', this)">Confirmer la réservation</button>
+        <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
+      </div>
+    </div>
+  `;
+}
+
 
 function buildWeekCells(anchorISO){
   const mon = mondayOf(new Date(anchorISO+'T00:00:00'));
@@ -578,7 +616,7 @@ function renderDetailR1(){
       ${day.Menu ? `<div class="menu-block"><span class="menu-label">Menu du jour</span><div class="menu-text">${escapeHtml(day.Menu)}</div></div>` : ''}
       ${isAdmin && day.OuvertPar ? `<p style="color:var(--muted);font-size:0.76rem;margin:4px 0 0;">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn gold small" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
-      ${!isAdmin && isOpenForm ? bookingFormHtml('r1', day.Date, null, rem) : ''}
+      ${!isAdmin && isOpenForm ? bookingFormHtml(day.Date, rem) : ''}
       ${adminHtml}
     </div>
   `;
@@ -595,10 +633,11 @@ function renderDetailR2(){
     return;
   }
   const items = state.r2Items.filter(it => it.Date === iso);
+  const isMultiOpen = openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso && openBookingTarget.multi;
+  const anyAvailable = items.some(it => remainingItem(it) > 0);
   const itemsHtml = items.map(item=>{
     const rem = remainingItem(item);
     const capClass = capacityClass(rem, item.Stock);
-    const isOpenForm = openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso && openBookingTarget.itemId===item.ID;
     const bookingsForItem = state.r2Bookings.filter(b => b.ItemID===item.ID);
     let adminBookings = '';
     if(isAdmin){
@@ -612,8 +651,6 @@ function renderDetailR2(){
         <span class="item-name">${escapeHtml(item.Nom)}</span>
         <span class="capacity-pill ${capClass}">${rem} / ${item.Stock}</span>
       </div>
-      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions" style="margin-top:6px;"><button class="btn gold small" onclick="openBookingR2('${iso}','${item.ID}')">Réserver ce plat</button></div>` : ''}
-      ${!isAdmin && isOpenForm ? bookingFormHtml('r2', iso, item.ID, rem) : ''}
       ${adminBookings}
     </div>`;
   }).join('');
@@ -624,6 +661,8 @@ function renderDetailR2(){
       ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
       ${isAdmin && day.OuvertPar ? `<p style="color:var(--muted);font-size:0.76rem;margin:4px 0 0;">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${itemsHtml}
+      ${!isAdmin && !isMultiOpen && anyAvailable && !isPast ? `<div class="day-actions"><button class="btn gold small" onclick="openBookingR2Day('${iso}')">Réserver pour ce jour</button></div>` : ''}
+      ${!isAdmin && isMultiOpen ? bookingFormMultiHtml(iso, items) : ''}
       ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">🖨️ Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}')">Supprimer ce jour</button></div>` : ''}
     </div>
   `;
