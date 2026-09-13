@@ -723,6 +723,8 @@ function getTomorrowISO() {
 }
 
 function showTomorrowSummary(){
+  const summaryEl = document.getElementById('summary-tomorrow');
+  if(!isAdmin){ summaryEl.innerHTML = ''; return; }
   const tomorrow = getTomorrowISO();
   const r1Day = state.r1Days.find(d => d.Date === tomorrow);
   const r2Day = state.r2Days.find(d => d.Date === tomorrow);
@@ -771,8 +773,7 @@ function showTomorrowSummary(){
   }
   html += '</div>';
   
-  const el = document.getElementById('summary-tomorrow');
-  if (el) el.innerHTML = html;
+  if (summaryEl) summaryEl.innerHTML = html;
 }
 
 function render(){
@@ -785,7 +786,7 @@ function render(){
   renderSettings();
   renderAdminFormR1();
   renderAdminFormR2();
-  if(isAdmin) { showTomorrowSummary(); }
+  showTomorrowSummary();
   renderCalendar('r1', 'cal-r1', dayStatusR1);
   renderCalendar('r2', 'cal-r2', dayStatusR2);
   renderDetailR1();
