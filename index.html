@@ -174,6 +174,8 @@ let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
 let multiBookingQty = {};
 let editBookingTarget = null;
+let editItemTarget = null;
+let addItemFormOpen = null;
 
 function showLoader(){document.getElementById('loader').classList.add('show');}
 function hideLoader(){document.getElementById('loader').classList.remove('show');}
@@ -496,6 +498,42 @@ function openEditBookingR1(id){ editBookingTarget = { rest:'r1', id }; render();
 function openEditBookingR2(id){ editBookingTarget = { rest:'r2', id }; render(); }
 function closeEditBooking(){ editBookingTarget = null; render(); }
 
+function openEditItem(itemId){ editItemTarget = itemId; render(); }
+function closeEditItem(){ editItemTarget = null; render(); }
+async function submitEditItemR2(itemId, btn){
+  const name = document.getElementById('eit-name').value.trim();
+  const stock = parseInt(document.getElementById('eit-stock').value, 10);
+  if(!name || !stock || stock <= 0){ showToast('Merci de renseigner un nom et un stock valide.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  try{
+    state = await apiPost('editItemR2', { password: adminPassword, itemId, name, stock });
+    showToast('Plat modifié.');
+    editItemTarget = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+async function deleteItemR2(itemId){
+  try{
+    state = await apiPost('deleteItemR2', { password: adminPassword, itemId });
+    showToast('Plat supprimé.');
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); }
+}
+function openAddItemForm(date){ addItemFormOpen = date; render(); }
+function closeAddItemForm(){ addItemFormOpen = null; render(); }
+async function submitAddItemR2(date, btn){
+  const name = document.getElementById('nit-name').value.trim();
+  const stock = parseInt(document.getElementById('nit-stock').value, 10);
+  if(!name || !stock || stock <= 0){ showToast('Merci de renseigner un nom et un stock valide.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
+  try{
+    state = await apiPost('addItemR2', { password: adminPassword, date, name, stock });
+    showToast('Plat ajouté.');
+    addItemFormOpen = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+
 async function submitEditBookingR1(id, btn){
   const nom = document.getElementById('ebk-nom').value.trim();
   const contact = document.getElementById('ebk-contact').value.trim();
@@ -745,7 +783,25 @@ function renderDetailR2(){
     const capClass = capacityClass(rem, item.Stock);
     const bookingsForItem = state.r2Bookings.filter(b => b.ItemID===item.ID);
     let adminBookings = '';
+    let adminItemActions = '';
+    let editItemForm = '';
     if(isAdmin){
+      adminItemActions = `<div style="display:flex;gap:6px;margin-top:6px;">
+        <button class="btn small" onclick="openEditItem('${item.ID}')">Modifier ce plat</button>
+        <button class="btn danger small" onclick="deleteItemR2('${item.ID}')">Supprimer ce plat</button>
+      </div>`;
+      if(editItemTarget === item.ID){
+        editItemForm = `<div class="booking-form" style="margin-top:6px;">
+          <div class="row2">
+            <div class="field"><label>Nom du plat</label><input type="text" id="eit-name" value="${escapeHtml(item.Nom)}"></div>
+            <div class="field"><label>Stock</label><input type="number" min="1" id="eit-stock" value="${item.Stock}"></div>
+          </div>
+          <div class="day-actions">
+            <button class="btn gold small" onclick="submitEditItemR2('${item.ID}', this)">Enregistrer</button>
+            <button class="btn ghost small" onclick="closeEditItem()">Annuler</button>
+          </div>
+        </div>`;
+      }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
           bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn small" onclick="openEditBookingR2('${b.ID}')">Modifier</button><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>${editBookingTarget && editBookingTarget.rest==='r2' && editBookingTarget.id===b.ID ? editBookingFormR2Html(b) : ''}`).join('')}
@@ -756,9 +812,25 @@ function renderDetailR2(){
         <span class="item-name">${escapeHtml(item.Nom)}</span>
         <span class="capacity-pill ${capClass}">${rem} / ${item.Stock}</span>
       </div>
+      ${adminItemActions}
+      ${editItemForm}
       ${adminBookings}
     </div>`;
   }).join('');
+  const addItemHtml = isAdmin ? (
+    addItemFormOpen === iso ?
+      `<div class="booking-form" style="margin-top:10px;">
+        <div class="row2">
+          <div class="field"><label>Nom du plat</label><input type="text" id="nit-name" placeholder="ex: salade César"></div>
+          <div class="field"><label>Stock</label><input type="number" min="1" id="nit-stock" placeholder="ex: 10"></div>
+        </div>
+        <div class="day-actions">
+          <button class="btn gold small" onclick="submitAddItemR2('${iso}', this)">Ajouter ce plat</button>
+          <button class="btn ghost small" onclick="closeAddItemForm()">Annuler</button>
+        </div>
+      </div>` :
+      `<div class="day-actions" style="margin-top:10px;"><button class="btn small" onclick="openAddItemForm('${iso}')">+ Ajouter un plat à ce jour</button></div>`
+  ) : '';
   el.innerHTML = `
     <div class="day-card" style="${isPast?'opacity:0.55;':''}">
       <div class="day-top"><div class="day-date">${formatDate(day.Date)}</div></div>
@@ -766,6 +838,7 @@ function renderDetailR2(){
       ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
       ${isAdmin && day.OuvertPar ? `<p style="color:var(--muted);font-size:0.76rem;margin:4px 0 0;">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${itemsHtml}
+      ${addItemHtml}
       ${!isAdmin && !isMultiOpen && anyAvailable && !isPast ? `<div class="day-actions"><button class="btn gold small" onclick="openBookingR2Day('${iso}')">Réserver pour ce jour</button></div>` : ''}
       ${!isAdmin && isMultiOpen ? bookingFormMultiHtml(iso, items) : ''}
       ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">🖨️ Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}')">Supprimer ce jour</button></div>` : ''}
