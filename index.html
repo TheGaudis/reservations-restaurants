@@ -273,12 +273,17 @@ function renderModeBox(){
   } else {
     box.innerHTML = `<span class="tag">Mode client</span>
       <div class="admin-login">
-        <input type="text" id="pwdInput" placeholder="Mot de passe collègue">
+        <input type="password" id="pwdInput" placeholder="Mot de passe collègue">
+        <button class="btn ghost small" onclick="togglePwdVisibility()" type="button" title="Afficher/masquer">👁️</button>
         <button class="btn small" onclick="tryLogin()">Mode collègue</button>
       </div>`;
   }
 }
 function logoutAdmin(){ isAdmin = false; adminPassword=''; if(inactivityTimer) clearTimeout(inactivityTimer); render(); }
+function togglePwdVisibility(){
+  const input = document.getElementById('pwdInput');
+  if(input) input.type = input.type === 'password' ? 'text' : 'password';
+}
 let inactivityTimer = null;
 function resetInactivityTimer(){
   if(inactivityTimer) clearTimeout(inactivityTimer);
@@ -318,17 +323,19 @@ function renderSettings(){
   const el = document.getElementById('settings');
   if(!isAdmin){ el.innerHTML=''; return; }
   el.innerHTML = `
-    <div class="panel">
-      <h3 style="margin:0 0 10px;font-size:0.95rem;">Paramètres</h3>
-      <div class="settings-grid">
-        <div class="field"><label>Nom du restaurant 1</label><input type="text" id="cfg-name1" value="${escapeHtml(state.name1)}"></div>
-        <div class="field"><label>Nom du restaurant 2</label><input type="text" id="cfg-name2" value="${escapeHtml(state.name2)}"></div>
-        <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 1</label><input type="text" id="cfg-desc1" value="${escapeHtml(state.desc1)}"></div>
-        <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 2</label><input type="text" id="cfg-desc2" value="${escapeHtml(state.desc2)}"></div>
-        <div class="field" style="grid-column:1/-1;"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="ex: le secrétariat au 03 XX XX XX XX"></div>
+    <details class="panel" style="padding:0;">
+      <summary style="cursor:pointer;padding:16px;font-size:0.95rem;font-weight:600;list-style:none;">⚙️ Paramètres</summary>
+      <div style="padding:0 16px 16px;">
+        <div class="settings-grid">
+          <div class="field"><label>Nom du restaurant 1</label><input type="text" id="cfg-name1" value="${escapeHtml(state.name1)}"></div>
+          <div class="field"><label>Nom du restaurant 2</label><input type="text" id="cfg-name2" value="${escapeHtml(state.name2)}"></div>
+          <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 1</label><input type="text" id="cfg-desc1" value="${escapeHtml(state.desc1)}"></div>
+          <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 2</label><input type="text" id="cfg-desc2" value="${escapeHtml(state.desc2)}"></div>
+          <div class="field" style="grid-column:1/-1;"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="ex: le secrétariat au 03 XX XX XX XX"></div>
+        </div>
+        <button class="btn small" onclick="saveSettings(this)">Enregistrer les paramètres</button>
       </div>
-      <button class="btn small" onclick="saveSettings(this)">Enregistrer les paramètres</button>
-    </div>
+    </details>
   `;
 }
 async function saveSettings(btn){
@@ -467,8 +474,15 @@ async function submitBookingR1(date, btn){
   if(!name || !contact || !classe || !qty || qty <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
   try{
-    state = await apiPost('addBookingR1', { date, nom:name, contact, classe, qte: qty, observation: obs });
-    showToast('Réservation confirmée !');
+    const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, qte: qty, observation: obs });
+    const emailStatus = res._emailStatus;
+    delete res._emailStatus;
+    state = res;
+    if(emailStatus && emailStatus.sent === false && emailStatus.reason !== 'no-email'){
+      showToast('Réservation confirmée, mais l\'email de confirmation n\'a pas pu être envoyé.', true);
+    } else {
+      showToast('Réservation confirmée !');
+    }
     openBookingTarget = null;
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
@@ -484,12 +498,16 @@ async function submitBookingR2Multi(date, btn){
   try{
     const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs });
     const r = res._bookingResult || { confirmed:[], adjusted:[], skipped:[] };
+    const emailStatus = res._emailStatus;
     delete res._bookingResult;
+    delete res._emailStatus;
     state = res;
     if(r.confirmed.length === 0){
       showToast('Aucun des plats choisis n\'est disponible en quantité suffisante.', true);
     } else if(r.adjusted.length > 0 || r.skipped.length > 0){
       showToast('Réservation partielle : certaines quantités ont été ajustées faute de stock. Vérifie ton email.', true);
+    } else if(emailStatus && emailStatus.sent === false && emailStatus.reason !== 'no-email'){
+      showToast('Réservation confirmée, mais l\'email de confirmation n\'a pas pu être envoyé.', true);
     } else {
       showToast('Réservation confirmée !');
     }
@@ -518,6 +536,7 @@ async function submitEditItemR2(itemId, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
 }
 async function deleteItemR2(itemId){
+  if(!confirm('Supprimer ce plat ?')) return;
   try{
     state = await apiPost('deleteItemR2', { password: adminPassword, itemId });
     showToast('Plat supprimé.');
@@ -956,7 +975,7 @@ function showTomorrowSummary(){
       const totalCouverts = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
       const collegueR1 = r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)';
       html += `<div style="margin:6px 0;padding:6px 0;border-bottom:1px solid #D4CFC3;">
-        <b style="color:#8B4513;">${escapeHtml(state.name1)}</b> (ouvert par ${collegueR1})<br>
+        <b style="color:#8B5E20;">${escapeHtml(state.name1)}</b> (ouvert par ${collegueR1})<br>
         <span style="color:var(--muted);">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts</span>`;
       if (r1Bookings.length > 0) {
         html += '<br><span style="font-size:0.8rem;color:var(--muted);">Clients : ' + 
@@ -967,7 +986,7 @@ function showTomorrowSummary(){
     if (r2Day) {
       const collegueR2 = r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)';
       html += `<div style="margin:6px 0;">
-        <b style="color:#8B4513;">${escapeHtml(state.name2)}</b> (ouvert par ${collegueR2})`;
+        <b style="color:#B84A1D;">${escapeHtml(state.name2)}</b> (ouvert par ${collegueR2})`;
       if (r2Items.length > 0) {
         html += '<br>';
         r2Items.forEach(item => {
