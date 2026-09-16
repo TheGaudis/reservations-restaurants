@@ -269,7 +269,7 @@ function dayStatusR2(iso){
 function renderModeBox(){
   const box = document.getElementById('modeBox');
   if(isAdmin){
-    box.innerHTML = `<span class="tag admin-on">Mode collègue actif</span><br><button class="btn ghost small" style="margin-top:8px;" onclick="logoutAdmin()">Revenir en mode client</button>`;
+    box.innerHTML = `<span class="tag admin-on">Mode collègue actif</span><br><button class="btn small" style="margin-top:8px;background:var(--brick);border-color:var(--brick);color:#FFF;font-weight:600;" onclick="logoutAdmin()">Revenir en mode client</button>`;
   } else {
     box.innerHTML = `<span class="tag">Mode client</span>
       <div class="admin-login">
@@ -793,7 +793,7 @@ function renderDetailR1(){
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn small" onclick="openEditBookingR1('${b.ID}')">Modifier</button><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>${editBookingTarget && editBookingTarget.rest==='r1' && editBookingTarget.id===b.ID ? editBookingFormR1Html(b) : ''}`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>`).join('')}
       </div>
       <div class="day-actions">
         <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
@@ -858,7 +858,7 @@ function renderDetailR2(){
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn small" onclick="openEditBookingR2('${b.ID}')">Modifier</button><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>${editBookingTarget && editBookingTarget.rest==='r2' && editBookingTarget.id===b.ID ? editBookingFormR2Html(b) : ''}`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>`).join('')}
       </div>`;
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
@@ -962,7 +962,7 @@ function showTomorrowSummary(){
   const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
   const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
   
-  let html = `<div class="summary-panel" style="background:#F7F3ED;border:1px solid #D4CFC3;border-radius:8px;padding:12px;margin:10px 0;font-size:0.9rem;">
+  let html = `<div class="summary-panel" style="background:#EDF0E4;border:1px solid #C5CFAF;border-radius:8px;padding:12px;margin:10px 0;font-size:0.9rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <div style="font-weight:600;color:#2B2622;">Résumé pour demain (${formatDate(tomorrow)})</div>
       <button class="btn small" style="padding:4px 10px;font-size:0.76rem;" onclick="printTomorrowSummary()">🖨️ Imprimer</button>
@@ -974,7 +974,7 @@ function showTomorrowSummary(){
     if (r1Day) {
       const totalCouverts = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
       const collegueR1 = r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)';
-      html += `<div style="margin:6px 0;padding:6px 0;border-bottom:1px solid #D4CFC3;">
+      html += `<div style="margin:6px 0;padding:6px 0;border-bottom:1px solid #C5CFAF;">
         <b style="color:#8B5E20;">${escapeHtml(state.name1)}</b> (ouvert par ${collegueR1})<br>
         <span style="color:var(--muted);">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts</span>`;
       if (r1Bookings.length > 0) {
