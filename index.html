@@ -42,10 +42,21 @@
   .summary-item b{color:var(--gold);}
   .columns{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
   @media (max-width:760px){.columns{grid-template-columns:1fr;}}
-  #col-r1{background:#2F2A24;border:1px solid #3D362D;border-radius:12px;padding:16px;}
-  #col-r2{background:#2A2622;border:1px solid #3D362D;border-radius:12px;padding:16px;}
-  #col-r1 h2{color:var(--gold);}
-  #col-r2 h2{color:#E8935A;}
+  #col-r1{
+    background:#F5E6C8;border:1px solid #E0C98A;border-radius:12px;padding:16px;
+    --panel:#FFFFFF; --panel-light:#FAF3E3; --line:#E0D0AC;
+    --cream:#2B2622; --muted:#7A6F5D;
+  }
+  #col-r2{
+    background:#FBE3D0;border:1px solid #EFC29A;border-radius:12px;padding:16px;
+    --panel:#FFFFFF; --panel-light:#FDF0E5; --line:#EFC7A8;
+    --cream:#2B2622; --muted:#8A6650;
+  }
+  #col-r1 h2{color:#8B5E20;}
+  #col-r2 h2{color:#B84A1D;}
+  #col-r1 .desc, #col-r2 .desc{color:var(--muted);}
+  #col-r1 .item-row, #col-r2 .item-row{background:var(--panel-light);}
+  #col-r1 input, #col-r2 input, #col-r1 select, #col-r2 select{background:#FFFFFF;}
   .col-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px;}
   .col-head h2{font-size:1.06rem;margin:0;}
   .desc{color:var(--muted);font-size:0.81rem;margin:0 0 14px;}
@@ -825,7 +836,7 @@ function showTomorrowSummary(){
   const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
   
   let html = `<div class="summary-panel" style="background:#F7F3ED;border:1px solid #D4CFC3;border-radius:8px;padding:12px;margin:10px 0;font-size:0.9rem;">
-    <div style="font-weight:600;margin-bottom:8px;color:#2B2622;">📊 Résumé pour demain (${formatDate(tomorrow)})</div>`;
+    <div style="font-weight:600;margin-bottom:8px;color:#2B2622;">Résumé pour demain (${formatDate(tomorrow)})</div>`;
   
   if (!r1Day && !r2Day) {
     html += '<p style="color:var(--muted);margin:0;">Aucun jour ouvert pour demain.</p>';
