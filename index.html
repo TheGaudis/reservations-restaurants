@@ -45,18 +45,22 @@
   #col-r1{
     background:#F5E6C8;border:1px solid #E0C98A;border-radius:12px;padding:16px;
     --panel:#FFFFFF; --panel-light:#FAF3E3; --line:#E0D0AC;
-    --cream:#2B2622; --muted:#7A6F5D;
+    --cream:#2B2622; --muted:#6B5638;
   }
   #col-r2{
     background:#FBE3D0;border:1px solid #EFC29A;border-radius:12px;padding:16px;
     --panel:#FFFFFF; --panel-light:#FDF0E5; --line:#EFC7A8;
-    --cream:#2B2622; --muted:#8A6650;
+    --cream:#2B2622; --muted:#7A4A30;
   }
   #col-r1 h2{color:#8B5E20;}
   #col-r2 h2{color:#B84A1D;}
   #col-r1 .desc, #col-r2 .desc{color:var(--muted);}
   #col-r1 .item-row, #col-r2 .item-row{background:var(--panel-light);}
   #col-r1 input, #col-r2 input, #col-r1 select, #col-r2 select{background:#FFFFFF;}
+  #col-r1 .cal-num, #col-r1 .cal-label, #col-r1 .wd-label{color:#8B5E20;font-weight:600;}
+  #col-r2 .cal-num, #col-r2 .cal-label, #col-r2 .wd-label{color:#B84A1D;font-weight:600;}
+  #col-r1 .day-date{color:#8B5E20;}
+  #col-r2 .day-date{color:#B84A1D;}
   .col-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px;}
   .col-head h2{font-size:1.06rem;margin:0;}
   .desc{color:var(--muted);font-size:0.81rem;margin:0 0 14px;}
@@ -129,7 +133,7 @@
   <div id="dashboard"></div>
   <div id="settings"></div>
 
-  <div id="summary-tomorrow" style="margin:16px 0;"></div>
+  <div id="summary-tomorrow" style="margin:16px auto;max-width:480px;"></div>
 
   <div class="columns">
     <div class="col" id="col-r1">
@@ -176,6 +180,7 @@ let multiBookingQty = {};
 let editBookingTarget = null;
 let editItemTarget = null;
 let addItemFormOpen = null;
+let editDayR1Open = null;
 
 function showLoader(){document.getElementById('loader').classList.add('show');}
 function hideLoader(){document.getElementById('loader').classList.remove('show');}
@@ -534,6 +539,22 @@ async function submitAddItemR2(date, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
 }
 
+function openEditDayR1(date){ editDayR1Open = date; render(); }
+function closeEditDayR1(){ editDayR1Open = null; render(); }
+async function submitEditDayR1(date, btn){
+  const capacity = parseInt(document.getElementById('edd-cap').value, 10);
+  const menu = document.getElementById('edd-menu').value.trim();
+  const theme = document.getElementById('edd-theme').value.trim();
+  if(!capacity || capacity <= 0){ showToast('Merci de renseigner un nombre de couverts valide.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  try{
+    state = await apiPost('editDayR1', { password: adminPassword, date, capacity, menu, theme });
+    showToast('Jour modifié.');
+    editDayR1Open = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+
 async function submitEditBookingR1(id, btn){
   const nom = document.getElementById('ebk-nom').value.trim();
   const contact = document.getElementById('ebk-contact').value.trim();
@@ -738,15 +759,29 @@ function renderDetailR1(){
   const isOpenForm = openBookingTarget && openBookingTarget.rest==='r1' && openBookingTarget.date===day.Date;
   let adminHtml='';
   if(isAdmin){
+    const editDayForm = editDayR1Open === day.Date ? `
+      <div class="booking-form" style="margin-top:10px;">
+        <div class="row2">
+          <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="edd-cap" value="${day.Capacite}"></div>
+          <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="edd-theme" value="${escapeHtml(day.Theme||'')}"></div>
+        </div>
+        <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="edd-menu" value="${escapeHtml(day.Menu||'')}"></div>
+        <div class="day-actions">
+          <button class="btn gold small" onclick="submitEditDayR1('${day.Date}', this)">Enregistrer</button>
+          <button class="btn ghost small" onclick="closeEditDayR1()">Annuler</button>
+        </div>
+      </div>` : '';
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
           bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn small" onclick="openEditBookingR1('${b.ID}')">Modifier</button><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>${editBookingTarget && editBookingTarget.rest==='r1' && editBookingTarget.id===b.ID ? editBookingFormR1Html(b) : ''}`).join('')}
       </div>
       <div class="day-actions">
+        <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
         <button class="btn small" onclick="printDayR1('${day.Date}')">🖨️ Imprimer la liste</button>
         <button class="btn danger small" onclick="deleteDayR1('${day.Date}')">Supprimer ce jour</button>
       </div>
+      ${editDayForm}
     `;
   }
   el.innerHTML = `
@@ -909,7 +944,10 @@ function showTomorrowSummary(){
   const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
   
   let html = `<div class="summary-panel" style="background:#F7F3ED;border:1px solid #D4CFC3;border-radius:8px;padding:12px;margin:10px 0;font-size:0.9rem;">
-    <div style="font-weight:600;margin-bottom:8px;color:#2B2622;">Résumé pour demain (${formatDate(tomorrow)})</div>`;
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-weight:600;color:#2B2622;">Résumé pour demain (${formatDate(tomorrow)})</div>
+      <button class="btn small" style="padding:4px 10px;font-size:0.76rem;" onclick="printTomorrowSummary()">🖨️ Imprimer</button>
+    </div>`;
   
   if (!r1Day && !r2Day) {
     html += '<p style="color:var(--muted);margin:0;">Aucun jour ouvert pour demain.</p>';
@@ -950,6 +988,58 @@ function showTomorrowSummary(){
   html += '</div>';
   
   if (summaryEl) summaryEl.innerHTML = html;
+}
+
+function printTomorrowSummary(){
+  const tomorrow = getTomorrowISO();
+  const r1Day = state.r1Days.find(d => d.Date === tomorrow);
+  const r2Day = state.r2Days.find(d => d.Date === tomorrow);
+  const r1Bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
+  const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
+  const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
+
+  let body = '';
+  if (!r1Day && !r2Day) {
+    body = '<p>Aucun jour ouvert pour demain.</p>';
+  } else {
+    if (r1Day) {
+      const total = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
+      body += `<h2>${escapeHtml(state.name1)}</h2>
+        <p>Ouvert par ${r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)'} — ${total} / ${r1Day.Capacite} couverts réservés</p>
+        <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th></tr>
+        ${r1Bookings.length === 0 ? '<tr><td colspan="3">Aucune réservation.</td></tr>' :
+          r1Bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td></tr>`).join('')}
+        </table>`;
+    }
+    if (r2Day) {
+      body += `<h2>${escapeHtml(state.name2)}</h2>
+        <p>Ouvert par ${r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)'}</p>`;
+      if (r2Items.length === 0) {
+        body += '<p>Aucun plat ouvert.</p>';
+      } else {
+        r2Items.forEach(item => {
+          const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
+          const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
+          body += `<h3>${escapeHtml(item.Nom)} — ${total} / ${item.Stock}</h3>
+            <table><tr><th>Nom</th><th>Classe</th><th>Portions</th></tr>
+            ${bookings.length === 0 ? '<tr><td colspan="3">Aucune réservation.</td></tr>' :
+              bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td></tr>`).join('')}
+            </table>`;
+        });
+      }
+    }
+  }
+
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Résumé demain — ${formatDate(tomorrow)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}h3{font-size:0.9rem;margin-top:14px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
+    </head><body>
+    <h1>Résumé pour demain</h1>
+    <p>${formatDate(tomorrow)}</p>
+    ${body}
+    </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>w.print(), 300);
 }
 
 function render(){
