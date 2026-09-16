@@ -42,6 +42,10 @@
   .summary-item b{color:var(--gold);}
   .columns{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
   @media (max-width:760px){.columns{grid-template-columns:1fr;}}
+  #col-r1{background:#2F2A24;border:1px solid #3D362D;border-radius:12px;padding:16px;}
+  #col-r2{background:#2A2622;border:1px solid #3D362D;border-radius:12px;padding:16px;}
+  #col-r1 h2{color:var(--gold);}
+  #col-r2 h2{color:#E8935A;}
   .col-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px;}
   .col-head h2{font-size:1.06rem;margin:0;}
   .desc{color:var(--muted);font-size:0.81rem;margin:0 0 14px;}
@@ -134,7 +138,7 @@
     </div>
   </div>
 
-  <p class="foot-note">Les places se mettent à jour automatiquement toutes les 30 secondes. Vous pouvez aussi actualiser la page.</p>
+  <p class="foot-note">Les places se mettent à jour automatiquement toutes les 3 minutes. Vous pouvez aussi actualiser la page.</p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -158,6 +162,7 @@ let draftItems = [{name:'', stock:''}];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
 let multiBookingQty = {};
+let editBookingTarget = null;
 
 function showLoader(){document.getElementById('loader').classList.add('show');}
 function hideLoader(){document.getElementById('loader').classList.remove('show');}
@@ -255,12 +260,21 @@ function renderModeBox(){
       </div>`;
   }
 }
-function logoutAdmin(){ isAdmin = false; adminPassword=''; render(); }
+function logoutAdmin(){ isAdmin = false; adminPassword=''; if(inactivityTimer) clearTimeout(inactivityTimer); render(); }
+let inactivityTimer = null;
+function resetInactivityTimer(){
+  if(inactivityTimer) clearTimeout(inactivityTimer);
+  if(!isAdmin) return;
+  inactivityTimer = setTimeout(()=>{
+    if(isAdmin){ logoutAdmin(); showToast('Déconnecté du mode collègue après 10 minutes d\'inactivité.'); }
+  }, 600000);
+}
+['click','keydown','mousemove','touchstart'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
 async function tryLogin(){
   const val = document.getElementById('pwdInput').value;
   try{
     const res = await apiPost('checkPassword', { password: val });
-    if(res.ok){ isAdmin = true; adminPassword = val; showToast('Mode collègue activé.'); render(); }
+    if(res.ok){ isAdmin = true; adminPassword = val; showToast('Mode collègue activé.'); resetInactivityTimer(); render(); }
     else { showToast('Mot de passe incorrect.', true); }
   }catch(e){ showToast('Erreur de connexion, réessaie.', true); }
 }
@@ -431,10 +445,11 @@ async function submitBookingR1(date, btn){
   const contact = document.getElementById('bk-contact').value.trim();
   const classe = document.getElementById('bk-classe').value.trim();
   const qty = parseInt(document.getElementById('bk-qty').value, 10);
+  const obs = document.getElementById('bk-obs').value.trim();
   if(!name || !contact || !classe || !qty || qty <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
   try{
-    state = await apiPost('addBookingR1', { date, nom:name, contact, classe, qte: qty });
+    state = await apiPost('addBookingR1', { date, nom:name, contact, classe, qte: qty, observation: obs });
     showToast('Réservation confirmée !');
     openBookingTarget = null;
     render();
@@ -444,11 +459,12 @@ async function submitBookingR2Multi(date, btn){
   const name = document.getElementById('bk-name').value.trim();
   const contact = document.getElementById('bk-contact').value.trim();
   const classe = document.getElementById('bk-classe').value.trim();
+  const obs = document.getElementById('bk-obs').value.trim();
   const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
   if(!name || !contact || !classe || items.length === 0){ showToast('Merci de remplir tes infos et de choisir au moins un plat.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
   try{
-    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items });
+    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs });
     const r = res._bookingResult || { confirmed:[], adjusted:[], skipped:[] };
     delete res._bookingResult;
     state = res;
@@ -465,6 +481,80 @@ async function submitBookingR2Multi(date, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
 }
 
+function openEditBookingR1(id){ editBookingTarget = { rest:'r1', id }; render(); }
+function openEditBookingR2(id){ editBookingTarget = { rest:'r2', id }; render(); }
+function closeEditBooking(){ editBookingTarget = null; render(); }
+
+async function submitEditBookingR1(id, btn){
+  const nom = document.getElementById('ebk-nom').value.trim();
+  const contact = document.getElementById('ebk-contact').value.trim();
+  const classe = document.getElementById('ebk-classe').value.trim();
+  const qte = parseInt(document.getElementById('ebk-qte').value, 10);
+  const observation = document.getElementById('ebk-obs').value.trim();
+  if(!nom || !contact || !classe || !qte || qte <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  try{
+    state = await apiPost('editBookingR1', { password: adminPassword, id, nom, contact, classe, qte, observation });
+    showToast('Réservation modifiée.');
+    editBookingTarget = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+async function submitEditBookingR2(id, btn){
+  const nom = document.getElementById('ebk-nom').value.trim();
+  const contact = document.getElementById('ebk-contact').value.trim();
+  const classe = document.getElementById('ebk-classe').value.trim();
+  const qte = parseInt(document.getElementById('ebk-qte').value, 10);
+  const mode = document.getElementById('ebk-mode').value;
+  const observation = document.getElementById('ebk-obs').value.trim();
+  if(!nom || !contact || !classe || !qte || qte <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  try{
+    state = await apiPost('editBookingR2', { password: adminPassword, id, nom, contact, classe, qte, mode, observation });
+    showToast('Réservation modifiée.');
+    editBookingTarget = null;
+    render();
+  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+}
+function editBookingFormR1Html(b){
+  return `<div class="booking-form" style="margin-top:6px;">
+    <div class="row2">
+      <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
+      <div class="field"><label>Classe</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Contact</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+      <div class="field"><label>Couverts</label><input type="number" min="1" id="ebk-qte" value="${b.Qte}"></div>
+    </div>
+    <div class="field"><label>Observation</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
+    <div class="day-actions">
+      <button class="btn gold small" onclick="submitEditBookingR1('${b.ID}', this)">Enregistrer</button>
+      <button class="btn ghost small" onclick="closeEditBooking()">Annuler</button>
+    </div>
+  </div>`;
+}
+function editBookingFormR2Html(b){
+  return `<div class="booking-form" style="margin-top:6px;">
+    <div class="row2">
+      <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
+      <div class="field"><label>Classe</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Contact</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+      <div class="field"><label>Portions</label><input type="number" min="1" id="ebk-qte" value="${b.Qte}"></div>
+    </div>
+    <div class="field"><label>Mode</label><select id="ebk-mode">
+      <option value="emporter" ${b.Mode==='emporter'?'selected':''}>À emporter</option>
+      <option value="surplace" ${b.Mode==='surplace'?'selected':''}>Sur place</option>
+    </select></div>
+    <div class="field"><label>Observation</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
+    <div class="day-actions">
+      <button class="btn gold small" onclick="submitEditBookingR2('${b.ID}', this)">Enregistrer</button>
+      <button class="btn ghost small" onclick="closeEditBooking()">Annuler</button>
+    </div>
+  </div>`;
+}
+
 function bookingFormHtml(date, rem){
   return `
     <div class="booking-form">
@@ -474,6 +564,7 @@ function bookingFormHtml(date, rem){
         <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
       </div>
       <div class="field"><label>Nombre de couverts</label><input type="number" min="1" max="${rem}" id="bk-qty" placeholder="ex: 2"></div>
+      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="ex: table partagée avec, délai, allergie..."></div>
       <div class="day-actions">
         <button class="btn gold small" onclick="submitBookingR1('${date}', this)">Confirmer la réservation</button>
         <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
@@ -504,6 +595,7 @@ function bookingFormMultiHtml(date, items){
         <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
         <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
       </div>
+      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="ex: table partagée avec, délai, allergie..."></div>
       <div class="day-actions">
         <button class="btn gold small" onclick="submitBookingR2Multi('${date}', this)">Confirmer la réservation</button>
         <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
@@ -600,7 +692,7 @@ function renderDetailR1(){
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn small" onclick="openEditBookingR1('${b.ID}')">Modifier</button><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>${editBookingTarget && editBookingTarget.rest==='r1' && editBookingTarget.id===b.ID ? editBookingFormR1Html(b) : ''}`).join('')}
       </div>
       <div class="day-actions">
         <button class="btn small" onclick="printDayR1('${day.Date}')">🖨️ Imprimer la liste</button>
@@ -645,7 +737,7 @@ function renderDetailR2(){
     if(isAdmin){
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn small" onclick="openEditBookingR2('${b.ID}')">Modifier</button><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>${editBookingTarget && editBookingTarget.rest==='r2' && editBookingTarget.id===b.ID ? editBookingFormR2Html(b) : ''}`).join('')}
       </div>`;
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
@@ -799,7 +891,7 @@ setInterval(()=>{
   const isTypingSomewhere = active && active.tagName === 'INPUT';
   if(openBookingTarget !== null || isTypingSomewhere) return;
   loadAll();
-}, 30000);
+}, 180000);
 </script>
 </body>
 </html>
