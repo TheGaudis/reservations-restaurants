@@ -177,8 +177,8 @@ if (APPS_SCRIPT_URL.indexOf('COLLE_ICI') !== -1) {
 
 let isAdmin = false;
 let adminPassword = '';
-let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant 1', name2:'Restaurant 2', desc1:"Table réservée par nombre de couverts, avec le menu du jour.", desc2:"Plats à emporter ou sur place, chacun avec son propre stock.", contactAnnulation:"l'établissement" };
-let draftItems = [{name:'', stock:''}];
+let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant 1', name2:'Restaurant 2', desc1:"Table réservée par nombre de couverts, avec le menu du jour.", desc2:"Plats à emporter ou sur place, chacun avec son propre stock.", contactAnnulation:"l'établissement", priceEleve:'4.95', priceProf:'6.10', priceExterieur:'9.90' };
+let draftItems = [{name:'', stock:'', price:''}];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
 let multiBookingQty = {};
@@ -234,6 +234,11 @@ function formatDate(iso){
   catch(e){ return iso; }
 }
 function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+function formatEuro(n){ return Number(n).toFixed(2).replace('.', ',') + ' €'; }
+function priceSuggestionsDatalist(){
+  const prices = [...new Set(state.r2Items.filter(it => it.Prix !== '' && it.Prix != null).map(it => Number(it.Prix)))].sort((a,b) => a-b);
+  return `<datalist id="price-suggestions">${prices.map(p => `<option value="${p}">`).join('')}</datalist>`;
+}
 
 async function loadAll(){
   try{
@@ -337,6 +342,9 @@ function renderSettings(){
           <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 1</label><input type="text" id="cfg-desc1" value="${escapeHtml(state.desc1)}"></div>
           <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 2</label><input type="text" id="cfg-desc2" value="${escapeHtml(state.desc2)}"></div>
           <div class="field" style="grid-column:1/-1;"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="ex: le secrétariat au 03 XX XX XX XX"></div>
+          <div class="field"><label>Tarif élève (€)</label><input type="number" step="0.01" min="0" id="cfg-priceEleve" value="${escapeHtml(String(state.priceEleve))}"></div>
+          <div class="field"><label>Tarif professeur/personnel (€)</label><input type="number" step="0.01" min="0" id="cfg-priceProf" value="${escapeHtml(String(state.priceProf))}"></div>
+          <div class="field"><label>Tarif extérieur (€)</label><input type="number" step="0.01" min="0" id="cfg-priceExterieur" value="${escapeHtml(String(state.priceExterieur))}"></div>
         </div>
         <button class="btn small" onclick="saveSettings(this)">Enregistrer les paramètres</button>
       </div>
@@ -349,6 +357,9 @@ async function saveSettings(btn){
   const desc1 = document.getElementById('cfg-desc1').value.trim();
   const desc2 = document.getElementById('cfg-desc2').value.trim();
   const contact = document.getElementById('cfg-contact').value.trim();
+  const priceEleve = document.getElementById('cfg-priceEleve').value.trim();
+  const priceProf = document.getElementById('cfg-priceProf').value.trim();
+  const priceExterieur = document.getElementById('cfg-priceExterieur').value.trim();
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
   try{
     if(name1) state = await apiPost('setConfigField', { password: adminPassword, key: 'name1', value: name1 });
@@ -356,6 +367,9 @@ async function saveSettings(btn){
     if(desc1) state = await apiPost('setConfigField', { password: adminPassword, key: 'desc1', value: desc1 });
     if(desc2) state = await apiPost('setConfigField', { password: adminPassword, key: 'desc2', value: desc2 });
     if(contact) state = await apiPost('setConfigField', { password: adminPassword, key: 'contactAnnulation', value: contact });
+    if(priceEleve) state = await apiPost('setConfigField', { password: adminPassword, key: 'priceEleve', value: priceEleve });
+    if(priceProf) state = await apiPost('setConfigField', { password: adminPassword, key: 'priceProf', value: priceProf });
+    if(priceExterieur) state = await apiPost('setConfigField', { password: adminPassword, key: 'priceExterieur', value: priceExterieur });
     showToast('Paramètres enregistrés.');
     render();
   }catch(e){
@@ -402,6 +416,7 @@ function renderAdminFormR2(){
     <div class="draft-item-row">
       <input type="text" placeholder="Nom du plat" value="${escapeHtml(it.name)}" oninput="updateDraftItem(${i}, 'name', this.value)">
       <input type="number" min="1" placeholder="Stock" value="${it.stock}" oninput="updateDraftItem(${i}, 'stock', this.value)">
+      <input type="number" step="0.01" min="0" placeholder="Prix (optionnel)" value="${it.price||''}" list="price-suggestions" oninput="updateDraftItem(${i}, 'price', this.value)">
       <button class="btn danger small" onclick="removeDraftItem(${i})" type="button">✕</button>
     </div>
   `).join('');
@@ -413,13 +428,14 @@ function renderAdminFormR2(){
     <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r2" placeholder="ex: Semaine italienne"></div>
     <label>Plats disponibles ce jour-là</label>
     ${itemsHtml}
+    ${priceSuggestionsDatalist()}
     <button class="btn ghost small" style="margin-top:4px;" onclick="addDraftItemRow()" type="button">+ Ajouter un plat</button>
     <div style="margin-top:12px;"><button class="btn gold small" onclick="addDayR2(this)">Ouvrir ce jour</button></div>
   `;
 }
 function updateDraftItem(i, field, value){ draftItems[i][field] = value; }
-function addDraftItemRow(){ draftItems.push({name:'', stock:''}); render(); }
-function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push({name:'',stock:''}); render(); }
+function addDraftItemRow(){ draftItems.push({name:'', stock:'', price:''}); render(); }
+function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push({name:'',stock:'',price:''}); render(); }
 
 async function addDayR2(btn){
   const dateVal = document.getElementById('date-r2').value;
@@ -428,13 +444,13 @@ async function addDayR2(btn){
   const collegueVal = document.getElementById('collegue-r2').value.trim();
   const items = draftItems
     .filter(it => it.name.trim() && parseInt(it.stock,10) > 0)
-    .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10) }));
+    .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10), price: it.price ? parseFloat(it.price) : '' }));
   if(!dateVal || items.length === 0){ showToast('Merci de renseigner une date et au moins un plat avec un stock valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ouverture en cours…';
   try{
     state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
-    draftItems = [{name:'',stock:''}];
+    draftItems = [{name:'',stock:'',price:''}];
     calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
@@ -469,17 +485,36 @@ function setMultiQty(itemId, value){
   const n = parseInt(value, 10);
   if(n > 0) multiBookingQty[itemId] = n; else delete multiBookingQty[itemId];
 }
+function updateR2PriceLive(){
+  const el = document.getElementById('bk-r2-total');
+  if(!el) return;
+  let total = 0;
+  let hasGap = false;
+  let anyQty = false;
+  Object.keys(multiBookingQty).forEach(itemId => {
+    const item = state.r2Items.find(it => it.ID === itemId);
+    if(!item) return;
+    anyQty = true;
+    if(item.Prix !== '' && item.Prix != null){ total += Number(item.Prix) * multiBookingQty[itemId]; }
+    else { hasGap = true; }
+  });
+  if(!anyQty){ el.textContent = ''; return; }
+  el.textContent = total > 0 ? ('Total' + (hasGap ? ' (hors plats sans prix indiqué)' : '') + ' : ' + formatEuro(total)) : '';
+}
 
 async function submitBookingR1(date, btn){
   const name = document.getElementById('bk-name').value.trim();
   const contact = document.getElementById('bk-contact').value.trim();
   const classe = document.getElementById('bk-classe').value.trim();
-  const qty = parseInt(document.getElementById('bk-qty').value, 10);
+  const nbEleve = parseInt(document.getElementById('bk-nbEleve').value, 10) || 0;
+  const nbProf = parseInt(document.getElementById('bk-nbProf').value, 10) || 0;
+  const nbExt = parseInt(document.getElementById('bk-nbExt').value, 10) || 0;
   const obs = document.getElementById('bk-obs').value.trim();
-  if(!name || !contact || !classe || !qty || qty <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
+  const totalPersonnes = nbEleve + nbProf + nbExt;
+  if(!name || !contact || !classe || totalPersonnes <= 0){ showToast('Merci de remplir tous les champs et renseigner au moins une personne.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
   try{
-    const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, qte: qty, observation: obs });
+    const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, nbEleve, nbProf, nbExt, observation: obs });
     const emailStatus = res._emailStatus;
     delete res._emailStatus;
     state = res;
@@ -513,6 +548,8 @@ async function submitBookingR2Multi(date, btn){
       showToast('Réservation partielle : certaines quantités ont été ajustées faute de stock. Vérifie ton email.', true);
     } else if(emailStatus && emailStatus.sent === false && emailStatus.reason !== 'no-email'){
       showToast('Réservation confirmée, mais l\'email de confirmation n\'a pas pu être envoyé.', true);
+    } else if(r.totalPrix > 0){
+      showToast('Réservation confirmée ! Total : ' + formatEuro(r.totalPrix) + (r.hasPriceGap ? ' (hors plats sans prix indiqué)' : ''));
     } else {
       showToast('Réservation confirmée !');
     }
@@ -531,10 +568,12 @@ function closeEditItem(){ editItemTarget = null; render(); }
 async function submitEditItemR2(itemId, btn){
   const name = document.getElementById('eit-name').value.trim();
   const stock = parseInt(document.getElementById('eit-stock').value, 10);
+  const priceVal = document.getElementById('eit-price').value.trim();
+  const price = priceVal ? parseFloat(priceVal) : '';
   if(!name || !stock || stock <= 0){ showToast('Merci de renseigner un nom et un stock valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
   try{
-    state = await apiPost('editItemR2', { password: adminPassword, itemId, name, stock });
+    state = await apiPost('editItemR2', { password: adminPassword, itemId, name, stock, price });
     showToast('Plat modifié.');
     editItemTarget = null;
     render();
@@ -553,10 +592,12 @@ function closeAddItemForm(){ addItemFormOpen = null; render(); }
 async function submitAddItemR2(date, btn){
   const name = document.getElementById('nit-name').value.trim();
   const stock = parseInt(document.getElementById('nit-stock').value, 10);
+  const priceVal = document.getElementById('nit-price').value.trim();
+  const price = priceVal ? parseFloat(priceVal) : '';
   if(!name || !stock || stock <= 0){ showToast('Merci de renseigner un nom et un stock valide.', true); return; }
   btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
   try{
-    state = await apiPost('addItemR2', { password: adminPassword, date, name, stock });
+    state = await apiPost('addItemR2', { password: adminPassword, date, name, stock, price });
     showToast('Plat ajouté.');
     addItemFormOpen = null;
     render();
@@ -657,7 +698,13 @@ function bookingFormHtml(date, rem){
         <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
         <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
       </div>
-      <div class="field"><label>Nombre de couverts</label><input type="number" min="1" max="${rem}" id="bk-qty" placeholder="ex: 2"></div>
+      <label style="margin:6px 0 4px;">Nombre de personnes par statut (max ${rem} au total)</label>
+      <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="field"><label>Élève(s) — ${formatEuro(state.priceEleve)}</label><input type="number" min="0" id="bk-nbEleve" placeholder="0" oninput="updateR1PriceLive()"></div>
+        <div class="field"><label>Prof(s)/personnel — ${formatEuro(state.priceProf)}</label><input type="number" min="0" id="bk-nbProf" placeholder="0" oninput="updateR1PriceLive()"></div>
+        <div class="field"><label>Extérieur(s) — ${formatEuro(state.priceExterieur)}</label><input type="number" min="0" id="bk-nbExt" placeholder="0" oninput="updateR1PriceLive()"></div>
+      </div>
+      <p id="bk-r1-total" style="font-weight:600;margin:4px 0 10px;">Total : 0,00 €</p>
       <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="ex: table partagée avec, délai, allergie..."></div>
       <div class="day-actions">
         <button class="btn gold small" onclick="submitBookingR1('${date}', this)">Confirmer la réservation</button>
@@ -666,14 +713,23 @@ function bookingFormHtml(date, rem){
     </div>
   `;
 }
+function updateR1PriceLive(){
+  const nbEleve = parseInt(document.getElementById('bk-nbEleve').value, 10) || 0;
+  const nbProf = parseInt(document.getElementById('bk-nbProf').value, 10) || 0;
+  const nbExt = parseInt(document.getElementById('bk-nbExt').value, 10) || 0;
+  const total = nbEleve * Number(state.priceEleve) + nbProf * Number(state.priceProf) + nbExt * Number(state.priceExterieur);
+  const totalCouverts = nbEleve + nbProf + nbExt;
+  const el = document.getElementById('bk-r1-total');
+  if(el) el.textContent = totalCouverts + ' couvert(s) — Total : ' + formatEuro(total);
+}
 function bookingFormMultiHtml(date, items){
   const rows = items.map(item=>{
     const rem = remainingItem(item);
     if(rem <= 0) return `<div class="item-row"><span class="item-name">${escapeHtml(item.Nom)}</span><span style="color:var(--muted);font-size:0.8rem;">Épuisé</span></div>`;
     const qtyVal = multiBookingQty[item.ID] || '';
     return `<div class="item-row">
-      <span class="item-name">${escapeHtml(item.Nom)} <span style="color:var(--muted);font-size:0.78rem;">(${rem} dispo)</span></span>
-      <input type="number" min="0" max="${rem}" value="${qtyVal}" style="width:70px;" placeholder="0" oninput="setMultiQty('${item.ID}', this.value)">
+      <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''} <span style="color:var(--muted);font-size:0.78rem;">(${rem} dispo)</span></span>
+      <input type="number" min="0" max="${rem}" value="${qtyVal}" style="width:70px;" placeholder="0" oninput="setMultiQty('${item.ID}', this.value); updateR2PriceLive()">
     </div>`;
   }).join('');
   return `
@@ -684,6 +740,7 @@ function bookingFormMultiHtml(date, items){
       </div>
       <label style="margin:10px 0 4px;">Choisis tes plats et quantités</label>
       ${rows}
+      <p id="bk-r2-total" style="font-weight:600;margin:6px 0 0;"></p>
       <div class="field" style="margin-top:10px;"><label>Nom</label><input type="text" id="bk-name" placeholder="Nom et prénom"></div>
       <div class="row2">
         <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
@@ -798,7 +855,7 @@ function renderDetailR1(){
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s) — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s)${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}')">Suppr.</button></div>`).join('')}
       </div>
       <div class="day-actions">
         <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
@@ -855,6 +912,8 @@ function renderDetailR2(){
             <div class="field"><label>Nom du plat</label><input type="text" id="eit-name" value="${escapeHtml(item.Nom)}"></div>
             <div class="field"><label>Stock</label><input type="number" min="1" id="eit-stock" value="${item.Stock}"></div>
           </div>
+          <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="eit-price" value="${item.Prix||''}" list="price-suggestions" placeholder="ex: 3.50"></div>
+          ${priceSuggestionsDatalist()}
           <div class="day-actions">
             <button class="btn gold small" onclick="submitEditItemR2('${item.ID}', this)">Enregistrer</button>
             <button class="btn ghost small" onclick="closeEditItem()">Annuler</button>
@@ -863,12 +922,12 @@ function renderDetailR2(){
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s) · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s)${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}')">Suppr.</button></div>`).join('')}
       </div>`;
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <span class="item-name">${escapeHtml(item.Nom)}</span>
+        <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}</span>
         <span class="capacity-pill ${capClass}">${rem} / ${item.Stock}</span>
       </div>
       ${adminItemActions}
@@ -883,6 +942,8 @@ function renderDetailR2(){
           <div class="field"><label>Nom du plat</label><input type="text" id="nit-name" placeholder="ex: salade César"></div>
           <div class="field"><label>Stock</label><input type="number" min="1" id="nit-stock" placeholder="ex: 10"></div>
         </div>
+        <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="nit-price" list="price-suggestions" placeholder="ex: 3.50"></div>
+        ${priceSuggestionsDatalist()}
         <div class="day-actions">
           <button class="btn gold small" onclick="submitAddItemR2('${iso}', this)">Ajouter ce plat</button>
           <button class="btn ghost small" onclick="closeAddItemForm()">Annuler</button>
@@ -909,8 +970,9 @@ function printDayR1(date){
   const day = state.r1Days.find(d=>d.Date===date);
   const bookings = state.r1Bookings.filter(b=>b.Date===date);
   const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
-  const rows = bookings.length===0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
-    bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
+  const totalPrix = bookings.reduce((s,b)=>s+Number(b.PrixTotal||0),0);
+  const rows = bookings.length===0 ? '<tr><td colspan="5">Aucune réservation.</td></tr>' :
+    bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.PrixTotal ? formatEuro(b.PrixTotal) : ''}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name1)} — ${formatDate(date)}</title>
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:14px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}.total{margin-top:14px;font-weight:bold;}</style>
     </head><body>
@@ -918,8 +980,8 @@ function printDayR1(date){
     <p>${formatDate(date)}</p>
     ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
     ${day && day.Menu ? `<p><b>Menu :</b> ${escapeHtml(day.Menu)}</p>` : ''}
-    <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Contact</th></tr>${rows}</table>
-    <p class="total">Total : ${total} couvert(s)${day ? ' / ' + day.Capacite + ' disponibles' : ''}</p>
+    <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th><th>Contact</th></tr>${rows}</table>
+    <p class="total">Total : ${total} couvert(s)${day ? ' / ' + day.Capacite + ' disponibles' : ''}${totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''}</p>
     </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html); w.document.close(); w.focus();
@@ -929,22 +991,26 @@ function printDayR2(date){
   const day = state.r2Days.find(d=>d.Date===date);
   const items = state.r2Items.filter(it=>it.Date===date);
   let body = '';
+  let grandTotal = 0;
   items.forEach(item=>{
     const bookings = state.r2Bookings.filter(b=>b.ItemID===item.ID);
     const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
-    const rows = bookings.length===0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
-      bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.Mode==='emporter'?'À emporter':'Sur place'}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
-    body += `<h2>${escapeHtml(item.Nom)} — ${total} / ${item.Stock}</h2>
-      <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Mode</th><th>Contact</th></tr>${rows}</table>`;
+    const itemTotalPrix = item.Prix ? total * Number(item.Prix) : 0;
+    grandTotal += itemTotalPrix;
+    const rows = bookings.length===0 ? '<tr><td colspan="5">Aucune réservation.</td></tr>' :
+      bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${item.Prix ? formatEuro(item.Prix * b.Qte) : ''}</td><td>${b.Mode==='emporter'?'À emporter':'Sur place'}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
+    body += `<h2>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''} — ${total} / ${item.Stock}</h2>
+      <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Prix</th><th>Mode</th><th>Contact</th></tr>${rows}</table>`;
   });
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name2)} — ${formatDate(date)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}.total{margin-top:14px;font-weight:bold;}</style>
     </head><body>
     <h1>${escapeHtml(state.name2)}</h1>
     <p>${formatDate(date)}</p>
     ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
     ${day && day.Note ? `<p><b>Note :</b> ${escapeHtml(day.Note)}</p>` : ''}
     ${body}
+    ${grandTotal > 0 ? `<p class="total">Total du jour : ${formatEuro(grandTotal)}</p>` : ''}
     </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html); w.document.close(); w.focus();
@@ -978,10 +1044,11 @@ function showTomorrowSummary(){
   } else {
     if (r1Day) {
       const totalCouverts = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
+      const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
       const collegueR1 = r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)';
       html += `<div style="margin:6px 0;padding:6px 0;border-bottom:1px solid #C5CFAF;">
         <b style="color:#8B5E20;">${escapeHtml(state.name1)}</b> (ouvert par ${collegueR1})<br>
-        <span style="color:var(--muted);">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts</span>`;
+        <span style="color:var(--muted);">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</span>`;
       if (r1Bookings.length > 0) {
         html += '<br><span style="font-size:0.8rem;color:var(--muted);">Clients : ' + 
           r1Bookings.map(b => escapeHtml(b.Nom) + ' (' + escapeHtml(b.Classe) + ')').join(', ') + '</span>';
@@ -990,6 +1057,8 @@ function showTomorrowSummary(){
     }
     if (r2Day) {
       const collegueR2 = r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)';
+      let totalPrixR2 = 0;
+      let hasGapR2 = false;
       html += `<div style="margin:6px 0;">
         <b style="color:#B84A1D;">${escapeHtml(state.name2)}</b> (ouvert par ${collegueR2})`;
       if (r2Items.length > 0) {
@@ -997,12 +1066,16 @@ function showTomorrowSummary(){
         r2Items.forEach(item => {
           const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
           const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
+          if (item.Prix) { totalPrixR2 += total * Number(item.Prix); } else if (total > 0) { hasGapR2 = true; }
           if (total > 0 || bookings.length > 0) {
             html += `<span style="display:block;font-size:0.85rem;color:var(--muted);margin:2px 0;">
-              • ${escapeHtml(item.Nom)}: ${total} portion(s)${bookings.length > 0 ? ' (' + bookings.map(b => escapeHtml(b.Nom)).join(', ') + ')' : ''}
+              • ${escapeHtml(item.Nom)}: ${total} portion(s)${item.Prix ? ' — ' + formatEuro(total * Number(item.Prix)) : ''}${bookings.length > 0 ? ' (' + bookings.map(b => escapeHtml(b.Nom)).join(', ') + ')' : ''}
             </span>`;
           }
         });
+        if (totalPrixR2 > 0) {
+          html += `<span style="display:block;font-size:0.85rem;font-weight:600;margin-top:4px;">Total ${escapeHtml(state.name2)}${hasGapR2 ? ' (hors plats sans prix)' : ''} : ${formatEuro(totalPrixR2)}</span>`;
+        }
       } else {
         html += '<br><span style="font-size:0.8rem;color:var(--muted);">Aucun plat ouvert.</span>';
       }
@@ -1028,14 +1101,16 @@ function printTomorrowSummary(){
   } else {
     if (r1Day) {
       const total = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
+      const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
       body += `<h2>${escapeHtml(state.name1)}</h2>
-        <p>Ouvert par ${r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)'} — ${total} / ${r1Day.Capacite} couverts réservés</p>
-        <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th></tr>
-        ${r1Bookings.length === 0 ? '<tr><td colspan="3">Aucune réservation.</td></tr>' :
-          r1Bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td></tr>`).join('')}
+        <p>Ouvert par ${r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)'} — ${total} / ${r1Day.Capacite} couverts réservés${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</p>
+        <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th></tr>
+        ${r1Bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
+          r1Bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.PrixTotal ? formatEuro(b.PrixTotal) : ''}</td></tr>`).join('')}
         </table>`;
     }
     if (r2Day) {
+      let totalPrixR2 = 0;
       body += `<h2>${escapeHtml(state.name2)}</h2>
         <p>Ouvert par ${r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)'}</p>`;
       if (r2Items.length === 0) {
@@ -1044,12 +1119,14 @@ function printTomorrowSummary(){
         r2Items.forEach(item => {
           const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
           const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
-          body += `<h3>${escapeHtml(item.Nom)} — ${total} / ${item.Stock}</h3>
-            <table><tr><th>Nom</th><th>Classe</th><th>Portions</th></tr>
-            ${bookings.length === 0 ? '<tr><td colspan="3">Aucune réservation.</td></tr>' :
-              bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td></tr>`).join('')}
+          if (item.Prix) totalPrixR2 += total * Number(item.Prix);
+          body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''} — ${total} / ${item.Stock}</h3>
+            <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Prix</th></tr>
+            ${bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
+              bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${item.Prix ? formatEuro(item.Prix * b.Qte) : ''}</td></tr>`).join('')}
             </table>`;
         });
+        if (totalPrixR2 > 0) body += `<p><b>Total ${escapeHtml(state.name2)} : ${formatEuro(totalPrixR2)}</b></p>`;
       }
     }
   }
