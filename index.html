@@ -1034,10 +1034,7 @@ function showTomorrowSummary(){
   const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
   
   let html = `<div class="summary-panel" style="background:#EDF0E4;border:1px solid #C5CFAF;border-radius:8px;padding:12px;margin:10px 0;font-size:0.9rem;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-weight:600;color:#2B2622;">Résumé pour demain (${formatDate(tomorrow)})</div>
-      <button class="btn small" style="padding:4px 10px;font-size:0.76rem;" onclick="printTomorrowSummary()">🖨️ Imprimer</button>
-    </div>`;
+    <div style="font-weight:600;color:#2B2622;margin-bottom:8px;">Résumé pour demain (${formatDate(tomorrow)})</div>`;
   
   if (!r1Day && !r2Day) {
     html += '<p style="color:var(--muted);margin:0;">Aucun jour ouvert pour demain.</p>';
@@ -1047,7 +1044,11 @@ function showTomorrowSummary(){
       const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
       const collegueR1 = r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)';
       html += `<div style="margin:6px 0;padding:6px 0;border-bottom:1px solid #C5CFAF;">
-        <b style="color:#8B5E20;">${escapeHtml(state.name1)}</b> (ouvert par ${collegueR1})<br>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;">
+          <b style="color:#8B5E20;">${escapeHtml(state.name1)}</b>
+          <button class="btn small" style="padding:4px 8px;font-size:0.7rem;" onclick="printTomorrowSummaryR1()">🖨️</button>
+        </div>
+        <div style="color:#6B5638;font-size:0.85rem;">Ouvert par ${collegueR1}</div>
         <span style="color:var(--muted);">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</span>`;
       if (r1Bookings.length > 0) {
         html += '<br><span style="font-size:0.8rem;color:var(--muted);">Clients : ' + 
@@ -1060,7 +1061,11 @@ function showTomorrowSummary(){
       let totalPrixR2 = 0;
       let hasGapR2 = false;
       html += `<div style="margin:6px 0;">
-        <b style="color:#B84A1D;">${escapeHtml(state.name2)}</b> (ouvert par ${collegueR2})`;
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;">
+          <b style="color:#B84A1D;">${escapeHtml(state.name2)}</b>
+          <button class="btn small" style="padding:4px 8px;font-size:0.7rem;" onclick="printTomorrowSummaryR2()">🖨️</button>
+        </div>
+        <div style="color:#7A4A30;font-size:0.85rem;">Ouvert par ${collegueR2}</div>`;
       if (r2Items.length > 0) {
         html += '<br>';
         r2Items.forEach(item => {
@@ -1135,6 +1140,79 @@ function printTomorrowSummary(){
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}h3{font-size:0.9rem;margin-top:14px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
     </head><body>
     <h1>Résumé pour demain</h1>
+    <p>${formatDate(tomorrow)}</p>
+    ${body}
+    </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>w.print(), 300);
+}
+
+function printTomorrowSummaryR1(){
+  const tomorrow = getTomorrowISO();
+  const r1Day = state.r1Days.find(d => d.Date === tomorrow);
+  const r1Bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
+
+  let body = '';
+  if (!r1Day) {
+    body = '<p>Aucun jour ouvert pour demain.</p>';
+  } else {
+    const total = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
+    const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
+    body += `<h2>${escapeHtml(state.name1)}</h2>
+      <p>Ouvert par ${r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)'} — ${total} / ${r1Day.Capacite} couverts réservés${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</p>
+      <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th></tr>
+      ${r1Bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
+        r1Bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.PrixTotal ? formatEuro(b.PrixTotal) : ''}</td></tr>`).join('')}
+      </table>`;
+  }
+
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name1)} — demain ${formatDate(tomorrow)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
+    </head><body>
+    <h1>${escapeHtml(state.name1)}</h1>
+    <p>${formatDate(tomorrow)}</p>
+    ${body}
+    </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>w.print(), 300);
+}
+
+function printTomorrowSummaryR2(){
+  const tomorrow = getTomorrowISO();
+  const r2Day = state.r2Days.find(d => d.Date === tomorrow);
+  const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
+  const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
+
+  let body = '';
+  if (!r2Day) {
+    body = '<p>Aucun jour ouvert pour demain.</p>';
+  } else {
+    let totalPrixR2 = 0;
+    body += `<h2>${escapeHtml(state.name2)}</h2>
+      <p>Ouvert par ${r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)'}</p>`;
+    if (r2Items.length === 0) {
+      body += '<p>Aucun plat ouvert.</p>';
+    } else {
+      r2Items.forEach(item => {
+        const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
+        const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
+        if (item.Prix) totalPrixR2 += total * Number(item.Prix);
+        body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''} — ${total} / ${item.Stock}</h3>
+          <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Prix</th></tr>
+          ${bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
+            bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${item.Prix ? formatEuro(item.Prix * b.Qte) : ''}</td></tr>`).join('')}
+          </table>`;
+      });
+      if (totalPrixR2 > 0) body += `<p><b>Total ${escapeHtml(state.name2)} : ${formatEuro(totalPrixR2)}</b></p>`;
+    }
+  }
+
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name2)} — demain ${formatDate(tomorrow)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}h3{font-size:0.9rem;margin-top:14px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
+    </head><body>
+    <h1>${escapeHtml(state.name2)}</h1>
     <p>${formatDate(tomorrow)}</p>
     ${body}
     </body></html>`;
