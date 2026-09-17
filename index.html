@@ -124,8 +124,8 @@
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1>Réservations des restaurants pédagogiques</h1>
-      <p>Table côté restaurant 1 · Plats à emporter ou sur place côté restaurant 2</p>
+      <h1>Réservations des restaurants pédagogiques et Aristide</h1>
+      <p id="page-subtitle">Table côté restaurant 1 · Plats à emporter ou sur place côté restaurant 2</p>
     </div>
     <div class="mode-box" id="modeBox"></div>
   </header>
@@ -1068,6 +1068,7 @@ function printTomorrowSummary(){
 
 function render(){
   document.getElementById('title-r1').textContent = state.name1;
+  document.getElementById('page-subtitle').textContent = 'Table côté ' + state.name1 + ' · Plats à emporter ou sur place côté ' + state.name2;
   document.getElementById('title-r2').textContent = state.name2;
   document.getElementById('desc-r1').textContent = state.desc1;
   document.getElementById('desc-r2').textContent = state.desc2;
