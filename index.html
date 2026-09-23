@@ -997,8 +997,9 @@ function printDayR2(date){
   // Regroupement des plats par client (même nom + classe + contact)
   const clients = [];
   const byKey = {};
+  const norm = v => (v===null || v===undefined ? '' : String(v)).trim();
   bookings.forEach(b=>{
-    const key = [(b.Nom||'').trim().toLowerCase(), (b.Classe||'').trim().toLowerCase(), (b.Contact||'').trim().toLowerCase()].join('|');
+    const key = [norm(b.Nom).toLowerCase(), norm(b.Classe).toLowerCase(), norm(b.Contact).toLowerCase()].join('|');
     let c = byKey[key];
     if(!c){
       c = byKey[key] = { Nom:b.Nom, Classe:b.Classe, Contact:b.Contact, lignes:[], qte:0, prix:0, modes:{} };
