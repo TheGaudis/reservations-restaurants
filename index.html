@@ -990,27 +990,60 @@ function printDayR1(date){
 function printDayR2(date){
   const day = state.r2Days.find(d=>d.Date===date);
   const items = state.r2Items.filter(it=>it.Date===date);
-  let body = '';
-  let grandTotal = 0;
-  items.forEach(item=>{
-    const bookings = state.r2Bookings.filter(b=>b.ItemID===item.ID);
-    const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
-    const itemTotalPrix = item.Prix ? total * Number(item.Prix) : 0;
-    grandTotal += itemTotalPrix;
-    const rows = bookings.length===0 ? '<tr><td colspan="5">Aucune réservation.</td></tr>' :
-      bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${item.Prix ? formatEuro(item.Prix * b.Qte) : ''}</td><td>${b.Mode==='emporter'?'À emporter':'Sur place'}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
-    body += `<h2>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''} — ${total} / ${item.Stock}</h2>
-      <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Prix</th><th>Mode</th><th>Contact</th></tr>${rows}</table>`;
+  const itemById = {};
+  items.forEach(it=>{ itemById[it.ID] = it; });
+  const bookings = state.r2Bookings.filter(b=>itemById[b.ItemID]);
+
+  // Regroupement des plats par client (même nom + classe + contact)
+  const clients = [];
+  const byKey = {};
+  bookings.forEach(b=>{
+    const key = [(b.Nom||'').trim().toLowerCase(), (b.Classe||'').trim().toLowerCase(), (b.Contact||'').trim().toLowerCase()].join('|');
+    let c = byKey[key];
+    if(!c){
+      c = byKey[key] = { Nom:b.Nom, Classe:b.Classe, Contact:b.Contact, lignes:[], qte:0, prix:0, modes:{} };
+      clients.push(c);
+    }
+    const item = itemById[b.ItemID];
+    const qte = Number(b.Qte);
+    const prix = item.Prix ? Number(item.Prix) * qte : 0;
+    c.lignes.push({ nom:item.Nom, qte:qte, prix:prix, obs:b.Observation });
+    c.qte += qte;
+    c.prix += prix;
+    c.modes[b.Mode==='emporter'?'À emporter':'Sur place'] = true;
   });
+  clients.sort((a,b)=> String(a.Classe||'').localeCompare(String(b.Classe||'')) || String(a.Nom||'').localeCompare(String(b.Nom||'')));
+
+  const grandTotal = clients.reduce((s,c)=>s+c.prix,0);
+  const totalPortions = clients.reduce((s,c)=>s+c.qte,0);
+
+  const clientRows = clients.length===0 ? '<tr><td colspan="7">Aucune réservation.</td></tr>' :
+    clients.map(c=>{
+      const plats = c.lignes.map(l=>`${l.qte}× ${escapeHtml(l.nom)}${l.prix ? ' — ' + formatEuro(l.prix) : ''}${l.obs ? ' — <i>' + escapeHtml(l.obs) + '</i>' : ''}`).join('<br>');
+      const modes = Object.keys(c.modes).join(' + ');
+      return `<tr><td>${escapeHtml(c.Nom)}</td><td>${escapeHtml(c.Classe)}</td><td>${plats}</td><td>${c.qte}</td><td>${c.prix ? formatEuro(c.prix) : ''}</td><td>${modes}</td><td>${escapeHtml(c.Contact)}</td></tr>`;
+    }).join('');
+
+  const recapRows = items.length===0 ? '<tr><td colspan="3">Aucun plat.</td></tr>' :
+    items.map(item=>{
+      const total = bookings.filter(b=>b.ItemID===item.ID).reduce((s,b)=>s+Number(b.Qte),0);
+      return `<tr><td>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''}</td><td>${total} / ${item.Stock}</td><td>${item.Prix ? formatEuro(total * Number(item.Prix)) : ''}</td></tr>`;
+    }).join('');
+
+  const body = `<h2>Par client (${clients.length})</h2>
+    <table><tr><th>Nom</th><th>Classe</th><th>Plats</th><th>Portions</th><th>Prix</th><th>Mode</th><th>Contact</th></tr>${clientRows}</table>
+    <h2>Récapitulatif par plat</h2>
+    <table><tr><th>Plat</th><th>Portions</th><th>Prix</th></tr>${recapRows}</table>`;
+
   const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name2)} — ${formatDate(date)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}.total{margin-top:14px;font-weight:bold;}</style>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;vertical-align:top;}th{background:#eee;}tr{page-break-inside:avoid;}.total{margin-top:14px;font-weight:bold;}</style>
     </head><body>
     <h1>${escapeHtml(state.name2)}</h1>
     <p>${formatDate(date)}</p>
     ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
     ${day && day.Note ? `<p><b>Note :</b> ${escapeHtml(day.Note)}</p>` : ''}
     ${body}
-    ${grandTotal > 0 ? `<p class="total">Total du jour : ${formatEuro(grandTotal)}</p>` : ''}
+    <p class="total">Total du jour : ${clients.length} client(s) — ${totalPortions} portion(s)${grandTotal > 0 ? ' — ' + formatEuro(grandTotal) : ''}</p>
     </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(html); w.document.close(); w.focus();
