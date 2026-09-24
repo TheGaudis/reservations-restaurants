@@ -1369,8 +1369,12 @@ function printDayR1(date){
     <p>${formatDate(date)}</p>
     ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
     ${day && day.Menu ? `<p><b>Menu :</b> ${escapeHtml(day.Menu)}</p>` : ''}
+    ${day && day.OuvertPar ? `<p><b>Responsable :</b> ${escapeHtml(day.OuvertPar)}</p>` : ''}
     <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th><th>Contact</th></tr>${rows}</table>
     <p class="total">Total : ${total} couvert(s)${day ? ' / ' + day.Capacite + ' disponibles' : ''}${totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''}</p>
+    <div style="margin-top:50px; border-top:1px solid #999; padding-top:20px;">
+      <p style="margin:0;font-size:0.85rem;">Signature du responsable : ____________________________</p>
+    </div>
     </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
