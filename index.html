@@ -85,16 +85,45 @@
      Axe partagé X (‹ ›) : l'ancien contenu s'efface dans le premier tiers en glissant,
      le nouveau arrive du côté où l'on va. Axe partagé Z (Semaine / Mois) : même rythme,
      avec un léger zoom. La fiche du jour suit le changement de hauteur en glissant. */
-  :root[data-cal-rest="r1"] :is(#cal-r1 .cal-label, #cal-r1 .cal-grid), :root[data-cal-rest="r2"] :is(#cal-r2 .cal-label, #cal-r2 .cal-grid){view-transition-class:cal-content;}
-  #detail-r1{view-transition-name:detail-r1;view-transition-class:cal-follow;}
-  #detail-r2{view-transition-name:detail-r2;view-transition-class:cal-follow;}
+  /* Seul le restaurant concerné participe à la transition ; l'autre colonne reste dans la page */
+  :root[data-cal-rest="r1"] #cal-r1 .cal-label{view-transition-name:cal-r1-label;view-transition-class:cal-content;}
+  :root[data-cal-rest="r1"] #cal-r1 .cal-grid{view-transition-name:cal-r1-grid;view-transition-class:cal-content;}
+  :root[data-cal-rest="r2"] #cal-r2 .cal-label{view-transition-name:cal-r2-label;view-transition-class:cal-content;}
+  :root[data-cal-rest="r2"] #cal-r2 .cal-grid{view-transition-name:cal-r2-grid;view-transition-class:cal-content;}
+  :root[data-cal-rest="r1"] #detail-r1{view-transition-name:detail-r1;view-transition-class:cal-follow;}
+  :root[data-cal-rest="r2"] #detail-r2{view-transition-name:detail-r2;view-transition-class:cal-follow;}
   /* La colonne suit la hauteur du calendrier (découpe progressive) ; le reste de la page
      passe directement à son nouvel état, sans fondu enchaîné (pas de texte en double). */
-  #col-r1{view-transition-name:col-r1;view-transition-class:cal-col;}
-  #col-r2{view-transition-name:col-r2;view-transition-class:cal-col;}
+  :root[data-cal-rest="r1"] #col-r1{view-transition-name:col-r1;view-transition-class:cal-col;}
+  :root[data-cal-rest="r2"] #col-r2{view-transition-name:col-r2;view-transition-class:cal-col;}
   :root[data-cal-anim]::view-transition-old(root), :root[data-cal-anim]::view-transition-old(*.cal-col), :root[data-cal-anim]::view-transition-old(*.cal-follow){display:none;}
   :root[data-cal-anim]::view-transition-new(root), :root[data-cal-anim]::view-transition-new(*.cal-col), :root[data-cal-anim]::view-transition-new(*.cal-follow){animation:none;}
   ::view-transition-group(*.cal-col), ::view-transition-group(*.cal-content){overflow:clip;}
+  /* Les clics traversent la transition : on peut enchaîner les jours sans attendre */
+  ::view-transition{pointer-events:none;}
+  /* Changement de jour (axe partagé X, court et discret car fréquent) : seule la fiche du
+     restaurant concerné glisse, du côté du jour choisi ; le reste passe directement. */
+  :root[data-cal-anim^="day"]::view-transition-group(*.cal-col),
+  :root[data-cal-anim^="day"]::view-transition-group(*.cal-follow),
+  :root[data-cal-anim^="day"]::view-transition-group(*.cal-content){animation-duration:var(--dur);}
+  :root[data-cal-anim^="day"]::view-transition-old(*.cal-content){animation:none;display:none;}
+  :root[data-cal-anim^="day"]::view-transition-new(*.cal-content){animation:none;}
+  :root[data-cal-rest="r1"][data-cal-anim^="day"]::view-transition-old(detail-r1),
+  :root[data-cal-rest="r2"][data-cal-anim^="day"]::view-transition-old(detail-r2){display:block;mix-blend-mode:normal;animation:var(--dur) var(--ease-standard) both;}
+  :root[data-cal-rest="r1"][data-cal-anim^="day"]::view-transition-new(detail-r1),
+  :root[data-cal-rest="r2"][data-cal-anim^="day"]::view-transition-new(detail-r2){mix-blend-mode:normal;animation:var(--dur) var(--ease-standard) both;}
+  :root[data-cal-rest="r1"][data-cal-anim="day-next"]::view-transition-old(detail-r1),
+  :root[data-cal-rest="r2"][data-cal-anim="day-next"]::view-transition-old(detail-r2){animation-name:day-out-next;}
+  :root[data-cal-rest="r1"][data-cal-anim="day-next"]::view-transition-new(detail-r1),
+  :root[data-cal-rest="r2"][data-cal-anim="day-next"]::view-transition-new(detail-r2){animation-name:day-in-next;}
+  :root[data-cal-rest="r1"][data-cal-anim="day-prev"]::view-transition-old(detail-r1),
+  :root[data-cal-rest="r2"][data-cal-anim="day-prev"]::view-transition-old(detail-r2){animation-name:day-out-prev;}
+  :root[data-cal-rest="r1"][data-cal-anim="day-prev"]::view-transition-new(detail-r1),
+  :root[data-cal-rest="r2"][data-cal-anim="day-prev"]::view-transition-new(detail-r2){animation-name:day-in-prev;}
+  @keyframes day-out-next{35%{opacity:0;}to{opacity:0;transform:translateX(calc(-1 * var(--space-4)));}}
+  @keyframes day-in-next{from{opacity:0;transform:translateX(var(--space-4));}35%{opacity:0;}}
+  @keyframes day-out-prev{35%{opacity:0;}to{opacity:0;transform:translateX(var(--space-4));}}
+  @keyframes day-in-prev{from{opacity:0;transform:translateX(calc(-1 * var(--space-4)));}35%{opacity:0;}}
   ::view-transition-group(*.cal-content), ::view-transition-group(*.cal-follow), ::view-transition-group(*.cal-col){animation-duration:var(--dur-slow);animation-timing-function:var(--ease-standard);}
   ::view-transition-old(*.cal-content), ::view-transition-new(*.cal-content){mix-blend-mode:normal;transform-origin:top center;
     animation-duration:var(--dur-slow);animation-timing-function:var(--ease-standard);animation-fill-mode:both;}
@@ -170,6 +199,15 @@
   .booking-form{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
   /* Liste des plats d'Aristide : se replie vers le haut quand la commande s'ouvre, se redéploie à l'annulation */
   .day-card{scroll-margin-top:var(--space-4);}
+  /* Formulaire du restaurant pédagogique : se déplie depuis le bouton « Réserver », se replie à l'annulation.
+     overflow-clip-margin laisse dépasser les halos de focus des champs. */
+  .form-reveal{display:grid;grid-template-rows:1fr;scroll-margin-top:var(--space-4);}
+  .form-reveal-inner{min-height:0;}
+  .form-reveal.enter > .form-reveal-inner, .form-reveal.leaving > .form-reveal-inner{overflow:clip;overflow-clip-margin:var(--space-2);}
+  .form-reveal.enter{animation:reveal-open var(--dur-slow) var(--ease-standard);}
+  .form-reveal.leaving{animation:reveal-close var(--dur-fast) var(--ease-exit) forwards;}
+  @keyframes reveal-open{from{grid-template-rows:0fr;}}
+  @keyframes reveal-close{to{grid-template-rows:0fr;opacity:0;}}
   .menu-list{display:grid;grid-template-rows:1fr;}
   .menu-list-inner{min-height:0;overflow:hidden;}
   .menu-list.collapsing{grid-template-rows:0fr;opacity:0;animation:menu-up var(--dur-slow) var(--ease-standard);}
@@ -552,7 +590,7 @@ function blockError(el, msg){
   if(el.id && el.matches('input, select, textarea')){ p.id = el.id + '-error'; markInvalid(el, p.id); }
 }
 function focusFirstError(scope){
-  const first = (scope || document).querySelector('.has-error input, .has-error select');
+  const first = (scope || document).querySelector('.has-error input, .has-error select, .has-error .date-trigger');
   if(first) first.focus();
 }
 document.addEventListener('input', e => {
@@ -566,32 +604,104 @@ document.addEventListener('input', e => {
   if(next && next.classList.contains('field-error')) next.remove();
 });
 
-// Habille les pages imprimées (logo, bandeau tricolore, tableaux aux couleurs du lycée).
-function brandPrintHtml(html){
+// ---------- Documents imprimés (charte + Material 3) ----------
+// Les fenêtres d'impression ne chargent pas design-system.css : on y recopie, au moment
+// d'imprimer, la valeur actuelle des jetons de la charte (couleurs, polices, tailles).
+// Rien n'est donc écrit en dur ici : si la charte change, les impressions suivent.
+const PRINT_TOKENS = ['--ab-green','--ab-green-ink','--ab-green-deep','--ab-blue','--ab-blue-ink','--ab-magenta','--ab-magenta-ink',
+  '--ab-gradient','--text','--text-muted','--border','--border-strong','--surface-alt','--font-display','--font-body',
+  '--fw-medium','--fw-semibold','--tracking-caps','--radius-sm'];
+// Couleur du restaurant : trait oblique (mark), filets (accent) et textes (ink, contraste AA)
+const PRINT_ACCENTS = {
+  r1:   { mark:'--ab-green',   accent:'--ab-green-ink',   ink:'--ab-green-deep' },
+  r2:   { mark:'--ab-magenta', accent:'--ab-magenta',     ink:'--ab-magenta-ink' },
+  both: { mark:'--ab-blue',    accent:'--ab-blue',        ink:'--ab-blue-ink' }
+};
+function printTokensCss(){
+  const cs = getComputedStyle(document.documentElement);
+  const vars = PRINT_TOKENS.map(t => `${t}:${cs.getPropertyValue(t).trim()};`).join('');
+  const accents = Object.entries(PRINT_ACCENTS).map(([k, a]) =>
+    `.pb-${k}{--p-mark:var(${a.mark});--p-accent:var(${a.accent});--p-ink:var(${a.ink});}`).join('');
+  // la zone « Page x / y » ne voit pas les variables de la page : on lui donne directement les valeurs
+  const pageBox = `@page{@bottom-right{font-family:${cs.getPropertyValue('--font-body').trim()};color:${cs.getPropertyValue('--text-muted').trim()};}}`;
+  return `:root{${vars}}${accents}${pageBox}`;
+}
+const PRINT_CSS = `
+  @page{size:A4;margin:14mm 14mm 16mm;
+    @bottom-right{content:"Page " counter(page) " / " counter(pages);font-size:8pt;}}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);font-size:10pt;line-height:1.45;color:var(--text);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media screen{body{max-width:190mm;margin:0 auto;padding:10mm 8mm;}}
+  .pb-stripe{height:4px;background:var(--ab-gradient);margin-bottom:5mm;}
+  .pb-head{display:flex;align-items:center;gap:5mm;padding-bottom:4mm;border-bottom:1px solid var(--border);}
+  .pb-head img{height:16mm;width:auto;}
+  .pb-school{font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);line-height:1.5;}
+  .pb-date{margin-left:auto;font-size:8pt;color:var(--text-muted);}
+  h1,h2,h3{font-family:var(--font-display);font-weight:var(--fw-semibold);line-height:1.25;break-after:avoid;}
+  h1{display:flex;align-items:center;gap:3mm;font-size:20pt;color:var(--p-ink);margin:7mm 0 1mm;}
+  h1::before, h2.pb-mark::before{content:"";flex:0 0 auto;width:1.6mm;height:.95em;transform:skewX(-22deg);border-radius:.5mm;background:var(--p-mark);}
+  .pb-sub{margin:0 0 5mm;font-size:11pt;color:var(--text-muted);}
+  .pb-sub::first-letter{text-transform:uppercase;}
+  h2{display:flex;align-items:center;gap:2.5mm;font-size:13pt;color:var(--p-ink);margin:8mm 0 2.5mm;}
+  h3{display:flex;justify-content:space-between;gap:4mm;font-size:10.5pt;color:var(--text);margin:5mm 0 1.5mm;}
+  h3 span{font-family:var(--font-body);font-weight:var(--fw-medium);color:var(--text-muted);white-space:nowrap;}
+  .pb-meta{display:grid;grid-template-columns:max-content 1fr;gap:1.5mm 6mm;margin:0 0 6mm;padding:3.5mm 4mm;border:1px solid var(--border);border-radius:var(--radius-sm);break-inside:avoid;}
+  .pb-meta dt{font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);padding-top:.6mm;}
+  .pb-meta dd{margin:0;}
+  /* Tableaux (M3 « data table ») : en-têtes en petites capitales, séparateurs fins, nombres à droite */
+  table{width:100%;border-collapse:collapse;font-size:9.5pt;}
+  thead{display:table-header-group;}
+  th{text-align:left;font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--p-ink);padding:2mm 2.5mm;border-bottom:2px solid var(--p-accent);}
+  td{padding:2mm 2.5mm;border-bottom:1px solid var(--border);vertical-align:top;}
+  tr{break-inside:avoid;}
+  .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  td.pb-empty{text-align:center;color:var(--text-muted);font-style:italic;}
+  .pb-total{display:flex;justify-content:space-between;align-items:baseline;gap:6mm;margin:5mm 0 0;padding:3mm 4mm;background:var(--surface-alt);border-left:4px solid var(--p-accent);border-radius:var(--radius-sm);break-inside:avoid;}
+  .pb-total span{font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);}
+  .pb-total b{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:12pt;font-variant-numeric:tabular-nums;}
+  .pb-sign{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:14mm;break-inside:avoid;}
+  .pb-sign div{padding-bottom:12mm;border-bottom:1px solid var(--border-strong);font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);}
+  .pb-note{color:var(--text-muted);}
+  .pb-foot{margin-top:10mm;padding-top:3mm;border-top:1px solid var(--border);font-size:7.5pt;color:var(--text-muted);text-align:center;}
+`;
+// Document complet : en-tête (bandeau, logo, date d'impression), titre à la couleur du restaurant, contenu, pied
+function printDoc({ title, accent, heading, date, meta = [], body, total = '', signature = false }){
   const logo = document.querySelector('.brand-logo');
   const printedOn = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-  const css = `<style>
-    @page{margin:14mm;}
-    body{font-family:'Segoe UI',Arial,sans-serif !important;color:#1F2328 !important;padding:0 !important;margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    @media screen{body{padding:24px !important;}}
-    .pb-stripe{height:5px;background:linear-gradient(100deg,#A9C23F 0 33.4%,#1F4E9E 33.4% 66.7%,#A3237F 66.7% 100%);margin-bottom:14px;}
-    .pb-head{display:flex;align-items:center;gap:14px;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid #E2E4DD;}
-    .pb-head img{height:64px;}
-    .pb-head .pb-school{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#8C8C8C;font-weight:600;}
-    .pb-head .pb-date{margin-left:auto;font-size:.75rem;color:#646A70;}
-    h1{font-size:1.35rem !important;margin:0 0 2px !important;color:#173D7D;}
-    h2{font-size:1rem !important;color:#173D7D;border-left:4px solid #A9C23F;padding-left:8px;margin-top:22px !important;}
-    table{border-collapse:collapse !important;border:1px solid #D6D9D1;}
-    th{background:#1F4E9E !important;color:#FFFFFF !important;border-color:#1F4E9E !important;font-weight:600;}
-    td,th{border-color:#D6D9D1 !important;}
-    tr:nth-child(even) td{background:#F6F7F3;}
-    .total{background:#F3F4F0;border-left:4px solid #A3237F;padding:8px 12px;}
-    .pb-foot{margin-top:24px;padding-top:8px;border-top:1px solid #E2E4DD;font-size:.7rem;color:#8C8C8C;text-align:center;}
-  </style>`;
-  const head = `<div class="pb-stripe"></div><div class="pb-head">${logo ? `<img src="${logo.src}" alt="Lycée Aristide Briand">` : ''}
-    <div class="pb-school">Lycée professionnel Aristide Briand<br>Restaurants pédagogiques</div><div class="pb-date">Imprimé le ${printedOn}</div></div>`;
-  const foot = `<div class="pb-foot">Lycée professionnel Aristide Briand · Restaurants pédagogiques</div>`;
-  return html.replace('</head>', css + '</head>').replace(/<body>/, '<body>' + head).replace('</body>', foot + '</body>');
+  const metaHtml = meta.filter(m => m.value).map(m => `<dt>${m.label}</dt><dd>${m.value}</dd>`).join('');
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>${printTokensCss()}${PRINT_CSS}</style></head>
+    <body class="pb-${accent}">
+      <div class="pb-stripe"></div>
+      <div class="pb-head">${logo ? `<img src="${logo.src}" alt="Lycée Aristide Briand">` : ''}
+        <div class="pb-school">Lycée professionnel Aristide Briand<br>Restaurants pédagogiques</div>
+        <div class="pb-date">Imprimé le ${printedOn}</div></div>
+      <h1>${heading}</h1>
+      <p class="pb-sub">${date}</p>
+      ${metaHtml ? `<dl class="pb-meta">${metaHtml}</dl>` : ''}
+      ${body}
+      ${total}
+      ${signature ? '<div class="pb-sign"><div>Nom du responsable</div><div>Signature</div></div>' : ''}
+      <div class="pb-foot">Lycée professionnel Aristide Briand · Restaurants pédagogiques</div>
+    </body></html>`;
+}
+// Tableau : cols = [{ label, num? }], rows = tableaux de cellules (HTML) ; message si vide
+function printTable(cols, rows, emptyMsg){
+  const head = cols.map(c => `<th${c.num ? ' class="num"' : ''}>${c.label}</th>`).join('');
+  const body = rows.length === 0
+    ? `<tr><td class="pb-empty" colspan="${cols.length}">${emptyMsg}</td></tr>`
+    : rows.map(r => '<tr>' + r.map((cell, i) => `<td${cols[i].num ? ' class="num"' : ''}>${cell}</td>`).join('') + '</tr>').join('');
+  return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+function printTotal(label, value){ return `<div class="pb-total"><span>${label}</span><b>${value}</b></div>`; }
+// Ouvre la fenêtre et lance l'impression une fois les polices de la charte chargées
+function openPrint(html){
+  const w = window.open('', '_blank');
+  if(!w){ showToast('Autorisez les fenêtres de ce site pour imprimer.', true); return; }
+  w.document.write(html); w.document.close(); w.focus();
+  const ready = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
+  Promise.race([ready, new Promise(r => setTimeout(r, 2000))]).then(() => setTimeout(() => w.print(), 100));
 }
 
 // Récapitulatif affiché après une réservation réussie.
@@ -875,6 +985,102 @@ async function saveSettings(btn){
   }
 }
 
+// ---------- Sélecteur de date Material 3 (« Ouvrir un jour ») ----------
+// Le champ affiche la date en toutes lettres ; au clic, le calendrier du mois se déplie
+// dessous. Le bouton porte l'id date-r1 / date-r2 et sa valeur ISO (.value), comme l'ancien
+// <input type="date">. Jours passés grisés, jours déjà ouverts signalés.
+// Clavier : flèches (jour / semaine), Début / Fin, Page ↑ / ↓ (mois), Entrée ou Espace pour choisir, Échap pour fermer.
+const datePicker = { rest:null, month:null };   // calendrier déplié et mois affiché (1er du mois, ISO)
+const dateChoice = { r1:null, r2:null };        // date choisie ; sinon, le jour sélectionné du calendrier
+const CAL_ICON = `<svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z"/></svg>`;
+const firstOfMonth = iso => iso.slice(0, 8) + '01';
+function formDate(rest){ return dateChoice[rest] || calState[rest].selected; }
+function dateFieldHtml(rest){
+  const iso = formDate(rest), open = datePicker.rest === rest;
+  return `<div class="field date-field">
+    <label for="date-${rest}">Date</label>
+    <button type="button" class="date-trigger" id="date-${rest}" value="${iso}" aria-haspopup="dialog" aria-expanded="${open}"
+      onclick="toggleDatePicker('${rest}')"><span>${formatDate(iso)}</span>${CAL_ICON}</button>
+    ${open ? datePickerHtml(rest, iso) : ''}
+  </div>`;
+}
+function datePickerHtml(rest, selected){
+  const month = datePicker.month, today = todayISO();
+  const statusFn = rest === 'r1' ? dayStatusR1 : dayStatusR2;
+  const cells = buildMonthCells(month);
+  const focusIso = cells.some(c => c.inMonth && c.iso === selected) ? selected
+    : (cells.find(c => c.inMonth && c.iso >= today) || cells.find(c => c.inMonth)).iso;
+  const wd = ['L','M','M','J','V','S','D'].map(l => `<span class="dp-wd" aria-hidden="true">${l}</span>`).join('');
+  const days = cells.map(c => {
+    if(!c.inMonth) return '<span aria-hidden="true"></span>';
+    const past = c.iso < today, open = !!statusFn(c.iso);
+    const cls = 'dp-day' + (c.iso === today ? ' dp-today' : '');
+    const label = formatDate(c.iso) + (open ? ', déjà ouvert' : '') + (past ? ', passé' : '');
+    return `<button type="button" class="${cls}" data-iso="${c.iso}" aria-label="${label}" aria-pressed="${c.iso === selected}"`
+      + `${past ? ' aria-disabled="true"' : ''}${c.iso === today ? ' aria-current="date"' : ''} tabindex="${c.iso === focusIso ? 0 : -1}"`
+      + ` onclick="pickFormDate('${rest}','${c.iso}')">${c.dayNum}${open ? '<span class="dp-dot" aria-hidden="true"></span>' : ''}</button>`;
+  }).join('');
+  return `<div class="date-picker" role="dialog" aria-label="Choisir la date" onkeydown="dpKey(event,'${rest}')">
+    <div class="dp-head">
+      <button type="button" class="icon-btn" data-nav="dp-${rest}-prev" onclick="dpMonth('${rest}',-1)" aria-label="Mois précédent"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+      <span class="dp-label" aria-live="polite">${monthLabel(month)}</span>
+      <button type="button" class="icon-btn" data-nav="dp-${rest}-next" onclick="dpMonth('${rest}',1)" aria-label="Mois suivant"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+    </div>
+    <div class="dp-grid">${wd}${days}</div>
+    <p class="dp-legend"><span class="dp-dot" aria-hidden="true"></span> déjà ouvert</p>
+  </div>`;
+}
+// Seul le champ Date est réaffiché : le reste du formulaire garde ce qui a été saisi
+function refreshDateField(rest){
+  const f = document.getElementById('date-' + rest);
+  if(f) f.closest('.date-field').outerHTML = dateFieldHtml(rest);
+}
+function focusDp(rest, iso){
+  const el = document.querySelector(`#admin-${rest} .dp-day[data-iso="${iso}"]`) || document.querySelector(`#admin-${rest} .dp-day[tabindex="0"]`);
+  if(el) el.focus({ preventScroll: true });
+}
+function toggleDatePicker(rest){
+  if(datePicker.rest === rest){ closeDatePicker(); return; }
+  if(datePicker.rest) closeDatePicker(false);
+  datePicker.rest = rest; datePicker.month = firstOfMonth(formDate(rest));
+  refreshDateField(rest); focusDp(rest, formDate(rest));
+}
+function closeDatePicker(refocus = true){
+  const rest = datePicker.rest; if(!rest) return;
+  datePicker.rest = null; refreshDateField(rest);
+  const t = document.getElementById('date-' + rest); if(t && refocus) t.focus({ preventScroll: true });
+}
+function pickFormDate(rest, iso){
+  if(iso < todayISO()) return; // jour passé : non sélectionnable
+  dateChoice[rest] = iso;
+  const field = document.getElementById('date-' + rest).closest('.field');
+  if(field) clearFieldErrors(field);
+  closeDatePicker();
+}
+function dpMonth(rest, dir){
+  const d = new Date(datePicker.month + 'T00:00:00'); d.setMonth(d.getMonth() + dir);
+  datePicker.month = toISO(d);
+  keepFocus(() => refreshDateField(rest));
+}
+function dpKey(e, rest){
+  if(e.key === 'Escape'){ e.preventDefault(); closeDatePicker(); return; }
+  const cell = e.target.closest('.dp-day'); if(!cell) return;
+  const iso = cell.dataset.iso, d = new Date(iso + 'T00:00:00'), dow = (d.getDay() + 6) % 7;
+  const moves = { ArrowLeft:-1, ArrowRight:1, ArrowUp:-7, ArrowDown:7, Home:-dow, End:6-dow };
+  let target;
+  if(e.key in moves) target = addDaysISO(iso, moves[e.key]);
+  else if(e.key === 'PageUp' || e.key === 'PageDown'){ d.setMonth(d.getMonth() + (e.key === 'PageUp' ? -1 : 1)); target = toISO(d); }
+  else return;
+  e.preventDefault();
+  // Les flèches déplacent seulement le focus (M3) ; Entrée ou Espace choisit le jour
+  if(firstOfMonth(target) !== datePicker.month){ datePicker.month = firstOfMonth(target); refreshDateField(rest); }
+  document.querySelectorAll(`#admin-${rest} .dp-day`).forEach(b => b.tabIndex = (b.dataset.iso === target ? 0 : -1));
+  focusDp(rest, target);
+}
+// Clic en dehors du calendrier déplié : il se referme
+document.addEventListener('pointerdown', e => {
+  if(datePicker.rest && !e.target.closest('.date-field')) closeDatePicker(false);
+});
 function renderAdminFormR1(){
   const el = document.getElementById('admin-r1');
   if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
@@ -882,7 +1088,7 @@ function renderAdminFormR1(){
   el.innerHTML = `<details class="disclosure" ${addDayOpen.r1 ? 'open' : ''} ontoggle="addDayOpen.r1 = this.open">
     <summary class="add-day-summary"><span class="add-day-plus" aria-hidden="true">+</span>Ouvrir un jour</summary>
     <div class="add-day-body">
-    <div class="field"><label>Date</label><input type="date" id="date-r1" value="${calState.r1.selected}"></div>
+    ${dateFieldHtml('r1')}
     <div class="field"><label>Votre nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r1" placeholder="Ex. M. Dupont" autocomplete="name"></div>
     <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="cap-r1" placeholder="Ex. 20"></div>
     <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r1" placeholder="Ex. cuisine italienne"></div>
@@ -928,7 +1134,7 @@ function renderAdminFormR2(){
   el.innerHTML = `<details class="disclosure" ${addDayOpen.r2 ? 'open' : ''} ontoggle="addDayOpen.r2 = this.open">
     <summary class="add-day-summary"><span class="add-day-plus" aria-hidden="true">+</span>Ouvrir un jour</summary>
     <div class="add-day-body">
-    <div class="field"><label>Date</label><input type="date" id="date-r2" value="${calState.r2.selected}"></div>
+    ${dateFieldHtml('r2')}
     <div class="field"><label>Votre nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r2" placeholder="Ex. Mme Martin" autocomplete="name"></div>
     <div class="field"><label>Note (optionnel)</label><input type="text" id="note-r2" placeholder="Ex. semaine du menu bistrot"></div>
     <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r2" placeholder="Ex. semaine italienne"></div>
@@ -991,7 +1197,12 @@ async function deleteBookingR2(id, btn){
   catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
 
-function openBookingR1(date){ bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render(); }
+function openBookingR1(date){
+  bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render();
+  // si le formulaire s'ouvre dans le bas de l'écran, on le fait remonter en douceur
+  const form = document.querySelector('#detail-r1 .form-reveal');
+  if(form && form.getBoundingClientRect().top > window.innerHeight * 0.6) form.scrollIntoView({ block:'start' });
+}
 function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
   // la liste repliée raccourcit la page : on remonte en douceur au début de la fiche si elle est hors de vue
   const card = document.querySelector('#detail-r2 .day-card');
@@ -1249,9 +1460,13 @@ function editBookingFormR2Html(b){
   </div>`;
 }
 
+// Restaurant pédagogique : le formulaire se déplie vers le bas depuis l'emplacement du bouton
+// « Réserver » (même durée et même courbe que la liste d'Aristide), et se replie à l'annulation.
 function bookingFormHtml(date, rem){
+  const enter = enterOnce('bk-' + date);
   return `
-    <div class="booking-form${enterOnce('bk-' + date)}" data-form="bk-${date}">
+    <div class="form-reveal${enter}" data-form="bk-${date}"><div class="form-reveal-inner">
+    <div class="booking-form${enter}">
       <div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
       <div class="row2">
         ${contactFieldHtml()}
@@ -1272,6 +1487,7 @@ function bookingFormHtml(date, rem){
         <button class="btn ghost" onclick="closeBooking()">Annuler</button>
       </div>
     </div>
+    </div></div>
   `;
 }
 function updateR1PriceLive(){
@@ -1388,7 +1604,7 @@ function jumpToday(rest){
   const update = () => { if(dir && !canViewTransition()) st.slide = dir; st.anchor = t; st.selected = t; render(); };
   if(dir) calTransition(rest, dir > 0 ? 'next' : 'prev', update); else update();
 }
-function selectDate(rest, iso){ calState[rest].selected = iso; openBookingTarget = null; bookingConfirmation = null; render(); }
+function selectDate(rest, iso){ calState[rest].selected = iso; dateChoice[rest] = null; openBookingTarget = null; bookingConfirmation = null; render(); }
 
 function renderCalendar(rest, containerId, statusFn){
   const cs = calState[rest];
@@ -1411,7 +1627,7 @@ function renderCalendar(rest, containerId, statusFn){
     const label = formatDate(c.iso) + ', ' + (CAL_STATUS_WORD[status] || 'aucun service') + (c.iso < today ? ', passé' : '');
     return `<button type="button" class="${classes.join(' ')}" data-iso="${c.iso}" aria-label="${label}"`
       + ` aria-pressed="${c.iso===cs.selected}"${c.iso===today ? ' aria-current="date"' : ''} tabindex="${c.iso===focusIso ? 0 : -1}"`
-      + ` onclick="pickDate('${rest}','${c.iso}')"><span class="cal-num" aria-hidden="true">${c.dayNum}</span>${dotHtml}</button>`;
+      + ` onclick="pickDate('${rest}','${c.iso}',true)"><span class="cal-num" aria-hidden="true">${c.dayNum}</span>${dotHtml}</button>`;
   }).join('');
   // glissement du libellé uniquement juste après une navigation
   const slideClass = cs.slide > 0 ? 'axis-next' : cs.slide < 0 ? 'axis-prev' : '';
@@ -1420,7 +1636,7 @@ function renderCalendar(rest, containerId, statusFn){
   document.getElementById(containerId).innerHTML = `
     <div class="cal-header">
       <button class="icon-btn tonal" data-nav="${rest}-prev" onclick="navCal('${rest}',-1)" aria-label="${unit} précédent${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
-      <div class="cal-label" aria-live="polite" style="view-transition-name:cal-${rest}-label"><span class="${slideClass}">${label}</span></div>
+      <div class="cal-label" aria-live="polite"><span class="${slideClass}">${label}</span></div>
       <button class="icon-btn tonal" data-nav="${rest}-next" onclick="navCal('${rest}',1)" aria-label="${unit} suivant${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
     </div>
     <div class="cal-toggle">
@@ -1430,7 +1646,7 @@ function renderCalendar(rest, containerId, statusFn){
       ], 'small')}
       <button class="btn ghost small" data-nav="${rest}-today" onclick="jumpToday('${rest}')">Aujourd'hui</button>
     </div>
-    <div class="cal-grid" style="view-transition-name:cal-${rest}-grid" role="group" aria-label="Jours ${cs.mode==='week' ? 'de la semaine' : 'du mois'} — flèches pour changer de jour" onkeydown="calKey(event,'${rest}')">${weekdayHeader}${cellsHtml}</div>
+    <div class="cal-grid" role="group" aria-label="Jours ${cs.mode==='week' ? 'de la semaine' : 'du mois'} — flèches pour changer de jour" onkeydown="calKey(event,'${rest}')">${weekdayHeader}${cellsHtml}</div>
   `;
 }
 // Disponibilité en toutes lettres (la pastille de couleur seule ne suffit pas)
@@ -1458,10 +1674,18 @@ function calKey(e, rest){
 }
 // Sélection d'un jour (clic, Entrée, Espace ou flèches) : le calendrier est réaffiché,
 // le focus est replacé sur la case choisie pour ne pas perdre sa place au clavier.
-function pickDate(rest, iso){
-  selectDate(rest, iso);
-  const cell = document.querySelector(`#cal-${rest} .cal-cell[data-iso="${iso}"]`);
-  if(cell) cell.focus({ preventScroll: true });
+// Au clic (animate), la fiche du jour change selon l'axe partagé X de Material 3 : elle arrive
+// du côté du jour choisi (plus tard : de la droite). Au clavier, pas d'animation.
+function pickDate(rest, iso, animate = false){
+  const from = calState[rest].selected;
+  const update = () => {
+    selectDate(rest, iso);
+    const cell = document.querySelector(`#cal-${rest} .cal-cell[data-iso="${iso}"]`);
+    if(cell) cell.focus({ preventScroll: true });
+  };
+  if(!animate || iso === from || !canViewTransition()){ update(); return; }
+  lastCard[rest] = iso + (isAdmin ? '·a' : '·c'); // la transition remplace l'animation d'entrée de la fiche
+  calTransition(rest, iso > from ? 'day-next' : 'day-prev', update);
 }
 
 function renderDetailR1(){
@@ -1623,25 +1847,23 @@ function printDayR1(date){
   const bookings = state.r1Bookings.filter(b=>b.Date===date);
   const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
   const totalPrix = bookings.reduce((s,b)=>s+Number(b.PrixTotal||0),0);
-  const rows = bookings.length===0 ? '<tr><td colspan="5">Aucune réservation.</td></tr>' :
-    bookings.map(b=>`<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.PrixTotal ? formatEuro(b.PrixTotal) : ''}</td><td>${escapeHtml(b.Contact)}</td></tr>`).join('');
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name1)} — ${formatDate(date)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:14px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}.total{margin-top:14px;font-weight:bold;}</style>
-    </head><body>
-    <h1>${escapeHtml(state.name1)}</h1>
-    <p>${formatDate(date)}</p>
-    ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
-    ${day && day.Menu ? `<p><b>Menu :</b> ${escapeHtml(day.Menu)}</p>` : ''}
-    ${day && day.OuvertPar ? `<p><b>Responsable :</b> ${escapeHtml(day.OuvertPar)}</p>` : ''}
-    <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th><th>Contact</th></tr>${rows}</table>
-    <p class="total">Total : ${total} couvert(s)${day ? ' / ' + day.Capacite + ' disponibles' : ''}${totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''}</p>
-    <div style="margin-top:50px; border-top:1px solid #999; padding-top:20px;">
-      <p style="margin:0;font-size:0.85rem;">Signature du responsable : ____________________________</p>
-    </div>
-    </body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
-  setTimeout(()=>w.print(), 300);
+  const table = printTable(
+    [{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true},{label:'Contact'}],
+    bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), b.Qte, b.PrixTotal ? formatEuro(b.PrixTotal) : '', escapeHtml(b.Contact)]),
+    'Aucune réservation.');
+  openPrint(printDoc({
+    title: `${escapeHtml(state.name1)} — ${formatDate(date)}`, accent:'r1',
+    heading: escapeHtml(state.name1), date: formatDate(date),
+    meta: [
+      { label:'Thème', value: day && day.Theme ? escapeHtml(day.Theme) : '' },
+      { label:'Menu', value: day && day.Menu ? escapeHtml(day.Menu) : '' },
+      { label:'Ouvert par', value: day && day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' },
+      { label:'Places', value: day ? `${total} / ${day.Capacite} couverts réservés` : '' }
+    ],
+    body: table,
+    total: printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')),
+    signature: true
+  }));
 }
 function printDayR2(date){
   const day = state.r2Days.find(d=>d.Date===date);
@@ -1674,40 +1896,35 @@ function printDayR2(date){
   const grandTotal = clients.reduce((s,c)=>s+c.prix,0);
   const totalPortions = clients.reduce((s,c)=>s+c.qte,0);
 
-  const clientRows = clients.length===0 ? '<tr><td colspan="7">Aucune réservation.</td></tr>' :
-    clients.map(c=>{
-      // En gras : quantité de chaque plat, commentaire du client et mode (à emporter / sur place)
-      const plats = c.lignes.map(l=>`<b>${l.qte}×</b> ${escapeHtml(l.nom)}${l.prix ? ' — ' + formatEuro(l.prix) : ''}${l.obs ? ' — <b><i>' + escapeHtml(l.obs) + '</i></b>' : ''}`).join('<br>');
-      const modes = '<b>' + Object.keys(c.modes).join(' + ') + '</b>';
-      return `<tr><td>${escapeHtml(c.Nom)}</td><td>${escapeHtml(c.Classe)}</td><td>${plats}</td><td>${c.qte}</td><td>${c.prix ? formatEuro(c.prix) : ''}</td><td>${modes}</td><td>${escapeHtml(c.Contact)}</td></tr>`;
-    }).join('');
-
-  const recapRows = items.length===0 ? '<tr><td colspan="3">Aucun plat.</td></tr>' :
+  // En gras : quantité de chaque plat, commentaire du client et mode (à emporter / sur place)
+  const clientTable = printTable(
+    [{label:'Nom'},{label:'Classe'},{label:'Plats'},{label:'Portions',num:true},{label:'Prix',num:true},{label:'Mode'},{label:'Contact'}],
+    clients.map(c=>[
+      escapeHtml(c.Nom), escapeHtml(c.Classe),
+      c.lignes.map(l=>`<b>${l.qte}×</b> ${escapeHtml(l.nom)}${l.prix ? ' — ' + formatEuro(l.prix) : ''}${l.obs ? '<br><b><i>' + escapeHtml(l.obs) + '</i></b>' : ''}`).join('<br>'),
+      c.qte, c.prix ? formatEuro(c.prix) : '', '<b>' + Object.keys(c.modes).join(' + ') + '</b>', escapeHtml(c.Contact)
+    ]),
+    'Aucune réservation.');
+  const recapTable = printTable(
+    [{label:'Plat'},{label:'Prix unitaire',num:true},{label:'Portions',num:true},{label:'Montant',num:true}],
     items.map(item=>{
       const total = bookings.filter(b=>b.ItemID===item.ID).reduce((s,b)=>s+Number(b.Qte),0);
-      return `<tr><td>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''}</td><td>${total} / ${item.Stock}</td><td>${item.Prix ? formatEuro(total * Number(item.Prix)) : ''}</td></tr>`;
-    }).join('');
+      return [escapeHtml(item.Nom), item.Prix ? formatEuro(item.Prix) : '', `${total} / ${item.Stock}`, item.Prix ? formatEuro(total * Number(item.Prix)) : ''];
+    }),
+    'Aucun plat.');
 
-  const body = `<h2>Par client (${clients.length})</h2>
-    <table><tr><th>Nom</th><th>Classe</th><th>Plats</th><th>Portions</th><th>Prix</th><th>Mode</th><th>Contact</th></tr>${clientRows}</table>
-    <h2>Récapitulatif par plat</h2>
-    <table><tr><th>Plat</th><th>Portions</th><th>Prix</th></tr>${recapRows}</table>`;
-
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name2)} — ${formatDate(date)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;vertical-align:top;}th{background:#eee;}tr{page-break-inside:avoid;}.total{margin-top:14px;font-weight:bold;}</style>
-    </head><body>
-    <h1>${escapeHtml(state.name2)}</h1>
-    <p>${formatDate(date)}</p>
-    ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
-    ${day && day.Note ? `<p><b>Note :</b> ${escapeHtml(day.Note)}</p>` : ''}
-    ${body}
-    <p class="total">Total du jour : ${clients.length} client(s) — ${totalPortions} portion(s)${grandTotal > 0 ? ' — ' + formatEuro(grandTotal) : ''}</p>
-    </body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
-  setTimeout(()=>w.print(), 300);
+  openPrint(printDoc({
+    title: `${escapeHtml(state.name2)} — ${formatDate(date)}`, accent:'r2',
+    heading: escapeHtml(state.name2), date: formatDate(date),
+    meta: [
+      { label:'Thème', value: day && day.Theme ? escapeHtml(day.Theme) : '' },
+      { label:'Note', value: day && day.Note ? escapeHtml(day.Note) : '' },
+      { label:'Ouvert par', value: day && day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' }
+    ],
+    body: `<h2>Par client (${clients.length})</h2>${clientTable}<h2>Récapitulatif par plat</h2>${recapTable}`,
+    total: printTotal('Total du jour', plural(clients.length, 'client') + ' · ' + plural(totalPortions, 'portion') + (grandTotal > 0 ? ' · ' + formatEuro(grandTotal) : ''))
+  }));
 }
-
 function getTomorrowISO() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1783,133 +2000,54 @@ function showTomorrowSummary(){
   if (summaryEl) summaryEl.innerHTML = html;
 }
 
-function printTomorrowSummary(){
-  const tomorrow = getTomorrowISO();
-  const r1Day = state.r1Days.find(d => d.Date === tomorrow);
-  const r2Day = state.r2Days.find(d => d.Date === tomorrow);
-  const r1Bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
-  const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
-  const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
-
-  let body = '';
-  if (!r1Day && !r2Day) {
-    body = '<p>Aucun jour ouvert pour demain.</p>';
-  } else {
-    if (r1Day) {
-      const total = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
-      const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
-      body += `<h2>${escapeHtml(state.name1)}</h2>
-        <p>Ouvert par ${r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)'} — ${total} / ${r1Day.Capacite} couverts réservés${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</p>
-        <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th></tr>
-        ${r1Bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
-          r1Bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.PrixTotal ? formatEuro(b.PrixTotal) : ''}</td></tr>`).join('')}
-        </table>`;
-    }
-    if (r2Day) {
-      let totalPrixR2 = 0;
-      body += `<h2>${escapeHtml(state.name2)}</h2>
-        <p>Ouvert par ${r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)'}</p>`;
-      if (r2Items.length === 0) {
-        body += '<p>Aucun plat ouvert.</p>';
-      } else {
-        r2Items.forEach(item => {
-          const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
-          const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
-          if (item.Prix) totalPrixR2 += total * Number(item.Prix);
-          body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''} — ${total} / ${item.Stock}</h3>
-            <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Prix</th></tr>
-            ${bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
-              bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${item.Prix ? formatEuro(item.Prix * b.Qte) : ''}</td></tr>`).join('')}
-            </table>`;
-        });
-        if (totalPrixR2 > 0) body += `<p><b>Total ${escapeHtml(state.name2)} : ${formatEuro(totalPrixR2)}</b></p>`;
-      }
-    }
-  }
-
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Résumé demain — ${formatDate(tomorrow)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}h3{font-size:0.9rem;margin-top:14px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
-    </head><body>
-    <h1>Résumé pour demain</h1>
-    <p>${formatDate(tomorrow)}</p>
-    ${body}
-    </body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
-  setTimeout(()=>w.print(), 300);
-}
-
+// Résumés « demain » (bouton imprimer du résumé) : un document par restaurant
 function printTomorrowSummaryR1(){
   const tomorrow = getTomorrowISO();
-  const r1Day = state.r1Days.find(d => d.Date === tomorrow);
-  const r1Bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
-
-  let body = '';
-  if (!r1Day) {
-    body = '<p>Aucun jour ouvert pour demain.</p>';
-  } else {
-    const total = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
-    const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
-    body += `<h2>${escapeHtml(state.name1)}</h2>
-      <p>Ouvert par ${r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)'} — ${total} / ${r1Day.Capacite} couverts réservés${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</p>
-      <table><tr><th>Nom</th><th>Classe</th><th>Couverts</th><th>Prix</th></tr>
-      ${r1Bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
-        r1Bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${b.PrixTotal ? formatEuro(b.PrixTotal) : ''}</td></tr>`).join('')}
-      </table>`;
-  }
-
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name1)} — demain ${formatDate(tomorrow)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
-    </head><body>
-    <h1>${escapeHtml(state.name1)}</h1>
-    <p>${formatDate(tomorrow)}</p>
-    ${body}
-    </body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
-  setTimeout(()=>w.print(), 300);
+  const day = state.r1Days.find(d => d.Date === tomorrow);
+  const bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
+  const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
+  const totalPrix = bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
+  openPrint(printDoc({
+    title: `${escapeHtml(state.name1)} — demain ${formatDate(tomorrow)}`, accent:'r1',
+    heading: escapeHtml(state.name1), date: 'Demain, ' + formatDate(tomorrow),
+    meta: day ? [
+      { label:'Ouvert par', value: day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' },
+      { label:'Places', value: `${total} / ${day.Capacite} couverts réservés` }
+    ] : [],
+    body: day
+      ? printTable([{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true}],
+          bookings.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), b.Qte, b.PrixTotal ? formatEuro(b.PrixTotal) : '']),
+          'Aucune réservation.')
+      : '<p class="pb-note">Aucun jour ouvert pour demain.</p>',
+    total: day ? printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : ''
+  }));
 }
 
 function printTomorrowSummaryR2(){
   const tomorrow = getTomorrowISO();
-  const r2Day = state.r2Days.find(d => d.Date === tomorrow);
-  const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
-  const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
-
-  let body = '';
-  if (!r2Day) {
-    body = '<p>Aucun jour ouvert pour demain.</p>';
-  } else {
-    let totalPrixR2 = 0;
-    body += `<h2>${escapeHtml(state.name2)}</h2>
-      <p>Ouvert par ${r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)'}</p>`;
-    if (r2Items.length === 0) {
-      body += '<p>Aucun plat ouvert.</p>';
-    } else {
-      r2Items.forEach(item => {
-        const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
-        const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
-        if (item.Prix) totalPrixR2 += total * Number(item.Prix);
-        body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + '/unité' : ''} — ${total} / ${item.Stock}</h3>
-          <table><tr><th>Nom</th><th>Classe</th><th>Portions</th><th>Prix</th></tr>
-          ${bookings.length === 0 ? '<tr><td colspan="4">Aucune réservation.</td></tr>' :
-            bookings.map(b => `<tr><td>${escapeHtml(b.Nom)}</td><td>${escapeHtml(b.Classe)}</td><td>${b.Qte}</td><td>${item.Prix ? formatEuro(item.Prix * b.Qte) : ''}</td></tr>`).join('')}
-          </table>`;
-      });
-      if (totalPrixR2 > 0) body += `<p><b>Total ${escapeHtml(state.name2)} : ${formatEuro(totalPrixR2)}</b></p>`;
-    }
-  }
-
-  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${escapeHtml(state.name2)} — demain ${formatDate(tomorrow)}</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;}h1{font-size:1.2rem;margin-bottom:4px;}h2{font-size:1rem;margin-top:20px;}h3{font-size:0.9rem;margin-top:14px;}p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:6px;}th,td{border:1px solid #999;padding:6px 10px;text-align:left;font-size:0.9rem;}th{background:#eee;}</style>
-    </head><body>
-    <h1>${escapeHtml(state.name2)}</h1>
-    <p>${formatDate(tomorrow)}</p>
-    ${body}
-    </body></html>`;
-  const w = window.open('', '_blank');
-  w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
-  setTimeout(()=>w.print(), 300);
+  const day = state.r2Days.find(d => d.Date === tomorrow);
+  const items = state.r2Items.filter(it => it.Date === tomorrow);
+  const bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
+  let body = '', totalPrix = 0, totalPortions = 0;
+  if(!day) body = '<p class="pb-note">Aucun jour ouvert pour demain.</p>';
+  else if(items.length === 0) body = '<p class="pb-note">Aucun plat ouvert.</p>';
+  else items.forEach(item => {
+    const bk = bookings.filter(b => b.ItemID === item.ID);
+    const total = bk.reduce((s, b) => s + Number(b.Qte), 0);
+    totalPortions += total;
+    if(item.Prix) totalPrix += total * Number(item.Prix);
+    body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + ' l\'unité' : ''}<span>${total} / ${item.Stock}</span></h3>`
+      + printTable([{label:'Nom'},{label:'Classe'},{label:'Portions',num:true},{label:'Prix',num:true}],
+          bk.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), b.Qte, item.Prix ? formatEuro(item.Prix * b.Qte) : '']),
+          'Aucune réservation.');
+  });
+  openPrint(printDoc({
+    title: `${escapeHtml(state.name2)} — demain ${formatDate(tomorrow)}`, accent:'r2',
+    heading: escapeHtml(state.name2), date: 'Demain, ' + formatDate(tomorrow),
+    meta: day ? [{ label:'Ouvert par', value: day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' }] : [],
+    body,
+    total: day && items.length ? printTotal('Total', plural(totalPortions, 'portion') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : ''
+  }));
 }
 
 function render(){
@@ -1936,7 +2074,7 @@ loadAll();
 setInterval(()=>{
   const active = document.activeElement;
   const isTypingSomewhere = active && active.tagName === 'INPUT';
-  if(openBookingTarget !== null || isTypingSomewhere) return;
+  if(openBookingTarget !== null || isTypingSomewhere || datePicker.rest) return;
   loadAll(true);
 }, 180000);
 </script>
