@@ -109,7 +109,8 @@
   --state-hover:.08;       /* opacité du calque d'état au survol */
   --state-press:.12;       /* opacité du calque d'état à l'appui et au focus */
   --focus-width:3px;       /* épaisseur de l'anneau de focus clavier */
-  --past-filter:grayscale(1); /* jour passé (case et fiche) : couleurs éteintes, contraste du texte conservé */
+  --past-opacity:.55;      /* jour passé (case du calendrier et fiche) : consultable, plus actif */
+  --outside-opacity:.35;   /* jour hors du mois affiché (vue Mois du calendrier) */
   --dot-size:6px;          /* pastilles : disponibilité du calendrier, badge d'état */
 
   /* --- Plans --- */
