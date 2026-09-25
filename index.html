@@ -77,32 +77,74 @@
   .desc{color:var(--text-muted);font-size:var(--fs-sm);margin:0 0 18px;max-width:52ch;}
 
   /* ---------- Calendrier ---------- */
-  .cal-header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);margin-bottom:10px;}
-  .cal-label{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:1rem;text-align:center;flex:1;color:var(--text);overflow:hidden;}
+  .cal-header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);}
+  .cal-label{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-lg);text-align:center;flex:1;color:var(--text);overflow:hidden;}
   .cal-label span{display:inline-block;}
   .cal-label span::first-letter{text-transform:uppercase;}
+  /* ---- Transitions Material 3 du calendrier (voir calTransition) ----
+     Axe partagé X (‹ ›) : l'ancien contenu s'efface dans le premier tiers en glissant,
+     le nouveau arrive du côté où l'on va. Axe partagé Z (Semaine / Mois) : même rythme,
+     avec un léger zoom. La fiche du jour suit le changement de hauteur en glissant. */
+  :root[data-cal-rest="r1"] :is(#cal-r1 .cal-label, #cal-r1 .cal-grid), :root[data-cal-rest="r2"] :is(#cal-r2 .cal-label, #cal-r2 .cal-grid){view-transition-class:cal-content;}
+  #detail-r1{view-transition-name:detail-r1;view-transition-class:cal-follow;}
+  #detail-r2{view-transition-name:detail-r2;view-transition-class:cal-follow;}
+  /* La colonne suit la hauteur du calendrier (découpe progressive) ; le reste de la page
+     passe directement à son nouvel état, sans fondu enchaîné (pas de texte en double). */
+  #col-r1{view-transition-name:col-r1;view-transition-class:cal-col;}
+  #col-r2{view-transition-name:col-r2;view-transition-class:cal-col;}
+  :root[data-cal-anim]::view-transition-old(root), :root[data-cal-anim]::view-transition-old(*.cal-col), :root[data-cal-anim]::view-transition-old(*.cal-follow){display:none;}
+  :root[data-cal-anim]::view-transition-new(root), :root[data-cal-anim]::view-transition-new(*.cal-col), :root[data-cal-anim]::view-transition-new(*.cal-follow){animation:none;}
+  ::view-transition-group(*.cal-col), ::view-transition-group(*.cal-content){overflow:clip;}
+  ::view-transition-group(*.cal-content), ::view-transition-group(*.cal-follow), ::view-transition-group(*.cal-col){animation-duration:var(--dur-slow);animation-timing-function:var(--ease-standard);}
+  ::view-transition-old(*.cal-content), ::view-transition-new(*.cal-content){mix-blend-mode:normal;transform-origin:top center;
+    animation-duration:var(--dur-slow);animation-timing-function:var(--ease-standard);animation-fill-mode:both;}
+  :root[data-cal-anim="next"]::view-transition-old(*.cal-content){animation-name:axis-x-out-next;}
+  :root[data-cal-anim="next"]::view-transition-new(*.cal-content){animation-name:axis-x-in-next;}
+  :root[data-cal-anim="prev"]::view-transition-old(*.cal-content){animation-name:axis-x-out-prev;}
+  :root[data-cal-anim="prev"]::view-transition-new(*.cal-content){animation-name:axis-x-in-prev;}
+  :root[data-cal-anim="zoom-in"]::view-transition-old(*.cal-content){animation-name:axis-z-out-in;}
+  :root[data-cal-anim="zoom-in"]::view-transition-new(*.cal-content){animation-name:axis-z-in-in;}
+  :root[data-cal-anim="zoom-out"]::view-transition-old(*.cal-content){animation-name:axis-z-out-out;}
+  :root[data-cal-anim="zoom-out"]::view-transition-new(*.cal-content){animation-name:axis-z-in-out;}
+  @keyframes axis-x-out-next{35%{opacity:0;}to{opacity:0;transform:translateX(calc(-1 * var(--space-8)));}}
+  @keyframes axis-x-in-next{from{opacity:0;transform:translateX(var(--space-8));}35%{opacity:0;}}
+  @keyframes axis-x-out-prev{35%{opacity:0;}to{opacity:0;transform:translateX(var(--space-8));}}
+  @keyframes axis-x-in-prev{from{opacity:0;transform:translateX(calc(-1 * var(--space-8)));}35%{opacity:0;}}
+  /* zoom avant (Mois -> Semaine) : l'ancien grossit, le nouveau arrive d'un peu plus petit */
+  @keyframes axis-z-out-in{35%{opacity:0;}to{opacity:0;transform:scale(1.1);}}
+  @keyframes axis-z-in-in{from{opacity:0;transform:scale(.8);}35%{opacity:0;}}
+  /* zoom arrière (Semaine -> Mois) : l'ancien rétrécit, le nouveau arrive d'un peu plus grand */
+  @keyframes axis-z-out-out{35%{opacity:0;}to{opacity:0;transform:scale(.8);}}
+  @keyframes axis-z-in-out{from{opacity:0;transform:scale(1.1);}35%{opacity:0;}}
   .cal-toggle{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-bottom:var(--space-3);}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:var(--space-4);}
-  .wd-label{text-align:center;font-size:var(--fs-2xs);font-weight:var(--fw-semibold);letter-spacing:.06em;color:var(--text-muted);padding-bottom:var(--space-1);}
-  .cal-cell{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--space-1);margin-bottom:var(--space-4);}
+  .wd-label{text-align:center;font-size:var(--fs-2xs);font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);color:var(--text-muted);padding-bottom:var(--space-1);}
+  /* Chaque jour est un vrai bouton (clavier, lecteurs d'écran) */
+  .cal-cell{aspect-ratio:1/1;min-width:0;margin:0;padding:0;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
     cursor:pointer;font-size:var(--fs-sm);font-variant-numeric:tabular-nums;position:relative;
     -webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;
-    transition:background-color .18s var(--ease),border-color .18s var(--ease),transform var(--dur-fast) var(--ease);}
+    transition:background-color var(--dur) var(--ease-standard),border-color var(--dur) var(--ease-standard),transform var(--dur-fast) var(--ease);}
+  .cal-cell:focus-visible{z-index:1;}
   .cal-cell:hover{background:var(--tint);border-color:var(--accent);}
   .cal-cell:active{transform:scale(.96);}
-  /* jour passé : pâli comme sa fiche ; le jour sélectionné reste net */
+  /* Deux niveaux de pâleur seulement : jour passé, jour hors du mois affiché
+     (un jour à la fois passé et hors du mois prend le second). Le jour sélectionné reste net. */
   .cal-cell.cal-past:not(.cal-selected){opacity:var(--past-opacity);}
-  .cal-cell.cal-dim{opacity:.35;}
-  .cal-cell.cal-today{box-shadow:inset 0 -3px 0 var(--ab-grey);}
+  .cal-cell.cal-dim:not(.cal-selected){opacity:var(--outside-opacity);}
   .cal-cell.cal-selected{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent);}
   .cal-cell.cal-selected .cal-num{color:var(--text-on-accent) !important;}
   .cal-cell.cal-selected .cal-dot{box-shadow:0 0 0 2px var(--text-on-accent);}
   .cal-num{line-height:1;font-weight:var(--fw-semibold);color:var(--text);}
-  .cal-dot{width:6px;height:6px;border-radius:50%;margin-top:var(--space-1);}
+  .cal-dot{width:var(--dot-size);height:var(--dot-size);border-radius:50%;margin-top:var(--space-1);}
   /* jours ouverts (ceux qui ont un point de disponibilité) */
   .cal-cell:has(.cal-dot){background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--border));}
   .cal-cell:not(.cal-selected):has(.cal-dot):hover{background:var(--tint);}
   .cal-cell.cal-selected:has(.cal-dot){background:var(--accent);border-color:var(--accent);}
+  /* Aujourd'hui (M3) : contour de la couleur du restaurant ; s'il est aussi sélectionné, l'aplat suffit */
+  .cal-cell.cal-today:not(.cal-selected){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
+  /* Sur écran tactile, la case garde au moins 48 px de haut même quand elle est étroite */
+  @media (pointer:coarse){ .cal-cell{aspect-ratio:auto;min-height:var(--touch-target);} }
 
   /* ---------- Fiche du jour ---------- */
   .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;}
@@ -121,9 +163,19 @@
   .item-row.has-error{flex-wrap:wrap;}
   .item-name{font-weight:var(--fw-semibold);font-size:var(--fs-md);}
   .item-stock{color:var(--text-muted);font-size:var(--fs-xs);}
+  /* Disponibilité sous le nom du plat (texte secondaire M3), jamais coupée en deux lignes */
+  .item-avail{display:block;margin-top:var(--space-1);white-space:nowrap;color:var(--text-muted);font-size:var(--fs-xs);font-weight:var(--fw-regular);}
   .draft-item-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) var(--touch-target);gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;}
   .draft-head{align-items:end;margin-bottom:var(--space-1);font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);}
   .booking-form{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
+  /* Liste des plats d'Aristide : se replie vers le haut quand la commande s'ouvre, se redéploie à l'annulation */
+  .day-card{scroll-margin-top:var(--space-4);}
+  .menu-list{display:grid;grid-template-rows:1fr;}
+  .menu-list-inner{min-height:0;overflow:hidden;}
+  .menu-list.collapsing{grid-template-rows:0fr;opacity:0;animation:menu-up var(--dur-slow) var(--ease-standard);}
+  .menu-list.expanding{animation:menu-down var(--dur-slow) var(--ease-standard);}
+  @keyframes menu-up{from{grid-template-rows:1fr;opacity:1;}}
+  @keyframes menu-down{from{grid-template-rows:0fr;opacity:0;}}
   /* formulaire qui s'ouvre sous son bouton, puis se referme en accélérant */
   .booking-form.enter{animation:rise var(--dur) var(--ease-enter) both;}
   .booking-form.leaving{animation:sink var(--dur-fast) var(--ease-exit) forwards;}
@@ -190,8 +242,7 @@
      puis remplacés en fondu seulement si l'API renvoie autre chose */
   .text-updated{animation:text-swap var(--dur-slow) var(--ease-standard);}
   @keyframes text-swap{from{opacity:0;}}
-  .load-error-box{display:none;margin-bottom:18px;}
-  .load-error-box p{margin:0;font-size:var(--fs-md);color:var(--text);}
+  .load-error-box{display:none;margin-bottom:var(--space-4);}
   .load-error .load-error-box{display:flex;}
   .load-error .sk{animation:none;}
 
@@ -220,7 +271,7 @@
 
   /* ---------- Écrans tactiles ---------- */
   @media (hover:none){
-    .cal-cell:not(.cal-selected):hover{background:var(--surface);border-color:var(--border);}
+    .cal-cell:not(.cal-selected):not(.cal-today):hover{background:var(--surface);border-color:var(--border);}
     .cal-cell:not(.cal-selected):has(.cal-dot):hover{background:var(--accent-soft);}  }
 
   /* ---------- Mobile ---------- */
@@ -260,9 +311,10 @@
   <div id="dashboard"></div>
   <div id="settings"></div>
 
-  <div class="alert load-error-box" role="alert">
-    <p><b>Impossible de charger les réservations.</b><br>Vérifiez votre connexion internet, puis réessayez.</p>
-    <button class="btn primary" onclick="retryLoad()">Réessayer</button>
+  <div class="alert load-error-box">
+    <span class="alert-icon" aria-hidden="true"><svg viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg></span>
+    <p class="alert-text" id="loadErrorText" role="alert"></p>
+    <button class="btn primary" onclick="retryLoad(this)">Réessayer</button>
   </div>
 
   <div id="summary-tomorrow" style="margin:16px auto;max-width:480px;"></div>
@@ -290,7 +342,10 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="loader" id="loader"><div class="spinner"></div><p>Chargement...</p></div>
+<div class="loader" id="loader" aria-hidden="true">
+  <svg class="spinner" viewBox="0 0 50 50" role="progressbar" aria-label="Chargement en cours"><circle cx="25" cy="25" r="20"/></svg>
+  <p>Chargement…</p>
+</div>
 
 <script>
 // ============================================================
@@ -335,8 +390,9 @@ let addItemFormOpen = null;
 let editDayR1Open = null;
 let addDayOpen = { r1:false, r2:false };
 
-function showLoader(){document.getElementById('loader').classList.add('show');}
-function hideLoader(){document.getElementById('loader').classList.remove('show');}
+// Voile de chargement : bloque les clics tout de suite, s'affiche après un court délai (CSS)
+function showLoader(){ const l = document.getElementById('loader'); l.classList.add('show'); l.removeAttribute('aria-hidden'); }
+function hideLoader(){ const l = document.getElementById('loader'); l.classList.remove('show'); l.setAttribute('aria-hidden', 'true'); }
 
 async function apiGet(silent){
   if(!silent) showLoader();
@@ -576,23 +632,38 @@ function priceSuggestionsDatalist(){
 // Rafraîchissements automatiques : silencieux, sans bloquer l'écran.
 let firstLoadDone = false;
 async function loadAll(background){
-  document.body.classList.remove('load-error');
   try{
     const seqAtStart = writeSeq;
     const data = await apiGet(true);
     // Une écriture a eu lieu pendant la lecture : ces données sont peut-être périmées.
-    if(seqAtStart !== writeSeq){ if(!firstLoadDone) loadAll(background); return; }
+    if(seqAtStart !== writeSeq){ if(!firstLoadDone) return loadAll(background); return; }
     state = data;
     firstLoadDone = true;
-    document.body.classList.remove('is-loading');
+    document.body.classList.remove('is-loading', 'load-error');
     render();
   }catch(e){
     if(background && firstLoadDone) return;
-    document.body.classList.add('load-error');
+    showLoadError();
     if(firstLoadDone) showToast("Impossible de charger les données. Réessayez.", true);
   }
 }
-function retryLoad(){ document.body.classList.add('is-loading'); loadAll(); }
+// Encadré d'échec : le message dit la vraie cause (appareil hors ligne ou service qui
+// ne répond pas). Le texte est inséré à chaque échec pour être annoncé (role="alert").
+function showLoadError(){
+  const box = document.getElementById('loadErrorText');
+  const msg = navigator.onLine
+    ? '<b>Le service de réservation ne répond pas.</b><br>Réessayez dans un instant. Si le problème continue, prévenez l\'établissement.'
+    : '<b>Vous semblez hors ligne.</b><br>Vérifiez votre connexion internet, puis réessayez.';
+  document.body.classList.add('load-error');
+  box.textContent = '';
+  requestAnimationFrame(() => { box.innerHTML = msg; });
+}
+// L'encadré reste affiché pendant la nouvelle tentative : c'est le bouton qui montre l'attente.
+async function retryLoad(btn){
+  const orig = setBusy(btn, 'Nouvelle tentative…');
+  await loadAll();
+  clearBusy(btn, orig);
+}
 
 function remainingR1(day){
   const used = state.r1Bookings.filter(b => b.Date === day.Date).reduce((s,b)=> s + Number(b.Qte), 0);
@@ -921,8 +992,12 @@ async function deleteBookingR2(id, btn){
 }
 
 function openBookingR1(date){ bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render(); }
-function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; render(); }
-function closeBooking(){ leaveThen(openBookingTarget && 'bk-' + openBookingTarget.date, ()=>{ openBookingTarget = null; multiBookingQty = {}; render(); }); }
+function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
+  // la liste repliée raccourcit la page : on remonte en douceur au début de la fiche si elle est hors de vue
+  const card = document.querySelector('#detail-r2 .day-card');
+  if(card && card.getBoundingClientRect().top < 0) card.scrollIntoView({ block:'start' });
+}
+function closeBooking(){ leaveThen(openBookingTarget && 'bk-' + openBookingTarget.date, ()=>{ if(openBookingTarget && openBookingTarget.rest === 'r2') menuAnim = 'down'; openBookingTarget = null; multiBookingQty = {}; render(); }); }
 function setServiceMode(mode){
   if(chosenServiceMode === mode) return;
   chosenServiceMode = mode; render(); popSeg(`service-${mode}`);
@@ -1214,7 +1289,7 @@ function bookingFormMultiHtml(date, items){
     if(rem <= 0) return `<div class="item-row"><span class="item-name">${escapeHtml(item.Nom)}</span><span class="item-stock">Épuisé</span></div>`;
     const qtyVal = multiBookingQty[item.ID] || '';
     return `<div class="item-row">
-      <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''} <span class="item-stock">(${rem} disponible${rem > 1 ? 's' : ''})</span></span>
+      <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}<span class="item-avail">${rem} disponible${rem > 1 ? 's' : ''}</span></span>
       <input type="number" class="qty-input" min="0" max="${rem}" value="${qtyVal}" placeholder="0" inputmode="numeric" aria-label="Quantité : ${escapeHtml(item.Nom)}" oninput="setMultiQty('${item.ID}', this.value); updateR2PriceLive()">
     </div>`;
   }).join('');
@@ -1268,25 +1343,50 @@ function monthLabel(anchorISO){
   const s = d.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
   return s.charAt(0).toUpperCase()+s.slice(1);
 }
+// Transitions du calendrier (motifs Material 3), via les transitions de vue du navigateur :
+//  - semaine / mois précédents ou suivants : axe partagé X (libellé et grille glissent ensemble) ;
+//  - Semaine <-> Mois : axe partagé Z (zoom avant vers la semaine, arrière vers le mois).
+// Sans prise en charge, ou si l'utilisateur réduit les animations : changement instantané
+// (le libellé garde alors son ancien glissement d'entrée, st.slide).
+const canViewTransition = () => !!document.startViewTransition && !reduceMotion.matches;
+function calTransition(rest, anim, update){
+  const run = () => keepFocus(update);
+  if(!canViewTransition()){ run(); return; }
+  const root = document.documentElement;
+  root.dataset.calAnim = anim; root.dataset.calRest = rest; // seul ce calendrier-là s'anime
+  document.startViewTransition(run).finished.finally(() => { delete root.dataset.calAnim; delete root.dataset.calRest; });
+}
+// Le calendrier est réaffiché : on rend le focus au bouton qui l'avait (‹ ›, Semaine, Mois…)
+function keepFocus(update){
+  const a = document.activeElement;
+  const key = a && (a.dataset.nav ? `[data-nav="${a.dataset.nav}"]` : a.dataset.seg ? `[data-seg="${a.dataset.seg}"]` : null);
+  update();
+  const el = key && document.querySelector(key);
+  if(el) el.focus({ preventScroll: true });
+}
 function setCalMode(rest, mode){
   if(calState[rest].mode === mode) return;
-  calState[rest].mode = mode; render(); popSeg(`cal-${rest}-${mode}`);
+  calTransition(rest, mode === 'month' ? 'zoom-out' : 'zoom-in', () => {
+    calState[rest].mode = mode; render(); popSeg(`cal-${rest}-${mode}`);
+  });
 }
 function navCal(rest, dir){
   const st = calState[rest];
   const d = new Date(st.anchor + 'T00:00:00');
   if(st.mode === 'week'){ d.setDate(d.getDate() + dir*7); }
   else { d.setDate(1); d.setMonth(d.getMonth() + dir); }
-  st.anchor = toISO(d);
-  st.slide = dir;
-  render();
+  calTransition(rest, dir > 0 ? 'next' : 'prev', () => {
+    st.anchor = toISO(d);
+    if(!canViewTransition()) st.slide = dir;
+    render();
+  });
 }
 function jumpToday(rest){
   const st = calState[rest], t = todayISO();
   const labelOf = iso => st.mode==='week' ? weekLabel(iso) : monthLabel(iso);
-  if(labelOf(t) !== labelOf(st.anchor)) st.slide = t > st.anchor ? 1 : -1;
-  st.anchor = t; st.selected = t;
-  render();
+  const dir = labelOf(t) === labelOf(st.anchor) ? 0 : (t > st.anchor ? 1 : -1);
+  const update = () => { if(dir && !canViewTransition()) st.slide = dir; st.anchor = t; st.selected = t; render(); };
+  if(dir) calTransition(rest, dir > 0 ? 'next' : 'prev', update); else update();
 }
 function selectDate(rest, iso){ calState[rest].selected = iso; openBookingTarget = null; bookingConfirmation = null; render(); }
 
@@ -1295,7 +1395,11 @@ function renderCalendar(rest, containerId, statusFn){
   const cells = cs.mode==='week' ? buildWeekCells(cs.anchor) : buildMonthCells(cs.anchor);
   const today = todayISO();
   const label = cs.mode==='week' ? weekLabel(cs.anchor) : monthLabel(cs.anchor);
-  const weekdayHeader = ['L','M','M','J','V','S','D'].map(l=>`<div class="wd-label">${l}</div>`).join('');
+  // Initiales pour l'œil ; les lecteurs d'écran entendent la date complète sur chaque case
+  const weekdayHeader = ['L','M','M','J','V','S','D'].map(l=>`<div class="wd-label" aria-hidden="true">${l}</div>`).join('');
+  // Le jour sélectionné est le seul atteignable par Tab (s'il est affiché, sinon le 1er jour visible) ;
+  // les flèches déplacent ensuite la sélection (voir calKey).
+  const focusIso = cells.some(c => c.iso === cs.selected) ? cs.selected : cells[0].iso;
   const cellsHtml = cells.map(c=>{
     const status = statusFn(c.iso);
     const classes = ['cal-cell'];
@@ -1303,8 +1407,11 @@ function renderCalendar(rest, containerId, statusFn){
     if(c.iso < today) classes.push('cal-past');
     if(c.iso===today) classes.push('cal-today');
     if(c.iso===cs.selected) classes.push('cal-selected');
-    const dotHtml = status ? `<span class="cal-dot dot-${status}"></span>` : '';
-    return `<div class="${classes.join(' ')}" onclick="selectDate('${rest}','${c.iso}')"><span class="cal-num">${c.dayNum}</span>${dotHtml}</div>`;
+    const dotHtml = status ? `<span class="cal-dot dot-${status}" aria-hidden="true"></span>` : '';
+    const label = formatDate(c.iso) + ', ' + (CAL_STATUS_WORD[status] || 'aucun service') + (c.iso < today ? ', passé' : '');
+    return `<button type="button" class="${classes.join(' ')}" data-iso="${c.iso}" aria-label="${label}"`
+      + ` aria-pressed="${c.iso===cs.selected}"${c.iso===today ? ' aria-current="date"' : ''} tabindex="${c.iso===focusIso ? 0 : -1}"`
+      + ` onclick="pickDate('${rest}','${c.iso}')"><span class="cal-num" aria-hidden="true">${c.dayNum}</span>${dotHtml}</button>`;
   }).join('');
   // glissement du libellé uniquement juste après une navigation
   const slideClass = cs.slide > 0 ? 'axis-next' : cs.slide < 0 ? 'axis-prev' : '';
@@ -1312,19 +1419,49 @@ function renderCalendar(rest, containerId, statusFn){
   const unit = cs.mode==='week' ? 'Semaine' : 'Mois';
   document.getElementById(containerId).innerHTML = `
     <div class="cal-header">
-      <button class="icon-btn tonal" onclick="navCal('${rest}',-1)" aria-label="${unit} précédent${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
-      <div class="cal-label" aria-live="polite"><span class="${slideClass}">${label}</span></div>
-      <button class="icon-btn tonal" onclick="navCal('${rest}',1)" aria-label="${unit} suivant${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+      <button class="icon-btn tonal" data-nav="${rest}-prev" onclick="navCal('${rest}',-1)" aria-label="${unit} précédent${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+      <div class="cal-label" aria-live="polite" style="view-transition-name:cal-${rest}-label"><span class="${slideClass}">${label}</span></div>
+      <button class="icon-btn tonal" data-nav="${rest}-next" onclick="navCal('${rest}',1)" aria-label="${unit} suivant${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
     </div>
     <div class="cal-toggle">
       ${segGroup('Affichage du calendrier', [
         { key:`cal-${rest}-week`, label:'Semaine', pressed: cs.mode==='week', onclick:`setCalMode('${rest}','week')` },
         { key:`cal-${rest}-month`, label:'Mois', pressed: cs.mode==='month', onclick:`setCalMode('${rest}','month')` }
       ], 'small')}
-      <button class="btn ghost small" onclick="jumpToday('${rest}')">Aujourd'hui</button>
+      <button class="btn ghost small" data-nav="${rest}-today" onclick="jumpToday('${rest}')">Aujourd'hui</button>
     </div>
-    <div class="cal-grid">${weekdayHeader}${cellsHtml}</div>
+    <div class="cal-grid" style="view-transition-name:cal-${rest}-grid" role="group" aria-label="Jours ${cs.mode==='week' ? 'de la semaine' : 'du mois'} — flèches pour changer de jour" onkeydown="calKey(event,'${rest}')">${weekdayHeader}${cellsHtml}</div>
   `;
+}
+// Disponibilité en toutes lettres (la pastille de couleur seule ne suffit pas)
+const CAL_STATUS_WORD = { 'cap-ok':'places disponibles', 'cap-low':'bientôt complet', 'cap-full':'complet' };
+// Clavier (modèle Material 3 / ARIA d'un sélecteur de date) :
+// ← → un jour, ↑ ↓ une semaine, Début / Fin : lundi / dimanche, Page ↑ / ↓ : mois précédent / suivant.
+function calKey(e, rest){
+  const cell = e.target.closest('.cal-cell');
+  if(!cell) return;
+  const iso = cell.dataset.iso;
+  const d = new Date(iso + 'T00:00:00');
+  const dow = (d.getDay() + 6) % 7; // lundi = 0
+  const moves = { ArrowLeft:-1, ArrowRight:1, ArrowUp:-7, ArrowDown:7, Home:-dow, End:6-dow };
+  let target;
+  if(e.key in moves) target = addDaysISO(iso, moves[e.key]);
+  else if(e.key === 'PageUp' || e.key === 'PageDown'){ d.setMonth(d.getMonth() + (e.key === 'PageUp' ? -1 : 1)); target = toISO(d); }
+  else return;
+  e.preventDefault();
+  const st = calState[rest];
+  const labelOf = x => st.mode==='week' ? weekLabel(x) : monthLabel(x);
+  if(labelOf(target) !== labelOf(st.anchor)) st.anchor = target; // pas de glissement du libellé au clavier
+  // au clavier on enchaîne vite : la fiche change sans animation d'entrée
+  lastCard[rest] = target + (isAdmin ? '·a' : '·c');
+  pickDate(rest, target);
+}
+// Sélection d'un jour (clic, Entrée, Espace ou flèches) : le calendrier est réaffiché,
+// le focus est replacé sur la case choisie pour ne pas perdre sa place au clavier.
+function pickDate(rest, iso){
+  selectDate(rest, iso);
+  const cell = document.querySelector(`#cal-${rest} .cal-cell[data-iso="${iso}"]`);
+  if(cell) cell.focus({ preventScroll: true });
 }
 
 function renderDetailR1(){
@@ -1385,6 +1522,16 @@ function renderDetailR1(){
   `;
 }
 
+// Liste des plats d'Aristide. Pendant une commande, le formulaire reprend déjà chaque plat
+// (prix, quantité disponible) : la liste se replie vers le haut au clic sur « Réserver »,
+// puis se redéploie si l'on annule. Hors de ces deux moments, elle est simplement absente.
+let menuAnim = null; // 'up' juste après « Réserver », 'down' juste après « Annuler »
+function menuListHtml(itemsHtml, isMultiOpen){
+  const anim = menuAnim; menuAnim = null;
+  if(isMultiOpen && anim !== 'up') return '';
+  const cls = isMultiOpen ? ' collapsing' : (anim === 'down' ? ' expanding' : '');
+  return `<div class="menu-list${cls}"${isMultiOpen ? ' inert aria-hidden="true"' : ''}><div class="menu-list-inner">${itemsHtml}</div></div>`;
+}
 function renderDetailR2(){
   const iso = calState.r2.selected;
   const day = state.r2Days.find(d=>d.Date===iso);
@@ -1431,7 +1578,7 @@ function renderDetailR2(){
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}</span>
+        <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}</span>
         <span class="capacity-pill ${capClass}" style="${gaugeStyle(rem, Number(item.Stock))}">${rem} / ${item.Stock}</span>
       </div>
       ${adminItemActions}
@@ -1462,7 +1609,7 @@ function renderDetailR2(){
       ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
-      ${itemsHtml}
+      ${menuListHtml(itemsHtml, isMultiOpen)}
       ${addItemHtml}
       ${!isAdmin && !isMultiOpen && anyAvailable && !isPast ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR2Day('${iso}')">Réserver</button></div>` : ''}
       ${!isAdmin && isMultiOpen ? bookingFormMultiHtml(iso, items) : ''}

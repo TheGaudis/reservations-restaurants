@@ -110,6 +110,8 @@
   --state-press:.12;       /* opacité du calque d'état à l'appui et au focus */
   --focus-width:3px;       /* épaisseur de l'anneau de focus clavier */
   --past-opacity:.55;      /* jour passé (case du calendrier et fiche) : consultable, plus actif */
+  --outside-opacity:.35;   /* jour hors du mois affiché (vue Mois du calendrier) */
+  --dot-size:6px;          /* pastilles : disponibilité du calendrier, badge d'état */
 
   /* --- Plans --- */
   --z-toast:50; --z-loader:60;
@@ -290,7 +292,7 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 /* --- Badge d'état --- */
 .tag{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-2xs);font-weight:var(--fw-medium);padding:3px 10px;border-radius:var(--radius-xs);
   background:var(--surface-alt);border:1px solid var(--border);color:var(--text-muted);}
-.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ab-grey);}
+.tag::before{content:"";width:var(--dot-size);height:var(--dot-size);border-radius:50%;background:var(--ab-grey);}
 .tag.admin-on{border-color:rgba(31,78,158,.3);color:var(--ab-blue-ink);background:rgba(31,78,158,.06);}
 .tag.admin-on::before{background:var(--ab-blue);}
 
@@ -312,10 +314,16 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 .card-top-accent{border-top:4px solid var(--ab-green);}
 
 /* --- Encadré d'alerte --- */
-.alert{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;background:var(--surface);
-  border:1px solid var(--danger-border);border-left:4px solid var(--danger);border-radius:var(--radius);padding:14px 18px;}
-.alert.warning{border-color:rgba(154,96,10,.3);border-left-color:var(--warning);}
-.note-warning{padding:8px 10px;border-radius:8px;background:var(--warning-soft);color:var(--warning);font-size:var(--fs-sm);font-weight:var(--fw-medium);}
+/* Structure : .alert-icon (aria-hidden) + .alert-text (le message, un titre en <b>)
+   + une action. L'icône et le filet reprennent la couleur d'état ; le mot reste obligatoire. */
+.alert{display:flex;align-items:center;gap:var(--space-3) var(--space-4);flex-wrap:wrap;background:var(--surface);
+  border:1px solid var(--danger-border);border-left:4px solid var(--danger);border-radius:var(--radius);padding:var(--space-3) var(--space-4);}
+.alert.warning{border-color:color-mix(in srgb,var(--warning) 30%,transparent);border-left-color:var(--warning);}
+.alert-icon{flex:0 0 auto;align-self:flex-start;display:inline-flex;color:var(--danger);}
+.alert.warning .alert-icon{color:var(--warning);}
+.alert-icon svg{width:24px;height:24px;fill:currentColor;}
+.alert-text{flex:1 1 calc(var(--space-10) * 4);min-width:0; /* l'icône reste à côté du texte ; faute de place, seul le bouton passe à la ligne */margin:0;font-size:var(--fs-md);color:var(--text);}
+.note-warning{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--warning-soft);color:var(--warning);font-size:var(--fs-sm);font-weight:var(--fw-medium);}
 
 /* --- Notification (toast) --- */
 .toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,10px);z-index:var(--z-toast);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--ab-green);
@@ -326,13 +334,20 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 .toast.error{border-left-color:var(--danger);}
 
 /* --- Chargement --- */
-.loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:var(--z-loader);
-  background:rgba(243,244,240,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s var(--ease);}
-.loader.show{opacity:1;pointer-events:all;}
+/* Voile de chargement (M3 : voile uni + indicateur de progression circulaire).
+   Les clics sont bloqués dès l'appel ; le voile ne devient visible qu'après un court
+   délai, pour ne pas clignoter lors des actions rapides. Il disparaît sans délai. */
+.loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-3);z-index:var(--z-loader);
+  background:color-mix(in srgb,var(--bg) 85%,transparent);opacity:0;pointer-events:none;
+  transition:opacity var(--dur-fast) var(--ease-exit);}
+.loader.show{opacity:1;pointer-events:all;transition:opacity var(--dur) var(--ease-enter) var(--dur-slow);}
 .loader p{color:var(--text-muted);font-weight:var(--fw-medium);margin:0;font-size:var(--fs-md);text-align:center;}
-.spinner{width:42px;height:42px;border-radius:50%;margin:0 auto 12px;animation:spin 1s linear infinite;
-  background:conic-gradient(var(--ab-green) 0 33%,var(--ab-blue) 33% 66%,var(--ab-magenta) 66% 100%);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));}
+/* Indicateur circulaire indéterminé M3, variante multicolore : l'arc s'allonge et se
+   rétracte en tournant ; il change de couleur (vert, bleu, magenta) quand il est au plus court.
+   Trait 4 px aux bouts arrondis, 48 px. Couleurs « -ink » / bleu : repère ≥ 3:1 sur le voile. */
+.spinner{display:block;width:48px;height:48px;animation:spinner-rotate 1568ms linear infinite;}
+.spinner circle{fill:none;stroke:var(--ab-blue);stroke-width:4;stroke-linecap:round;stroke-dasharray:1 150;stroke-dashoffset:0;
+  animation:spinner-arc 1333ms var(--ease-standard) infinite,spinner-color 3999ms step-end infinite;}
 
 /* --- Squelette de chargement --- */
 .sk{display:block;background:linear-gradient(90deg,rgba(31,35,40,.06) 0%,rgba(31,35,40,.11) 50%,rgba(31,35,40,.06) 100%);background-size:200% 100%;
@@ -354,7 +369,12 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 @keyframes rise{from{opacity:0;transform:translateY(6px);}}
 /* sortie courte, symétrique de « rise » : repart vers le haut en s'effaçant */
 @keyframes sink{to{opacity:0;transform:translateY(-4px);}}
-@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes spinner-rotate{to{transform:rotate(360deg);}}
+@keyframes spinner-arc{
+  0%{stroke-dasharray:1 150;stroke-dashoffset:0;}
+  50%{stroke-dasharray:90 150;stroke-dashoffset:-35;}
+  100%{stroke-dasharray:90 150;stroke-dashoffset:-124;}}
+@keyframes spinner-color{0%{stroke:var(--ab-green-ink);}33.33%{stroke:var(--ab-blue);}66.66%{stroke:var(--ab-magenta);}}
 @keyframes shimmer{from{background-position:100% 0;}to{background-position:-100% 0;}}
 /* Transition M3 « shared axis X » : le contenu arrive du côté où l'on navigue */
 @keyframes axis-in-next{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:none;}}
@@ -399,5 +419,6 @@ button, .btn, summary{-webkit-tap-highlight-color:transparent;touch-action:manip
 
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important;transition:none !important;}
+  .spinner circle{stroke-dasharray:90 150;} /* arc fixe bien visible, le texte dit que ça charge */
   html{scroll-behavior:auto;}
 }
