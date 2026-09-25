@@ -1437,8 +1437,12 @@ function printDayR2(date){
     <p>${formatDate(date)}</p>
     ${day && day.Theme ? `<p><b>Thème :</b> ${escapeHtml(day.Theme)}</p>` : ''}
     ${day && day.Note ? `<p><b>Note :</b> ${escapeHtml(day.Note)}</p>` : ''}
+    ${day && day.OuvertPar ? `<p><b>Responsable :</b> ${escapeHtml(day.OuvertPar)}</p>` : ''}
     ${body}
     <p class="total">Total du jour : ${clients.length} client(s) — ${totalPortions} portion(s)${grandTotal > 0 ? ' — ' + formatEuro(grandTotal) : ''}</p>
+    <div style="margin-top:50px; border-top:1px solid #999; padding-top:20px;">
+  <p style="margin:0;font-size:0.85rem;">Signature du responsable : ____________________________</p>
+</div>
     </body></html>`;
   const w = window.open('', '_blank');
   w.document.write(brandPrintHtml(html)); w.document.close(); w.focus();
