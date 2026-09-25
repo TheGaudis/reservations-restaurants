@@ -33,11 +33,21 @@
   .brand-logo{flex:0 0 auto;height:96px;width:auto;display:block;}
   .brand-text{min-width:0;padding-left:var(--space-5);border-left:1px solid var(--border);}
   .brand-kicker{letter-spacing:.12em;margin-bottom:var(--space-1);}
-  .brand h1{font-size:var(--fs-3xl);line-height:var(--lh-tight);font-weight:var(--fw-semibold);margin:0 0 6px;max-width:26ch;}
+  .brand h1{font-size:var(--fs-3xl);line-height:var(--lh-title);font-weight:var(--fw-semibold);margin:0 0 6px;max-width:26ch;}
   .brand p{margin:0;color:var(--text-muted);font-size:var(--fs-md);max-width:60ch;}
   .mode-box{text-align:right;flex:0 0 auto;margin-left:auto;position:relative;}
-  .admin-login{display:flex;gap:var(--space-2);margin-top:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;min-height:34px;}
-  .admin-login input{width:170px;}
+  .mode-switch .seg-btn{min-width:108px;}
+  /* Connexion collègue : se déplie sous le sélecteur (M3 : entrée qui décélère, sortie qui accélère) */
+  .admin-login{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:0fr;margin-top:0;opacity:0;transform:translateY(-4px);
+    transition:grid-template-rows var(--dur) var(--ease-exit),margin-top var(--dur) var(--ease-exit),opacity var(--dur-fast) linear,transform var(--dur) var(--ease-exit);}
+  .admin-login.open{grid-template-rows:1fr;margin-top:10px;opacity:1;transform:none;
+    transition:grid-template-rows var(--dur-slow) var(--ease-enter),margin-top var(--dur-slow) var(--ease-enter),opacity var(--dur) linear,transform var(--dur-slow) var(--ease-enter);}
+  .admin-login-inner{min-height:0;overflow:hidden;display:flex;gap:var(--space-2);justify-content:flex-end;align-items:center;}
+  /* une fois déplié, on ne rogne plus les anneaux de focus */
+  .admin-login.open .admin-login-inner{animation:login-unclip 0s var(--dur-slow) forwards;}
+  @keyframes login-unclip{to{overflow:visible;}}
+  @media (prefers-reduced-motion:reduce){ .admin-login.open .admin-login-inner{overflow:visible;} }
+  .admin-login input{width:170px;min-height:40px;}
 
   /* ---------- Résumés ---------- */
   .summary-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;}
@@ -51,7 +61,6 @@
   .summary-name-r1{color:var(--ab-green-ink);}
   .summary-name-r2{color:var(--ab-magenta);}
   .summary-head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);}
-  .summary-print{padding:4px 8px;font-size:var(--fs-2xs);}
   .summary-meta{color:var(--text-muted);font-size:var(--fs-xs);}
   .summary-line{display:block;font-size:var(--fs-sm);color:var(--text-muted);margin:2px 0;}
   .summary-total{color:var(--text);font-weight:var(--fw-semibold);margin-top:var(--space-1);}
@@ -72,7 +81,7 @@
   .cal-label{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:1rem;text-align:center;flex:1;color:var(--text);overflow:hidden;}
   .cal-label span{display:inline-block;}
   .cal-label span::first-letter{text-transform:uppercase;}
-  .cal-toggle{margin-bottom:var(--space-3);}
+  .cal-toggle{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-bottom:var(--space-3);}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:var(--space-4);}
   .wd-label{text-align:center;font-size:var(--fs-2xs);font-weight:var(--fw-semibold);letter-spacing:.06em;color:var(--text-muted);padding-bottom:var(--space-1);}
   .cal-cell{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;
@@ -94,7 +103,9 @@
   .cal-cell.cal-selected:has(.cal-dot){background:var(--accent);border-color:var(--accent);}
 
   /* ---------- Fiche du jour ---------- */
-  .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;animation:rise var(--dur-slow) var(--ease) both;}
+  .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;}
+  /* n'entre qu'au changement de jour, pas à chaque réaffichage */
+  .day-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
   .day-card.is-past{opacity:.55;}
   .day-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .day-date{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-xl);color:var(--accent-ink);}
@@ -108,12 +119,23 @@
   .item-row.has-error{flex-wrap:wrap;}
   .item-name{font-weight:var(--fw-semibold);font-size:var(--fs-md);}
   .item-stock{color:var(--text-muted);font-size:var(--fs-xs);}
-  .draft-item-row{display:grid;grid-template-columns:1fr 80px 90px 34px;gap:6px;margin-bottom:6px;align-items:center;}
+  .draft-item-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) var(--touch-target);gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;}
+  .draft-head{align-items:end;margin-bottom:var(--space-1);font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);}
   .booking-form{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
+  /* formulaire qui s'ouvre sous son bouton, puis se referme en accélérant */
+  .booking-form.enter{animation:rise var(--dur) var(--ease-enter) both;}
+  .booking-form.leaving{animation:sink var(--dur-fast) var(--ease-exit) forwards;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  @media (max-width:520px){.row2{grid-template-columns:1fr !important;}}
-  .mode-choice{margin-bottom:var(--space-3);background:var(--surface);width:auto;flex-wrap:nowrap;}
-  .mode-choice button{flex:1;border-color:transparent;}
+  /* 3 champs côte à côte : alignés par le bas même si un libellé passe sur 2 lignes */
+  .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end;}
+  .form-total{font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;margin:var(--space-1) 0 var(--space-3);}
+  .form-total:empty{display:none;}
+  .form-submit{margin-top:var(--space-3);}
+  .qty-input{inline-size:calc(var(--space-10) + var(--space-8));flex:0 0 auto;}
+  .item-actions{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2);}
+  .settings-grid .span-all{grid-column:1/-1;}
+  @media (max-width:520px){.row2, .row3{grid-template-columns:1fr !important;}}
+  .mode-choice{margin-bottom:var(--space-3);}
   .bookings-list{margin-top:10px;border-top:1px solid var(--border);padding-top:var(--space-2);}
   .booking-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);font-size:var(--fs-sm);padding:6px 0;color:var(--text-muted);border-bottom:1px dashed var(--border);}
   .booking-row:last-child{border-bottom:none;}
@@ -132,14 +154,25 @@
   .add-day-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:var(--space-3) var(--space-4);
     font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-lg);color:var(--accent-ink);transition:background-color var(--dur) var(--ease);}
   .add-day-summary::-webkit-details-marker{display:none;}
+  .add-day-summary:focus-visible, .settings-summary:focus-visible{outline-offset:calc(-1 * var(--focus-width));}
   .add-day-summary:hover{background:var(--accent-soft);}
   .add-day-plus{width:24px;height:24px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
-    background:var(--accent);color:var(--text-on-accent);font-size:var(--fs-xl);line-height:1;transition:transform .25s var(--ease);}
+    background:var(--accent);color:var(--text-on-accent);font-size:var(--fs-xl);line-height:1;transition:transform var(--dur) var(--ease-standard);}
   details[open] > .add-day-summary .add-day-plus{transform:rotate(45deg);}
   .add-day-body{padding:var(--space-1) var(--space-4) var(--space-4);}
   .new-day-form{display:none;}
   .new-day-form.open{display:block;}
 
+  /* panneau « Paramètres » : même logique que « Ouvrir un jour », en neutre */
+  .panel.settings-panel{padding:0;overflow:hidden;}
+  .settings-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);padding:var(--space-2) var(--space-4);
+    font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-lg);color:var(--text);transition:background-color var(--dur) var(--ease-standard);}
+  .settings-summary::-webkit-details-marker{display:none;}
+  .settings-summary:hover{background:var(--surface-alt);}
+  .settings-chevron{margin-left:auto;display:inline-flex;color:var(--text-muted);transition:transform var(--dur) var(--ease-standard);}
+  .settings-chevron svg{width:24px;height:24px;fill:currentColor;}
+  details[open] > .settings-summary .settings-chevron{transform:rotate(180deg);}
+  .settings-body{padding:var(--space-1) var(--space-4) var(--space-4);}
   .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   @media (max-width:600px){.settings-grid{grid-template-columns:1fr;}}
   .setup-banner{background:var(--danger);color:var(--text-on-accent);padding:10px var(--space-4);text-align:center;font-size:var(--fs-sm);}
@@ -162,8 +195,12 @@
   .load-error .sk{animation:none;}
 
   /* ---------- Récapitulatif de réservation ---------- */
-  .confirm-card{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--ab-green);border-radius:var(--radius);
-    padding:var(--space-4) var(--space-4) 14px;margin-bottom:14px;box-shadow:var(--shadow);animation:rise var(--dur-slow) var(--ease) both;}
+  .confirm-card{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--accent-mark);border-radius:var(--radius);
+    padding:var(--space-4) var(--space-4) 14px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .confirm-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
+  /* moment rare : la coche apparaît juste après la carte */
+  .confirm-card.enter .confirm-check{animation:check-pop var(--dur-slow) var(--ease-enter) var(--dur-fast) both;}
+  @keyframes check-pop{from{opacity:0;transform:scale(.5);}}
   .confirm-card.has-warning{border-top-color:var(--warning);}
   .confirm-head{display:flex;align-items:center;gap:var(--space-3);margin-bottom:10px;}
   .confirm-check{width:36px;height:36px;flex:0 0 auto;border-radius:50%;background:var(--success);color:var(--text-on-accent);display:inline-flex;align-items:center;justify-content:center;}
@@ -192,10 +229,11 @@
     .brand{flex-direction:column;align-items:flex-start;gap:14px;}
     .brand-logo{height:64px;}
     .brand-text{padding-left:0;border-left:none;}
-    .brand h1{font-size:var(--fs-2xl);}
+    .brand h1{font-size:var(--fs-3xl-sm);}
     .mode-box{text-align:left;margin-left:0;width:100%;}
-    .admin-login{justify-content:flex-start;}
-    .admin-login input{flex:1;width:auto;}
+    .admin-login-inner{justify-content:flex-start;}
+    .admin-login input{flex:1;width:auto;min-width:0;}
+    .mode-switch{display:flex;}
     .col{padding:22px 14px var(--space-4);}
   }
 </style>
@@ -222,8 +260,8 @@
   <div id="settings"></div>
 
   <div class="alert load-error-box" role="alert">
-    <p><b>Impossible de charger les réservations.</b><br>Vérifie ta connexion internet, puis réessaie.</p>
-    <button class="btn gold" onclick="retryLoad()">Réessayer</button>
+    <p><b>Impossible de charger les réservations.</b><br>Vérifiez votre connexion internet, puis réessayez.</p>
+    <button class="btn primary" onclick="retryLoad()">Réessayer</button>
   </div>
 
   <div id="summary-tomorrow" style="margin:16px auto;max-width:480px;"></div>
@@ -289,10 +327,19 @@ async function apiGet(silent){
     return data;
   }finally{ if(!silent) hideLoader(); }
 }
+// Bouton en cours d'envoi : il porte lui-même le retour (libellé + aria-busy),
+// le voile plein écran n'est alors pas affiché en plus.
+function setBusy(btn, label){
+  const orig = btn.textContent;
+  btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = label;
+  return orig;
+}
+function clearBusy(btn, orig){ btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = orig; }
 let writeSeq = 0;
 async function apiPost(action, payload={}){
   writeSeq++;
-  showLoader();
+  const quiet = !!document.querySelector('button[aria-busy="true"]');
+  if(!quiet) showLoader();
   try{
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -302,7 +349,7 @@ async function apiPost(action, payload={}){
     const data = await res.json();
     if(data.error) throw new Error(data.error);
     return data;
-  }finally{hideLoader();}
+  }finally{ if(!quiet) hideLoader(); }
 }
 
 function toISO(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
@@ -333,13 +380,17 @@ function gaugeStyle(rem, cap){
   return `--pct:${pct.toFixed(1)}%;`;
 }
 // Suppression en deux clics : le 1er clic arme le bouton, le 2e (dans les 4 s) confirme.
-function confirmClick(btn, label){
+// Libellé visible court (« Confirmer ? ») et largeur figée : le bouton ne change pas de taille ;
+// le détail de ce qui sera supprimé est donné aux lecteurs d'écran et en infobulle.
+function confirmClick(btn, detail){
   if(!btn) return true;
   if(btn.dataset.armed === '1') return true;
   btn.dataset.armed = '1';
   btn.dataset.origLabel = btn.innerHTML;
+  btn.style.minWidth = btn.offsetWidth + 'px';
   btn.classList.add('armed');
-  btn.textContent = label || 'Confirmer ?';
+  btn.textContent = 'Confirmer ?';
+  if(detail){ btn.setAttribute('aria-label', detail); btn.title = detail; }
   setTimeout(()=>{ if(btn.isConnected) disarm(btn); }, 4000);
   return false;
 }
@@ -348,6 +399,8 @@ function disarm(btn){
   if(!btn || btn.dataset.armed !== '1') return;
   btn.dataset.armed = '';
   btn.classList.remove('armed');
+  btn.style.minWidth = '';
+  btn.removeAttribute('aria-label'); btn.removeAttribute('title');
   if(btn.dataset.origLabel) btn.innerHTML = btn.dataset.origLabel;
 }
 
@@ -357,14 +410,49 @@ function clearFieldErrors(scope){
   (scope || document).querySelectorAll('.has-error').forEach(e => e.classList.remove('has-error'));
   (scope || document).querySelectorAll('[aria-invalid]').forEach(unmarkInvalid);
 }
-// Relie le message au champ pour les lecteurs d'écran.
+// Relie le message au champ pour les lecteurs d'écran, sans perdre
+// un éventuel texte d'aide (.field-help) déjà relié au champ.
 function markInvalid(input, msgId){
   input.setAttribute('aria-invalid', 'true');
-  input.setAttribute('aria-describedby', msgId);
+  const help = input.dataset.help || '';
+  input.setAttribute('aria-describedby', (msgId + ' ' + help).trim());
 }
 function unmarkInvalid(input){
   input.removeAttribute('aria-invalid');
-  input.removeAttribute('aria-describedby');
+  if(input.dataset.help) input.setAttribute('aria-describedby', input.dataset.help);
+  else input.removeAttribute('aria-describedby');
+}
+// Chaque <label> d'un .field est relié à son champ (clic sur le libellé,
+// nom annoncé par les lecteurs d'écran). Appelé après chaque render().
+let fieldSeq = 0;
+function linkLabels(root){
+  (root || document).querySelectorAll('.field').forEach(f => {
+    const label = f.querySelector(':scope > label');
+    const ctrl = f.querySelector('input, select, textarea');
+    if(!label || !ctrl) return;
+    if(!ctrl.id) ctrl.id = 'champ-' + (++fieldSeq);
+    label.htmlFor = ctrl.id;
+    const help = f.querySelector(':scope > .field-help');
+    if(help){
+      if(!help.id) help.id = ctrl.id + '-aide';
+      ctrl.dataset.help = help.id;
+      if(!ctrl.hasAttribute('aria-invalid')) ctrl.setAttribute('aria-describedby', help.id);
+    }
+  });
+}
+// Champ contact des deux formulaires de réservation (obligatoire)
+function contactFieldHtml(){
+  return `<div class="field"><label>Téléphone ou email</label><input type="text" id="bk-contact" placeholder="Ex. 06 12 34 56 78" autocomplete="email"><p class="field-help">Pour vous envoyer la confirmation.</p></div>`;
+}
+function plural(n, word){ return n + ' ' + word + (n > 1 ? 's' : ''); }
+// Vérification d'un formulaire : rules = [[idDuChamp, estInvalide, message], …].
+// Affiche chaque message sous son champ et place le focus sur le premier.
+function checkFields(btn, rules){
+  const form = btn.closest('.booking-form, .add-day, .settings-body') || document;
+  clearFieldErrors(form);
+  rules.forEach(([id, invalid, msg]) => { if(invalid) fieldError(id, msg); });
+  if(form.querySelector('.field-error')){ focusFirstError(form); return false; }
+  return true;
 }
 function fieldError(inputId, msg){
   const input = document.getElementById(inputId);
@@ -437,7 +525,9 @@ function confirmationHtml(rest){
   const c = bookingConfirmation;
   if(!c || c.rest !== rest || c.date !== calState[rest].selected) return '';
   const lines = c.lines.map(l => `<li><span>${escapeHtml(l.label)}</span><b>${escapeHtml(l.value)}</b></li>`).join('');
-  return `<div class="confirm-card${c.warning ? ' has-warning' : ''}" role="status">
+  const enter = c.shown ? '' : ' enter'; // animée une seule fois, pas à chaque actualisation
+  c.shown = true;
+  return `<div class="confirm-card${c.warning ? ' has-warning' : ''}${enter}" role="status">
     <div class="confirm-head">
       <span class="confirm-check" aria-hidden="true">${ICONS.check}</span>
       <div><div class="confirm-title">Réservation enregistrée</div><div class="confirm-sub">${escapeHtml(formatDate(c.date))}</div></div>
@@ -445,7 +535,7 @@ function confirmationHtml(rest){
     ${c.warning ? `<p class="note-warning confirm-warning">${escapeHtml(c.warning)}</p>` : ''}
     <ul class="confirm-lines">${lines}</ul>
     ${c.total ? `<div class="confirm-total"><span>Total</span><b>${escapeHtml(c.total)}</b></div>` : ''}
-    <p class="confirm-note">Pour annuler ou modifier, contacte ${escapeHtml(state.contactAnnulation || "l'établissement")}.</p>
+    <p class="confirm-note">Pour annuler ou modifier, contactez ${escapeHtml(state.contactAnnulation || "l'établissement")}.</p>
     <button class="btn small" onclick="closeConfirmation()">Fermer</button>
   </div>`;
 }
@@ -479,7 +569,7 @@ async function loadAll(background){
   }catch(e){
     if(background && firstLoadDone) return;
     document.body.classList.add('load-error');
-    if(firstLoadDone) showToast("Impossible de charger les données. Réessaie.", true);
+    if(firstLoadDone) showToast("Impossible de charger les données. Réessayez.", true);
   }
 }
 function retryLoad(){ document.body.classList.add('is-loading'); loadAll(); }
@@ -511,21 +601,103 @@ function dayStatusR2(iso){
   return capacityClass(totalRem, totalStock);
 }
 
+// Sélecteur de mode (bouton segmenté M3). Le balisage est créé une seule fois
+// puis seulement mis à jour, pour que les transitions puissent se jouer.
+const SEG_CHECK = `<span class="seg-check" aria-hidden="true"><svg viewBox="0 -960 960 960"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg></span>`;
+// items : [{ key, label, pressed, onclick, attrs? }] ; key sert à popSeg()
+function segGroup(ariaLabel, items, cls=''){
+  return `<div class="seg-group ${cls}" role="group" aria-label="${ariaLabel}">${items.map(it =>
+    `<button type="button" class="seg-btn" data-seg="${it.key}" aria-pressed="${it.pressed}" onclick="${it.onclick}" ${it.attrs||''}>${SEG_CHECK}<span>${it.label}</span></button>`
+  ).join('')}</div>`;
+}
+// Apparition / disparition des formulaires. Tout est réaffiché à chaque render() :
+// on n'anime donc que ce qui vient d'être ouvert (clé posée juste avant le render)
+// ou fermé, jamais un simple réaffichage.
+let enterKey = null;
+function enterOnce(key){
+  if(enterKey !== key) return '';
+  enterKey = null;
+  return ' enter';
+}
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+function leaveThen(key, done){
+  const el = key && document.querySelector(`[data-form="${key}"]`);
+  if(!el || reduceMotion.matches){ done(); return; }
+  el.classList.add('leaving');
+  setTimeout(done, 120); // = --dur-fast
+}
+// La fiche du jour n'entre en animation que lorsqu'on change de jour (ou de mode)
+const lastCard = { r1:null, r2:null };
+function cardEnter(rest, iso){
+  const key = iso + (isAdmin ? '·a' : '·c');
+  if(lastCard[rest] === key) return '';
+  lastCard[rest] = key;
+  return ' enter';
+}
+// Animation de sélection, seulement sur le segment qu'on vient de cliquer
+function popSeg(key){
+  const btn = document.querySelector(`[data-seg="${key}"]`);
+  if(!btn) return;
+  btn.classList.remove('seg-pop'); void btn.offsetWidth; btn.classList.add('seg-pop');
+}
+const EYE_ON = `<svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-80q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"/></svg>`;
+const EYE_OFF = `<svg viewBox="0 -960 960 960" aria-hidden="true"><path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-8 34.5-12t37.5-4q75 0 127.5 52.5T660-500q0 20-4 37.5T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-222q-35 11-70.5 16.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t73-81.5L56-792l56-57 736 736-56 57ZM222-624q-29 26-53 57t-41 67q50 101 143.5 160.5T480-280q20 0 39-2.5t39-5.5l-36-38q-11 3-21 4.5t-21 1.5q-75 0-127.5-52.5T300-500q0-11 1.5-21t4.5-21l-84-82Z"/></svg>`;
+let loginOpen = false;
 function renderModeBox(){
   const box = document.getElementById('modeBox');
-  const actions = isAdmin
-    ? `<button class="btn small danger-solid" onclick="logoutAdmin()">Revenir en mode client</button>`
-    : `<input type="password" id="pwdInput" placeholder="Mot de passe collègue">
-        <button class="btn ghost small" onclick="togglePwdVisibility()" type="button" title="Afficher/masquer" aria-label="Afficher ou masquer le mot de passe">${ICONS.eye}</button>
-        <button class="btn small" onclick="tryLogin()">Mode collègue</button>`;
-  box.innerHTML = `
-    <span class="tag${isAdmin ? ' admin-on' : ''}">${isAdmin ? 'Mode collègue actif' : 'Mode client'}</span>
-    <div class="admin-login">${actions}</div>`;
+  if(!box.dataset.ready){
+    box.innerHTML = `
+      ${segGroup("Mode d'accès", [
+        { key:'mode-client', label:'Client', pressed:true, onclick:"chooseMode('client')", attrs:'id="segClient"' },
+        { key:'mode-colleague', label:'Collègue', pressed:false, onclick:"chooseMode('colleague')", attrs:'id="segColleague" aria-controls="adminLogin"' }
+      ], 'mode-switch')}
+      <div class="admin-login" id="adminLogin">
+        <div class="admin-login-inner">
+          <input type="password" id="pwdInput" placeholder="Mot de passe" aria-label="Mot de passe collègue" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') tryLogin(); else if(event.key==='Escape') chooseMode('client');">
+          <button type="button" class="icon-btn" id="pwdToggle" onclick="togglePwdVisibility()" aria-label="Afficher le mot de passe">${EYE_ON}</button>
+          <button type="button" class="btn primary" onclick="tryLogin()">Valider</button>
+        </div>
+      </div>`;
+    box.dataset.ready = '1';
+  }
+  const colleague = isAdmin || loginOpen;
+  document.getElementById('segClient').setAttribute('aria-pressed', String(!colleague));
+  document.getElementById('segColleague').setAttribute('aria-pressed', String(colleague));
+  document.getElementById('segColleague').setAttribute('aria-expanded', String(loginOpen && !isAdmin));
+  const login = document.getElementById('adminLogin');
+  const showLogin = loginOpen && !isAdmin;
+  login.classList.toggle('open', showLogin);
+  login.inert = !showLogin;
+  if(!showLogin){
+    const input = document.getElementById('pwdInput');
+    input.value = ''; input.type = 'password';
+    syncPwdToggle();
+  }
 }
-function logoutAdmin(){ isAdmin = false; adminPassword=''; if(inactivityTimer) clearTimeout(inactivityTimer); render(); }
+function chooseMode(mode){
+  if(mode === 'client'){
+    if(isAdmin){ logoutAdmin(); popSeg('mode-client'); showToast('Retour au mode client.'); return; }
+    if(!loginOpen) return;
+    loginOpen = false; renderModeBox(); popSeg('mode-client');
+  } else {
+    if(isAdmin || loginOpen) return;
+    loginOpen = true; renderModeBox(); popSeg('mode-colleague');
+    document.getElementById('pwdInput').focus({ preventScroll: true });
+  }
+}
+function logoutAdmin(){ isAdmin = false; adminPassword=''; loginOpen = false; if(inactivityTimer) clearTimeout(inactivityTimer); render(); }
 function togglePwdVisibility(){
   const input = document.getElementById('pwdInput');
   if(input) input.type = input.type === 'password' ? 'text' : 'password';
+  syncPwdToggle();
+}
+function syncPwdToggle(){
+  const input = document.getElementById('pwdInput'), btn = document.getElementById('pwdToggle');
+  if(!input || !btn) return;
+  const visible = input.type === 'text';
+  btn.innerHTML = visible ? EYE_OFF : EYE_ON;
+  btn.setAttribute('aria-label', visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
 }
 let inactivityTimer = null;
 function resetInactivityTimer(){
@@ -540,9 +712,9 @@ async function tryLogin(){
   const val = document.getElementById('pwdInput').value;
   try{
     const res = await apiPost('checkPassword', { password: val });
-    if(res.ok){ isAdmin = true; adminPassword = val; showToast('Mode collègue activé.'); resetInactivityTimer(); if(firstLoadDone) render(); else renderModeBox(); }
+    if(res.ok){ isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); resetInactivityTimer(); if(firstLoadDone) render(); else renderModeBox(); }
     else { showToast('Mot de passe incorrect.', true); }
-  }catch(e){ showToast('Erreur de connexion, réessaie.', true); }
+  }catch(e){ showToast('Erreur de connexion. Réessayez.', true); }
 }
 
 function renderDashboard(){
@@ -562,24 +734,25 @@ function renderDashboard(){
   `;
 }
 
+let settingsOpen = false;
 function renderSettings(){
   const el = document.getElementById('settings');
   if(!isAdmin){ el.innerHTML=''; return; }
   el.innerHTML = `
-    <details class="panel" style="padding:0;">
-      <summary style="cursor:pointer;padding:16px;font-size:0.95rem;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px;">${ICONS.settings} Paramètres</summary>
-      <div style="padding:0 16px 16px;">
+    <details class="panel settings-panel disclosure" ${settingsOpen ? 'open' : ''} ontoggle="settingsOpen = this.open">
+      <summary class="settings-summary">${ICONS.settings}<span>Paramètres</span><span class="settings-chevron" aria-hidden="true"><svg viewBox="0 -960 960 960"><path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"/></svg></span></summary>
+      <div class="settings-body">
         <div class="settings-grid">
           <div class="field"><label>Nom du restaurant 1</label><input type="text" id="cfg-name1" value="${escapeHtml(state.name1)}"></div>
           <div class="field"><label>Nom du restaurant 2</label><input type="text" id="cfg-name2" value="${escapeHtml(state.name2)}"></div>
-          <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 1</label><input type="text" id="cfg-desc1" value="${escapeHtml(state.desc1)}"></div>
-          <div class="field" style="grid-column:1/-1;"><label>Description du restaurant 2</label><input type="text" id="cfg-desc2" value="${escapeHtml(state.desc2)}"></div>
-          <div class="field" style="grid-column:1/-1;"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="ex: le secrétariat au 03 XX XX XX XX"></div>
+          <div class="field span-all"><label>Description du restaurant 1</label><input type="text" id="cfg-desc1" value="${escapeHtml(state.desc1)}"></div>
+          <div class="field span-all"><label>Description du restaurant 2</label><input type="text" id="cfg-desc2" value="${escapeHtml(state.desc2)}"></div>
+          <div class="field span-all"><label>Contact à indiquer pour une annulation (affiché dans les emails)</label><input type="text" id="cfg-contact" value="${escapeHtml(state.contactAnnulation)}" placeholder="Ex. le secrétariat au 03 00 00 00 00"></div>
           <div class="field"><label>Tarif élève (€)</label><input type="number" step="0.01" min="0" id="cfg-priceEleve" value="${escapeHtml(String(state.priceEleve))}"></div>
           <div class="field"><label>Tarif professeur/personnel (€)</label><input type="number" step="0.01" min="0" id="cfg-priceProf" value="${escapeHtml(String(state.priceProf))}"></div>
           <div class="field"><label>Tarif extérieur (€)</label><input type="number" step="0.01" min="0" id="cfg-priceExterieur" value="${escapeHtml(String(state.priceExterieur))}"></div>
         </div>
-        <button class="btn small" onclick="saveSettings(this)">Enregistrer les paramètres</button>
+        <button class="btn primary" onclick="saveSettings(this)">Enregistrer les paramètres</button>
       </div>
     </details>
   `;
@@ -593,7 +766,7 @@ async function saveSettings(btn){
   const priceEleve = document.getElementById('cfg-priceEleve').value.trim();
   const priceProf = document.getElementById('cfg-priceProf').value.trim();
   const priceExterieur = document.getElementById('cfg-priceExterieur').value.trim();
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  const orig = setBusy(btn, 'Enregistrement…');
   try{
     if(name1) state = await apiPost('setConfigField', { password: adminPassword, key: 'name1', value: name1 });
     if(name2) state = await apiPost('setConfigField', { password: adminPassword, key: 'name2', value: name2 });
@@ -607,7 +780,7 @@ async function saveSettings(btn){
     render();
   }catch(e){
     showToast(e.message || 'Erreur', true);
-    btn.disabled = false; btn.textContent = orig;
+    clearBusy(btn, orig);
   }
 }
 
@@ -615,15 +788,15 @@ function renderAdminFormR1(){
   const el = document.getElementById('admin-r1');
   if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
   el.className = 'new-day-form open panel add-day';
-  el.innerHTML = `<details ${addDayOpen.r1 ? 'open' : ''} ontoggle="addDayOpen.r1 = this.open">
+  el.innerHTML = `<details class="disclosure" ${addDayOpen.r1 ? 'open' : ''} ontoggle="addDayOpen.r1 = this.open">
     <summary class="add-day-summary"><span class="add-day-plus" aria-hidden="true">+</span>Ouvrir un jour</summary>
     <div class="add-day-body">
     <div class="field"><label>Date</label><input type="date" id="date-r1" value="${calState.r1.selected}"></div>
-    <div class="field"><label>Ton nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r1" placeholder="ex: M. Dupont"></div>
-    <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="cap-r1" placeholder="ex: 20"></div>
-    <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r1" placeholder="ex: Cuisine italienne"></div>
-    <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="note-r1" placeholder="ex: Menu gastronomique classe TS2"></div>
-    <button class="btn gold small" onclick="addDayR1(this)">Ajouter ce jour</button>
+    <div class="field"><label>Votre nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r1" placeholder="Ex. M. Dupont" autocomplete="name"></div>
+    <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="cap-r1" placeholder="Ex. 20"></div>
+    <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r1" placeholder="Ex. cuisine italienne"></div>
+    <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="note-r1" placeholder="Ex. menu gastronomique, classe TS2"></div>
+    <button class="btn primary" onclick="addDayR1(this)">Ouvrir ce jour</button>
     </div>
   </details>`;
 }
@@ -635,42 +808,47 @@ async function addDayR1(btn){
   const collegueVal = document.getElementById('collegue-r1').value.trim();
   const formR1 = btn.closest('.add-day');
   clearFieldErrors(formR1);
-  if(!dateVal) fieldError('date-r1', 'Choisis une date.');
-  if(!capVal || capVal <= 0) fieldError('cap-r1', 'Indique un nombre de couverts supérieur à 0.');
+  if(!dateVal) fieldError('date-r1', 'Choisissez une date.');
+  if(!capVal || capVal <= 0) fieldError('cap-r1', 'Indiquez un nombre de couverts supérieur à 0.');
   if(formR1 && formR1.querySelector('.field-error')){ focusFirstError(formR1); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
+  const orig = setBusy(btn, 'Ouverture en cours…');
   try{
     state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
     calState.r1.selected = dateVal; calState.r1.anchor = dateVal;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
 function renderAdminFormR2(){
   const el = document.getElementById('admin-r2');
   if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
   el.className = 'new-day-form open panel add-day';
+  // Une ligne par plat : les en-têtes de colonnes sont visibles au-dessus,
+  // chaque champ porte en plus un nom complet pour les lecteurs d'écran.
   const itemsHtml = draftItems.map((it, i) => `
     <div class="draft-item-row">
-      <input type="text" placeholder="Nom du plat" value="${escapeHtml(it.name)}" oninput="updateDraftItem(${i}, 'name', this.value)">
-      <input type="number" min="1" placeholder="Stock" value="${it.stock}" oninput="updateDraftItem(${i}, 'stock', this.value)">
-      <input type="number" step="0.01" min="0" placeholder="Prix (optionnel)" value="${it.price||''}" list="price-suggestions" oninput="updateDraftItem(${i}, 'price', this.value)">
-      <button class="btn danger small" onclick="removeDraftItem(${i})" type="button">✕</button>
+      <input type="text" placeholder="Ex. salade César" aria-label="Plat ${i+1} : nom" value="${escapeHtml(it.name)}" oninput="updateDraftItem(${i}, 'name', this.value)">
+      <input type="number" min="1" placeholder="10" aria-label="Plat ${i+1} : stock" value="${it.stock}" oninput="updateDraftItem(${i}, 'stock', this.value)">
+      <input type="number" step="0.01" min="0" placeholder="3,50" aria-label="Plat ${i+1} : prix en euros (optionnel)" value="${it.price||''}" list="price-suggestions" oninput="updateDraftItem(${i}, 'price', this.value)">
+      <button class="icon-btn" onclick="removeDraftItem(${i})" type="button" aria-label="Retirer le plat ${i+1}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
     </div>
   `).join('');
-  el.innerHTML = `<details ${addDayOpen.r2 ? 'open' : ''} ontoggle="addDayOpen.r2 = this.open">
+  el.innerHTML = `<details class="disclosure" ${addDayOpen.r2 ? 'open' : ''} ontoggle="addDayOpen.r2 = this.open">
     <summary class="add-day-summary"><span class="add-day-plus" aria-hidden="true">+</span>Ouvrir un jour</summary>
     <div class="add-day-body">
     <div class="field"><label>Date</label><input type="date" id="date-r2" value="${calState.r2.selected}"></div>
-    <div class="field"><label>Ton nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r2" placeholder="ex: Mme Martin"></div>
-    <div class="field"><label>Note (optionnel)</label><input type="text" id="note-r2" placeholder="ex: Semaine du menu bistrot"></div>
-    <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r2" placeholder="ex: Semaine italienne"></div>
-    <label>Plats disponibles ce jour-là</label>
-    ${itemsHtml}
-    ${priceSuggestionsDatalist()}
-    <button class="btn ghost small" style="margin-top:4px;" onclick="addDraftItemRow()" type="button">+ Ajouter un plat</button>
-    <div style="margin-top:12px;"><button class="btn gold small" onclick="addDayR2(this)">Ouvrir ce jour</button></div>
+    <div class="field"><label>Votre nom (collègue qui ouvre ce jour)</label><input type="text" id="collegue-r2" placeholder="Ex. Mme Martin" autocomplete="name"></div>
+    <div class="field"><label>Note (optionnel)</label><input type="text" id="note-r2" placeholder="Ex. semaine du menu bistrot"></div>
+    <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="theme-r2" placeholder="Ex. semaine italienne"></div>
+    <fieldset class="field-group">
+      <legend>Plats disponibles ce jour-là</legend>
+      <div class="draft-item-row draft-head" aria-hidden="true"><span>Plat</span><span>Stock</span><span>Prix (optionnel)</span><span></span></div>
+      ${itemsHtml}
+      ${priceSuggestionsDatalist()}
+      <button class="btn ghost small" onclick="addDraftItemRow()" type="button">+ Ajouter un plat</button>
+    </fieldset>
+    <div class="form-submit"><button class="btn primary" onclick="addDayR2(this)">Ouvrir ce jour</button></div>
     </div>
   </details>`;
 }
@@ -688,44 +866,47 @@ async function addDayR2(btn){
     .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10), price: it.price ? parseFloat(it.price) : '' }));
   const formR2 = btn.closest('.add-day');
   clearFieldErrors(formR2);
-  if(!dateVal) fieldError('date-r2', 'Choisis une date.');
-  if(items.length === 0) blockError(formR2 && [...formR2.querySelectorAll('.draft-item-row')].pop(), 'Ajoute au moins un plat avec un nom et un stock.');
+  if(!dateVal) fieldError('date-r2', 'Choisissez une date.');
+  if(items.length === 0) blockError(formR2 && [...formR2.querySelectorAll('.draft-item-row')].pop(), 'Ajoutez au moins un plat avec un nom et un stock.');
   if(formR2 && formR2.querySelector('.field-error')){ focusFirstError(formR2); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ouverture en cours…';
+  const orig = setBusy(btn, 'Ouverture en cours…');
   try{
     state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
     draftItems = [{name:'',stock:'',price:''}];
     calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
 async function deleteDayR1(date, btn){
-  if(!confirmClick(btn, 'Supprimer le jour et ses réservations ?')) return;
+  if(!confirmClick(btn, 'Confirmer la suppression du jour et de toutes ses réservations')) return;
   try{ state = await apiPost('deleteDayR1', { password: adminPassword, date }); showToast('Jour supprimé.'); render(); }
   catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
 async function deleteDayR2(date, btn){
-  if(!confirmClick(btn, 'Supprimer le jour et ses réservations ?')) return;
+  if(!confirmClick(btn, 'Confirmer la suppression du jour et de toutes ses réservations')) return;
   try{ state = await apiPost('deleteDayR2', { password: adminPassword, date }); showToast('Jour supprimé.'); render(); }
   catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
 async function deleteBookingR1(id, btn){
-  if(!confirmClick(btn, 'Confirmer ?')) return;
+  if(!confirmClick(btn, 'Confirmer la suppression de cette réservation')) return;
   try{ state = await apiPost('deleteBookingR1', { password: adminPassword, id }); showToast('Réservation supprimée.'); render(); }
   catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
 async function deleteBookingR2(id, btn){
-  if(!confirmClick(btn, 'Confirmer ?')) return;
+  if(!confirmClick(btn, 'Confirmer la suppression de cette réservation')) return;
   try{ state = await apiPost('deleteBookingR2', { password: adminPassword, id }); showToast('Réservation supprimée.'); render(); }
   catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
 
-function openBookingR1(date){ bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; render(); }
-function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; render(); }
-function closeBooking(){ openBookingTarget = null; multiBookingQty = {}; render(); }
-function setServiceMode(mode){ chosenServiceMode = mode; render(); }
+function openBookingR1(date){ bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render(); }
+function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; render(); }
+function closeBooking(){ leaveThen(openBookingTarget && 'bk-' + openBookingTarget.date, ()=>{ openBookingTarget = null; multiBookingQty = {}; render(); }); }
+function setServiceMode(mode){
+  if(chosenServiceMode === mode) return;
+  chosenServiceMode = mode; render(); popSeg(`service-${mode}`);
+}
 function setMultiQty(itemId, value){
   const n = parseInt(value, 10);
   if(n > 0) multiBookingQty[itemId] = n; else delete multiBookingQty[itemId];
@@ -764,12 +945,12 @@ async function submitBookingR1(date, btn){
   const totalPersonnes = nbEleve + nbProf + nbExt;
   const form = btn.closest('.booking-form');
   clearFieldErrors(form);
-  if(!name) fieldError('bk-name', 'Indique ton nom et prénom.');
-  if(!contact) fieldError('bk-contact', 'Indique un téléphone ou un email.');
-  if(!classe) fieldError('bk-classe', 'Indique ta classe ou ton service.');
-  if(totalPersonnes <= 0) blockError(document.getElementById('bk-nbEleve').closest('.row2'), 'Renseigne au moins une personne.');
+  if(!name) fieldError('bk-name', 'Indiquez vos nom et prénom.');
+  if(!contact) fieldError('bk-contact', 'Indiquez un téléphone ou un email.');
+  if(!classe) fieldError('bk-classe', 'Indiquez votre classe ou votre service.');
+  if(totalPersonnes <= 0) blockError(document.getElementById('bk-nbEleve').closest('.row3'), 'Indiquez au moins une personne.');
   if(form && form.querySelector('.field-error')){ focusFirstError(form); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
+  const orig = setBusy(btn, 'Envoi en cours…');
   try{
     const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, nbEleve, nbProf, nbExt, observation: obs });
     const emailStatus = res._emailStatus;
@@ -777,19 +958,19 @@ async function submitBookingR1(date, btn){
     state = res;
     const emailFailed = emailStatus && emailStatus.sent === false && emailStatus.reason !== 'no-email';
     const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe }];
-    if(nbEleve) lines.push({ label:'Élève(s)', value:String(nbEleve) });
-    if(nbProf) lines.push({ label:'Prof(s) / personnel', value:String(nbProf) });
-    if(nbExt) lines.push({ label:'Extérieur(s)', value:String(nbExt) });
+    if(nbEleve) lines.push({ label:'Élèves', value:String(nbEleve) });
+    if(nbProf) lines.push({ label:'Personnels', value:String(nbProf) });
+    if(nbExt) lines.push({ label:'Extérieurs', value:String(nbExt) });
     const totalPrix = nbEleve * Number(state.priceEleve) + nbProf * Number(state.priceProf) + nbExt * Number(state.priceExterieur);
     bookingConfirmation = {
       rest:'r1', date, lines,
-      total: totalPersonnes + ' couvert(s)' + (totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''),
+      total: plural(totalPersonnes, 'couvert') + (totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''),
       warning: emailFailed ? "L'email de confirmation n'a pas pu être envoyé. Garde ce récapitulatif." : ''
     };
     showToast('Réservation confirmée.');
     openBookingTarget = null;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 async function submitBookingR2Multi(date, btn){
   const name = document.getElementById('bk-name').value.trim();
@@ -799,14 +980,14 @@ async function submitBookingR2Multi(date, btn){
   const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
   const form = btn.closest('.booking-form');
   clearFieldErrors(form);
-  if(items.length === 0) blockError(form && form.querySelector('#bk-r2-total'), 'Choisis au moins un plat.');
-  if(!name) fieldError('bk-name', 'Indique ton nom et prénom.');
-  if(!contact) fieldError('bk-contact', 'Indique un téléphone ou un email.');
-  if(!classe) fieldError('bk-classe', 'Indique ta classe ou ton service.');
+  if(items.length === 0) blockError(form && form.querySelector('#bk-r2-total'), 'Choisissez au moins un plat.');
+  if(!name) fieldError('bk-name', 'Indiquez vos nom et prénom.');
+  if(!contact) fieldError('bk-contact', 'Indiquez un téléphone ou un email.');
+  if(!classe) fieldError('bk-classe', 'Indiquez votre classe ou votre service.');
   if(form && form.querySelector('.field-error')){ focusFirstError(form); return; }
   // Réservations déjà connues : les nouvelles (celles réellement enregistrées) serviront au récapitulatif
   const knownIds = new Set(state.r2Bookings.map(b => b.ID));
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Envoi en cours…';
+  const orig = setBusy(btn, 'Envoi en cours…');
   try{
     const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs });
     const r = res._bookingResult || { confirmed:[], adjusted:[], skipped:[] };
@@ -831,7 +1012,7 @@ async function submitBookingR2Multi(date, btn){
       bookingConfirmation = {
         rest:'r2', date, lines,
         total: r.totalPrix > 0 ? formatEuro(r.totalPrix) + (r.hasPriceGap ? ' (hors plats sans prix)' : '') : '',
-        warning: partial ? 'Certaines quantités ont été ajustées faute de stock. Vérifie ton email pour le détail.'
+        warning: partial ? 'Certaines quantités ont été ajustées faute de stock. Vérifiez votre email pour le détail.'
                : emailFailed ? "L'email de confirmation n'a pas pu être envoyé. Garde ce récapitulatif." : ''
       };
       showToast('Réservation confirmée.');
@@ -839,68 +1020,68 @@ async function submitBookingR2Multi(date, btn){
     openBookingTarget = null;
     multiBookingQty = {};
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
-function openEditBookingR1(id){ editBookingTarget = { rest:'r1', id }; render(); }
-function openEditBookingR2(id){ editBookingTarget = { rest:'r2', id }; render(); }
-function closeEditBooking(){ editBookingTarget = null; render(); }
+function openEditBookingR1(id){ editBookingTarget = { rest:'r1', id }; enterKey = 'eb-' + id; render(); }
+function openEditBookingR2(id){ editBookingTarget = { rest:'r2', id }; enterKey = 'eb-' + id; render(); }
+function closeEditBooking(){ leaveThen(editBookingTarget && 'eb-' + editBookingTarget.id, ()=>{ editBookingTarget = null; render(); }); }
 
-function openEditItem(itemId){ editItemTarget = itemId; render(); }
-function closeEditItem(){ editItemTarget = null; render(); }
+function openEditItem(itemId){ editItemTarget = itemId; enterKey = 'ei-' + itemId; render(); }
+function closeEditItem(){ leaveThen(editItemTarget && 'ei-' + editItemTarget, ()=>{ editItemTarget = null; render(); }); }
 async function submitEditItemR2(itemId, btn){
   const name = document.getElementById('eit-name').value.trim();
   const stock = parseInt(document.getElementById('eit-stock').value, 10);
   const priceVal = document.getElementById('eit-price').value.trim();
   const price = priceVal ? parseFloat(priceVal) : '';
-  if(!name || !stock || stock <= 0){ showToast('Merci de renseigner un nom et un stock valide.', true); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  if(!checkFields(btn, [['eit-name', !name, 'Indiquez le nom du plat.'], ['eit-stock', !stock || stock <= 0, 'Indiquez un stock supérieur à 0.']])) return;
+  const orig = setBusy(btn, 'Enregistrement…');
   try{
     state = await apiPost('editItemR2', { password: adminPassword, itemId, name, stock, price });
     showToast('Plat modifié.');
     editItemTarget = null;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 async function deleteItemR2(itemId, btn){
-  if(!confirmClick(btn, 'Supprimer ce plat ?')) return;
+  if(!confirmClick(btn, 'Confirmer la suppression de ce plat')) return;
   try{
     state = await apiPost('deleteItemR2', { password: adminPassword, itemId });
     showToast('Plat supprimé.');
     render();
   }catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
-function openAddItemForm(date){ addItemFormOpen = date; render(); }
-function closeAddItemForm(){ addItemFormOpen = null; render(); }
+function openAddItemForm(date){ addItemFormOpen = date; enterKey = 'ai-' + date; render(); }
+function closeAddItemForm(){ leaveThen(addItemFormOpen && 'ai-' + addItemFormOpen, ()=>{ addItemFormOpen = null; render(); }); }
 async function submitAddItemR2(date, btn){
   const name = document.getElementById('nit-name').value.trim();
   const stock = parseInt(document.getElementById('nit-stock').value, 10);
   const priceVal = document.getElementById('nit-price').value.trim();
   const price = priceVal ? parseFloat(priceVal) : '';
-  if(!name || !stock || stock <= 0){ showToast('Merci de renseigner un nom et un stock valide.', true); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Ajout en cours…';
+  if(!checkFields(btn, [['nit-name', !name, 'Indiquez le nom du plat.'], ['nit-stock', !stock || stock <= 0, 'Indiquez un stock supérieur à 0.']])) return;
+  const orig = setBusy(btn, 'Ajout en cours…');
   try{
     state = await apiPost('addItemR2', { password: adminPassword, date, name, stock, price });
     showToast('Plat ajouté.');
     addItemFormOpen = null;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
-function openEditDayR1(date){ editDayR1Open = date; render(); }
-function closeEditDayR1(){ editDayR1Open = null; render(); }
+function openEditDayR1(date){ editDayR1Open = date; enterKey = 'day-' + date; render(); }
+function closeEditDayR1(){ leaveThen(editDayR1Open && 'day-' + editDayR1Open, ()=>{ editDayR1Open = null; render(); }); }
 async function submitEditDayR1(date, btn){
   const capacity = parseInt(document.getElementById('edd-cap').value, 10);
   const menu = document.getElementById('edd-menu').value.trim();
   const theme = document.getElementById('edd-theme').value.trim();
-  if(!capacity || capacity <= 0){ showToast('Merci de renseigner un nombre de couverts valide.', true); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  if(!checkFields(btn, [['edd-cap', !capacity || capacity <= 0, 'Indiquez un nombre de couverts supérieur à 0.']])) return;
+  const orig = setBusy(btn, 'Enregistrement…');
   try{
     state = await apiPost('editDayR1', { password: adminPassword, date, capacity, menu, theme });
     showToast('Jour modifié.');
     editDayR1Open = null;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
 async function submitEditBookingR1(id, btn){
@@ -909,14 +1090,14 @@ async function submitEditBookingR1(id, btn){
   const classe = document.getElementById('ebk-classe').value.trim();
   const qte = parseInt(document.getElementById('ebk-qte').value, 10);
   const observation = document.getElementById('ebk-obs').value.trim();
-  if(!nom || !contact || !classe || !qte || qte <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  if(!checkFields(btn, [['ebk-nom', !nom, 'Indiquez le nom.'], ['ebk-classe', !classe, 'Indiquez la classe ou le service.'], ['ebk-contact', !contact, 'Indiquez un téléphone ou un email.'], ['ebk-qte', !qte || qte <= 0, 'Indiquez une quantité supérieure à 0.']])) return;
+  const orig = setBusy(btn, 'Enregistrement…');
   try{
     state = await apiPost('editBookingR1', { password: adminPassword, id, nom, contact, classe, qte, observation });
     showToast('Réservation modifiée.');
     editBookingTarget = null;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 async function submitEditBookingR2(id, btn){
   const nom = document.getElementById('ebk-nom').value.trim();
@@ -925,73 +1106,75 @@ async function submitEditBookingR2(id, btn){
   const qte = parseInt(document.getElementById('ebk-qte').value, 10);
   const mode = document.getElementById('ebk-mode').value;
   const observation = document.getElementById('ebk-obs').value.trim();
-  if(!nom || !contact || !classe || !qte || qte <= 0){ showToast('Merci de remplir tous les champs.', true); return; }
-  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Enregistrement…';
+  if(!checkFields(btn, [['ebk-nom', !nom, 'Indiquez le nom.'], ['ebk-classe', !classe, 'Indiquez la classe ou le service.'], ['ebk-contact', !contact, 'Indiquez un téléphone ou un email.'], ['ebk-qte', !qte || qte <= 0, 'Indiquez une quantité supérieure à 0.']])) return;
+  const orig = setBusy(btn, 'Enregistrement…');
   try{
     state = await apiPost('editBookingR2', { password: adminPassword, id, nom, contact, classe, qte, mode, observation });
     showToast('Réservation modifiée.');
     editBookingTarget = null;
     render();
-  }catch(e){ showToast(e.message || 'Erreur', true); btn.disabled=false; btn.textContent=orig; }
+  }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 function editBookingFormR1Html(b){
-  return `<div class="booking-form" style="margin-top:6px;">
+  return `<div class="booking-form${enterOnce('eb-' + b.ID)}" data-form="eb-${b.ID}">
     <div class="row2">
       <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
-      <div class="field"><label>Classe</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
+      <div class="field"><label>Classe ou service</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
     </div>
     <div class="row2">
-      <div class="field"><label>Contact</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+      <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
       <div class="field"><label>Couverts</label><input type="number" min="1" id="ebk-qte" value="${b.Qte}"></div>
     </div>
-    <div class="field"><label>Observation</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
+    <div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
     <div class="day-actions">
-      <button class="btn gold small" onclick="submitEditBookingR1('${b.ID}', this)">Enregistrer</button>
-      <button class="btn ghost small" onclick="closeEditBooking()">Annuler</button>
+      <button class="btn primary" onclick="submitEditBookingR1('${b.ID}', this)">Enregistrer</button>
+      <button class="btn ghost" onclick="closeEditBooking()">Annuler</button>
     </div>
   </div>`;
 }
 function editBookingFormR2Html(b){
-  return `<div class="booking-form" style="margin-top:6px;">
+  return `<div class="booking-form${enterOnce('eb-' + b.ID)}" data-form="eb-${b.ID}">
     <div class="row2">
       <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
-      <div class="field"><label>Classe</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
+      <div class="field"><label>Classe ou service</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
     </div>
     <div class="row2">
-      <div class="field"><label>Contact</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+      <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
       <div class="field"><label>Portions</label><input type="number" min="1" id="ebk-qte" value="${b.Qte}"></div>
     </div>
-    <div class="field"><label>Mode</label><select id="ebk-mode">
+    <div class="field"><label>Mode de service</label><select id="ebk-mode">
       <option value="emporter" ${b.Mode==='emporter'?'selected':''}>À emporter</option>
       <option value="surplace" ${b.Mode==='surplace'?'selected':''}>Sur place</option>
     </select></div>
-    <div class="field"><label>Observation</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
+    <div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
     <div class="day-actions">
-      <button class="btn gold small" onclick="submitEditBookingR2('${b.ID}', this)">Enregistrer</button>
-      <button class="btn ghost small" onclick="closeEditBooking()">Annuler</button>
+      <button class="btn primary" onclick="submitEditBookingR2('${b.ID}', this)">Enregistrer</button>
+      <button class="btn ghost" onclick="closeEditBooking()">Annuler</button>
     </div>
   </div>`;
 }
 
 function bookingFormHtml(date, rem){
   return `
-    <div class="booking-form">
-      <div class="field"><label>Nom</label><input type="text" id="bk-name" placeholder="Nom et prénom"></div>
+    <div class="booking-form${enterOnce('bk-' + date)}" data-form="bk-${date}">
+      <div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
       <div class="row2">
-        <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
-        <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
+        ${contactFieldHtml()}
+        <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
       </div>
-      <label style="margin:6px 0 4px;">Nombre de personnes par statut (max ${rem} au total)</label>
-      <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
-        <div class="field"><label>Élève(s) — ${formatEuro(state.priceEleve)}</label><input type="number" min="0" id="bk-nbEleve" placeholder="0" oninput="updateR1PriceLive()"></div>
-        <div class="field"><label>Prof(s)/personnel — ${formatEuro(state.priceProf)}</label><input type="number" min="0" id="bk-nbProf" placeholder="0" oninput="updateR1PriceLive()"></div>
-        <div class="field"><label>Extérieur(s) — ${formatEuro(state.priceExterieur)}</label><input type="number" min="0" id="bk-nbExt" placeholder="0" oninput="updateR1PriceLive()"></div>
-      </div>
-      <p id="bk-r1-total" style="font-weight:600;margin:4px 0 10px;">Total : 0,00 €</p>
-      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="ex: table partagée avec, délai, allergie..."></div>
+      <fieldset class="field-group">
+        <legend>Nombre de personnes (${rem} au maximum)</legend>
+        <div class="row3">
+          <div class="field"><label>Élèves · ${formatEuro(state.priceEleve)}</label><input type="number" min="0" id="bk-nbEleve" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive()"></div>
+          <div class="field"><label>Personnels · ${formatEuro(state.priceProf)}</label><input type="number" min="0" id="bk-nbProf" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive()"></div>
+          <div class="field"><label>Extérieurs · ${formatEuro(state.priceExterieur)}</label><input type="number" min="0" id="bk-nbExt" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive()"></div>
+        </div>
+      </fieldset>
+      <p id="bk-r1-total" class="form-total" aria-live="polite">Total : 0,00 €</p>
+      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="Ex. table partagée, allergie…"></div>
       <div class="day-actions">
-        <button class="btn gold small" onclick="submitBookingR1('${date}', this)">Confirmer la réservation</button>
-        <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
+        <button class="btn primary" onclick="submitBookingR1('${date}', this)">Confirmer la réservation</button>
+        <button class="btn ghost" onclick="closeBooking()">Annuler</button>
       </div>
     </div>
   `;
@@ -1003,7 +1186,7 @@ function updateR1PriceLive(){
   const total = nbEleve * Number(state.priceEleve) + nbProf * Number(state.priceProf) + nbExt * Number(state.priceExterieur);
   const totalCouverts = nbEleve + nbProf + nbExt;
   const el = document.getElementById('bk-r1-total');
-  if(el) el.textContent = totalCouverts + ' couvert(s) — Total : ' + formatEuro(total);
+  if(el) el.textContent = plural(totalCouverts, 'couvert') + ' · Total : ' + formatEuro(total);
 }
 function bookingFormMultiHtml(date, items){
   const rows = items.map(item=>{
@@ -1011,28 +1194,28 @@ function bookingFormMultiHtml(date, items){
     if(rem <= 0) return `<div class="item-row"><span class="item-name">${escapeHtml(item.Nom)}</span><span class="item-stock">Épuisé</span></div>`;
     const qtyVal = multiBookingQty[item.ID] || '';
     return `<div class="item-row">
-      <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''} <span class="item-stock">(${rem} dispo)</span></span>
-      <input type="number" min="0" max="${rem}" value="${qtyVal}" style="width:70px;" placeholder="0" oninput="setMultiQty('${item.ID}', this.value); updateR2PriceLive()">
+      <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''} <span class="item-stock">(${rem} disponible${rem > 1 ? 's' : ''})</span></span>
+      <input type="number" class="qty-input" min="0" max="${rem}" value="${qtyVal}" placeholder="0" inputmode="numeric" aria-label="Quantité : ${escapeHtml(item.Nom)}" oninput="setMultiQty('${item.ID}', this.value); updateR2PriceLive()">
     </div>`;
   }).join('');
   return `
-    <div class="booking-form">
-      <div class="segmented mode-choice">
-        <button class="btn small ${chosenServiceMode==='emporter'?'active':''}" onclick="setServiceMode('emporter')" type="button">À emporter</button>
-        <button class="btn small ${chosenServiceMode==='surplace'?'active':''}" onclick="setServiceMode('surplace')" type="button">Sur place</button>
-      </div>
-      <label style="margin:10px 0 4px;">Choisis tes plats et quantités</label>
+    <div class="booking-form${enterOnce('bk-' + date)}" data-form="bk-${date}">
+      ${segGroup('Mode de service', [
+        { key:'service-emporter', label:'À emporter', pressed: chosenServiceMode==='emporter', onclick:`setServiceMode('emporter')` },
+        { key:'service-surplace', label:'Sur place', pressed: chosenServiceMode==='surplace', onclick:`setServiceMode('surplace')` }
+      ], 'block mode-choice')}
+      <fieldset class="field-group"><legend>Choisissez vos plats et quantités</legend>
       ${rows}
-      <p id="bk-r2-total" style="font-weight:600;margin:6px 0 0;"></p>
-      <div class="field" style="margin-top:10px;"><label>Nom</label><input type="text" id="bk-name" placeholder="Nom et prénom"></div>
+      </fieldset>
+      <div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
       <div class="row2">
-        <div class="field"><label>Téléphone ou email (si tu veux une confirmation)</label><input type="text" id="bk-contact" placeholder="06... ou email"></div>
-        <div class="field"><label>Classe / service</label><input type="text" id="bk-classe" placeholder="ex: TS2 ou Vie scolaire"></div>
+        ${contactFieldHtml()}
+        <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
       </div>
-      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="ex: table partagée avec, délai, allergie..."></div>
+      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="Ex. table partagée, allergie…"></div>
       <div class="day-actions">
-        <button class="btn gold small" onclick="submitBookingR2Multi('${date}', this)">Confirmer la réservation</button>
-        <button class="btn ghost small" onclick="closeBooking()">Annuler</button>
+        <button class="btn primary" onclick="submitBookingR2Multi('${date}', this)">Confirmer la réservation</button>
+        <button class="btn ghost" onclick="closeBooking()">Annuler</button>
       </div>
     </div>
   `;
@@ -1065,7 +1248,10 @@ function monthLabel(anchorISO){
   const s = d.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
   return s.charAt(0).toUpperCase()+s.slice(1);
 }
-function setCalMode(rest, mode){ calState[rest].mode = mode; render(); }
+function setCalMode(rest, mode){
+  if(calState[rest].mode === mode) return;
+  calState[rest].mode = mode; render(); popSeg(`cal-${rest}-${mode}`);
+}
 function navCal(rest, dir){
   const st = calState[rest];
   const d = new Date(st.anchor + 'T00:00:00');
@@ -1109,9 +1295,11 @@ function renderCalendar(rest, containerId, statusFn){
       <div class="cal-label" aria-live="polite"><span class="${slideClass}">${label}</span></div>
       <button class="icon-btn tonal" onclick="navCal('${rest}',1)" aria-label="${unit} suivant${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
     </div>
-    <div class="segmented cal-toggle">
-      <button class="btn small ${cs.mode==='week'?'active-toggle':''}" onclick="setCalMode('${rest}','week')">Semaine</button>
-      <button class="btn small ${cs.mode==='month'?'active-toggle':''}" onclick="setCalMode('${rest}','month')">Mois</button>
+    <div class="cal-toggle">
+      ${segGroup('Affichage du calendrier', [
+        { key:`cal-${rest}-week`, label:'Semaine', pressed: cs.mode==='week', onclick:`setCalMode('${rest}','week')` },
+        { key:`cal-${rest}-month`, label:'Mois', pressed: cs.mode==='month', onclick:`setCalMode('${rest}','month')` }
+      ], 'small')}
       <button class="btn ghost small" onclick="jumpToday('${rest}')">Aujourd'hui</button>
     </div>
     <div class="cal-grid">${weekdayHeader}${cellsHtml}</div>
@@ -1125,7 +1313,7 @@ function renderDetailR1(){
   const isPast = iso < today;
   const el = document.getElementById('detail-r1');
   if(!day){
-    el.innerHTML = `<div class="day-card"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilise le formulaire ci-dessus pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
+    el.innerHTML = `<div class="day-card${cardEnter('r1', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
     return;
   }
   const rem = remainingR1(day);
@@ -1135,21 +1323,21 @@ function renderDetailR1(){
   let adminHtml='';
   if(isAdmin){
     const editDayForm = editDayR1Open === day.Date ? `
-      <div class="booking-form" style="margin-top:10px;">
+      <div class="booking-form${enterOnce('day-' + day.Date)}" data-form="day-${day.Date}">
         <div class="row2">
           <div class="field"><label>Nombre de couverts disponibles</label><input type="number" min="1" id="edd-cap" value="${day.Capacite}"></div>
           <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="edd-theme" value="${escapeHtml(day.Theme||'')}"></div>
         </div>
         <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="edd-menu" value="${escapeHtml(day.Menu||'')}"></div>
         <div class="day-actions">
-          <button class="btn gold small" onclick="submitEditDayR1('${day.Date}', this)">Enregistrer</button>
-          <button class="btn ghost small" onclick="closeEditDayR1()">Annuler</button>
+          <button class="btn primary" onclick="submitEditDayR1('${day.Date}', this)">Enregistrer</button>
+          <button class="btn ghost" onclick="closeEditDayR1()">Annuler</button>
         </div>
       </div>` : '';
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s)${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}', this)">Suppr.</button></div>`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s)${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}', this)">Supprimer</button></div>`).join('')}
       </div>
       <div class="day-actions">
         <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
@@ -1161,7 +1349,7 @@ function renderDetailR1(){
   }
   el.innerHTML = `
     ${confirmationHtml('r1')}
-    <div class="day-card${isPast ? ' is-past' : ''}">
+    <div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r1', iso)}">
       <div class="day-top">
         <div class="day-date">${formatDate(day.Date)}</div>
         <span class="capacity-pill ${capClass}" style="${gaugeStyle(rem, Number(day.Capacite))}">${rem} / ${day.Capacite} couverts</span>
@@ -1169,7 +1357,7 @@ function renderDetailR1(){
       ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Menu ? `<div class="menu-block"><span class="menu-label">Menu du jour</span><div class="menu-text">${escapeHtml(day.Menu)}</div></div>` : ''}
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
-      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn gold small" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
+      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
       ${!isAdmin && isOpenForm ? bookingFormHtml(day.Date, rem) : ''}
       ${adminHtml}
     </div>
@@ -1183,7 +1371,7 @@ function renderDetailR2(){
   const isPast = iso < today;
   const el = document.getElementById('detail-r2');
   if(!day){
-    el.innerHTML = `<div class="day-card"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilise le formulaire ci-dessus pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
+    el.innerHTML = `<div class="day-card${cardEnter('r2', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
     return;
   }
   const items = state.r2Items.filter(it => it.Date === iso);
@@ -1197,27 +1385,27 @@ function renderDetailR2(){
     let adminItemActions = '';
     let editItemForm = '';
     if(isAdmin){
-      adminItemActions = `<div style="display:flex;gap:6px;margin-top:6px;">
+      adminItemActions = `<div class="item-actions">
         <button class="btn small" onclick="openEditItem('${item.ID}')">Modifier ce plat</button>
         <button class="btn danger small" onclick="deleteItemR2('${item.ID}', this)">Supprimer ce plat</button>
       </div>`;
       if(editItemTarget === item.ID){
-        editItemForm = `<div class="booking-form" style="margin-top:6px;">
+        editItemForm = `<div class="booking-form${enterOnce('ei-' + item.ID)}" data-form="ei-${item.ID}">
           <div class="row2">
             <div class="field"><label>Nom du plat</label><input type="text" id="eit-name" value="${escapeHtml(item.Nom)}"></div>
             <div class="field"><label>Stock</label><input type="number" min="1" id="eit-stock" value="${item.Stock}"></div>
           </div>
-          <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="eit-price" value="${item.Prix||''}" list="price-suggestions" placeholder="ex: 3.50"></div>
+          <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="eit-price" value="${item.Prix||''}" list="price-suggestions" placeholder="Ex. 3,50"></div>
           ${priceSuggestionsDatalist()}
           <div class="day-actions">
-            <button class="btn gold small" onclick="submitEditItemR2('${item.ID}', this)">Enregistrer</button>
-            <button class="btn ghost small" onclick="closeEditItem()">Annuler</button>
+            <button class="btn primary" onclick="submitEditItemR2('${item.ID}', this)">Enregistrer</button>
+            <button class="btn ghost" onclick="closeEditItem()">Annuler</button>
           </div>
         </div>`;
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s)${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}', this)">Suppr.</button></div>`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s)${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}', this)">Supprimer</button></div>`).join('')}
       </div>`;
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
@@ -1232,30 +1420,30 @@ function renderDetailR2(){
   }).join('');
   const addItemHtml = isAdmin ? (
     addItemFormOpen === iso ?
-      `<div class="booking-form" style="margin-top:10px;">
+      `<div class="booking-form${enterOnce('ai-' + iso)}" data-form="ai-${iso}">
         <div class="row2">
-          <div class="field"><label>Nom du plat</label><input type="text" id="nit-name" placeholder="ex: salade César"></div>
-          <div class="field"><label>Stock</label><input type="number" min="1" id="nit-stock" placeholder="ex: 10"></div>
+          <div class="field"><label>Nom du plat</label><input type="text" id="nit-name" placeholder="Ex. salade César"></div>
+          <div class="field"><label>Stock</label><input type="number" min="1" id="nit-stock" placeholder="Ex. 10"></div>
         </div>
-        <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="nit-price" list="price-suggestions" placeholder="ex: 3.50"></div>
+        <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="nit-price" list="price-suggestions" placeholder="Ex. 3,50"></div>
         ${priceSuggestionsDatalist()}
         <div class="day-actions">
-          <button class="btn gold small" onclick="submitAddItemR2('${iso}', this)">Ajouter ce plat</button>
-          <button class="btn ghost small" onclick="closeAddItemForm()">Annuler</button>
+          <button class="btn primary" onclick="submitAddItemR2('${iso}', this)">Ajouter ce plat</button>
+          <button class="btn ghost" onclick="closeAddItemForm()">Annuler</button>
         </div>
       </div>` :
       `<div class="day-actions" style="margin-top:10px;"><button class="btn small" onclick="openAddItemForm('${iso}')">+ Ajouter un plat à ce jour</button></div>`
   ) : '';
   el.innerHTML = `
     ${confirmationHtml('r2')}
-    <div class="day-card${isPast ? ' is-past' : ''}">
+    <div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r2', iso)}">
       <div class="day-top"><div class="day-date">${formatDate(day.Date)}</div></div>
       ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
       ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${itemsHtml}
       ${addItemHtml}
-      ${!isAdmin && !isMultiOpen && anyAvailable && !isPast ? `<div class="day-actions"><button class="btn gold small" onclick="openBookingR2Day('${iso}')">Réserver pour ce jour</button></div>` : ''}
+      ${!isAdmin && !isMultiOpen && anyAvailable && !isPast ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR2Day('${iso}')">Réserver</button></div>` : ''}
       ${!isAdmin && isMultiOpen ? bookingFormMultiHtml(iso, items) : ''}
       ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">${ICONS.print} Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}', this)">Supprimer ce jour</button></div>` : ''}
     </div>
@@ -1377,7 +1565,7 @@ function showTomorrowSummary(){
       html += `<div class="summary-block">
         <div class="summary-head">
           <b class="summary-name-r1">${escapeHtml(state.name1)}</b>
-          <button class="btn small summary-print" onclick="printTomorrowSummaryR1()" title="Imprimer" aria-label="Imprimer">${ICONS.print}</button>
+          <button class="icon-btn summary-print" onclick="printTomorrowSummaryR1()" title="Imprimer" aria-label="Imprimer">${ICONS.print}</button>
         </div>
         <div class="summary-meta">Ouvert par ${collegueR1}</div>
         <span class="text-muted">Réservés : ${totalCouverts} / ${r1Day.Capacite} couverts${totalPrixR1 > 0 ? ' — ' + formatEuro(totalPrixR1) : ''}</span>`;
@@ -1394,7 +1582,7 @@ function showTomorrowSummary(){
       html += `<div class="summary-block">
         <div class="summary-head">
           <b class="summary-name-r2">${escapeHtml(state.name2)}</b>
-          <button class="btn small summary-print" onclick="printTomorrowSummaryR2()" title="Imprimer" aria-label="Imprimer">${ICONS.print}</button>
+          <button class="icon-btn summary-print" onclick="printTomorrowSummaryR2()" title="Imprimer" aria-label="Imprimer">${ICONS.print}</button>
         </div>
         <div class="summary-meta">Ouvert par ${collegueR2}</div>`;
       if (r2Items.length > 0) {
@@ -1568,6 +1756,7 @@ function render(){
   renderCalendar('r2', 'cal-r2', dayStatusR2);
   renderDetailR1();
   renderDetailR2();
+  linkLabels();
 }
 
 renderModeBox();

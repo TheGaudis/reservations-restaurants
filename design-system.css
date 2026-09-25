@@ -47,6 +47,7 @@
   --border:#E2E4DD;        /* séparateurs, contours de carte */
   --border-strong:#D6D9D1; /* contours de champ */
   --border-hover:#C4C8BE;  /* survol d'un contour neutre */
+  --outline:#8A8F84;       /* contour qui porte un sens (sélecteurs) : 3,3:1 sur blanc */
 
   /* --- Texte --- */
   --text:#1F2328;
@@ -57,7 +58,8 @@
   /* --- Accent (action principale, surchargé par les thèmes) --- */
   --accent:var(--ab-blue);
   --accent-ink:var(--ab-blue-ink);
-  --accent-soft:rgba(31,78,158,.08);
+  --accent-soft:rgba(31,78,158,.08);       /* survols, halos, jours ouverts */
+  --accent-container:rgba(31,78,158,.14);  /* sélection tonale (M3 secondary-container), texte en --accent-ink */
 
   /* --- Statuts --- */
   --success:#4E7A12;  --success-soft:rgba(78,122,18,.12);
@@ -74,9 +76,10 @@
   --fs-lg:.94rem;    /* texte mis en avant */
   --fs-xl:1.05rem;   /* titres de carte */
   --fs-2xl:1.3rem;   /* titres de section */
-  --fs-3xl:1.55rem;  /* titre de page */
+  --fs-3xl:1.75rem;  /* titre de page (M3 Headline Medium, 28 px) */
+  --fs-3xl-sm:1.5rem; /* titre de page sur mobile : reste au-dessus de --fs-2xl */
   --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
-  --lh-tight:1.15; --lh-body:1.55;
+  --lh-title:1.25; --lh-body:1.55;
   --tracking-caps:.1em;
 
   /* --- Espacements (base 4 px) --- */
@@ -86,7 +89,6 @@
   /* --- Rayons --- */
   --radius-xs:6px;    /* badges, pastilles */
   --radius-sm:9px;    /* boutons, champs, cases */
-  --radius-md:12px;   /* sélecteurs segmentés */
   --radius:14px;      /* cartes, panneaux */
   --radius-lg:18px;   /* grands blocs (en-tête, colonnes) */
   --radius-full:999px;
@@ -119,16 +121,16 @@
    calendrier, cartes…) prend la couleur du restaurant.
    ------------------------------------------------------------------ */
 .accent-blue{
-  --accent:var(--ab-blue); --accent-ink:var(--ab-blue-ink); --accent-soft:rgba(31,78,158,.08);
+  --accent:var(--ab-blue); --accent-ink:var(--ab-blue-ink); --accent-soft:rgba(31,78,158,.08); --accent-container:rgba(31,78,158,.14);
   --accent-mark:var(--ab-blue);
 }
 .accent-green{
-  --accent:var(--ab-green-ink); --accent-ink:var(--ab-green-deep); --accent-soft:rgba(169,194,63,.18);
+  --accent:var(--ab-green-ink); --accent-ink:var(--ab-green-deep); --accent-soft:rgba(169,194,63,.18); --accent-container:rgba(169,194,63,.32);
   --accent-mark:var(--ab-green);
   --tint:#F6F9EC; --border:#E4E8D6; --text-muted:#5E6653;
 }
 .accent-magenta{
-  --accent:var(--ab-magenta); --accent-ink:var(--ab-magenta-ink); --accent-soft:rgba(163,35,127,.10);
+  --accent:var(--ab-magenta); --accent-ink:var(--ab-magenta-ink); --accent-soft:rgba(163,35,127,.10); --accent-container:rgba(163,35,127,.16);
   --accent-mark:var(--ab-magenta);
   --tint:#FBF2F8; --border:#EEDDE8; --text-muted:#6A5A65;
 }
@@ -138,7 +140,7 @@
    3. BASE
    ------------------------------------------------------------------ */
 *{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;interpolate-size:allow-keywords;} /* permet d'animer une hauteur jusqu'à « auto » */
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:var(--lh-body);
   -webkit-font-smoothing:antialiased;
   background-image:
@@ -163,15 +165,17 @@ h1,h2,h3{font-family:var(--font-display);letter-spacing:-.01em;text-wrap:balance
 
 /* --- Boutons ---
    .btn            neutre
-   .btn.primary    action principale (alias historique : .btn.gold)
+   .btn.primary    action principale (alias historique : .btn.gold, à ne plus utiliser)
    .btn.ghost      discret, sans contour
    .btn.danger     suppression ; .armed = 2e clic de confirmation
-   .btn.small      taille réduite
-   .btn.active-toggle  état « sélectionné » d'un bouton bascule   */
+   .btn.small      taille réduite : actions secondaires d'une liste (collègues)
+   .btn.active-toggle  état « sélectionné » d'un bouton bascule
+   Hauteurs (Material 3) : 40 px par défaut, 32 px en .small. Une action
+   principale et son « Annuler » restent toujours en taille par défaut.   */
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  font-family:var(--font-body);font-weight:var(--fw-medium);font-size:var(--fs-sm);
+  font-family:var(--font-body);font-weight:var(--fw-medium);font-size:var(--fs-sm);line-height:var(--lh-title);
   background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);
-  padding:9px 15px;cursor:pointer;
+  min-height:40px;padding:0 var(--space-4);cursor:pointer;
   transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease),transform var(--dur-fast) var(--ease),box-shadow var(--dur) var(--ease);}
 .btn:hover{background:var(--surface-alt);border-color:var(--border-hover);}
 .btn:active{transform:translateY(1px) scale(.985);}
@@ -180,11 +184,12 @@ h1,h2,h3{font-family:var(--font-display);letter-spacing:-.01em;text-wrap:balance
 .btn.primary:hover, .btn.gold:hover{background:var(--accent-ink);border-color:var(--accent-ink);}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--text-muted);}
 .btn.ghost:hover{background:var(--accent-soft);color:var(--accent-ink);}
-.btn.small{padding:6px 11px;font-size:var(--fs-xs);}
+.btn.small{min-height:32px;padding:0 var(--space-3);font-size:var(--fs-xs);}
 .btn.active-toggle{background:var(--accent);color:var(--text-on-accent);border-color:var(--accent);font-weight:var(--fw-semibold);}
 .btn.danger{border-color:var(--danger-border);color:var(--danger);background:transparent;}
 .btn.danger:hover{background:var(--danger-soft);border-color:var(--danger);}
-.btn.danger.armed{background:var(--danger);color:var(--text-on-accent);border-color:var(--danger);animation:pulse-armed 1s var(--ease) infinite alternate;}
+/* Armé : une seule onde (pas de boucle), la largeur est figée en JS pour éviter tout saut */
+.btn.danger.armed{background:var(--danger);color:var(--text-on-accent);border-color:var(--danger);animation:pulse-armed var(--dur-slow) var(--ease-enter);}
 .btn.danger-solid{background:var(--danger);border-color:var(--danger);color:var(--text-on-accent);font-weight:var(--fw-semibold);}
 .icon{flex:0 0 auto;display:block;}
 
@@ -207,22 +212,75 @@ h1,h2,h3{font-family:var(--font-display);letter-spacing:-.01em;text-wrap:balance
 .icon-btn:active svg{transform:scale(.88);}
 .icon-btn:disabled{opacity:.38;cursor:default;}
 .icon-btn:disabled::before{display:none;}
-.icon-btn.tonal{background:var(--accent-soft);color:var(--accent-ink);}
+.icon-btn.tonal{background:var(--accent-container);color:var(--accent-ink);}
+.icon-btn svg.icon{width:20px;height:20px;fill:none;} /* icônes au trait (impression, réglages) */
 
-/* --- Sélecteur segmenté (onglets en pilule) --- */
-.segmented{display:flex;gap:6px;flex-wrap:wrap;padding:var(--space-1);background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius-md);width:fit-content;}
-.segmented .btn{border-color:transparent;background:transparent;}
-.segmented .btn.active-toggle, .segmented .btn.active{background:var(--accent);color:var(--text-on-accent);border-color:var(--accent);font-weight:var(--fw-semibold);}
+/* --- Panneau dépliant (<details class="disclosure">) ---
+   Le contenu se déplie en hauteur + fondu au clic de l'utilisateur.
+   Navigateurs sans ::details-content : ouverture instantanée, sans casse.
+   Le <summary> porte son indicateur (« + » qui pivote, chevron…).        */
+details.disclosure::details-content{block-size:0;overflow:clip;opacity:0;
+  transition:block-size var(--dur) var(--ease-exit),opacity var(--dur-fast) linear,content-visibility var(--dur) allow-discrete;}
+details.disclosure[open]::details-content{block-size:auto;opacity:1;
+  transition:block-size var(--dur-slow) var(--ease-standard),opacity var(--dur) linear,content-visibility var(--dur-slow) allow-discrete;}
+
+/* --- Bouton segmenté (Material 3 « segmented button ») ---
+   Seul composant de choix exclusif du site (2 à 5 options) : mode d'accès,
+   semaine / mois, à emporter / sur place. Une action (« Aujourd'hui »)
+   n'entre jamais dans le groupe.
+   .seg-group         conteneur, role="group" + aria-label ; .block = pleine largeur ;
+                      .small = compact (32 px), pour un réglage secondaire
+   .seg-btn           segment, aria-pressed="true|false"
+   .seg-check         coche qui apparaît devant le segment sélectionné
+   .seg-pop           à poser en JS sur le segment qu'on vient de choisir : rebond
+                      + coche qui s'ouvre (pas d'animation au simple réaffichage)
+   Hauteur 40 px, zone tactile 48 px, calque d'état 8 % / 12 %.     */
+.seg-group{display:inline-flex;border:1px solid var(--outline);border-radius:var(--radius-full);background:var(--surface);}
+.seg-group.block{display:flex;}
+/* Variante compacte (M3 « density -2 ») : 32 px visibles, zone tactile toujours 48 px */
+.seg-group.small .seg-btn{min-height:32px;padding:0 var(--space-3);font-size:var(--fs-xs);}
+.seg-group.small .seg-btn::after{inset:-8px 0;}
+.seg-group.small .seg-check svg{width:16px;height:16px;}
+.seg-group.small .seg-btn[aria-pressed="true"] .seg-check{width:16px;margin-right:6px;}
+.seg-btn{position:relative;isolation:isolate;flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;
+  min-height:40px;padding:0 var(--space-4);margin:0;border:0;background:transparent;color:var(--text);
+  font-family:var(--font-body);font-size:var(--fs-sm);font-weight:var(--fw-medium);white-space:nowrap;cursor:pointer;
+  transition:background-color var(--dur) var(--ease-standard),color var(--dur) var(--ease-standard);}
+.seg-btn + .seg-btn{border-left:1px solid var(--outline);}
+.seg-btn:first-child{border-radius:var(--radius-full) 0 0 var(--radius-full);}
+.seg-btn:last-child{border-radius:0 var(--radius-full) var(--radius-full) 0;}
+.seg-btn::after{content:"";position:absolute;inset:-4px 0;} /* cible tactile 48 px */
+.seg-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:currentColor;opacity:0;transition:opacity var(--dur-fast) linear;}
+.seg-btn:hover::before{opacity:var(--state-hover);}
+.seg-btn:focus-visible::before, .seg-btn:active::before{opacity:var(--state-press);}
+.seg-btn:focus-visible{outline:var(--focus-width) solid var(--accent);outline-offset:2px;z-index:1;}
+.seg-btn[aria-pressed="true"]{background:var(--accent-container);color:var(--accent-ink);font-weight:var(--fw-semibold);}
+.seg-btn.seg-pop[aria-pressed="true"]{animation:seg-select var(--dur-slow) var(--ease-enter);}
+.seg-btn.seg-pop[aria-pressed="true"] .seg-check{animation:seg-check-in var(--dur-slow) var(--ease-enter);}
+/* La coche s'ouvre en largeur (le libellé glisse) puis grandit */
+.seg-check{display:inline-flex;overflow:hidden;width:0;margin-right:0;opacity:0;transform:scale(.4);
+  transition:width var(--dur) var(--ease-exit),margin-right var(--dur) var(--ease-exit),opacity var(--dur-fast) linear,transform var(--dur) var(--ease-exit);}
+.seg-check svg{flex:0 0 auto;width:18px;height:18px;fill:currentColor;}
+.seg-btn[aria-pressed="true"] .seg-check{width:18px;margin-right:var(--space-2);opacity:1;transform:none;
+  transition:width var(--dur-slow) var(--ease-enter),margin-right var(--dur-slow) var(--ease-enter),opacity var(--dur) linear,transform var(--dur-slow) var(--ease-enter);}
 
 /* --- Champs de formulaire --- */
 input,select,textarea{font-family:var(--font-body);background:var(--surface);border:1px solid var(--border-strong);color:var(--text);border-radius:var(--radius-sm);
   padding:9px 11px;font-size:var(--fs-md);width:100%;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);}
+/* Même hauteur que les boutons (40 px) pour qu'un champ et son bouton s'alignent */
+input:not([type="checkbox"]):not([type="radio"]),select{min-height:40px;}
 input::placeholder,textarea::placeholder{color:var(--text-subtle);}
 input:hover,select:hover,textarea:hover{border-color:var(--border-hover);}
 /* Focus façon champ M3 : bordure qui s'épaissit à 2 px (lisible), plus un halo doux */
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 0 4px var(--accent-soft);}
 label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);margin:0 0 5px;}
 .field{margin-bottom:var(--space-3);}
+/* Texte d'aide sous un champ (M3 « supporting text ») : relié au champ par aria-describedby */
+.field-help{margin:var(--space-1) 0 0;font-size:var(--fs-xs);color:var(--text-muted);}
+.has-error > .field-help{display:none;} /* M3 : le message d'erreur remplace le texte d'aide */
+/* Groupe de champs liés (fieldset) : la légende a l'apparence d'un libellé */
+.field-group{border:0;margin:0 0 var(--space-3);padding:0;min-width:0;}
+.field-group > legend{padding:0;margin:0 0 var(--space-2);font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--text);}
 .has-error input, .has-error select, .has-error textarea{border-color:var(--danger) !important;box-shadow:0 0 0 3px var(--danger-soft) !important;}
 .field-error{margin:5px 0 8px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--danger);display:flex;align-items:center;gap:6px;animation:rise var(--dur) var(--ease) both;}
 .field-error::before{content:"!";flex:0 0 auto;width:15px;height:15px;border-radius:50%;background:var(--danger);color:var(--text-on-accent);font-size:.66rem;font-weight:var(--fw-bold);
@@ -291,6 +349,8 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
    5. ANIMATIONS
    ------------------------------------------------------------------ */
 @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+/* sortie courte, symétrique de « rise » : repart vers le haut en s'effaçant */
+@keyframes sink{to{opacity:0;transform:translateY(-4px);}}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes shimmer{from{background-position:100% 0;}to{background-position:-100% 0;}}
 /* Transition M3 « shared axis X » : le contenu arrive du côté où l'on navigue */
@@ -298,7 +358,10 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 @keyframes axis-in-prev{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:none;}}
 .axis-next{animation:axis-in-next 300ms var(--ease-enter) both;}
 .axis-prev{animation:axis-in-prev 300ms var(--ease-enter) both;}
-@keyframes pulse-armed{from{box-shadow:0 0 0 0 rgba(183,55,47,.35);}to{box-shadow:0 0 0 5px rgba(183,55,47,0);}}
+/* Léger rebond du segment qu'on vient de sélectionner */
+@keyframes seg-select{0%{transform:scale(.96);}100%{transform:none;}}
+@keyframes seg-check-in{from{width:0;margin-right:0;opacity:0;transform:scale(.4);}}
+@keyframes pulse-armed{from{box-shadow:0 0 0 0 var(--danger-border);}to{box-shadow:0 0 0 6px transparent;}}
 
 
 /* ------------------------------------------------------------------
@@ -313,7 +376,8 @@ button, .btn, summary{-webkit-tap-highlight-color:transparent;touch-action:manip
   .btn:not(.primary):not(.gold):not(.active-toggle):not(.active):not(.danger):not(.danger-solid):not(.ghost):not(:active):hover{background:var(--surface);border-color:var(--border);}
   .btn.primary:not(:active):hover, .btn.gold:not(:active):hover{background:var(--accent);border-color:var(--accent);}
   .btn.ghost:not(.active-toggle):not(:active):hover{background:transparent;color:var(--text-muted);}
-  .icon-btn:hover::before{opacity:0;}
+  .icon-btn:hover::before, .seg-btn:hover::before{opacity:0;}
+  .seg-btn:active::before{opacity:var(--state-press);}
   .icon-btn:active::before{opacity:var(--state-press);}
   .icon-btn:not(.tonal):hover{color:var(--text-muted);}
 }
