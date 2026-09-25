@@ -109,8 +109,7 @@
   --state-hover:.08;       /* opacité du calque d'état au survol */
   --state-press:.12;       /* opacité du calque d'état à l'appui et au focus */
   --focus-width:3px;       /* épaisseur de l'anneau de focus clavier */
-  --past-opacity:.55;      /* jour passé (case du calendrier et fiche) : consultable, plus actif */
-  --outside-opacity:.35;   /* jour hors du mois affiché (vue Mois du calendrier) */
+  --past-filter:grayscale(1); /* jour passé (case et fiche) : couleurs éteintes, contraste du texte conservé */
   --dot-size:6px;          /* pastilles : disponibilité du calendrier, badge d'état */
 
   /* --- Plans --- */
@@ -269,12 +268,13 @@ details.disclosure[open]::details-content{block-size:auto;opacity:1;
   transition:width var(--dur-slow) var(--ease-enter),margin-right var(--dur-slow) var(--ease-enter),opacity var(--dur) linear,transform var(--dur-slow) var(--ease-enter);}
 
 /* --- Champs de formulaire --- */
-input,select,textarea{font-family:var(--font-body);background:var(--surface);border:1px solid var(--border-strong);color:var(--text);border-radius:var(--radius-sm);
+/* Contour --outline (M3) : la limite d'un champ vide doit se voir (≥ 3:1) */
+input,select,textarea{font-family:var(--font-body);background:var(--surface);border:1px solid var(--outline);color:var(--text);border-radius:var(--radius-sm);
   padding:9px 11px;font-size:var(--fs-md);width:100%;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);}
 /* Même hauteur que les boutons (40 px) pour qu'un champ et son bouton s'alignent */
 input:not([type="checkbox"]):not([type="radio"]),select{min-height:40px;}
 input::placeholder,textarea::placeholder{color:var(--text-subtle);}
-input:hover,select:hover,textarea:hover{border-color:var(--border-hover);}
+input:hover,select:hover,textarea:hover{border-color:var(--text-muted);}
 /* Focus façon champ M3 : bordure qui s'épaissit à 2 px (lisible), plus un halo doux */
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 0 4px var(--accent-soft);}
 label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);margin:0 0 5px;}
@@ -297,11 +297,11 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
    .dp-dot         pastille « déjà ouvert »                                              */
 .date-trigger{width:100%;min-height:40px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);
   padding:0 var(--space-2) 0 11px;margin:0;font:inherit;font-size:var(--fs-md);text-align:left;color:var(--text);cursor:pointer;
-  background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-sm);
+  background:var(--surface);border:1px solid var(--outline);border-radius:var(--radius-sm);
   transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);}
 .date-trigger span::first-letter{text-transform:uppercase;}
 .date-trigger svg{flex:0 0 auto;width:24px;height:24px;fill:var(--text-muted);}
-.date-trigger:hover{border-color:var(--border-hover);}
+.date-trigger:hover{border-color:var(--text-muted);}
 .date-trigger:focus-visible, .date-trigger[aria-expanded="true"]{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 0 4px var(--accent-soft);}
 .date-trigger[aria-expanded="true"] svg{fill:var(--accent-ink);}
 .has-error .date-trigger{border-color:var(--danger) !important;box-shadow:0 0 0 3px var(--danger-soft) !important;}
@@ -338,13 +338,16 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 
 /* --- Pastille de capacité (jauge) ---
    Remplissage piloté par la variable --pct (ex. style="--pct:40%") */
+/* --cap = couleur d'état ; le texte en est une version foncée (≥ 4,5:1 même sur la partie remplie) */
 .capacity-pill{font-size:var(--fs-xs);padding:4px 10px;border-radius:var(--radius-xs);font-weight:var(--fw-semibold);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:76px;text-align:center;
-  --fill:rgba(31,35,40,.18);--track:rgba(31,35,40,.06);
+  --cap:var(--text-muted);
+  --fill:color-mix(in srgb,var(--cap) 20%,transparent);--track:color-mix(in srgb,var(--cap) 6%,transparent);
+  color:color-mix(in srgb,var(--cap) 65%,var(--text));
   background:linear-gradient(90deg,var(--fill) 0 var(--pct,0%),var(--track) var(--pct,0%) 100%);
-  border:1px solid color-mix(in srgb,currentColor 22%,transparent);}
-.cap-ok{color:var(--success);--fill:rgba(78,122,18,.26);--track:rgba(78,122,18,.07);}
-.cap-low{color:var(--warning);--fill:rgba(154,96,10,.28);--track:rgba(154,96,10,.07);}
-.cap-full{color:var(--danger);--fill:rgba(183,55,47,.26);--track:rgba(183,55,47,.08);}
+  border:1px solid color-mix(in srgb,var(--cap) 30%,transparent);}
+.cap-ok{--cap:var(--success);}
+.cap-low{--cap:var(--warning);}
+.cap-full{--cap:var(--danger);}
 .dot-cap-ok{background:var(--success);}
 .dot-cap-low{background:var(--warning);}
 .dot-cap-full{background:var(--danger);}
@@ -363,10 +366,10 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 .alert.warning .alert-icon{color:var(--warning);}
 .alert-icon svg{width:24px;height:24px;fill:currentColor;}
 .alert-text{flex:1 1 calc(var(--space-10) * 4);min-width:0; /* l'icône reste à côté du texte ; faute de place, seul le bouton passe à la ligne */margin:0;font-size:var(--fs-md);color:var(--text);}
-.note-warning{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--warning-soft);color:var(--warning);font-size:var(--fs-sm);font-weight:var(--fw-medium);}
+.note-warning{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--warning-soft);color:color-mix(in srgb,var(--warning) 70%,var(--text));font-size:var(--fs-sm);font-weight:var(--fw-medium);} /* ≥ 4,5:1 sur le fond teinté */
 
 /* --- Notification (toast) --- */
-.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,10px);z-index:var(--z-toast);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--ab-green);
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,10px);z-index:var(--z-toast);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--success); /* repère ≥ 3:1 (le vert du logo n'atteint que 2:1) */
   width:max-content;max-width:calc(100vw - 2 * var(--space-4));
   color:var(--text);padding:11px 18px;border-radius:var(--radius-sm);font-size:var(--fs-md);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;
   transition:opacity var(--dur) var(--ease-exit),transform var(--dur) var(--ease-exit);}  /* sortie : accélère */
@@ -380,7 +383,11 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 .loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-3);z-index:var(--z-loader);
   background:color-mix(in srgb,var(--bg) 85%,transparent);opacity:0;pointer-events:none;
   transition:opacity var(--dur-fast) var(--ease-exit);}
-.loader.show{opacity:1;pointer-events:all;transition:opacity var(--dur) var(--ease-enter) var(--dur-slow);}
+/* .blocking : clics bloqués aussitôt ; .show : visible après un court délai (géré en JS,
+   donc aussi quand les animations sont réduites). Caché, l'indicateur ne tourne pas. */
+.loader.blocking{pointer-events:all;}
+.loader.show{opacity:1;transition:opacity var(--dur) var(--ease-enter);}
+.loader:not(.show) .spinner, .loader:not(.show) .spinner circle{animation-play-state:paused;}
 .loader p{color:var(--text-muted);font-weight:var(--fw-medium);margin:0;font-size:var(--fs-md);text-align:center;}
 /* Indicateur circulaire indéterminé M3, variante multicolore : l'arc s'allonge et se
    rétracte en tournant ; il change de couleur (vert, bleu, magenta) quand il est au plus court.
@@ -458,7 +465,9 @@ button, .btn, summary{-webkit-tap-highlight-color:transparent;touch-action:manip
 .btn.primary:active, .btn.gold:active{background:var(--accent-ink);border-color:var(--accent-ink);}
 
 @media (prefers-reduced-motion:reduce){
-  *{animation:none !important;transition:none !important;}
+  *, *::before, *::after{animation:none !important;transition:none !important;}
   .spinner circle{stroke-dasharray:90 150;} /* arc fixe bien visible, le texte dit que ça charge */
   html{scroll-behavior:auto;}
 }
+/* règle séparée : un navigateur qui ignore ::details-content ignorerait sinon tout le bloc */
+@media (prefers-reduced-motion:reduce){ ::details-content{transition:none !important;} }

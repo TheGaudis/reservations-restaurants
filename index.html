@@ -53,7 +53,7 @@
   .summary-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;}
   .summary-item b{color:var(--ab-blue);font-variant-numeric:tabular-nums;}
   details.panel summary::-webkit-details-marker{display:none;}
-  .summary-panel{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--ab-green);border-radius:var(--radius);
+  .summary-panel{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--radius);
     box-shadow:var(--shadow);padding:var(--space-4);margin:10px 0;font-size:var(--fs-md);}
   .summary-title{font-weight:var(--fw-semibold);margin-bottom:var(--space-2);}
   .summary-block{margin:6px 0;padding:6px 0;border-bottom:1px solid var(--border);}
@@ -159,8 +159,11 @@
   .cal-cell:active{transform:scale(.96);}
   /* Deux niveaux de pâleur seulement : jour passé, jour hors du mois affiché
      (un jour à la fois passé et hors du mois prend le second). Le jour sélectionné reste net. */
-  .cal-cell.cal-past:not(.cal-selected){opacity:var(--past-opacity);}
-  .cal-cell.cal-dim:not(.cal-selected){opacity:var(--outside-opacity);}
+  /* Jour passé : couleurs éteintes et chiffre en --text-muted (≥ 4,5:1, pas de transparence) ;
+     jour hors du mois : même chiffre, sans case. Le jour sélectionné reste net. */
+  .cal-cell.cal-past:not(.cal-selected){filter:var(--past-filter);}
+  .cal-cell:is(.cal-past, .cal-dim):not(.cal-selected) .cal-num{color:var(--text-muted);font-weight:var(--fw-medium);}
+  .cal-cell.cal-dim:not(.cal-selected):not(:hover){background:transparent;border-color:transparent;}
   .cal-cell.cal-selected{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent);}
   .cal-cell.cal-selected .cal-num{color:var(--text-on-accent) !important;}
   .cal-cell.cal-selected .cal-dot{box-shadow:0 0 0 2px var(--text-on-accent);}
@@ -179,7 +182,9 @@
   .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;}
   /* n'entre qu'au changement de jour, pas à chaque réaffichage */
   .day-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
-  .day-card.is-past{opacity:var(--past-opacity);}
+  /* Fiche d'un jour passé : consultable, textes en --text-muted et couleurs éteintes (les boutons des collègues gardent les leurs) */
+  .day-card.is-past :is(.day-date, .menu-text, .item-name, .empty){color:var(--text-muted);}
+  .day-card.is-past :is(.day-top, .menu-block, .item-row){filter:var(--past-filter);}
   .day-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .day-date{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-xl);color:var(--accent-ink);}
   .day-date::first-letter{text-transform:uppercase;}
@@ -285,7 +290,7 @@
   .load-error .sk{animation:none;}
 
   /* ---------- Récapitulatif de réservation ---------- */
-  .confirm-card{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--accent-mark);border-radius:var(--radius);
+  .confirm-card{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--radius);
     padding:var(--space-4) var(--space-4) 14px;margin-bottom:14px;box-shadow:var(--shadow);}
   .confirm-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
   /* moment rare : la coche apparaît juste après la carte */
@@ -382,7 +387,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="loader" id="loader" aria-hidden="true">
   <svg class="spinner" viewBox="0 0 50 50" role="progressbar" aria-label="Chargement en cours"><circle cx="25" cy="25" r="20"/></svg>
-  <p>Chargement…</p>
+  <p role="status"></p><!-- « Chargement… » est inséré à l'affichage pour être annoncé -->
 </div>
 
 <script>
@@ -429,8 +434,28 @@ let editDayR1Open = null;
 let addDayOpen = { r1:false, r2:false };
 
 // Voile de chargement : bloque les clics tout de suite, s'affiche après un court délai (CSS)
-function showLoader(){ const l = document.getElementById('loader'); l.classList.add('show'); l.removeAttribute('aria-hidden'); }
-function hideLoader(){ const l = document.getElementById('loader'); l.classList.remove('show'); l.setAttribute('aria-hidden', 'true'); }
+// Voile de chargement : bloque tout de suite la souris ET le clavier (page inerte), mais ne
+// s'affiche qu'après --dur-slow pour ne pas clignoter sur les actions rapides (délai en JS :
+// il reste valable quand les animations sont réduites). Le focus est rendu à la fin.
+let loaderCount = 0, loaderTimer = null, loaderFocus = null;
+function showLoader(){
+  if(loaderCount++ > 0) return;
+  const l = document.getElementById('loader');
+  loaderFocus = document.activeElement;
+  l.classList.add('blocking'); l.removeAttribute('aria-hidden');
+  document.querySelector('.wrap').inert = true;
+  const delay = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-slow')) * 1000 || 350;
+  loaderTimer = setTimeout(() => { l.classList.add('show'); l.querySelector('p').textContent = 'Chargement…'; }, delay);
+}
+function hideLoader(){
+  if(loaderCount === 0 || --loaderCount > 0) return;
+  const l = document.getElementById('loader');
+  clearTimeout(loaderTimer);
+  l.classList.remove('show', 'blocking'); l.setAttribute('aria-hidden', 'true');
+  l.querySelector('p').textContent = '';
+  document.querySelector('.wrap').inert = false;
+  if(loaderFocus && loaderFocus.isConnected && document.activeElement === document.body) loaderFocus.focus({ preventScroll: true });
+}
 
 async function apiGet(silent){
   if(!silent) showLoader();
@@ -486,7 +511,9 @@ function formatDate(iso){
   try{ const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
   catch(e){ return iso; }
 }
-function escapeHtml(str){ const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+// Échappe aussi les guillemets : les valeurs vont dans du texte ET dans des attributs value="…"
+const HTML_ESC = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' };
+function escapeHtml(str){ return String(str ?? '').replace(/[&<>"']/g, c => HTML_ESC[c]); }
 // Espace insécable avant « € » : le montant ne se coupe jamais sur deux lignes
 function formatEuro(n){ return Number(n).toFixed(2).replace('.', ',') + ' €'; }
 function gaugeStyle(rem, cap){
@@ -824,8 +851,11 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 function leaveThen(key, done){
   const el = key && document.querySelector(`[data-form="${key}"]`);
   if(!el || reduceMotion.matches){ done(); return; }
+  if(el.classList.contains('leaving')) return; // double clic : une seule fermeture
   el.classList.add('leaving');
-  setTimeout(done, 120); // = --dur-fast
+  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-fast')) * 1000 || 120;
+  // si la page a été réaffichée entre-temps (autre formulaire ouvert…), on n'applique plus cette fermeture
+  setTimeout(() => { if(el.isConnected) done(); }, ms);
 }
 // La fiche du jour n'entre en animation que lorsqu'on change de jour (ou de mode)
 const lastCard = { r1:null, r2:null };
@@ -855,7 +885,7 @@ function renderModeBox(){
       <div class="admin-login" id="adminLogin">
         <div class="admin-login-inner">
           <input type="password" id="pwdInput" placeholder="Mot de passe" aria-label="Mot de passe collègue" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter') tryLogin(); else if(event.key==='Escape') chooseMode('client');">
+            onkeydown="if(event.key==='Enter') tryLogin(); else if(event.key==='Escape'){ chooseMode('client'); document.getElementById('segClient').focus(); }">
           <button type="button" class="icon-btn" id="pwdToggle" onclick="togglePwdVisibility()" aria-label="Afficher le mot de passe">${EYE_ON}</button>
           <button type="button" class="btn primary" onclick="tryLogin()">Valider</button>
         </div>
@@ -913,7 +943,8 @@ async function tryLogin(){
   const val = document.getElementById('pwdInput').value;
   try{
     const res = await apiPost('checkPassword', { password: val });
-    if(res.ok){ isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); resetInactivityTimer(); if(firstLoadDone) render(); else renderModeBox(); }
+    if(res.ok){ isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); resetInactivityTimer(); if(firstLoadDone) render(); else renderModeBox();
+      document.getElementById('segColleague').focus({ preventScroll: true }); }
     else { showToast('Mot de passe incorrect.', true); }
   }catch(e){ showToast('Erreur de connexion. Réessayez.', true); }
 }
@@ -928,8 +959,8 @@ function renderDashboard(){
     <div class="panel">
       <h3 style="margin:0 0 2px;font-size:0.95rem;">Demain (${formatDate(tomorrow)})</h3>
       <div class="summary-row">
-        <div class="summary-item">${state.name1} : <b>${r1Qty}</b> couvert(s) réservé(s)</div>
-        <div class="summary-item">${state.name2} : <b>${r2Qty}</b> portion(s) réservée(s)</div>
+        <div class="summary-item">${escapeHtml(state.name1)} : <b>${r1Qty}</b> ${r1Qty > 1 ? 'couverts réservés' : 'couvert réservé'}</div>
+        <div class="summary-item">${escapeHtml(state.name2)} : <b>${r2Qty}</b> ${r2Qty > 1 ? 'portions réservées' : 'portion réservée'}</div>
       </div>
     </div>
   `;
@@ -958,26 +989,19 @@ function renderSettings(){
     </details>
   `;
 }
+// Seuls les champs réellement modifiés sont envoyés (une requête par champ, côté serveur
+// actuel) : en général une seule requête au lieu de huit.
+const SETTINGS_FIELDS = [['cfg-name1','name1'], ['cfg-name2','name2'], ['cfg-desc1','desc1'], ['cfg-desc2','desc2'],
+  ['cfg-contact','contactAnnulation'], ['cfg-priceEleve','priceEleve'], ['cfg-priceProf','priceProf'], ['cfg-priceExterieur','priceExterieur']];
 async function saveSettings(btn){
-  const name1 = document.getElementById('cfg-name1').value.trim();
-  const name2 = document.getElementById('cfg-name2').value.trim();
-  const desc1 = document.getElementById('cfg-desc1').value.trim();
-  const desc2 = document.getElementById('cfg-desc2').value.trim();
-  const contact = document.getElementById('cfg-contact').value.trim();
-  const priceEleve = document.getElementById('cfg-priceEleve').value.trim();
-  const priceProf = document.getElementById('cfg-priceProf').value.trim();
-  const priceExterieur = document.getElementById('cfg-priceExterieur').value.trim();
+  const changes = SETTINGS_FIELDS
+    .map(([id, key]) => [key, document.getElementById(id).value.trim()])
+    .filter(([key, value]) => value !== '' && value !== String(state[key] ?? '').trim());
+  if(changes.length === 0){ showToast('Aucune modification à enregistrer.'); return; }
   const orig = setBusy(btn, 'Enregistrement…');
   try{
-    if(name1) state = await apiPost('setConfigField', { password: adminPassword, key: 'name1', value: name1 });
-    if(name2) state = await apiPost('setConfigField', { password: adminPassword, key: 'name2', value: name2 });
-    if(desc1) state = await apiPost('setConfigField', { password: adminPassword, key: 'desc1', value: desc1 });
-    if(desc2) state = await apiPost('setConfigField', { password: adminPassword, key: 'desc2', value: desc2 });
-    if(contact) state = await apiPost('setConfigField', { password: adminPassword, key: 'contactAnnulation', value: contact });
-    if(priceEleve) state = await apiPost('setConfigField', { password: adminPassword, key: 'priceEleve', value: priceEleve });
-    if(priceProf) state = await apiPost('setConfigField', { password: adminPassword, key: 'priceProf', value: priceProf });
-    if(priceExterieur) state = await apiPost('setConfigField', { password: adminPassword, key: 'priceExterieur', value: priceExterieur });
-    showToast('Paramètres enregistrés.');
+    for(const [key, value] of changes) state = await apiPost('setConfigField', { password: adminPassword, key, value });
+    showToast(changes.length > 1 ? 'Paramètres enregistrés.' : 'Paramètre enregistré.');
     render();
   }catch(e){
     showToast(e.message || 'Erreur', true);
@@ -1112,6 +1136,7 @@ async function addDayR1(btn){
   try{
     state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
+    resetFields('collegue-r1', 'cap-r1', 'theme-r1', 'note-r1');
     calState.r1.selected = dateVal; calState.r1.anchor = dateVal;
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
@@ -1170,6 +1195,7 @@ async function addDayR2(btn){
   try{
     state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
+    resetFields('collegue-r2', 'note-r2', 'theme-r2');
     draftItems = [{name:'',stock:'',price:''}];
     calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
     render();
@@ -1199,16 +1225,33 @@ async function deleteBookingR2(id, btn){
 
 function openBookingR1(date){
   bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render();
+  focusFirstField('#detail-r1 .booking-form');
   // si le formulaire s'ouvre dans le bas de l'écran, on le fait remonter en douceur
   const form = document.querySelector('#detail-r1 .form-reveal');
   if(form && form.getBoundingClientRect().top > window.innerHeight * 0.6) form.scrollIntoView({ block:'start' });
 }
 function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
+  focusFirstField('#detail-r2 .booking-form');
   // la liste repliée raccourcit la page : on remonte en douceur au début de la fiche si elle est hors de vue
   const card = document.querySelector('#detail-r2 .day-card');
   if(card && card.getBoundingClientRect().top < 0) card.scrollIntoView({ block:'start' });
 }
-function closeBooking(){ leaveThen(openBookingTarget && 'bk-' + openBookingTarget.date, ()=>{ if(openBookingTarget && openBookingTarget.rest === 'r2') menuAnim = 'down'; openBookingTarget = null; multiBookingQty = {}; render(); }); }
+function closeBooking(){
+  const rest = openBookingTarget && openBookingTarget.rest;
+  leaveThen(openBookingTarget && 'bk-' + openBookingTarget.date, ()=>{
+    if(rest === 'r2') menuAnim = 'down';
+    openBookingTarget = null; multiBookingQty = {}; render();
+    // le focus revient sur « Réserver »
+    const btn = rest && document.querySelector(`#detail-${rest} .day-actions .btn.primary`);
+    if(btn) btn.focus({ preventScroll: true });
+  });
+}
+// Premier champ d'un formulaire qui vient de s'ouvrir (sans faire défiler : le défilement est géré à part)
+function focusFirstField(sel){
+  const f = document.querySelector(sel);
+  const el = f && f.querySelector('input:not([type="hidden"]), select, textarea');
+  if(el) el.focus({ preventScroll: true });
+}
 function setServiceMode(mode){
   if(chosenServiceMode === mode) return;
   chosenServiceMode = mode; render(); popSeg(`service-${mode}`);
@@ -1429,7 +1472,7 @@ function editBookingFormR1Html(b){
     </div>
     <div class="row2">
       <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
-      <div class="field"><label>Couverts</label><input type="number" min="1" id="ebk-qte" value="${b.Qte}"></div>
+      <div class="field"><label>Couverts</label><input type="number" min="1" id="ebk-qte" value="${Number(b.Qte)}"></div>
     </div>
     <div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
     <div class="day-actions">
@@ -1446,7 +1489,7 @@ function editBookingFormR2Html(b){
     </div>
     <div class="row2">
       <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
-      <div class="field"><label>Portions</label><input type="number" min="1" id="ebk-qte" value="${b.Qte}"></div>
+      <div class="field"><label>Portions</label><input type="number" min="1" id="ebk-qte" value="${Number(b.Qte)}"></div>
     </div>
     <div class="field"><label>Mode de service</label><select id="ebk-mode">
       <option value="emporter" ${b.Mode==='emporter'?'selected':''}>À emporter</option>
@@ -1518,6 +1561,7 @@ function bookingFormMultiHtml(date, items){
       <fieldset class="field-group"><legend>Choisissez vos plats et quantités</legend>
       ${rows}
       </fieldset>
+      <p id="bk-r2-total" class="form-total" aria-live="polite"></p>
       <div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
       <div class="row2">
         ${contactFieldHtml()}
@@ -1719,7 +1763,7 @@ function renderDetailR1(){
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} couvert(s)${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}', this)">Supprimer</button></div>`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'couvert')}${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}', this)">Supprimer</button></div>`).join('')}
       </div>
       <div class="day-actions">
         <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
@@ -1797,7 +1841,7 @@ function renderDetailR2(){
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${b.Qte} portion(s)${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}', this)">Supprimer</button></div>`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'portion')}${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}', this)">Supprimer</button></div>`).join('')}
       </div>`;
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
@@ -1849,7 +1893,7 @@ function printDayR1(date){
   const totalPrix = bookings.reduce((s,b)=>s+Number(b.PrixTotal||0),0);
   const table = printTable(
     [{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true},{label:'Contact'}],
-    bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), b.Qte, b.PrixTotal ? formatEuro(b.PrixTotal) : '', escapeHtml(b.Contact)]),
+    bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), b.PrixTotal ? formatEuro(b.PrixTotal) : '', escapeHtml(b.Contact)]),
     'Aucune réservation.');
   openPrint(printDoc({
     title: `${escapeHtml(state.name1)} — ${formatDate(date)}`, accent:'r1',
@@ -2016,7 +2060,7 @@ function printTomorrowSummaryR1(){
     ] : [],
     body: day
       ? printTable([{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true}],
-          bookings.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), b.Qte, b.PrixTotal ? formatEuro(b.PrixTotal) : '']),
+          bookings.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), b.PrixTotal ? formatEuro(b.PrixTotal) : '']),
           'Aucune réservation.')
       : '<p class="pb-note">Aucun jour ouvert pour demain.</p>',
     total: day ? printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : ''
@@ -2038,7 +2082,7 @@ function printTomorrowSummaryR2(){
     if(item.Prix) totalPrix += total * Number(item.Prix);
     body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + ' l\'unité' : ''}<span>${total} / ${item.Stock}</span></h3>`
       + printTable([{label:'Nom'},{label:'Classe'},{label:'Portions',num:true},{label:'Prix',num:true}],
-          bk.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), b.Qte, item.Prix ? formatEuro(item.Prix * b.Qte) : '']),
+          bk.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), item.Prix ? formatEuro(item.Prix * b.Qte) : '']),
           'Aucune réservation.');
   });
   openPrint(printDoc({
@@ -2050,7 +2094,51 @@ function printTomorrowSummaryR2(){
   }));
 }
 
+// render() reconstruit la page : on mémorise avant ce qui a été tapé dans les champs et
+// l'élément qui a le focus, puis on les rend après. Un formulaire enregistré avec succès
+// est vidé explicitement (resetFields). Les champs de mot de passe ne sont jamais mémorisés.
+let fieldsToReset = new Set();
+function resetFields(...ids){ ids.forEach(id => fieldsToReset.add(id)); }
+function focusKey(el){
+  if(!el || el === document.body || !el.isConnected) return null;
+  if(el.id) return '#' + CSS.escape(el.id);
+  const box = el.closest('[id]');
+  for(const attr of ['data-iso', 'data-nav', 'data-seg']){
+    if(el.hasAttribute(attr)) return `${box ? '#' + CSS.escape(box.id) + ' ' : ''}[${attr}="${CSS.escape(el.getAttribute(attr))}"]`;
+  }
+  return null;
+}
+function captureUi(){
+  const fields = {};
+  document.querySelectorAll('.wrap input[id]:not([type="password"]), .wrap select[id], .wrap textarea[id]').forEach(el => { fields[el.id] = el.value; });
+  const active = document.activeElement;
+  const region = active && active.closest ? active.closest('#detail-r1, #detail-r2, #admin-r1, #admin-r2, #settings') : null;
+  return { fields, focus: focusKey(active), region: region && region.id };
+}
+function restoreUi(memo){
+  for(const [id, value] of Object.entries(memo.fields)){
+    const el = document.getElementById(id);
+    if(el && !fieldsToReset.has(id) && el.value !== value) el.value = value;
+  }
+  fieldsToReset = new Set();
+  if(document.getElementById('bk-r1-total')) updateR1PriceLive();
+  if(document.getElementById('bk-r2-total')) updateR2PriceLive();
+  if(!memo.focus || document.activeElement !== document.body) return;
+  let target = document.querySelector(memo.focus);
+  // l'élément a disparu (réservation supprimée, formulaire fermé…) : on reste dans la même zone
+  if(!target && memo.region){
+    const region = document.getElementById(memo.region);
+    target = region && (region.querySelector('.day-date') || region.querySelector('summary, button, input'));
+    if(target && target.classList.contains('day-date')) target.tabIndex = -1;
+  }
+  if(target) target.focus({ preventScroll: true });
+}
 function render(){
+  const memo = captureUi();
+  renderAll();
+  restoreUi(memo);
+}
+function renderAll(){
   renderTexts(state);
   if(firstLoadDone) saveTexts(state); // y compris après « Enregistrer les paramètres »
   renderModeBox();
@@ -2071,12 +2159,19 @@ try{ const saved = JSON.parse(localStorage.getItem(TEXTS_KEY) || 'null'); if(sav
 renderTexts(state, true);
 renderModeBox();
 loadAll();
-setInterval(()=>{
+// Actualisation toutes les 3 minutes. Les saisies et le focus sont conservés par render() ;
+// on attend quand même si l'on est en train de taper, si un envoi est en cours (sinon le
+// bouton occupé serait remplacé et recliquable) ou si l'onglet est caché (rattrapé au retour).
+let refreshMissed = false;
+function autoRefresh(){
   const active = document.activeElement;
-  const isTypingSomewhere = active && active.tagName === 'INPUT';
-  if(openBookingTarget !== null || isTypingSomewhere || datePicker.rest) return;
+  const busy = active && ['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName);
+  const writing = !!document.querySelector('button[aria-busy="true"]') || loaderCount > 0;
+  if(document.hidden || busy || writing || openBookingTarget !== null || datePicker.rest){ refreshMissed = document.hidden; return; }
   loadAll(true);
-}, 180000);
+}
+setInterval(autoRefresh, 180000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden && refreshMissed){ refreshMissed = false; autoRefresh(); } });
 </script>
 </body>
 </html>
