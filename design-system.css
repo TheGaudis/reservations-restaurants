@@ -109,6 +109,7 @@
   --state-hover:.08;       /* opacité du calque d'état au survol */
   --state-press:.12;       /* opacité du calque d'état à l'appui et au focus */
   --focus-width:3px;       /* épaisseur de l'anneau de focus clavier */
+  --past-opacity:.55;      /* jour passé (case du calendrier et fiche) : consultable, plus actif */
 
   /* --- Plans --- */
   --z-toast:50; --z-loader:60;
@@ -348,7 +349,9 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 /* ------------------------------------------------------------------
    5. ANIMATIONS
    ------------------------------------------------------------------ */
-@keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+/* Pas d'étape « to » : l'élément arrive sur SES valeurs normales (ex. une fiche
+   de jour passé reste pâle à la fin de l'animation au lieu de redevenir nette) */
+@keyframes rise{from{opacity:0;transform:translateY(6px);}}
 /* sortie courte, symétrique de « rise » : repart vers le haut en s'effaçant */
 @keyframes sink{to{opacity:0;transform:translateY(-4px);}}
 @keyframes spin{to{transform:rotate(360deg);}}

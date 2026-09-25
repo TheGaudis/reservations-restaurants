@@ -90,6 +90,8 @@
     transition:background-color .18s var(--ease),border-color .18s var(--ease),transform var(--dur-fast) var(--ease);}
   .cal-cell:hover{background:var(--tint);border-color:var(--accent);}
   .cal-cell:active{transform:scale(.96);}
+  /* jour passé : pâli comme sa fiche ; le jour sélectionné reste net */
+  .cal-cell.cal-past:not(.cal-selected){opacity:var(--past-opacity);}
   .cal-cell.cal-dim{opacity:.35;}
   .cal-cell.cal-today{box-shadow:inset 0 -3px 0 var(--ab-grey);}
   .cal-cell.cal-selected{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent);}
@@ -106,7 +108,7 @@
   .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;}
   /* n'entre qu'au changement de jour, pas à chaque réaffichage */
   .day-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
-  .day-card.is-past{opacity:.55;}
+  .day-card.is-past{opacity:var(--past-opacity);}
   .day-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .day-date{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-xl);color:var(--accent-ink);}
   .day-date::first-letter{text-transform:uppercase;}
@@ -184,11 +186,10 @@
   .sk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:22px 0 var(--space-4);}
   .sk-cell{aspect-ratio:1/1;border-radius:10px;}
   .sk-card{height:120px;border-radius:var(--radius);}
-  /* textes par défaut (« Restaurant 1 ») masqués tant que les vrais noms ne sont pas chargés */
-  .is-loading #title-r1, .is-loading #title-r2, .is-loading #desc-r1, .is-loading #desc-r2, .is-loading #page-subtitle{
-    color:transparent !important;border-radius:var(--radius-xs);width:fit-content;min-width:12ch;
-    background:linear-gradient(90deg,rgba(31,35,40,.06) 0%,rgba(31,35,40,.11) 50%,rgba(31,35,40,.06) 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite;}
-  .is-loading .col-head h2::before{opacity:.25;}
+  /* Titres et descriptions : affichés tout de suite (textes connus ou mémorisés),
+     puis remplacés en fondu seulement si l'API renvoie autre chose */
+  .text-updated{animation:text-swap var(--dur-slow) var(--ease-standard);}
+  @keyframes text-swap{from{opacity:0;}}
   .load-error-box{display:none;margin-bottom:18px;}
   .load-error-box p{margin:0;font-size:var(--fs-md);color:var(--text);}
   .load-error .load-error-box{display:flex;}
@@ -250,7 +251,7 @@
       <div class="brand-text">
       <span class="kicker brand-kicker">Lycée professionnel Aristide Briand</span>
       <h1>Réservations des restaurants pédagogiques et Aristide</h1>
-      <p id="page-subtitle">Table côté restaurant 1 · Plats à emporter ou sur place côté restaurant 2</p>
+      <p id="page-subtitle">Table côté Restaurant Pédagogique · Plats à emporter ou sur place côté Aristide</p>
       </div>
     </div>
     <div class="mode-box" id="modeBox"></div>
@@ -268,7 +269,7 @@
 
   <div class="columns">
     <div class="col accent-green" id="col-r1">
-      <div class="col-head"><h2 id="title-r1" class="slash-mark">Restaurant 1</h2></div>
+      <div class="col-head"><h2 id="title-r1" class="slash-mark">Restaurant Pédagogique</h2></div>
       <p class="desc" id="desc-r1">Table réservée par nombre de couverts, avec le menu du jour.</p>
       <div id="admin-r1" class="new-day-form"></div>
       <div id="cal-r1"><div class="skeleton" aria-hidden="true"><div class="sk-row"><span class="sk sk-circle"></span><span class="sk sk-line" style="width:40%"></span><span class="sk sk-circle"></span></div><div class="sk sk-line" style="width:55%;height:30px;margin:14px 0"></div><div class="sk-grid"><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span></div><div class="sk sk-card"></div></div></div>
@@ -276,7 +277,7 @@
     </div>
 
     <div class="col accent-magenta" id="col-r2">
-      <div class="col-head"><h2 id="title-r2" class="slash-mark">Restaurant 2</h2></div>
+      <div class="col-head"><h2 id="title-r2" class="slash-mark">Aristide</h2></div>
       <p class="desc" id="desc-r2">Plats à emporter ou sur place, chacun avec son propre stock.</p>
       <div id="admin-r2" class="new-day-form"></div>
       <div id="cal-r2"><div class="skeleton" aria-hidden="true"><div class="sk-row"><span class="sk sk-circle"></span><span class="sk sk-line" style="width:40%"></span><span class="sk sk-circle"></span></div><div class="sk sk-line" style="width:55%;height:30px;margin:14px 0"></div><div class="sk-grid"><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span></div><div class="sk sk-card"></div></div></div>
@@ -304,7 +305,26 @@ if (APPS_SCRIPT_URL.indexOf('COLLE_ICI') !== -1) {
 
 let isAdmin = false;
 let adminPassword = '';
-let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant 1', name2:'Restaurant 2', desc1:"Table réservée par nombre de couverts, avec le menu du jour.", desc2:"Plats à emporter ou sur place, chacun avec son propre stock.", contactAnnulation:"l'établissement", priceEleve:'4.95', priceProf:'6.10', priceExterieur:'9.90' };
+let state = { r1Days:[], r1Bookings:[], r2Days:[], r2Items:[], r2Bookings:[], name1:'Restaurant Pédagogique', name2:'Aristide', desc1:"Table réservée par nombre de couverts, avec le menu du jour.", desc2:"Plats à emporter ou sur place, chacun avec son propre stock.", contactAnnulation:"l'établissement", priceEleve:'4.95', priceProf:'6.10', priceExterieur:'9.90' };
+// Titres, descriptions et sous-titre. Ils ne sont réécrits que s'ils changent,
+// avec un court fondu ; au premier affichage (initial = true), sans animation.
+const TEXTS_KEY = 'reservations-textes';
+function renderTexts(s, initial){
+  const texts = {
+    'title-r1': s.name1, 'title-r2': s.name2, 'desc-r1': s.desc1, 'desc-r2': s.desc2,
+    'page-subtitle': 'Table côté ' + s.name1 + ' · Plats à emporter ou sur place côté ' + s.name2
+  };
+  Object.entries(texts).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if(!el || !value || el.textContent === value) return;
+    el.textContent = value;
+    if(initial) return;
+    el.classList.remove('text-updated'); void el.offsetWidth; el.classList.add('text-updated');
+  });
+}
+function saveTexts(s){
+  try{ localStorage.setItem(TEXTS_KEY, JSON.stringify({ name1:s.name1, name2:s.name2, desc1:s.desc1, desc2:s.desc2 })); }catch(e){}
+}
 let draftItems = [{name:'', stock:'', price:''}];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
@@ -1280,6 +1300,7 @@ function renderCalendar(rest, containerId, statusFn){
     const status = statusFn(c.iso);
     const classes = ['cal-cell'];
     if(!c.inMonth) classes.push('cal-dim');
+    if(c.iso < today) classes.push('cal-past');
     if(c.iso===today) classes.push('cal-today');
     if(c.iso===cs.selected) classes.push('cal-selected');
     const dotHtml = status ? `<span class="cal-dot dot-${status}"></span>` : '';
@@ -1313,7 +1334,7 @@ function renderDetailR1(){
   const isPast = iso < today;
   const el = document.getElementById('detail-r1');
   if(!day){
-    el.innerHTML = `<div class="day-card${cardEnter('r1', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
+    el.innerHTML = `<div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r1', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
     return;
   }
   const rem = remainingR1(day);
@@ -1371,7 +1392,7 @@ function renderDetailR2(){
   const isPast = iso < today;
   const el = document.getElementById('detail-r2');
   if(!day){
-    el.innerHTML = `<div class="day-card${cardEnter('r2', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
+    el.innerHTML = `<div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r2', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
     return;
   }
   const items = state.r2Items.filter(it => it.Date === iso);
@@ -1745,11 +1766,8 @@ function printTomorrowSummaryR2(){
 }
 
 function render(){
-  document.getElementById('title-r1').textContent = state.name1;
-  document.getElementById('page-subtitle').textContent = 'Table côté ' + state.name1 + ' · Plats à emporter ou sur place côté ' + state.name2;
-  document.getElementById('title-r2').textContent = state.name2;
-  document.getElementById('desc-r1').textContent = state.desc1;
-  document.getElementById('desc-r2').textContent = state.desc2;
+  renderTexts(state);
+  if(firstLoadDone) saveTexts(state); // y compris après « Enregistrer les paramètres »
   renderModeBox();
   renderDashboard();
   renderSettings();
@@ -1763,6 +1781,9 @@ function render(){
   linkLabels();
 }
 
+// Noms et descriptions mémorisés à la dernière visite : affichés avant la réponse de l'API.
+try{ const saved = JSON.parse(localStorage.getItem(TEXTS_KEY) || 'null'); if(saved) Object.assign(state, saved); }catch(e){}
+renderTexts(state, true);
 renderModeBox();
 loadAll();
 setInterval(()=>{
