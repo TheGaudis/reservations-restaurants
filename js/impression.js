@@ -195,7 +195,8 @@ function printDayR2(date){
       { label:'Ouvert par', value: day && day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' }
     ],
     body: `<h2>Par client (${clients.length})</h2>${clientTable}<h2>Récapitulatif par plat</h2>${recapTable}`,
-    total: printTotal('Total du jour', plural(clients.length, 'client') + ' · ' + plural(totalPortions, 'portion') + (grandTotal > 0 ? ' · ' + formatEuro(grandTotal) : ''))
+    total: printTotal('Total du jour', plural(clients.length, 'client') + ' · ' + plural(totalPortions, 'portion') + (grandTotal > 0 ? ' · ' + formatEuro(grandTotal) : '')),
+    signature: true
   }));
 }
 // Date locale (toISOString donnerait la date UTC : « demain » = aujourd'hui entre minuit et 2 h)

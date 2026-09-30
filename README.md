@@ -26,7 +26,7 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 - 🗓️ Ouverture et suppression des jours de service, modification de la capacité et du menu.
 - 🥗 Gestion des plats du restaurant 2 (ajout, modification, stock, prix).
 - 📋 Consultation, modification et suppression des réservations ; au restaurant 1, le détail élèves / personnels / extérieurs est modifiable et le prix est recalculé aux tarifs en vigueur.
-- 🖨️ Impression de la liste d'un jour et du résumé du lendemain pour chaque restaurant, au format A4 paysage.
+- 🖨️ Impression de la liste d'un jour et du résumé du lendemain pour chaque restaurant, au format A4 paysage ; la liste du jour se termine par un cadre « Nom du responsable / Signature ».
 - ⚙️ Réglage du nom des restaurants et du contact d'annulation.
 - 🔒 Déconnexion automatique après 10 minutes d'inactivité.
 
