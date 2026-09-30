@@ -159,8 +159,6 @@
   .cal-cell:active{transform:scale(.96);}
   /* Deux niveaux de pâleur seulement : jour passé, jour hors du mois affiché
      (un jour à la fois passé et hors du mois prend le second). Le jour sélectionné reste net. */
-  /* Deux niveaux de pâleur seulement : jour passé, jour hors du mois affiché
-     (un jour à la fois passé et hors du mois prend le second). Le jour sélectionné reste net. */
   .cal-cell.cal-past:not(.cal-selected){opacity:var(--past-opacity);}
   .cal-cell.cal-dim:not(.cal-selected){opacity:var(--outside-opacity);}
   .cal-cell.cal-selected{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent);}
@@ -181,7 +179,8 @@
   .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;}
   /* n'entre qu'au changement de jour, pas à chaque réaffichage */
   .day-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
-  .day-card.is-past{opacity:var(--past-opacity);}
+  /* Fiche d'un jour passé : les informations pâlissent, les boutons et formulaires des collègues restent nets */
+  .day-card.is-past :is(.day-top, .menu-block, .day-meta, .item-name, .item-row .capacity-pill, .booking-row > span:not(.booking-row-actions), .empty){opacity:var(--past-opacity);}
   .day-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
   .day-date{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-xl);color:var(--accent-ink);}
   .day-date::first-letter{text-transform:uppercase;}
@@ -235,6 +234,7 @@
   .booking-row:last-child{border-bottom:none;}
   .booking-row b{color:var(--text);}
   .booking-row .btn{white-space:nowrap;flex:0 0 auto;}
+  .booking-row-actions{display:flex;gap:var(--space-2);flex:0 0 auto;}
   .empty{color:var(--text-muted);font-size:var(--fs-md);padding:10px 0;margin:0;}
   #bk-r1-total, #bk-r2-total{font-variant-numeric:tabular-nums;color:var(--accent-ink);}
 
@@ -301,6 +301,7 @@
   .confirm-sub{font-size:var(--fs-sm);color:var(--text-muted);}
   .confirm-sub::first-letter{text-transform:uppercase;}
   .confirm-warning{margin:0 0 10px;}
+  .closed-note{margin:var(--space-3) 0 0;}
   .confirm-lines{list-style:none;margin:0;padding:0;}
   .confirm-lines li{display:flex;justify-content:space-between;gap:var(--space-3);padding:6px 0;border-bottom:1px dashed var(--border);font-size:var(--fs-md);}
   .confirm-lines li span{color:var(--text-muted);}
@@ -454,11 +455,23 @@ function hideLoader(){
   if(loaderFocus && loaderFocus.isConnected && document.activeElement === document.body) loaderFocus.focus({ preventScroll: true });
 }
 
+// Lecture : Google renvoie parfois une page d'erreur passagère (403 / 404) au lieu du JSON.
+// Une seconde tentative, 1,5 s plus tard, suffit en général ; les écritures ne sont jamais rejouées.
+// Une erreur renvoyée par le script lui-même (data.error) ne change pas en réessayant : pas de seconde tentative.
 async function apiGet(silent){
   if(!silent) showLoader();
   try{
-    const res = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
-    const data = await res.json();
+    let data;
+    for(let attempt = 1; ; attempt++){
+      try{
+        const res = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
+        data = await res.json();
+        break;
+      }catch(e){
+        if(attempt >= 2 || !navigator.onLine) throw e;
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
     if(data.error) throw new Error(data.error);
     return data;
   }finally{ if(!silent) hideLoader(); }
@@ -504,9 +517,18 @@ function showToast(msg, isError){
   t.className = 'toast show' + (isError ? ' error' : '');
   setTimeout(()=>{ t.className = 'toast'; }, 3500);
 }
+// Dates en toutes lettres : un seul formateur, et chaque date n'est calculée qu'une fois
+// (le calendrier en demande plus d'une centaine à chaque réaffichage).
+const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+const dateCache = new Map();
 function formatDate(iso){
-  try{ const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
-  catch(e){ return iso; }
+  let s = dateCache.get(iso);
+  if(s === undefined){
+    const d = new Date(iso + 'T00:00:00');
+    s = isNaN(d) ? String(iso) : DATE_FMT.format(d);
+    dateCache.set(iso, s);
+  }
+  return s;
 }
 // Échappe aussi les guillemets : les valeurs vont dans du texte ET dans des attributs value="…"
 const HTML_ESC = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' };
@@ -578,9 +600,14 @@ function linkLabels(root){
     }
   });
 }
-// Champ contact des deux formulaires de réservation (obligatoire)
+// Champ email des deux formulaires de réservation (obligatoire, sert à envoyer la confirmation)
 function contactFieldHtml(){
-  return `<div class="field"><label>Téléphone ou email</label><input type="text" id="bk-contact" placeholder="Ex. 06 12 34 56 78" autocomplete="email"><p class="field-help">Pour vous envoyer la confirmation.</p></div>`;
+  return `<div class="field"><label>Adresse email</label><input type="email" id="bk-contact" placeholder="Ex. camille.martin@exemple.fr" autocomplete="email" inputmode="email" spellcheck="false"><p class="field-help">Pour vous envoyer la confirmation.</p></div>`;
+}
+// Message d'erreur du champ email, ou chaîne vide s'il est correct
+function emailError(v){
+  if(!v) return 'Indiquez votre adresse email.';
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Vérifiez votre adresse email (ex. camille.martin@exemple.fr).';
 }
 function plural(n, word){ return n + ' ' + word + (n > 1 ? 's' : ''); }
 // Vérification d'un formulaire : rules = [[idDuChamp, estInvalide, message], …].
@@ -816,6 +843,13 @@ function remainingR1(day){
 function remainingItem(item){
   const used = state.r2Bookings.filter(b => b.ItemID === item.ID).reduce((s,b)=> s + Number(b.Qte), 0);
   return Number(item.Stock) - used;
+}
+// Aristide : les commandes en ligne ferment à 10 h le jour même ; ensuite, commande sur place à 12 h
+const R2_CUTOFF_HOUR = 10, R2_ONSITE_HOUR = 12;
+const r2ClosedMsg = () => `Commandes en ligne closes depuis ${R2_CUTOFF_HOUR} h. Venez au restaurant ${state.name2} à partir de ${R2_ONSITE_HOUR} h pour commander sur place.`;
+function r2OrdersClosed(iso){
+  const today = todayISO();
+  return iso < today || (iso === today && new Date().getHours() >= R2_CUTOFF_HOUR);
 }
 function capacityClass(rem, cap){
   if(rem <= 0) return 'cap-full';
@@ -1294,15 +1328,13 @@ async function submitBookingR1(date, btn){
   const name = document.getElementById('bk-name').value.trim();
   const contact = document.getElementById('bk-contact').value.trim();
   const classe = document.getElementById('bk-classe').value.trim();
-  const nbEleve = parseInt(document.getElementById('bk-nbEleve').value, 10) || 0;
-  const nbProf = parseInt(document.getElementById('bk-nbProf').value, 10) || 0;
-  const nbExt = parseInt(document.getElementById('bk-nbExt').value, 10) || 0;
+  const { nbEleve, nbProf, nbExt } = countsR1('bk');
   const obs = document.getElementById('bk-obs').value.trim();
   const totalPersonnes = nbEleve + nbProf + nbExt;
   const form = btn.closest('.booking-form');
   clearFieldErrors(form);
   if(!name) fieldError('bk-name', 'Indiquez vos nom et prénom.');
-  if(!contact) fieldError('bk-contact', 'Indiquez un téléphone ou un email.');
+  if(emailError(contact)) fieldError('bk-contact', emailError(contact));
   if(!classe) fieldError('bk-classe', 'Indiquez votre classe ou votre service.');
   if(totalPersonnes <= 0) blockError(document.getElementById('bk-nbEleve').closest('.row3'), 'Indiquez au moins une personne.');
   if(form && form.querySelector('.field-error')){ focusFirstError(form); return; }
@@ -1317,7 +1349,7 @@ async function submitBookingR1(date, btn){
     if(nbEleve) lines.push({ label:'Élèves', value:String(nbEleve) });
     if(nbProf) lines.push({ label:'Personnels', value:String(nbProf) });
     if(nbExt) lines.push({ label:'Extérieurs', value:String(nbExt) });
-    const totalPrix = nbEleve * Number(state.priceEleve) + nbProf * Number(state.priceProf) + nbExt * Number(state.priceExterieur);
+    const totalPrix = priceR1(nbEleve, nbProf, nbExt);
     bookingConfirmation = {
       rest:'r1', date, lines,
       total: plural(totalPersonnes, 'couvert') + (totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''),
@@ -1336,9 +1368,10 @@ async function submitBookingR2Multi(date, btn){
   const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
   const form = btn.closest('.booking-form');
   clearFieldErrors(form);
+  if(r2OrdersClosed(date)){ openBookingTarget = null; showToast(r2ClosedMsg()); render(); return; }
   if(items.length === 0) blockError(form && form.querySelector('#bk-r2-total'), 'Choisissez au moins un plat.');
   if(!name) fieldError('bk-name', 'Indiquez vos nom et prénom.');
-  if(!contact) fieldError('bk-contact', 'Indiquez un téléphone ou un email.');
+  if(emailError(contact)) fieldError('bk-contact', emailError(contact));
   if(!classe) fieldError('bk-classe', 'Indiquez votre classe ou votre service.');
   if(form && form.querySelector('.field-error')){ focusFirstError(form); return; }
   // Réservations déjà connues : les nouvelles (celles réellement enregistrées) serviront au récapitulatif
@@ -1382,6 +1415,19 @@ async function submitBookingR2Multi(date, btn){
 function openEditBookingR1(id){ editBookingTarget = { rest:'r1', id }; enterKey = 'eb-' + id; render(); }
 function openEditBookingR2(id){ editBookingTarget = { rest:'r2', id }; enterKey = 'eb-' + id; render(); }
 function closeEditBooking(){ leaveThen(editBookingTarget && 'eb-' + editBookingTarget.id, ()=>{ editBookingTarget = null; render(); }); }
+// Liste des réservations (mode collègue) : « Modifier » ouvre le formulaire sous la ligne
+const isEditingBooking = (rest, b) => !!editBookingTarget && editBookingTarget.rest === rest && editBookingTarget.id === b.ID;
+function bookingActions(rest, b){
+  const R = rest.toUpperCase();
+  return `<span class="booking-row-actions">
+    <button class="btn small" onclick="openEditBooking${R}('${b.ID}')"${isEditingBooking(rest, b) ? ' aria-expanded="true"' : ''}>Modifier</button>
+    <button class="btn danger small" onclick="deleteBooking${R}('${b.ID}', this)">Supprimer</button>
+  </span>`;
+}
+function bookingEditForm(rest, b){
+  if(!isEditingBooking(rest, b)) return '';
+  return rest === 'r1' ? editBookingFormR1Html(b) : editBookingFormR2Html(b);
+}
 
 function openEditItem(itemId){ editItemTarget = itemId; enterKey = 'ei-' + itemId; render(); }
 function closeEditItem(){ leaveThen(editItemTarget && 'ei-' + editItemTarget, ()=>{ editItemTarget = null; render(); }); }
@@ -1440,16 +1486,35 @@ async function submitEditDayR1(date, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
+// Modification d'une réservation du restaurant 1 : détail Élèves / Personnels / Extérieurs,
+// prix recalculé aux tarifs actuels, places limitées à celles restantes + celles déjà réservées.
+// Si la capacité du jour a été baissée sous le total réservé, on peut toujours garder ses couverts actuels.
+function editMaxR1(b){
+  const day = state.r1Days.find(d => d.Date === b.Date);
+  return day ? Math.max(Number(b.Qte), remainingR1(day) + Number(b.Qte)) : Number(b.Qte);
+}
 async function submitEditBookingR1(id, btn){
   const nom = document.getElementById('ebk-nom').value.trim();
   const contact = document.getElementById('ebk-contact').value.trim();
   const classe = document.getElementById('ebk-classe').value.trim();
-  const qte = parseInt(document.getElementById('ebk-qte').value, 10);
+  const { nbEleve, nbProf, nbExt } = countsR1('ebk');
+  const qte = nbEleve + nbProf + nbExt;
+  const b = state.r1Bookings.find(x => x.ID === id);
+  const max = b ? editMaxR1(b) : Infinity;
   const observation = document.getElementById('ebk-obs').value.trim();
-  if(!checkFields(btn, [['ebk-nom', !nom, 'Indiquez le nom.'], ['ebk-classe', !classe, 'Indiquez la classe ou le service.'], ['ebk-contact', !contact, 'Indiquez un téléphone ou un email.'], ['ebk-qte', !qte || qte <= 0, 'Indiquez une quantité supérieure à 0.']])) return;
+  const form = btn.closest('.booking-form');
+  clearFieldErrors(form);
+  if(!nom) fieldError('ebk-nom', 'Indiquez le nom.');
+  if(!classe) fieldError('ebk-classe', 'Indiquez la classe ou le service.');
+  if(!contact) fieldError('ebk-contact', 'Indiquez un téléphone ou un email.');
+  const row3 = form.querySelector('.row3');
+  if(qte <= 0) blockError(row3, 'Indiquez au moins une personne.');
+  else if(qte > max) blockError(row3, `${plural(max, 'couvert')} au maximum pour cette réservation (places restantes ce jour-là).`);
+  if(form.querySelector('.field-error')){ focusFirstError(form); return; }
+  const prixTotal = Math.round(priceR1(nbEleve, nbProf, nbExt) * 100) / 100;
   const orig = setBusy(btn, 'Enregistrement…');
   try{
-    state = await apiPost('editBookingR1', { password: adminPassword, id, nom, contact, classe, qte, observation });
+    state = await apiPost('editBookingR1', { password: adminPassword, id, nom, contact, classe, qte, nbEleve, nbProf, nbExt, prixTotal, observation });
     showToast('Réservation modifiée.');
     editBookingTarget = null;
     render();
@@ -1472,15 +1537,18 @@ async function submitEditBookingR2(id, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 function editBookingFormR1Html(b){
+  // anciennes réservations : pas de détail Élèves / Personnels / Extérieurs (champs laissés vides)
+  const count = v => (v === '' || v == null) ? '' : Number(v);
+  const hasDetail = [b.NbEleve, b.NbProf, b.NbExt].some(v => Number(v) > 0);
   return `<div class="booking-form${enterOnce('eb-' + b.ID)}" data-form="eb-${b.ID}">
     <div class="row2">
       <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
       <div class="field"><label>Classe ou service</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
     </div>
-    <div class="row2">
-      <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
-      <div class="field"><label>Couverts</label><input type="number" min="1" id="ebk-qte" value="${Number(b.Qte)}"></div>
-    </div>
+    <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+    ${countsFieldsetR1Html('ebk', editMaxR1(b), { nbEleve: count(b.NbEleve), nbProf: count(b.NbProf), nbExt: count(b.NbExt) },
+      hasDetail ? '' : `<p class="field-help">Réservation enregistrée avant les tarifs : indiquez la répartition de ses ${plural(Number(b.Qte), 'couvert')}.</p>`)}
+    <p id="ebk-r1-total" class="form-total" aria-live="polite"></p>
     <div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
     <div class="day-actions">
       <button class="btn primary" onclick="submitEditBookingR1('${b.ID}', this)">Enregistrer</button>
@@ -1522,14 +1590,7 @@ function bookingFormHtml(date, rem){
         ${contactFieldHtml()}
         <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
       </div>
-      <fieldset class="field-group">
-        <legend>Nombre de personnes (${rem} au maximum)</legend>
-        <div class="row3">
-          <div class="field"><label>Élèves · ${formatEuro(state.priceEleve)}</label><input type="number" min="0" id="bk-nbEleve" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive()"></div>
-          <div class="field"><label>Personnels · ${formatEuro(state.priceProf)}</label><input type="number" min="0" id="bk-nbProf" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive()"></div>
-          <div class="field"><label>Extérieurs · ${formatEuro(state.priceExterieur)}</label><input type="number" min="0" id="bk-nbExt" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive()"></div>
-        </div>
-      </fieldset>
+      ${countsFieldsetR1Html('bk', rem)}
       <p id="bk-r1-total" class="form-total" aria-live="polite">Total : 0,00 €</p>
       <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="Ex. table partagée, allergie…"></div>
       <div class="day-actions">
@@ -1540,14 +1601,28 @@ function bookingFormHtml(date, rem){
     </div></div>
   `;
 }
-function updateR1PriceLive(){
-  const nbEleve = parseInt(document.getElementById('bk-nbEleve').value, 10) || 0;
-  const nbProf = parseInt(document.getElementById('bk-nbProf').value, 10) || 0;
-  const nbExt = parseInt(document.getElementById('bk-nbExt').value, 10) || 0;
-  const total = nbEleve * Number(state.priceEleve) + nbProf * Number(state.priceProf) + nbExt * Number(state.priceExterieur);
-  const totalCouverts = nbEleve + nbProf + nbExt;
-  const el = document.getElementById('bk-r1-total');
-  if(el) el.textContent = plural(totalCouverts, 'couvert') + ' · Total : ' + formatEuro(total);
+// Prix d'une réservation du restaurant 1 aux tarifs actuels (Paramètres)
+function priceR1(nbEleve, nbProf, nbExt){ return nbEleve * Number(state.priceEleve) + nbProf * Number(state.priceProf) + nbExt * Number(state.priceExterieur); }
+// Champs Élèves / Personnels / Extérieurs, communs à la réservation (préfixe 'bk') et à sa modification ('ebk')
+const R1_COUNTS = [['nbEleve', 'Élèves', 'priceEleve'], ['nbProf', 'Personnels', 'priceProf'], ['nbExt', 'Extérieurs', 'priceExterieur']];
+function countsFieldsetR1Html(prefix, max, values = {}, help = ''){
+  return `<fieldset class="field-group">
+      <legend>Nombre de personnes (${max} au maximum)</legend>
+      ${help}
+      <div class="row3">
+        ${R1_COUNTS.map(([key, label, price]) => `<div class="field"><label>${label} · ${formatEuro(state[price])}</label><input type="number" min="0" id="${prefix}-${key}" value="${values[key] ?? ''}" placeholder="0" inputmode="numeric" oninput="updateR1PriceLive('${prefix}')"></div>`).join('')}
+      </div>
+    </fieldset>`;
+}
+function countsR1(prefix){
+  const n = key => Math.max(0, parseInt(document.getElementById(prefix + '-' + key).value, 10) || 0);
+  return { nbEleve: n('nbEleve'), nbProf: n('nbProf'), nbExt: n('nbExt') };
+}
+function updateR1PriceLive(prefix = 'bk'){
+  const el = document.getElementById(prefix + '-r1-total');
+  if(!el) return;
+  const { nbEleve, nbProf, nbExt } = countsR1(prefix);
+  el.textContent = plural(nbEleve + nbProf + nbExt, 'couvert') + ' · Total : ' + formatEuro(priceR1(nbEleve, nbProf, nbExt));
 }
 function bookingFormMultiHtml(date, items){
   const rows = items.map(item=>{
@@ -1770,7 +1845,7 @@ function renderDetailR1(){
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'couvert')}${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR1('${b.ID}', this)">Supprimer</button></div>`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'couvert')}${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span>${bookingActions('r1', b)}</div>${bookingEditForm('r1', b)}`).join('')}
       </div>
       <div class="day-actions">
         <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
@@ -1818,8 +1893,10 @@ function renderDetailR2(){
     return;
   }
   const items = state.r2Items.filter(it => it.Date === iso);
-  const isMultiOpen = openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso && openBookingTarget.multi;
+  const isClosed = r2OrdersClosed(iso);
+  const isMultiOpen = !isClosed && openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso && openBookingTarget.multi;
   const anyAvailable = items.some(it => remainingItem(it) > 0);
+  const closedNote = !isAdmin && !isPast && isClosed ? `<p class="note-warning closed-note">${escapeHtml(r2ClosedMsg())}</p>` : '';
   const itemsHtml = items.map(item=>{
     const rem = remainingItem(item);
     const capClass = capacityClass(rem, item.Stock);
@@ -1848,7 +1925,7 @@ function renderDetailR2(){
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'portion')}${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span><button class="btn danger small" onclick="deleteBookingR2('${b.ID}', this)">Supprimer</button></div>`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'portion')}${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span>${bookingActions('r2', b)}</div>${bookingEditForm('r2', b)}`).join('')}
       </div>`;
     }
     return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
@@ -1886,7 +1963,8 @@ function renderDetailR2(){
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${menuListHtml(itemsHtml, isMultiOpen)}
       ${addItemHtml}
-      ${!isAdmin && !isMultiOpen && anyAvailable && !isPast ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR2Day('${iso}')">Réserver</button></div>` : ''}
+      ${closedNote}
+      ${!isAdmin && !isMultiOpen && anyAvailable && !isClosed ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR2Day('${iso}')">Réserver</button></div>` : ''}
       ${!isAdmin && isMultiOpen ? bookingFormMultiHtml(iso, items) : ''}
       ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">${ICONS.print} Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}', this)">Supprimer ce jour</button></div>` : ''}
     </div>
@@ -1976,11 +2054,8 @@ function printDayR2(date){
     total: printTotal('Total du jour', plural(clients.length, 'client') + ' · ' + plural(totalPortions, 'portion') + (grandTotal > 0 ? ' · ' + formatEuro(grandTotal) : ''))
   }));
 }
-function getTomorrowISO() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().substring(0, 10);
-}
+// Date locale (toISOString donnerait la date UTC : « demain » = aujourd'hui entre minuit et 2 h)
+function getTomorrowISO(){ return addDaysISO(todayISO(), 1); }
 
 function showTomorrowSummary(){
   const summaryEl = document.getElementById('summary-tomorrow');
@@ -2128,7 +2203,8 @@ function restoreUi(memo){
     if(el && !fieldsToReset.has(id) && el.value !== value) el.value = value;
   }
   fieldsToReset = new Set();
-  if(document.getElementById('bk-r1-total')) updateR1PriceLive();
+  updateR1PriceLive('bk');
+  updateR1PriceLive('ebk');
   if(document.getElementById('bk-r2-total')) updateR2PriceLive();
   if(!memo.focus || document.activeElement !== document.body) return;
   let target = document.querySelector(memo.focus);
@@ -2178,6 +2254,17 @@ function autoRefresh(){
   loadAll(true);
 }
 setInterval(autoRefresh, 180000);
+// À 10 h pile, la fiche d'Aristide du jour passe en « commandes closes » sans attendre un rechargement
+(function scheduleR2Cutoff(){
+  const now = new Date(), next = new Date(now);
+  next.setHours(R2_CUTOFF_HOUR, 0, 0, 0);
+  if(next <= now) next.setDate(next.getDate() + 1);
+  setTimeout(() => {
+    if(openBookingTarget && openBookingTarget.rest === 'r2' && r2OrdersClosed(openBookingTarget.date)) openBookingTarget = null;
+    render();
+    scheduleR2Cutoff();
+  }, next - now);
+})();
 (() => {
   const logo = document.querySelector('.brand-logo');
   if(!logo) return;

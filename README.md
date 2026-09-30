@@ -5,7 +5,7 @@
 Site de réservation des deux restaurants pédagogiques du lycée professionnel Aristide Briand :
 
 - 🟢 **Restaurant 1** (couleur verte) : réservation de couverts sur un jour de service, avec une capacité et un menu.
-- 🟣 **Restaurant 2** (couleur magenta) : réservation de plats en portions limitées, sur place ou à emporter.
+- 🟣 **Restaurant 2** (couleur magenta) : réservation de plats en portions limitées, sur place ou à emporter. Les commandes en ligne ferment à 10 h le jour même : le menu et les stocks restent affichés, et le site invite à venir commander sur place à partir de 12 h (heures réglables par `R2_CUTOFF_HOUR` et `R2_ONSITE_HOUR` dans `index.html`).
 
 Le site est une page statique unique. Les données sont stockées dans une feuille Google Sheets, lue et modifiée par un script Google Apps Script qui sert d'API.
 
@@ -22,7 +22,7 @@ Le site est une page statique unique. Les données sont stockées dans une feuil
 
 - 🗓️ Ouverture et suppression des jours de service, modification de la capacité et du menu.
 - 🥗 Gestion des plats du restaurant 2 (ajout, modification, stock, prix).
-- 📋 Consultation, modification et suppression des réservations.
+- 📋 Consultation, modification et suppression des réservations ; au restaurant 1, le détail élèves / personnels / extérieurs est modifiable et le prix est recalculé aux tarifs en vigueur.
 - 🖨️ Impression de la liste d'un jour et du résumé du lendemain pour chaque restaurant, au format A4 paysage.
 - ⚙️ Réglage du nom des restaurants et du contact d'annulation.
 - 🔒 Déconnexion automatique après 10 minutes d'inactivité.
