@@ -1,0 +1,474 @@
+/* ==================================================================
+   DESIGN SYSTEM — Restaurants pédagogiques
+   Lycée professionnel Aristide Briand
+   ------------------------------------------------------------------
+   Identité : vert lime · bleu · magenta · gris (couleurs du logo),
+   posées sur un fond « papier » clair.
+   Polices : Outfit (titres) + Work Sans (texte), via Google Fonts :
+   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+   Organisation du fichier
+     1. Jetons (variables CSS)
+     2. Thèmes d'accent (une couleur par restaurant)
+     3. Base (reset, typographie, focus)
+     4. Composants génériques
+     5. Animations
+     6. Confort mobile & accessibilité
+
+   Règles d'usage
+     - Ne jamais écrire une couleur en dur : passer par un jeton.
+     - Bleu = action principale. Vert et magenta = identité des deux
+       restaurants (accents), jamais pour signaler un état.
+     - Vert/orange/rouge « statut » (--success, --warning, --danger)
+       sont réservés aux états : places restantes, erreurs, alertes.
+     - Pour du texte sur fond blanc, utiliser les variantes « -ink »
+       (contraste AA) plutôt que les couleurs vives du logo.
+   ================================================================== */
+
+
+/* ------------------------------------------------------------------
+   1. JETONS
+   ------------------------------------------------------------------ */
+:root{
+  /* --- Couleurs du logo --- */
+  --ab-green:#A9C23F;    --ab-green-ink:#4E6614;    --ab-green-deep:#3B4F0D;
+  --ab-blue:#1F4E9E;     --ab-blue-ink:#173D7D;
+  --ab-magenta:#A3237F;  --ab-magenta-ink:#86196A;
+  --ab-grey:#8C8C8C;
+  --ab-gradient:linear-gradient(100deg,var(--ab-green) 0 33.4%,var(--ab-blue) 33.4% 66.7%,var(--ab-magenta) 66.7% 100%);
+
+  /* --- Surfaces --- */
+  --bg:#F3F4F0;            /* fond de page (papier) */
+  --surface:#FFFFFF;       /* cartes, panneaux, champs */
+  --surface-alt:#F8F9F6;   /* surface secondaire, survols */
+  --tint:var(--surface-alt); /* teinte de fond propre à un thème */
+
+  /* --- Bordures --- */
+  --border:#E2E4DD;        /* séparateurs, contours de carte */
+  --border-strong:#D6D9D1; /* contours de champ */
+  --border-hover:#C4C8BE;  /* survol d'un contour neutre */
+  --outline:#8A8F84;       /* contour qui porte un sens (sélecteurs) : 3,3:1 sur blanc */
+
+  /* --- Texte --- */
+  --text:#1F2328;
+  --text-muted:#646A70;
+  --text-subtle:#6E7378;   /* placeholders (4,8:1 sur blanc) */
+  --text-on-accent:#FFFFFF;
+
+  /* --- Accent (action principale, surchargé par les thèmes) --- */
+  --accent:var(--ab-blue);
+  --accent-ink:var(--ab-blue-ink);
+  --accent-soft:rgba(31,78,158,.08);       /* survols, halos, jours ouverts */
+  --accent-container:rgba(31,78,158,.14);  /* sélection tonale (M3 secondary-container), texte en --accent-ink */
+
+  /* --- Statuts --- */
+  --success:#4E7A12;  --success-soft:rgba(78,122,18,.12);
+  --warning:#9A600A;  --warning-soft:rgba(154,96,10,.12);  /* 5,2:1 sur blanc */
+  --danger:#B7372F;   --danger-soft:rgba(183,55,47,.10);  --danger-border:rgba(183,55,47,.32);
+
+  /* --- Typographie --- */
+  --font-display:'Outfit',system-ui,sans-serif;
+  --font-body:'Work Sans',system-ui,sans-serif;
+  --fs-2xs:.7rem;    /* surtitres en capitales, jours de la semaine */
+  --fs-xs:.76rem;    /* libellés, badges, petites notes */
+  --fs-sm:.84rem;    /* boutons, descriptions, listes */
+  --fs-md:.88rem;    /* champs, texte courant compact */
+  --fs-lg:.94rem;    /* texte mis en avant */
+  --fs-xl:1.05rem;   /* titres de carte */
+  --fs-2xl:1.3rem;   /* titres de section */
+  --fs-3xl:1.75rem;  /* titre de page (M3 Headline Medium, 28 px) */
+  --fs-3xl-sm:1.5rem; /* titre de page sur mobile : reste au-dessus de --fs-2xl */
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
+  --lh-title:1.25; --lh-body:1.55;
+  --tracking-caps:.1em;
+
+  /* --- Espacements (base 4 px) --- */
+  --space-1:4px;  --space-2:8px;  --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+
+  /* --- Rayons --- */
+  --radius-xs:6px;    /* badges, pastilles */
+  --radius-sm:9px;    /* boutons, champs, cases */
+  --radius:14px;      /* cartes, panneaux */
+  --radius-lg:18px;   /* grands blocs (en-tête, colonnes) */
+  --radius-full:999px;
+
+  /* --- Ombres --- */
+  --shadow:0 1px 2px rgba(31,40,30,.05), 0 8px 24px -12px rgba(31,40,30,.14);
+  --shadow-pop:0 12px 30px -10px rgba(31,40,30,.3);
+
+  /* --- Mouvement (courbes inspirées de Material 3) --- */
+  --ease:cubic-bezier(.2,.8,.2,1);            /* courbe maison, survols et apparitions */
+  --ease-standard:cubic-bezier(.2,0,0,1);     /* M3 standard : ce qui reste à l'écran */
+  --ease-enter:cubic-bezier(.05,.7,.1,1);     /* M3 emphasized decelerate : ce qui entre */
+  --ease-exit:cubic-bezier(.3,0,.8,.15);      /* M3 emphasized accelerate : ce qui sort */
+  --dur-fast:.12s; --dur:.2s; --dur-slow:.35s;
+
+  /* --- Interaction (repères Material 3) --- */
+  --touch-target:48px;     /* zone tactile minimale sur écran tactile */
+  --state-hover:.08;       /* opacité du calque d'état au survol */
+  --state-press:.12;       /* opacité du calque d'état à l'appui et au focus */
+  --focus-width:3px;       /* épaisseur de l'anneau de focus clavier */
+  --past-opacity:.55;      /* jour passé (case du calendrier et fiche) : consultable, plus actif */
+  --outside-opacity:.35;   /* jour hors du mois affiché (vue Mois du calendrier) */
+  --dot-size:6px;          /* pastilles : disponibilité du calendrier, badge d'état */
+
+  /* --- Plans --- */
+  --z-toast:50; --z-loader:60;
+}
+
+
+/* ------------------------------------------------------------------
+   2. THÈMES D'ACCENT
+   À poser sur un conteneur : tout ce qu'il contient (boutons,
+   calendrier, cartes…) prend la couleur du restaurant.
+   ------------------------------------------------------------------ */
+.accent-blue{
+  --accent:var(--ab-blue); --accent-ink:var(--ab-blue-ink); --accent-soft:rgba(31,78,158,.08); --accent-container:rgba(31,78,158,.14);
+  --accent-mark:var(--ab-blue);
+}
+.accent-green{
+  --accent:var(--ab-green-ink); --accent-ink:var(--ab-green-deep); --accent-soft:rgba(169,194,63,.18); --accent-container:rgba(169,194,63,.32);
+  --accent-mark:var(--ab-green);
+  --tint:#F6F9EC; --border:#E4E8D6; --text-muted:#5E6653;
+}
+.accent-magenta{
+  --accent:var(--ab-magenta); --accent-ink:var(--ab-magenta-ink); --accent-soft:rgba(163,35,127,.10); --accent-container:rgba(163,35,127,.16);
+  --accent-mark:var(--ab-magenta);
+  --tint:#FBF2F8; --border:#EEDDE8; --text-muted:#6A5A65;
+}
+
+
+/* ------------------------------------------------------------------
+   3. BASE
+   ------------------------------------------------------------------ */
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;interpolate-size:allow-keywords; /* permet d'animer une hauteur jusqu'à « auto » */
+  scrollbar-gutter:stable;} /* place de la barre de défilement réservée : la largeur ne change pas quand la page s'allonge */
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:var(--lh-body);
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(900px 420px at 100% -10%, rgba(169,194,63,.13), transparent 60%),
+    radial-gradient(700px 380px at -10% 0%, rgba(31,78,158,.07), transparent 60%);
+  background-repeat:no-repeat;}
+h1,h2,h3{font-family:var(--font-display);letter-spacing:-.01em;text-wrap:balance;}
+:focus-visible{outline:var(--focus-width) solid var(--accent);outline-offset:2px;}
+
+/* Surtitre en petites capitales */
+.kicker{display:block;font-size:var(--fs-2xs);font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);}
+.text-muted{color:var(--text-muted);}
+.num{font-variant-numeric:tabular-nums;}
+
+
+/* ------------------------------------------------------------------
+   4. COMPOSANTS
+   ------------------------------------------------------------------ */
+
+/* --- Bandeau tricolore --- */
+.ab-stripe{height:6px;background:var(--ab-gradient);}
+
+/* --- Boutons ---
+   .btn            neutre
+   .btn.primary    action principale (alias historique : .btn.gold, à ne plus utiliser)
+   .btn.ghost      discret, sans contour
+   .btn.danger     suppression ; .armed = 2e clic de confirmation
+   .btn.small      taille réduite : actions secondaires d'une liste (collègues)
+   .btn.active-toggle  état « sélectionné » d'un bouton bascule
+   Hauteurs (Material 3) : 40 px par défaut, 32 px en .small. Une action
+   principale et son « Annuler » restent toujours en taille par défaut.   */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font-body);font-weight:var(--fw-medium);font-size:var(--fs-sm);line-height:var(--lh-title);
+  background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);
+  min-height:40px;padding:0 var(--space-4);cursor:pointer;
+  transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease),transform var(--dur-fast) var(--ease),box-shadow var(--dur) var(--ease);}
+.btn:hover{background:var(--surface-alt);border-color:var(--border-hover);}
+.btn:active{transform:translateY(1px) scale(.985);}
+.btn:disabled{opacity:.38;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn.primary, .btn.gold{background:var(--accent);color:var(--text-on-accent);border-color:var(--accent);font-weight:var(--fw-semibold);box-shadow:0 6px 14px -8px var(--accent);}
+.btn.primary:hover, .btn.gold:hover{background:var(--accent-ink);border-color:var(--accent-ink);}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--text-muted);}
+.btn.ghost:hover{background:var(--accent-soft);color:var(--accent-ink);}
+.btn.small{min-height:32px;padding:0 var(--space-3);font-size:var(--fs-xs);}
+.btn.active-toggle{background:var(--accent);color:var(--text-on-accent);border-color:var(--accent);font-weight:var(--fw-semibold);}
+.btn.danger{border-color:var(--danger-border);color:var(--danger);background:transparent;}
+.btn.danger:hover{background:var(--danger-soft);border-color:var(--danger);}
+/* Armé : une seule onde (pas de boucle), la largeur est figée en JS pour éviter tout saut */
+.btn.danger.armed{background:var(--danger);color:var(--text-on-accent);border-color:var(--danger);animation:pulse-armed var(--dur-slow) var(--ease-enter);}
+.btn.danger-solid{background:var(--danger);border-color:var(--danger);color:var(--text-on-accent);font-weight:var(--fw-semibold);}
+.icon{flex:0 0 auto;display:block;}
+
+/* --- Bouton icône (Material 3 « icon button ») ---
+   .icon-btn          standard : sans fond, icône grise
+   .icon-btn.tonal    fond teinté de l'accent (rôle M3 secondary-container)
+   Conteneur 40 px, zone tactile 48 px, calque d'état 8 % / 12 %.
+   Toujours fournir un aria-label.                                   */
+.icon-btn{position:relative;isolation:isolate;flex:0 0 auto;width:40px;height:40px;padding:0;margin:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:transparent;color:var(--text-muted);border:1px solid transparent;border-radius:var(--radius-full);cursor:pointer;
+  transition:color var(--dur) var(--ease-standard),background-color var(--dur) var(--ease-standard);}
+.icon-btn::after{content:"";position:absolute;inset:-4px;border-radius:var(--radius-full);} /* cible tactile 48 px */
+.icon-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:currentColor;opacity:0;transition:opacity var(--dur-fast) linear;}
+.icon-btn:hover::before{opacity:var(--state-hover);}
+.icon-btn:focus-visible::before, .icon-btn:active::before{opacity:var(--state-press);}
+.icon-btn:focus-visible{outline:var(--focus-width) solid var(--accent);outline-offset:2px;}
+.icon-btn:hover{color:var(--accent-ink);}
+.icon-btn svg{width:24px;height:24px;display:block;fill:currentColor;transition:transform var(--dur) var(--ease-standard);}
+.icon-btn:active svg{transform:scale(.88);}
+.icon-btn:disabled{opacity:.38;cursor:default;}
+.icon-btn:disabled::before{display:none;}
+.icon-btn.tonal{background:var(--accent-container);color:var(--accent-ink);}
+.icon-btn svg.icon{width:20px;height:20px;fill:none;} /* icônes au trait (impression, réglages) */
+
+/* --- Panneau dépliant (<details class="disclosure">) ---
+   Le contenu se déplie en hauteur + fondu au clic de l'utilisateur.
+   Navigateurs sans ::details-content : ouverture instantanée, sans casse.
+   Le <summary> porte son indicateur (« + » qui pivote, chevron…).        */
+details.disclosure::details-content{block-size:0;overflow:clip;opacity:0;
+  transition:block-size var(--dur) var(--ease-exit),opacity var(--dur-fast) linear,content-visibility var(--dur) allow-discrete;}
+details.disclosure[open]::details-content{block-size:auto;opacity:1;
+  transition:block-size var(--dur-slow) var(--ease-standard),opacity var(--dur) linear,content-visibility var(--dur-slow) allow-discrete;}
+
+/* --- Bouton segmenté (Material 3 « segmented button ») ---
+   Seul composant de choix exclusif du site (2 à 5 options) : mode d'accès,
+   semaine / mois, à emporter / sur place. Une action (« Aujourd'hui »)
+   n'entre jamais dans le groupe.
+   .seg-group         conteneur, role="group" + aria-label ; .block = pleine largeur ;
+                      .small = compact (32 px), pour un réglage secondaire
+   .seg-btn           segment, aria-pressed="true|false"
+   .seg-check         coche qui apparaît devant le segment sélectionné
+   .seg-pop           à poser en JS sur le segment qu'on vient de choisir : rebond
+                      + coche qui s'ouvre (pas d'animation au simple réaffichage)
+   Hauteur 40 px, zone tactile 48 px, calque d'état 8 % / 12 %.     */
+.seg-group{display:inline-flex;border:1px solid var(--outline);border-radius:var(--radius-full);background:var(--surface);}
+.seg-group.block{display:flex;}
+/* Variante compacte (M3 « density -2 ») : 32 px visibles, zone tactile toujours 48 px */
+.seg-group.small .seg-btn{min-height:32px;padding:0 var(--space-3);font-size:var(--fs-xs);}
+.seg-group.small .seg-btn::after{inset:-8px 0;}
+.seg-group.small .seg-check svg{width:16px;height:16px;}
+.seg-group.small .seg-btn[aria-pressed="true"] .seg-check{width:16px;margin-right:6px;}
+.seg-btn{position:relative;isolation:isolate;flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;
+  min-height:40px;padding:0 var(--space-4);margin:0;border:0;background:transparent;color:var(--text);
+  font-family:var(--font-body);font-size:var(--fs-sm);font-weight:var(--fw-medium);white-space:nowrap;cursor:pointer;
+  transition:background-color var(--dur) var(--ease-standard),color var(--dur) var(--ease-standard);}
+.seg-btn + .seg-btn{border-left:1px solid var(--outline);}
+.seg-btn:first-child{border-radius:var(--radius-full) 0 0 var(--radius-full);}
+.seg-btn:last-child{border-radius:0 var(--radius-full) var(--radius-full) 0;}
+.seg-btn::after{content:"";position:absolute;inset:-4px 0;} /* cible tactile 48 px */
+.seg-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:currentColor;opacity:0;transition:opacity var(--dur-fast) linear;}
+.seg-btn:hover::before{opacity:var(--state-hover);}
+.seg-btn:focus-visible::before, .seg-btn:active::before{opacity:var(--state-press);}
+.seg-btn:focus-visible{outline:var(--focus-width) solid var(--accent);outline-offset:2px;z-index:1;}
+.seg-btn[aria-pressed="true"]{background:var(--accent-container);color:var(--accent-ink);font-weight:var(--fw-semibold);}
+.seg-btn.seg-pop[aria-pressed="true"]{animation:seg-select var(--dur-slow) var(--ease-enter);}
+.seg-btn.seg-pop[aria-pressed="true"] .seg-check{animation:seg-check-in var(--dur-slow) var(--ease-enter);}
+/* La coche s'ouvre en largeur (le libellé glisse) puis grandit */
+.seg-check{display:inline-flex;overflow:hidden;width:0;margin-right:0;opacity:0;transform:scale(.4);
+  transition:width var(--dur) var(--ease-exit),margin-right var(--dur) var(--ease-exit),opacity var(--dur-fast) linear,transform var(--dur) var(--ease-exit);}
+.seg-check svg{flex:0 0 auto;width:18px;height:18px;fill:currentColor;}
+.seg-btn[aria-pressed="true"] .seg-check{width:18px;margin-right:var(--space-2);opacity:1;transform:none;
+  transition:width var(--dur-slow) var(--ease-enter),margin-right var(--dur-slow) var(--ease-enter),opacity var(--dur) linear,transform var(--dur-slow) var(--ease-enter);}
+
+/* --- Champs de formulaire --- */
+/* Contour --outline (M3) : la limite d'un champ vide doit se voir (≥ 3:1) */
+input,select,textarea{font-family:var(--font-body);background:var(--surface);border:1px solid var(--outline);color:var(--text);border-radius:var(--radius-sm);
+  padding:9px 11px;font-size:var(--fs-md);width:100%;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);}
+/* Même hauteur que les boutons (40 px) pour qu'un champ et son bouton s'alignent */
+input:not([type="checkbox"]):not([type="radio"]),select{min-height:40px;}
+input::placeholder,textarea::placeholder{color:var(--text-subtle);}
+input:hover,select:hover,textarea:hover{border-color:var(--text-muted);}
+/* Focus façon champ M3 : bordure qui s'épaissit à 2 px (lisible), plus un halo doux */
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 0 4px var(--accent-soft);}
+label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);margin:0 0 5px;}
+.field{margin-bottom:var(--space-3);}
+/* Texte d'aide sous un champ (M3 « supporting text ») : relié au champ par aria-describedby */
+.field-help{margin:var(--space-1) 0 0;font-size:var(--fs-xs);color:var(--text-muted);}
+.has-error > .field-help{display:none;} /* M3 : le message d'erreur remplace le texte d'aide */
+/* Groupe de champs liés (fieldset) : la légende a l'apparence d'un libellé */
+.field-group{border:0;margin:0 0 var(--space-3);padding:0;min-width:0;}
+.field-group > legend{padding:0;margin:0 0 var(--space-2);font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--text);}
+.has-error input, .has-error select, .has-error textarea{border-color:var(--danger) !important;box-shadow:0 0 0 3px var(--danger-soft) !important;}
+.field-error{margin:5px 0 8px;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--danger);display:flex;align-items:center;gap:6px;animation:rise var(--dur) var(--ease) both;}
+.field-error::before{content:"!";flex:0 0 auto;width:15px;height:15px;border-radius:50%;background:var(--danger);color:var(--text-on-accent);font-size:.66rem;font-weight:var(--fw-bold);
+  display:inline-flex;align-items:center;justify-content:center;}
+
+/* --- Sélecteur de date (Material 3 « date picker », version dépliée sous le champ) ---
+   .date-trigger   le champ : date en toutes lettres + icône calendrier (même allure qu'un champ)
+   .date-picker    le calendrier du mois : ‹ mois ›, jours ronds de 40 px
+   .dp-day         jour ; aria-pressed = choisi (aplat), .dp-today = contour, aria-disabled = passé
+   .dp-dot         pastille « déjà ouvert »                                              */
+.date-trigger{width:100%;min-height:40px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);
+  padding:0 var(--space-2) 0 11px;margin:0;font:inherit;font-size:var(--fs-md);text-align:left;color:var(--text);cursor:pointer;
+  background:var(--surface);border:1px solid var(--outline);border-radius:var(--radius-sm);
+  transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);}
+.date-trigger span::first-letter{text-transform:uppercase;}
+.date-trigger svg{flex:0 0 auto;width:24px;height:24px;fill:var(--text-muted);}
+.date-trigger:hover{border-color:var(--text-muted);}
+.date-trigger:focus-visible, .date-trigger[aria-expanded="true"]{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 0 4px var(--accent-soft);}
+.date-trigger[aria-expanded="true"] svg{fill:var(--accent-ink);}
+.has-error .date-trigger{border-color:var(--danger) !important;box-shadow:0 0 0 3px var(--danger-soft) !important;}
+.date-picker{margin-top:var(--space-2);max-inline-size:calc(var(--space-10) * 9);padding:var(--space-3);
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-pop);
+  transform-origin:top left;animation:dp-in var(--dur) var(--ease-enter);}
+.dp-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-bottom:var(--space-2);}
+.dp-label{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-md);color:var(--text);}
+.dp-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--space-1) 0;justify-items:center;}
+.dp-wd{font-size:var(--fs-2xs);font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);color:var(--text-muted);padding-bottom:var(--space-1);}
+.dp-day{position:relative;isolation:isolate;width:100%;max-width:40px;aspect-ratio:1/1;margin:0; /* 40 px, moins sur petit écran */padding:0;display:flex;align-items:center;justify-content:center;
+  font:inherit;font-size:var(--fs-sm);font-variant-numeric:tabular-nums;color:var(--text);cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:var(--radius-full);
+  transition:background-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard);}
+.dp-day::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;background:currentColor;opacity:0;transition:opacity var(--dur-fast) linear;}
+.dp-day:hover::before{opacity:var(--state-hover);}
+.dp-day:focus-visible::before, .dp-day:active::before{opacity:var(--state-press);}
+.dp-day.dp-today{border-color:var(--accent);color:var(--accent-ink);font-weight:var(--fw-semibold);}
+.dp-day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent);font-weight:var(--fw-semibold);}
+.dp-day[aria-disabled="true"]{opacity:.38;cursor:default;}
+.dp-day[aria-disabled="true"]::before{display:none;}
+.dp-dot{display:inline-block;width:var(--dot-size);height:var(--dot-size);border-radius:50%;background:var(--accent);} /* ≥ 3:1 */
+.dp-day .dp-dot{position:absolute;bottom:var(--space-1);left:50%;transform:translateX(-50%);}
+.dp-day[aria-pressed="true"] .dp-dot{background:var(--text-on-accent);}
+.dp-legend{display:flex;align-items:center;gap:var(--space-2);margin:var(--space-2) 0 0;font-size:var(--fs-xs);color:var(--text-muted);}
+@keyframes dp-in{from{opacity:0;transform:translateY(-4px) scaleY(.96);}}
+
+/* --- Badge d'état --- */
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-2xs);font-weight:var(--fw-medium);padding:3px 10px;border-radius:var(--radius-xs);
+  background:var(--surface-alt);border:1px solid var(--border);color:var(--text-muted);}
+.tag::before{content:"";width:var(--dot-size);height:var(--dot-size);border-radius:50%;background:var(--ab-grey);}
+.tag.admin-on{border-color:rgba(31,78,158,.3);color:var(--ab-blue-ink);background:rgba(31,78,158,.06);}
+.tag.admin-on::before{background:var(--ab-blue);}
+
+/* --- Pastille de capacité (jauge) ---
+   Remplissage piloté par la variable --pct (ex. style="--pct:40%") */
+/* --cap = couleur d'état ; le texte en est une version foncée (≥ 4,5:1 même sur la partie remplie) */
+.capacity-pill{font-size:var(--fs-xs);padding:4px 10px;border-radius:var(--radius-xs);font-weight:var(--fw-semibold);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:76px;text-align:center;
+  --cap:var(--text-muted);
+  --fill:color-mix(in srgb,var(--cap) 20%,transparent);--track:color-mix(in srgb,var(--cap) 6%,transparent);
+  color:color-mix(in srgb,var(--cap) 65%,var(--text));
+  background:linear-gradient(90deg,var(--fill) 0 var(--pct,0%),var(--track) var(--pct,0%) 100%);
+  border:1px solid color-mix(in srgb,var(--cap) 30%,transparent);}
+.cap-ok{--cap:var(--success);}
+.cap-low{--cap:var(--warning);}
+.cap-full{--cap:var(--danger);}
+.dot-cap-ok{background:var(--success);}
+.dot-cap-low{background:var(--warning);}
+.dot-cap-full{background:var(--danger);}
+
+/* --- Panneaux et cartes --- */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:var(--space-4);box-shadow:var(--shadow);}
+.card-top-accent{border-top:4px solid var(--ab-green);}
+
+/* --- Encadré d'alerte --- */
+/* Structure : .alert-icon (aria-hidden) + .alert-text (le message, un titre en <b>)
+   + une action. L'icône et le filet reprennent la couleur d'état ; le mot reste obligatoire. */
+.alert{display:flex;align-items:center;gap:var(--space-3) var(--space-4);flex-wrap:wrap;background:var(--surface);
+  border:1px solid var(--danger-border);border-left:4px solid var(--danger);border-radius:var(--radius);padding:var(--space-3) var(--space-4);}
+.alert.warning{border-color:color-mix(in srgb,var(--warning) 30%,transparent);border-left-color:var(--warning);}
+.alert-icon{flex:0 0 auto;align-self:flex-start;display:inline-flex;color:var(--danger);}
+.alert.warning .alert-icon{color:var(--warning);}
+.alert-icon svg{width:24px;height:24px;fill:currentColor;}
+.alert-text{flex:1 1 calc(var(--space-10) * 4);min-width:0; /* l'icône reste à côté du texte ; faute de place, seul le bouton passe à la ligne */margin:0;font-size:var(--fs-md);color:var(--text);}
+.note-warning{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--warning-soft);color:color-mix(in srgb,var(--warning) 70%,var(--text));font-size:var(--fs-sm);font-weight:var(--fw-medium);} /* ≥ 4,5:1 sur le fond teinté */
+
+/* --- Notification (toast) --- */
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,10px);z-index:var(--z-toast);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--success); /* repère ≥ 3:1 (le vert du logo n'atteint que 2:1) */
+  width:max-content;max-width:calc(100vw - 2 * var(--space-4));
+  color:var(--text);padding:11px 18px;border-radius:var(--radius-sm);font-size:var(--fs-md);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;
+  transition:opacity var(--dur) var(--ease-exit),transform var(--dur) var(--ease-exit);}  /* sortie : accélère */
+.toast.show{opacity:1;transform:translate(-50%,0);transition-duration:.3s;transition-timing-function:var(--ease-enter);}  /* entrée : décélère */
+.toast.error{border-left-color:var(--danger);}
+
+/* --- Chargement --- */
+/* Voile de chargement (M3 : voile uni + indicateur de progression circulaire).
+   Les clics sont bloqués dès l'appel ; le voile ne devient visible qu'après un court
+   délai, pour ne pas clignoter lors des actions rapides. Il disparaît sans délai. */
+.loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-3);z-index:var(--z-loader);
+  background:color-mix(in srgb,var(--bg) 85%,transparent);opacity:0;pointer-events:none;
+  transition:opacity var(--dur-fast) var(--ease-exit);}
+/* .blocking : clics bloqués aussitôt ; .show : visible après un court délai (géré en JS,
+   donc aussi quand les animations sont réduites). Caché, l'indicateur ne tourne pas. */
+.loader.blocking{pointer-events:all;}
+.loader.show{opacity:1;transition:opacity var(--dur) var(--ease-enter);}
+.loader:not(.show) .spinner, .loader:not(.show) .spinner circle{animation-play-state:paused;}
+.loader p{color:var(--text-muted);font-weight:var(--fw-medium);margin:0;font-size:var(--fs-md);text-align:center;}
+/* Indicateur circulaire indéterminé M3, variante multicolore : l'arc s'allonge et se
+   rétracte en tournant ; il change de couleur (vert, bleu, magenta) quand il est au plus court.
+   Trait 4 px aux bouts arrondis, 48 px. Couleurs « -ink » / bleu : repère ≥ 3:1 sur le voile. */
+.spinner{display:block;width:48px;height:48px;animation:spinner-rotate 1568ms linear infinite;}
+.spinner circle{fill:none;stroke:var(--ab-blue);stroke-width:4;stroke-linecap:round;stroke-dasharray:1 150;stroke-dashoffset:0;
+  animation:spinner-arc 1333ms var(--ease-standard) infinite,spinner-color 3999ms step-end infinite;}
+
+/* --- Squelette de chargement --- */
+.sk{display:block;background:linear-gradient(90deg,rgba(31,35,40,.06) 0%,rgba(31,35,40,.11) 50%,rgba(31,35,40,.06) 100%);background-size:200% 100%;
+  border-radius:8px;animation:shimmer 1.3s linear infinite;}
+
+/* --- Signature tricolore (pied de page) --- */
+.brand-signature{display:flex;justify-content:center;align-items:center;gap:10px;font-size:var(--fs-2xs);color:var(--text-muted);letter-spacing:.04em;}
+.brand-signature::before, .brand-signature::after{content:"";width:34px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--ab-green),var(--ab-blue),var(--ab-magenta));}
+
+/* --- Marque oblique (rappel des traits du logo devant un titre) --- */
+.slash-mark::before{content:"";flex:0 0 auto;width:7px;height:1.05em;transform:skewX(-22deg);border-radius:2px;background:var(--accent-mark,var(--accent));}
+
+
+/* ------------------------------------------------------------------
+   5. ANIMATIONS
+   ------------------------------------------------------------------ */
+/* Pas d'étape « to » : l'élément arrive sur SES valeurs normales (ex. une fiche
+   de jour passé reste pâle à la fin de l'animation au lieu de redevenir nette) */
+@keyframes rise{from{opacity:0;transform:translateY(6px);}}
+/* sortie courte, symétrique de « rise » : repart vers le haut en s'effaçant */
+@keyframes sink{to{opacity:0;transform:translateY(-4px);}}
+@keyframes spinner-rotate{to{transform:rotate(360deg);}}
+@keyframes spinner-arc{
+  0%{stroke-dasharray:1 150;stroke-dashoffset:0;}
+  50%{stroke-dasharray:90 150;stroke-dashoffset:-35;}
+  100%{stroke-dasharray:90 150;stroke-dashoffset:-124;}}
+@keyframes spinner-color{0%{stroke:var(--ab-green-ink);}33.33%{stroke:var(--ab-blue);}66.66%{stroke:var(--ab-magenta);}}
+@keyframes shimmer{from{background-position:100% 0;}to{background-position:-100% 0;}}
+/* Transition M3 « shared axis X » : le contenu arrive du côté où l'on navigue */
+@keyframes axis-in-next{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:none;}}
+@keyframes axis-in-prev{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:none;}}
+.axis-next{animation:axis-in-next 300ms var(--ease-enter) both;}
+.axis-prev{animation:axis-in-prev 300ms var(--ease-enter) both;}
+/* Léger rebond du segment qu'on vient de sélectionner */
+@keyframes seg-select{0%{transform:scale(.96);}100%{transform:none;}}
+@keyframes seg-check-in{from{width:0;margin-right:0;opacity:0;transform:scale(.4);}}
+@keyframes pulse-armed{from{box-shadow:0 0 0 0 var(--danger-border);}to{box-shadow:0 0 0 6px transparent;}}
+
+
+/* ------------------------------------------------------------------
+   6. CONFORT MOBILE & ACCESSIBILITÉ
+   ------------------------------------------------------------------ */
+button, .btn, summary{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.btn, summary, .capacity-pill, .tag{-webkit-user-select:none;user-select:none;}
+@media (pointer:coarse), (max-width:760px){
+  input, select, textarea{font-size:16px;} /* évite le zoom automatique d'iOS */
+}
+@media (hover:none){
+  .btn:not(.primary):not(.gold):not(.active-toggle):not(.active):not(.danger):not(.danger-solid):not(.ghost):not(:active):hover{background:var(--surface);border-color:var(--border);}
+  .btn.primary:not(:active):hover, .btn.gold:not(:active):hover{background:var(--accent);border-color:var(--accent);}
+  .btn.ghost:not(.active-toggle):not(:active):hover{background:transparent;color:var(--text-muted);}
+  .icon-btn:hover::before, .seg-btn:hover::before{opacity:0;}
+  .seg-btn:active::before{opacity:var(--state-press);}
+  .icon-btn:active::before{opacity:var(--state-press);}
+  .icon-btn:not(.tonal):hover{color:var(--text-muted);}
+}
+/* Zones tactiles (Material 3 : 48 px) — sur écran tactile, aucun bouton
+   ne descend sous 44 px de haut ; les petits boutons gardent leur taille
+   visuelle mais leur zone cliquable est agrandie invisiblement. */
+@media (pointer:coarse){
+  .btn{min-height:44px;}
+  .btn.small{min-height:36px;}
+  .btn.small::after{content:"";position:absolute;inset:-6px 0;}
+}
+/* Retour visuel à l'appui (calque d'état « pressed ») : indispensable
+   sur mobile, où le survol n'existe pas. */
+.btn:not(.primary):not(.gold):not(.active-toggle):not(.active):not(.danger):not(.danger-solid):active{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 30%,var(--border));}
+.btn.primary:active, .btn.gold:active{background:var(--accent-ink);border-color:var(--accent-ink);}
+
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{animation:none !important;transition:none !important;}
+  .spinner circle{stroke-dasharray:90 150;} /* arc fixe bien visible, le texte dit que ça charge */
+  html{scroll-behavior:auto;}
+}
+/* règle séparée : un navigateur qui ignore ::details-content ignorerait sinon tout le bloc */
+@media (prefers-reduced-motion:reduce){ ::details-content{transition:none !important;} }
