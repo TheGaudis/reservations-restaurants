@@ -15,6 +15,8 @@ Le site est une page statique unique. Les données sont stockées dans une feuil
 
 - 📅 Calendrier des jours de service, accessible au clavier (flèches, Début / Fin, Page ↑ / ↓).
 - 🔢 Places ou portions restantes affichées pour chaque jour et chaque plat.
+- ⚡ Affichage immédiat : à la visite suivante, le calendrier de la dernière visite s'affiche aussitôt, en consultation seule, le temps que les places se mettent à jour. La copie gardée dans le navigateur ne contient aucune donnée personnelle (ni nom, ni e-mail, ni téléphone).
+- 🛡️ Anti-doublon : chaque réservation envoie un identifiant unique (`requestId`), conservé si l'on réessaie après une erreur ; le script peut ainsi ignorer un envoi déjà enregistré (voir l'installation).
 - 📝 Formulaire de réservation avec contrôle des champs et message d'erreur sous chaque champ.
 - 📧 E-mail de confirmation, puis rappel la veille, si le contact saisi est une adresse e-mail.
 
@@ -53,6 +55,8 @@ Le site est une page statique unique. Les données sont stockées dans une feuil
 Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_Items`, `R2_Bookings`) sont créés automatiquement au premier appel.
 
 ⏰ Pour les rappels de la veille, exécuter une fois la fonction `setupDailyTrigger` depuis l'éditeur Apps Script : elle programme l'envoi chaque jour à 18 h.
+
+🛡️ Anti-doublon : les actions `addBookingR1` et `addBookingR2Multi` reçoivent un champ `requestId`. Si le script a déjà traité cet identifiant (à vérifier sous le verrou `LockService`, avant d'écrire), il doit renvoyer l'état avec `_duplicate: true` sans rien ajouter ; la page affiche alors « Cette réservation était déjà enregistrée ». Tant que le script ne le gère pas, le champ est simplement ignoré.
 
 ### 2. 🔌 Brancher la page
 

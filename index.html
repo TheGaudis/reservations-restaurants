@@ -409,6 +409,46 @@ function renderTexts(s, initial){
 function saveTexts(s){
   try{ localStorage.setItem(TEXTS_KEY, JSON.stringify({ name1:s.name1, name2:s.name2, desc1:s.desc1, desc2:s.desc2 })); }catch(e){}
 }
+// Copie locale des dernières données, pour afficher le calendrier dès l'ouverture de la page.
+// Réduite à ce qui sert à la consultation : jours, plats, capacités et places prises par jour
+// ou par plat. Aucun nom, email, téléphone ni observation n'est gardé dans le navigateur.
+// Tant que les données fraîches ne sont pas arrivées (dataStale), rien ne peut être réservé.
+const CACHE_KEY = 'reservations-cache-v1';
+const CACHE_MAX_AGE = 14 * 24 * 3600 * 1000; // au-delà, la copie est ignorée
+const CONFIG_KEYS = ['name1', 'name2', 'desc1', 'desc2', 'contactAnnulation', 'priceEleve', 'priceProf', 'priceExterieur'];
+let dataStale = false, cachedFor = null;
+function saveCache(s){
+  if(cachedFor === s) return;
+  cachedFor = s;
+  const pick = (o, keys) => Object.fromEntries(keys.map(k => [k, o[k]]));
+  const r1Used = {}, r2Used = {};
+  s.r1Bookings.forEach(b => { r1Used[b.Date] = (r1Used[b.Date] || 0) + (Number(b.Qte) || 0); });
+  s.r2Bookings.forEach(b => { r2Used[b.ItemID] = (r2Used[b.ItemID] || 0) + (Number(b.Qte) || 0); });
+  const snap = {
+    savedAt: Date.now(), config: pick(s, CONFIG_KEYS), r1Used, r2Used,
+    r1Days: s.r1Days.map(d => pick(d, ['Date', 'Capacite', 'Theme', 'Menu'])),
+    r2Days: s.r2Days.map(d => pick(d, ['Date', 'Theme', 'Note'])),
+    r2Items: s.r2Items.map(it => pick(it, ['ID', 'Date', 'Nom', 'Stock', 'Prix']))
+  };
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify(snap)); }catch(e){}
+}
+// Rebâtit un state affichable : les places prises deviennent des réservations anonymes
+// (une par jour ou par plat), que les calculs de places restantes savent déjà additionner.
+function loadCache(){
+  try{
+    const snap = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if(!snap || !(Date.now() - snap.savedAt < CACHE_MAX_AGE)) return null;
+    return { ...snap.config, r1Days: snap.r1Days, r2Days: snap.r2Days, r2Items: snap.r2Items,
+      r1Bookings: Object.entries(snap.r1Used).map(([Date, Qte]) => ({ Date, Qte })),
+      r2Bookings: Object.entries(snap.r2Used).map(([ItemID, Qte]) => ({ ItemID, Qte })) };
+  }catch(e){ return null; }
+}
+// Bouton « Réserver » : inactif tant que les places ne sont pas à jour
+function reserveButtonHtml(onclick){
+  return dataStale
+    ? `<div class="day-actions"><button class="btn primary" disabled>Mise à jour des places…</button></div>`
+    : `<div class="day-actions"><button class="btn primary" onclick="${onclick}">Réserver</button></div>`;
+}
 let draftItems = [{name:'', stock:'', price:''}];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
@@ -807,6 +847,7 @@ async function loadAll(background){
     if(seqAtStart !== writeSeq){ if(!firstLoadDone) return loadAll(background); return; }
     state = data;
     firstLoadDone = true;
+    dataStale = false; // les boutons « Réserver » redeviennent actifs
     document.body.classList.remove('load-error');
     render();
   }catch(e){
@@ -819,9 +860,10 @@ async function loadAll(background){
 // ne répond pas). Le texte est inséré à chaque échec pour être annoncé (role="alert").
 function showLoadError(){
   const box = document.getElementById('loadErrorText');
-  const msg = navigator.onLine
+  const msg = (navigator.onLine
     ? '<b>Le service de réservation ne répond pas.</b><br>Réessayez dans un instant. Si le problème continue, prévenez l\'établissement.'
-    : '<b>Vous semblez hors ligne.</b><br>Vérifiez votre connexion internet, puis réessayez.';
+    : '<b>Vous semblez hors ligne.</b><br>Vérifiez votre connexion internet, puis réessayez.'
+  ) + (dataStale ? '<br>Le calendrier affiché date de votre dernière visite : les réservations reprendront une fois les places à jour.' : '');
   document.body.classList.add('load-error');
   box.textContent = '';
   requestAnimationFrame(() => { box.innerHTML = msg; });
@@ -1002,6 +1044,8 @@ function armInactivityTimer(){
 }
 ['click','keydown','mousemove','touchstart'].forEach(evt => document.addEventListener(evt, () => { lastActivity = Date.now(); }, { passive: true }));
 async function tryLogin(){
+  // Le mode collègue agit sur les vraies données : jamais sur la copie de la dernière visite
+  if(dataStale){ showToast('Les données se chargent. Réessayez dans un instant.', true); return; }
   const val = document.getElementById('pwdInput').value;
   try{
     const res = await apiPost('checkPassword', { password: val });
@@ -1273,13 +1317,13 @@ const deleteBookingR2 = (id, btn) => adminDelete(btn, DELETE_BOOKING_MSG, 'delet
 const deleteItemR2 = (itemId, btn) => adminDelete(btn, 'Confirmer la suppression de ce plat', 'deleteItemR2', { itemId }, 'Plat supprimé.');
 
 function openBookingR1(date){
-  bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render();
+  bookingConfirmation = null; openBookingTarget = { rest:'r1', date, requestId: newRequestId() }; enterKey = 'bk-' + date; render();
   focusFirstField('#detail-r1 .booking-form');
   // si le formulaire s'ouvre dans le bas de l'écran, on le fait remonter en douceur
   const form = document.querySelector('#detail-r1 .form-reveal');
   if(form && form.getBoundingClientRect().top > window.innerHeight * 0.6) form.scrollIntoView({ block:'start' });
 }
-function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
+function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, requestId: newRequestId() }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
   focusFirstField('#detail-r2 .booking-form');
   // la liste repliée raccourcit la page : on remonte en douceur au début de la fiche si elle est hors de vue
   const card = document.querySelector('#detail-r2 .day-card');
@@ -1329,6 +1373,21 @@ function updateR2PriceLive(){
   el.textContent = total > 0 ? ('Total' + (hasGap ? ' (hors plats sans prix indiqué)' : '') + ' : ' + formatEuro(total)) : '';
 }
 
+// Anti-doublon : chaque formulaire de réservation reçoit à l'ouverture un identifiant, renvoyé
+// tel quel si l'on réessaie après une erreur. Si le serveur a déjà enregistré cet envoi (réponse
+// perdue en route, double clic…), il répond _duplicate au lieu d'ajouter une seconde réservation.
+function newRequestId(){
+  return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+}
+function handleDuplicate(res){
+  if(!res._duplicate) return false;
+  ['_duplicate', '_emailStatus', '_bookingResult'].forEach(k => delete res[k]);
+  state = res;
+  openBookingTarget = null; multiBookingQty = {};
+  showToast('Cette réservation était déjà enregistrée : elle n\'a pas été ajoutée une seconde fois.');
+  render();
+  return true;
+}
 // Avertissement du récapitulatif quand l'email de confirmation n'a pas pu partir
 function emailWarning(status){
   const failed = status && status.sent === false && status.reason !== 'no-email';
@@ -1342,7 +1401,8 @@ async function submitBookingR1(date, btn){
     [document.getElementById('bk-nbEleve').closest('.row3'), totalPersonnes <= 0, 'Indiquez au moins une personne.']])) return;
   const orig = setBusy(btn, 'Envoi en cours…');
   try{
-    const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, nbEleve, nbProf, nbExt, observation: obs });
+    const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, nbEleve, nbProf, nbExt, observation: obs, requestId: openBookingTarget && openBookingTarget.requestId });
+    if(handleDuplicate(res)) return;
     const emailStatus = res._emailStatus;
     delete res._emailStatus;
     state = res;
@@ -1370,7 +1430,8 @@ async function submitBookingR2Multi(date, btn){
   const knownIds = new Set(state.r2Bookings.map(b => b.ID));
   const orig = setBusy(btn, 'Envoi en cours…');
   try{
-    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs });
+    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs, requestId: openBookingTarget && openBookingTarget.requestId });
+    if(handleDuplicate(res)) return;
     const r = res._bookingResult || { confirmed:[], adjusted:[], skipped:[] };
     const emailStatus = res._emailStatus;
     delete res._bookingResult;
@@ -1871,7 +1932,7 @@ function renderDetailR1(){
       ${day.Theme ? menuBlockHtml('Thème du jour', day.Theme) : ''}
       ${day.Menu ? menuBlockHtml('Menu du jour', day.Menu) : ''}
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
-      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
+      ${!isAdmin && !isOpenForm && rem>0 && !isPast ? reserveButtonHtml(`openBookingR1('${day.Date}')`) : ''}
       ${!isAdmin && isOpenForm ? bookingFormHtml(day.Date, rem) : ''}
       ${adminHtml}
     </div>
@@ -1945,7 +2006,7 @@ function renderDetailR2(){
       ${menuListHtml(itemsHtml, isMultiOpen)}
       ${addItemHtml}
       ${closedNote}
-      ${!isAdmin && !isMultiOpen && anyAvailable && !isClosed ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR2Day('${iso}')">Réserver</button></div>` : ''}
+      ${!isAdmin && !isMultiOpen && anyAvailable && !isClosed ? reserveButtonHtml(`openBookingR2Day('${iso}')`) : ''}
       ${!isAdmin && isMultiOpen ? bookingFormMultiHtml(iso, items) : ''}
       ${isAdmin ? `<div class="day-actions"><button class="btn small" onclick="printDayR2('${day.Date}')">${ICONS.print} Imprimer la liste</button><button class="btn danger small" onclick="deleteDayR2('${day.Date}', this)">Supprimer ce jour</button></div>` : ''}
     </div>
@@ -2206,7 +2267,7 @@ function restParts(rest){
 }
 function renderAll(){
   renderTexts(state);
-  if(firstLoadDone) saveTexts(state); // y compris après « Enregistrer les paramètres »
+  if(firstLoadDone){ saveTexts(state); saveCache(state); } // y compris après chaque enregistrement
   renderModeBox();
   renderPriceSuggestions();
   renderDashboard();
@@ -2220,6 +2281,9 @@ function renderAll(){
 try{ const saved = JSON.parse(localStorage.getItem(TEXTS_KEY) || 'null'); if(saved) Object.assign(state, saved); }catch(e){}
 renderTexts(state, true);
 renderModeBox();
+// Calendrier et fiches de la dernière visite, affichés tout de suite en consultation seule
+const cached = loadCache();
+if(cached){ state = cached; dataStale = true; render(); }
 loadAll();
 // Actualisation toutes les 3 minutes. Les saisies et le focus sont conservés par render() ;
 // on attend quand même si l'on est en train de taper, si un envoi est en cours (sinon le
