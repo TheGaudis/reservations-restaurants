@@ -8,6 +8,7 @@
 <title>Réservations — Restaurants pédagogiques</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff'/%3E%3Cpath d='M38 6h9L31 34h-9z' fill='%23A9C23F'/%3E%3Cpath d='M42 14h7L27 50H16z' fill='%231F4E9E'/%3E%3Cpath d='M12 44l40-15 4 7-40 15z' fill='%23A3237F'/%3E%3Cpath d='M41 36h7l8 16h-7z' fill='%23A9C23F'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="design-system.css">
 <style>
@@ -16,13 +17,12 @@
      Jetons, thèmes et composants communs : design-system.css
      ============================================================ */
 
-  .wrap{max-width:1040px;margin:0 auto;padding:28px 20px 64px;}
-  .wrap{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));}
+  .wrap{max-width:1040px;margin:0 auto;padding:calc(var(--space-6) + var(--space-1)) max(var(--space-5),env(safe-area-inset-right)) calc(var(--space-8) * 2) max(var(--space-5),env(safe-area-inset-left));}
 
   /* ---------- En-tête ---------- */
   header.top{display:flex;justify-content:space-between;align-items:center;gap:var(--space-5);flex-wrap:wrap;
     background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);
-    padding:22px var(--space-6);margin-bottom:26px;position:relative;overflow:hidden;}
+    padding:var(--space-6) var(--space-6);margin-bottom:var(--space-6);position:relative;overflow:hidden;}
   /* traits obliques rappelant le logo, en filigrane */
   header.top::before{content:"";position:absolute;right:-30px;top:-40px;width:260px;height:220px;pointer-events:none;opacity:.10;
     background:
@@ -33,14 +33,14 @@
   .brand-logo{flex:0 0 auto;height:96px;width:auto;display:block;}
   .brand-text{min-width:0;padding-left:var(--space-5);border-left:1px solid var(--border);}
   .brand-kicker{letter-spacing:.12em;margin-bottom:var(--space-1);}
-  .brand h1{font-size:var(--fs-3xl);line-height:var(--lh-title);font-weight:var(--fw-semibold);margin:0 0 6px;max-width:26ch;}
+  .brand h1{font-size:var(--fs-3xl);line-height:var(--lh-title);font-weight:var(--fw-semibold);margin:0 0 var(--space-2);max-width:26ch;}
   .brand p{margin:0;color:var(--text-muted);font-size:var(--fs-md);max-width:60ch;}
   .mode-box{text-align:right;flex:0 0 auto;margin-left:auto;position:relative;}
   .mode-switch .seg-btn{min-width:108px;}
   /* Connexion collègue : se déplie sous le sélecteur (M3 : entrée qui décélère, sortie qui accélère) */
   .admin-login{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:0fr;margin-top:0;opacity:0;transform:translateY(-4px);
     transition:grid-template-rows var(--dur) var(--ease-exit),margin-top var(--dur) var(--ease-exit),opacity var(--dur-fast) linear,transform var(--dur) var(--ease-exit);}
-  .admin-login.open{grid-template-rows:1fr;margin-top:10px;opacity:1;transform:none;
+  .admin-login.open{grid-template-rows:1fr;margin-top:var(--space-2);opacity:1;transform:none;
     transition:grid-template-rows var(--dur-slow) var(--ease-enter),margin-top var(--dur-slow) var(--ease-enter),opacity var(--dur) linear,transform var(--dur-slow) var(--ease-enter);}
   .admin-login-inner{min-height:0;overflow:hidden;display:flex;gap:var(--space-2);justify-content:flex-end;align-items:center;}
   /* une fois déplié, on ne rogne plus les anneaux de focus */
@@ -50,19 +50,21 @@
   .admin-login input{width:170px;min-height:40px;}
 
   /* ---------- Résumés ---------- */
-  .summary-row{display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;}
+  .summary-row{display:flex;gap:var(--space-6);flex-wrap:wrap;margin-top:var(--space-2);}
   .summary-item b{color:var(--ab-blue);font-variant-numeric:tabular-nums;}
-  details.panel summary::-webkit-details-marker{display:none;}
-  .summary-panel{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--radius);
-    box-shadow:var(--shadow);padding:var(--space-4);margin:10px 0;font-size:var(--fs-md);}
+  summary::-webkit-details-marker{display:none;} /* en-têtes des panneaux dépliants */
+  #summary-tomorrow{margin:var(--space-4) auto;max-width:calc(var(--space-10) * 12);}
+  /* .panel.card-top-accent (design-system.css) : seules les mesures propres au résumé */
+  .summary-panel{padding:var(--space-4);margin:var(--space-2) 0;font-size:var(--fs-md);}
+  .summary-panel p{margin:0;}
+  .dash-title{margin:0;font-size:var(--fs-lg);}
   .summary-title{font-weight:var(--fw-semibold);margin-bottom:var(--space-2);}
-  .summary-block{margin:6px 0;padding:6px 0;border-bottom:1px solid var(--border);}
+  .summary-block{margin:var(--space-2) 0;padding:var(--space-2) 0;border-bottom:1px solid var(--border);}
   .summary-block:last-child{border-bottom:none;}
-  .summary-name-r1{color:var(--ab-green-ink);}
-  .summary-name-r2{color:var(--ab-magenta);}
+  .summary-name{color:var(--accent);} /* avec .accent-green / .accent-magenta */
   .summary-head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1);}
   .summary-meta{color:var(--text-muted);font-size:var(--fs-xs);}
-  .summary-line{display:block;font-size:var(--fs-sm);color:var(--text-muted);margin:2px 0;}
+  .summary-line{display:block;font-size:var(--fs-sm);color:var(--text-muted);margin:var(--space-1) 0;}
   .summary-total{color:var(--text);font-weight:var(--fw-semibold);margin-top:var(--space-1);}
 
   /* ---------- Colonnes restaurants ---------- */
@@ -73,8 +75,8 @@
   .col.accent-green::before{background:linear-gradient(100deg,var(--ab-green) 0 72%,var(--ab-blue) 72%);}
   .col.accent-magenta::before{background:linear-gradient(100deg,var(--ab-blue) 0 28%,var(--ab-magenta) 28%);}
   .col-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-2);margin-bottom:var(--space-1);}
-  .col-head h2{display:flex;align-items:center;gap:10px;font-size:var(--fs-2xl);font-weight:var(--fw-semibold);margin:0;color:var(--accent-ink);}
-  .desc{color:var(--text-muted);font-size:var(--fs-sm);margin:0 0 18px;max-width:52ch;}
+  .col-head h2{display:flex;align-items:center;gap:var(--space-2);font-size:var(--fs-2xl);font-weight:var(--fw-semibold);margin:0;color:var(--accent-ink);}
+  .desc{color:var(--text-muted);font-size:var(--fs-sm);margin:0 0 var(--space-4);max-width:52ch;}
 
   /* ---------- Calendrier ---------- */
   .cal-header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);}
@@ -108,18 +110,13 @@
   :root[data-cal-anim^="day"]::view-transition-group(*.cal-content){animation-duration:var(--dur);}
   :root[data-cal-anim^="day"]::view-transition-old(*.cal-content){animation:none;display:none;}
   :root[data-cal-anim^="day"]::view-transition-new(*.cal-content){animation:none;}
-  :root[data-cal-rest="r1"][data-cal-anim^="day"]::view-transition-old(detail-r1),
-  :root[data-cal-rest="r2"][data-cal-anim^="day"]::view-transition-old(detail-r2){display:block;mix-blend-mode:normal;animation:var(--dur) var(--ease-standard) both;}
-  :root[data-cal-rest="r1"][data-cal-anim^="day"]::view-transition-new(detail-r1),
-  :root[data-cal-rest="r2"][data-cal-anim^="day"]::view-transition-new(detail-r2){mix-blend-mode:normal;animation:var(--dur) var(--ease-standard) both;}
-  :root[data-cal-rest="r1"][data-cal-anim="day-next"]::view-transition-old(detail-r1),
-  :root[data-cal-rest="r2"][data-cal-anim="day-next"]::view-transition-old(detail-r2){animation-name:day-out-next;}
-  :root[data-cal-rest="r1"][data-cal-anim="day-next"]::view-transition-new(detail-r1),
-  :root[data-cal-rest="r2"][data-cal-anim="day-next"]::view-transition-new(detail-r2){animation-name:day-in-next;}
-  :root[data-cal-rest="r1"][data-cal-anim="day-prev"]::view-transition-old(detail-r1),
-  :root[data-cal-rest="r2"][data-cal-anim="day-prev"]::view-transition-old(detail-r2){animation-name:day-out-prev;}
-  :root[data-cal-rest="r1"][data-cal-anim="day-prev"]::view-transition-new(detail-r1),
-  :root[data-cal-rest="r2"][data-cal-anim="day-prev"]::view-transition-new(detail-r2){animation-name:day-in-prev;}
+  /* seule la fiche du restaurant concerné porte un nom de transition (voir plus haut) : *.cal-follow suffit */
+  :root[data-cal-anim^="day"]::view-transition-old(*.cal-follow){display:block;mix-blend-mode:normal;animation:var(--dur) var(--ease-standard) both;}
+  :root[data-cal-anim^="day"]::view-transition-new(*.cal-follow){mix-blend-mode:normal;animation:var(--dur) var(--ease-standard) both;}
+  :root[data-cal-anim="day-next"]::view-transition-old(*.cal-follow){animation-name:day-out-next;}
+  :root[data-cal-anim="day-next"]::view-transition-new(*.cal-follow){animation-name:day-in-next;}
+  :root[data-cal-anim="day-prev"]::view-transition-old(*.cal-follow){animation-name:day-out-prev;}
+  :root[data-cal-anim="day-prev"]::view-transition-new(*.cal-follow){animation-name:day-in-prev;}
   @keyframes day-out-next{35%{opacity:0;}to{opacity:0;transform:translateX(calc(-1 * var(--space-4)));}}
   @keyframes day-in-next{from{opacity:0;transform:translateX(var(--space-4));}35%{opacity:0;}}
   @keyframes day-out-prev{35%{opacity:0;}to{opacity:0;transform:translateX(var(--space-4));}}
@@ -155,20 +152,19 @@
     -webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;
     transition:background-color var(--dur) var(--ease-standard),border-color var(--dur) var(--ease-standard),transform var(--dur-fast) var(--ease);}
   .cal-cell:focus-visible{z-index:1;}
-  .cal-cell:hover{background:var(--tint);border-color:var(--accent);}
+  @media (hover:hover){ .cal-cell:hover{background:var(--tint);border-color:var(--accent);} }
   .cal-cell:active{transform:scale(.96);}
   /* Deux niveaux de pâleur seulement : jour passé, jour hors du mois affiché
      (un jour à la fois passé et hors du mois prend le second). Le jour sélectionné reste net. */
   .cal-cell.cal-past:not(.cal-selected){opacity:var(--past-opacity);}
   .cal-cell.cal-dim:not(.cal-selected){opacity:var(--outside-opacity);}
   .cal-cell.cal-selected{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent);}
-  .cal-cell.cal-selected .cal-num{color:var(--text-on-accent) !important;}
   .cal-cell.cal-selected .cal-dot{box-shadow:0 0 0 2px var(--text-on-accent);}
-  .cal-num{line-height:1;font-weight:var(--fw-semibold);color:var(--text);}
-  .cal-dot{width:var(--dot-size);height:var(--dot-size);border-radius:50%;margin-top:var(--space-1);}
+  .cal-num{line-height:1;font-weight:var(--fw-semibold);}
+  .cal-dot{width:var(--dot-size);height:var(--dot-size);border-radius:var(--radius-full);margin-top:var(--space-1);}
   /* jours ouverts (ceux qui ont un point de disponibilité) */
   .cal-cell:has(.cal-dot){background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--border));}
-  .cal-cell:not(.cal-selected):has(.cal-dot):hover{background:var(--tint);}
+  @media (hover:hover){ .cal-cell:not(.cal-selected):has(.cal-dot):hover{background:var(--tint);} }
   .cal-cell.cal-selected:has(.cal-dot){background:var(--accent);border-color:var(--accent);}
   /* Aujourd'hui (M3) : contour de la couleur du restaurant ; s'il est aussi sélectionné, l'aplat suffit */
   .cal-cell.cal-today:not(.cal-selected){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
@@ -176,30 +172,29 @@
   @media (pointer:coarse){ .cal-cell{aspect-ratio:auto;min-height:var(--touch-target);} }
 
   /* ---------- Fiche du jour ---------- */
-  .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) 18px;margin-bottom:14px;}
+  .day-card{background:var(--tint);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-4) var(--space-4) var(--space-4);margin-bottom:var(--space-4);scroll-margin-top:var(--space-4);}
   /* n'entre qu'au changement de jour, pas à chaque réaffichage */
   .day-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
   /* Fiche d'un jour passé : les informations pâlissent, les boutons et formulaires des collègues restent nets */
   .day-card.is-past :is(.day-top, .menu-block, .day-meta, .item-name, .item-row .capacity-pill, .booking-row > span:not(.booking-row-actions), .empty){opacity:var(--past-opacity);}
-  .day-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .day-top{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);flex-wrap:wrap;}
   .day-date{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-xl);color:var(--accent-ink);}
   .day-date::first-letter{text-transform:uppercase;}
   .day-meta{color:var(--text-muted);font-size:var(--fs-xs);margin:var(--space-1) 0 0;}
-  .menu-block{margin-top:var(--space-3);padding-top:10px;border-top:1px solid var(--border);}
-  .menu-label{font-size:var(--fs-2xs);font-weight:var(--fw-semibold);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);}
-  .menu-text{font-size:var(--fs-lg);margin-top:3px;}
-  .day-actions{margin-top:14px;display:flex;gap:var(--space-2);flex-wrap:wrap;}
-  .item-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px var(--space-3);margin-top:10px;}
+  .menu-block{margin-top:var(--space-3);padding-top:var(--space-2);border-top:1px solid var(--border);}
+  .menu-text{font-size:var(--fs-lg);margin-top:var(--space-1);}
+  .day-actions{margin-top:var(--space-4);display:flex;gap:var(--space-2);flex-wrap:wrap;}
+  .item-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:var(--space-2) var(--space-3);margin-top:var(--space-2);}
   .item-row.has-error{flex-wrap:wrap;}
+  .item-row.stacked{flex-direction:column;align-items:stretch;}
+  .item-row-head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);}
   .item-name{font-weight:var(--fw-semibold);font-size:var(--fs-md);}
   .item-stock{color:var(--text-muted);font-size:var(--fs-xs);}
   /* Disponibilité sous le nom du plat (texte secondaire M3), jamais coupée en deux lignes */
   .item-avail{display:block;margin-top:var(--space-1);white-space:nowrap;color:var(--text-muted);font-size:var(--fs-xs);font-weight:var(--fw-regular);}
   .draft-item-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) var(--touch-target);gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;}
   .draft-head{align-items:end;margin-bottom:var(--space-1);font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);}
-  .booking-form{margin-top:14px;border-top:1px solid var(--border);padding-top:14px;}
-  /* Liste des plats d'Aristide : se replie vers le haut quand la commande s'ouvre, se redéploie à l'annulation */
-  .day-card{scroll-margin-top:var(--space-4);}
+  .booking-form{margin-top:var(--space-4);border-top:1px solid var(--border);padding-top:var(--space-4);}
   /* Formulaire du restaurant pédagogique : se déplie depuis le bouton « Réserver », se replie à l'annulation.
      overflow-clip-margin laisse dépasser les halos de focus des champs. */
   .form-reveal{display:grid;grid-template-rows:1fr;scroll-margin-top:var(--space-4);}
@@ -218,9 +213,9 @@
   /* formulaire qui s'ouvre sous son bouton, puis se referme en accélérant */
   .booking-form.enter{animation:rise var(--dur) var(--ease-enter) both;}
   .booking-form.leaving{animation:sink var(--dur-fast) var(--ease-exit) forwards;}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);}
   /* 3 champs côte à côte : alignés par le bas même si un libellé passe sur 2 lignes */
-  .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end;}
+  .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2);align-items:end;}
   .form-total{font-weight:var(--fw-semibold);font-variant-numeric:tabular-nums;margin:var(--space-1) 0 var(--space-3);}
   .form-total:empty{display:none;}
   .form-submit{margin-top:var(--space-3);}
@@ -229,54 +224,51 @@
   .settings-grid .span-all{grid-column:1/-1;}
   @media (max-width:520px){.row2, .row3{grid-template-columns:1fr !important;}}
   .mode-choice{margin-bottom:var(--space-3);}
-  .bookings-list{margin-top:10px;border-top:1px solid var(--border);padding-top:var(--space-2);}
-  .booking-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);font-size:var(--fs-sm);padding:6px 0;color:var(--text-muted);border-bottom:1px dashed var(--border);}
+  .bookings-list{margin-top:var(--space-2);border-top:1px solid var(--border);padding-top:var(--space-2);}
+  .booking-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);font-size:var(--fs-sm);padding:var(--space-2) 0;color:var(--text-muted);border-bottom:1px dashed var(--border);}
   .booking-row:last-child{border-bottom:none;}
   .booking-row b{color:var(--text);}
   .booking-row .btn{white-space:nowrap;flex:0 0 auto;}
   .booking-row-actions{display:flex;gap:var(--space-2);flex:0 0 auto;}
-  .empty{color:var(--text-muted);font-size:var(--fs-md);padding:10px 0;margin:0;}
+  .empty{color:var(--text-muted);font-size:var(--fs-md);padding:var(--space-2) 0;margin:0;}
+  .empty.compact{padding:var(--space-1) 0;}
   #bk-r1-total, #bk-r2-total{font-variant-numeric:tabular-nums;color:var(--accent-ink);}
 
   /* ---------- Pied de page ---------- */
-  .foot-note{margin-top:34px;color:var(--text-muted);font-size:var(--fs-xs);text-align:center;}
-  .foot-brand{margin-top:10px;}
+  .foot-note{margin-top:var(--space-8);color:var(--text-muted);font-size:var(--fs-xs);text-align:center;}
+  .foot-brand{margin-top:var(--space-2);}
 
   /* formulaire « Ouvrir un jour » repliable */
   .panel.add-day{padding:0;overflow:hidden;box-shadow:none;border-style:dashed;border-color:color-mix(in srgb,var(--accent) 45%,var(--border));background:var(--tint);}
   .panel.add-day:has(details[open]){border-style:solid;background:var(--surface);box-shadow:var(--shadow);}
-  .add-day-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:var(--space-3) var(--space-4);
+  .add-day-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-4);
     font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-lg);color:var(--accent-ink);transition:background-color var(--dur) var(--ease);}
-  .add-day-summary::-webkit-details-marker{display:none;}
   .add-day-summary:focus-visible, .settings-summary:focus-visible{outline-offset:calc(-1 * var(--focus-width));}
-  .add-day-summary:hover{background:var(--accent-soft);}
-  .add-day-plus{width:24px;height:24px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
+  @media (hover:hover){ .add-day-summary:hover{background:var(--accent-soft);} }
+  .add-day-plus{width:24px;height:24px;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-full);
     background:var(--accent);color:var(--text-on-accent);font-size:var(--fs-xl);line-height:1;transition:transform var(--dur) var(--ease-standard);}
   details[open] > .add-day-summary .add-day-plus{transform:rotate(45deg);}
   .add-day-body{padding:var(--space-1) var(--space-4) var(--space-4);}
-  .new-day-form{display:none;}
-  .new-day-form.open{display:block;}
 
   /* panneau « Paramètres » : même logique que « Ouvrir un jour », en neutre */
   .panel.settings-panel{padding:0;overflow:hidden;}
   .settings-summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);padding:var(--space-2) var(--space-4);
     font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-lg);color:var(--text);transition:background-color var(--dur) var(--ease-standard);}
-  .settings-summary::-webkit-details-marker{display:none;}
-  .settings-summary:hover{background:var(--surface-alt);}
+  @media (hover:hover){ .settings-summary:hover{background:var(--surface-alt);} }
   .settings-chevron{margin-left:auto;display:inline-flex;color:var(--text-muted);transition:transform var(--dur) var(--ease-standard);}
   .settings-chevron svg{width:24px;height:24px;fill:currentColor;}
   details[open] > .settings-summary .settings-chevron{transform:rotate(180deg);}
   .settings-body{padding:var(--space-1) var(--space-4) var(--space-4);}
-  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);}
   @media (max-width:600px){.settings-grid{grid-template-columns:1fr;}}
-  .setup-banner{background:var(--danger);color:var(--text-on-accent);padding:10px var(--space-4);text-align:center;font-size:var(--fs-sm);}
+  .setup-banner{background:var(--danger);color:var(--text-on-accent);padding:var(--space-2) var(--space-4);text-align:center;font-size:var(--fs-sm);}
 
   /* ---------- Chargement initial : squelette ---------- */
-  .sk-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;}
-  .sk-circle{width:40px;height:40px;border-radius:50%;}
+  .sk-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);}
+  .sk-circle{width:40px;height:40px;border-radius:var(--radius-full);}
   .sk-line{height:14px;}
-  .sk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:22px 0 var(--space-4);}
-  .sk-cell{aspect-ratio:1/1;border-radius:10px;}
+  .sk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--space-1);margin:var(--space-6) 0 var(--space-4);}
+  .sk-cell{aspect-ratio:1/1;border-radius:var(--radius-sm);}
   .sk-card{height:120px;border-radius:var(--radius);}
   /* Titres et descriptions : affichés tout de suite (textes connus ou mémorisés),
      puis remplacés en fondu seulement si l'API renvoie autre chose */
@@ -287,39 +279,34 @@
   .load-error .sk{animation:none;}
 
   /* ---------- Récapitulatif de réservation ---------- */
-  .confirm-card{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:var(--radius);
-    padding:var(--space-4) var(--space-4) 14px;margin-bottom:14px;box-shadow:var(--shadow);}
+  /* .panel.card-top-accent (design-system.css) : seules les mesures propres à la carte */
+  .confirm-card{padding:var(--space-4) var(--space-4) var(--space-4);margin-bottom:var(--space-4);}
   .confirm-card.enter{animation:rise var(--dur-slow) var(--ease-enter) both;}
   /* moment rare : la coche apparaît juste après la carte */
   .confirm-card.enter .confirm-check{animation:check-pop var(--dur-slow) var(--ease-enter) var(--dur-fast) both;}
   @keyframes check-pop{from{opacity:0;transform:scale(.5);}}
   .confirm-card.has-warning{border-top-color:var(--warning);}
-  .confirm-head{display:flex;align-items:center;gap:var(--space-3);margin-bottom:10px;}
-  .confirm-check{width:36px;height:36px;flex:0 0 auto;border-radius:50%;background:var(--success);color:var(--text-on-accent);display:inline-flex;align-items:center;justify-content:center;}
+  .confirm-head{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2);}
+  .confirm-check{width:36px;height:36px;flex:0 0 auto;border-radius:var(--radius-full);background:var(--success);color:var(--text-on-accent);display:inline-flex;align-items:center;justify-content:center;}
   .confirm-check .icon{width:20px;height:20px;stroke-width:2.6;}
   .confirm-title{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:var(--fs-xl);}
   .confirm-sub{font-size:var(--fs-sm);color:var(--text-muted);}
   .confirm-sub::first-letter{text-transform:uppercase;}
-  .confirm-warning{margin:0 0 10px;}
+  .confirm-warning{margin:0 0 var(--space-2);}
   .closed-note{margin:var(--space-3) 0 0;}
   .confirm-lines{list-style:none;margin:0;padding:0;}
-  .confirm-lines li{display:flex;justify-content:space-between;gap:var(--space-3);padding:6px 0;border-bottom:1px dashed var(--border);font-size:var(--fs-md);}
+  .confirm-lines li{display:flex;justify-content:space-between;gap:var(--space-3);padding:var(--space-2) 0;border-bottom:1px dashed var(--border);font-size:var(--fs-md);}
   .confirm-lines li span{color:var(--text-muted);}
   .confirm-lines li b{font-weight:var(--fw-semibold);text-align:right;}
-  .confirm-total{display:flex;justify-content:space-between;padding:10px 0 var(--space-1);font-size:var(--fs-lg);font-variant-numeric:tabular-nums;}
+  .confirm-total{display:flex;justify-content:space-between;padding:var(--space-2) 0 var(--space-1);font-size:var(--fs-lg);font-variant-numeric:tabular-nums;}
   .confirm-total b{color:var(--accent-ink);}
-  .confirm-note{font-size:var(--fs-sm);color:var(--text-muted);margin:6px 0 var(--space-3);}
-
-  /* ---------- Écrans tactiles ---------- */
-  @media (hover:none){
-    .cal-cell:not(.cal-selected):not(.cal-today):hover{background:var(--surface);border-color:var(--border);}
-    .cal-cell:not(.cal-selected):has(.cal-dot):hover{background:var(--accent-soft);}  }
+  .confirm-note{font-size:var(--fs-sm);color:var(--text-muted);margin:var(--space-2) 0 var(--space-3);}
 
   /* ---------- Mobile ---------- */
   @media (max-width:640px){
-    .wrap{padding:18px var(--space-4) 48px;}
-    header.top{padding:18px;}
-    .brand{flex-direction:column;align-items:flex-start;gap:14px;}
+    .wrap{padding:var(--space-4) var(--space-4) calc(var(--space-6) * 2);}
+    header.top{padding:var(--space-4);}
+    .brand{flex-direction:column;align-items:flex-start;gap:var(--space-4);}
     .brand-logo{height:64px;}
     .brand-text{padding-left:0;border-left:none;}
     .brand h1{font-size:var(--fs-3xl-sm);}
@@ -327,11 +314,11 @@
     .admin-login-inner{justify-content:flex-start;}
     .admin-login input{flex:1;width:auto;min-width:0;}
     .mode-switch{display:flex;}
-    .col{padding:22px 14px var(--space-4);}
+    .col{padding:var(--space-6) var(--space-4) var(--space-4);}
   }
 </style>
 </head>
-<body class="is-loading">
+<body>
 <div class="setup-banner" id="setupBanner" style="display:none;">
   ⚠ Configuration manquante : ouvre ce fichier et remplace APPS_SCRIPT_URL par l'URL de ton déploiement Apps Script (tout en haut du script).
 </div>
@@ -358,22 +345,23 @@
     <button class="btn primary" onclick="retryLoad(this)">Réessayer</button>
   </div>
 
-  <div id="summary-tomorrow" style="margin:16px auto;max-width:480px;"></div>
+  <div id="summary-tomorrow"></div>
+  <datalist id="price-suggestions"></datalist><!-- rempli par renderAll(), partagé par les champs Prix -->
 
   <div class="columns">
     <div class="col accent-green" id="col-r1">
       <div class="col-head"><h2 id="title-r1" class="slash-mark">Restaurant Pédagogique</h2></div>
       <p class="desc" id="desc-r1">Table réservée par nombre de couverts, avec le menu du jour.</p>
-      <div id="admin-r1" class="new-day-form"></div>
-      <div id="cal-r1"><div class="skeleton" aria-hidden="true"><div class="sk-row"><span class="sk sk-circle"></span><span class="sk sk-line" style="width:40%"></span><span class="sk sk-circle"></span></div><div class="sk sk-line" style="width:55%;height:30px;margin:14px 0"></div><div class="sk-grid"><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span></div><div class="sk sk-card"></div></div></div>
+      <div id="admin-r1"></div>
+      <div id="cal-r1"><div class="skeleton" aria-hidden="true"><div class="sk-row"><span class="sk sk-circle"></span><span class="sk sk-line" style="width:40%"></span><span class="sk sk-circle"></span></div><div class="sk sk-line" style="width:55%;height:30px;margin:var(--space-4) 0"></div><div class="sk-grid"><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span></div><div class="sk sk-card"></div></div></div>
       <div id="detail-r1"></div>
     </div>
 
     <div class="col accent-magenta" id="col-r2">
       <div class="col-head"><h2 id="title-r2" class="slash-mark">Aristide</h2></div>
       <p class="desc" id="desc-r2">Plats à emporter ou sur place, chacun avec son propre stock.</p>
-      <div id="admin-r2" class="new-day-form"></div>
-      <div id="cal-r2"><div class="skeleton" aria-hidden="true"><div class="sk-row"><span class="sk sk-circle"></span><span class="sk sk-line" style="width:40%"></span><span class="sk sk-circle"></span></div><div class="sk sk-line" style="width:55%;height:30px;margin:14px 0"></div><div class="sk-grid"><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span></div><div class="sk sk-card"></div></div></div>
+      <div id="admin-r2"></div>
+      <div id="cal-r2"><div class="skeleton" aria-hidden="true"><div class="sk-row"><span class="sk sk-circle"></span><span class="sk sk-line" style="width:40%"></span><span class="sk sk-circle"></span></div><div class="sk sk-line" style="width:55%;height:30px;margin:var(--space-4) 0"></div><div class="sk-grid"><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span><span class="sk sk-cell"></span></div><div class="sk sk-card"></div></div></div>
       <div id="detail-r2"></div>
     </div>
   </div>
@@ -431,10 +419,11 @@ let addItemFormOpen = null;
 let editDayR1Open = null;
 let addDayOpen = { r1:false, r2:false };
 
-// Voile de chargement : bloque les clics tout de suite, s'affiche après un court délai (CSS)
 // Voile de chargement : bloque tout de suite la souris ET le clavier (page inerte), mais ne
 // s'affiche qu'après --dur-slow pour ne pas clignoter sur les actions rapides (délai en JS :
 // il reste valable quand les animations sont réduites). Le focus est rendu à la fin.
+// Durée d'un jeton de mouvement (« .35s ») en millisecondes
+function tokenMs(token, fallback){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(token)) * 1000 || fallback; }
 let loaderCount = 0, loaderTimer = null, loaderFocus = null;
 function showLoader(){
   if(loaderCount++ > 0) return;
@@ -442,8 +431,7 @@ function showLoader(){
   loaderFocus = document.activeElement;
   l.classList.add('blocking'); l.removeAttribute('aria-hidden');
   document.querySelector('.wrap').inert = true;
-  const delay = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-slow')) * 1000 || 350;
-  loaderTimer = setTimeout(() => { l.classList.add('show'); l.querySelector('p').textContent = 'Chargement…'; }, delay);
+  loaderTimer = setTimeout(() => { l.classList.add('show'); l.querySelector('p').textContent = 'Chargement…'; }, tokenMs('--dur-slow', 350));
 }
 function hideLoader(){
   if(loaderCount === 0 || --loaderCount > 0) return;
@@ -520,6 +508,9 @@ function showToast(msg, isError){
 // Dates en toutes lettres : un seul formateur, et chaque date n'est calculée qu'une fois
 // (le calendrier en demande plus d'une centaine à chaque réaffichage).
 const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+const DAY_FMT = new Intl.DateTimeFormat('fr-FR', { day:'numeric' });
+const DAY_MONTH_FMT = new Intl.DateTimeFormat('fr-FR', { day:'numeric', month:'short' });
+const MONTH_FMT = new Intl.DateTimeFormat('fr-FR', { month:'long', year:'numeric' });
 const dateCache = new Map();
 function formatDate(iso){
   let s = dateCache.get(iso);
@@ -610,12 +601,15 @@ function emailError(v){
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Vérifiez votre adresse email (ex. camille.martin@exemple.fr).';
 }
 function plural(n, word){ return n + ' ' + word + (n > 1 ? 's' : ''); }
-// Vérification d'un formulaire : rules = [[idDuChamp, estInvalide, message], …].
-// Affiche chaque message sous son champ et place le focus sur le premier.
+// Vérification d'un formulaire : rules = [[cible, estInvalide, message], …].
+// Cible = id d'un champ (message sous le champ) ou élément de bloc (message juste après,
+// ex. la rangée Élèves / Personnels / Extérieurs). Place ensuite le focus sur la première erreur.
 function checkFields(btn, rules){
   const form = btn.closest('.booking-form, .add-day, .settings-body') || document;
   clearFieldErrors(form);
-  rules.forEach(([id, invalid, msg]) => { if(invalid) fieldError(id, msg); });
+  rules.forEach(([target, invalid, msg]) => {
+    if(invalid) typeof target === 'string' ? fieldError(target, msg) : blockError(target, msg);
+  });
   if(form.querySelector('.field-error')){ focusFirstError(form); return false; }
   return true;
 }
@@ -665,8 +659,7 @@ const PRINT_TOKENS = ['--ab-green','--ab-green-ink','--ab-green-deep','--ab-blue
 // Couleur du restaurant : trait oblique (mark), filets (accent) et textes (ink, contraste AA)
 const PRINT_ACCENTS = {
   r1:   { mark:'--ab-green',   accent:'--ab-green-ink',   ink:'--ab-green-deep' },
-  r2:   { mark:'--ab-magenta', accent:'--ab-magenta',     ink:'--ab-magenta-ink' },
-  both: { mark:'--ab-blue',    accent:'--ab-blue',        ink:'--ab-blue-ink' }
+  r2:   { mark:'--ab-magenta', accent:'--ab-magenta',     ink:'--ab-magenta-ink' }
 };
 function printTokensCss(){
   const cs = getComputedStyle(document.documentElement);
@@ -695,7 +688,7 @@ const PRINT_CSS = `
   .pb-date{margin-left:auto;font-size:8pt;color:var(--text-muted);}
   h1,h2,h3{font-family:var(--font-display);font-weight:var(--fw-semibold);line-height:1.25;break-after:avoid;}
   h1{display:flex;align-items:center;gap:3mm;font-size:20pt;color:var(--p-ink);margin:5mm 0 1mm;}
-  h1::before, h2.pb-mark::before{content:"";flex:0 0 auto;width:1.6mm;height:.95em;transform:skewX(-22deg);border-radius:.5mm;background:var(--p-mark);}
+  h1::before{content:"";flex:0 0 auto;width:1.6mm;height:.95em;transform:skewX(-22deg);border-radius:.5mm;background:var(--p-mark);}
   .pb-sub{margin:0 0 4mm;font-size:11pt;color:var(--text-muted);}
   .pb-sub::first-letter{text-transform:uppercase;}
   h2{display:flex;align-items:center;gap:2.5mm;font-size:13pt;color:var(--p-ink);margin:6mm 0 2mm;}
@@ -724,10 +717,11 @@ const PRINT_CSS = `
   .pb-note{color:var(--text-muted);}
   .pb-foot{margin-top:10mm;padding-top:3mm;border-top:1px solid var(--border);font-size:7.5pt;color:var(--text-muted);text-align:center;}
 `;
+const PRINTED_ON_FMT = new Intl.DateTimeFormat('fr-FR', { day:'numeric', month:'long', year:'numeric' });
 // Document complet : en-tête (bandeau, logo, date d'impression), titre à la couleur du restaurant, contenu, pied
 function printDoc({ title, accent, heading, date, meta = [], body, total = '', signature = false }){
   const logo = document.querySelector('.brand-logo');
-  const printedOn = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  const printedOn = PRINTED_ON_FMT.format(new Date());
   // chaque information dans son bloc (<div> autorisé dans <dl>) ; le menu, plus long, a une colonne large
   const metaHtml = meta.filter(m => m.value).map(m => `<div${m.label === 'Menu' ? ' class="pb-wide"' : ''}><dt>${m.label}</dt><dd>${m.value}</dd></div>`).join('');
   return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>${title}</title>
@@ -774,7 +768,7 @@ function confirmationHtml(rest){
   const lines = c.lines.map(l => `<li><span>${escapeHtml(l.label)}</span><b>${escapeHtml(l.value)}</b></li>`).join('');
   const enter = c.shown ? '' : ' enter'; // animée une seule fois, pas à chaque actualisation
   c.shown = true;
-  return `<div class="confirm-card${c.warning ? ' has-warning' : ''}${enter}" role="status">
+  return `<div class="panel card-top-accent confirm-card${c.warning ? ' has-warning' : ''}${enter}" role="status">
     <div class="confirm-head">
       <span class="confirm-check" aria-hidden="true">${ICONS.check}</span>
       <div><div class="confirm-title">Réservation enregistrée</div><div class="confirm-sub">${escapeHtml(formatDate(c.date))}</div></div>
@@ -794,10 +788,13 @@ const ICONS = {
   check: `<svg ${ICON_ATTRS}><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,
   eye: `<svg ${ICON_ATTRS}><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`
 };
-function priceSuggestionsDatalist(){
+// Prix déjà utilisés, proposés dans tous les champs Prix (un seul <datalist> dans la page)
+function renderPriceSuggestions(){
   const prices = [...new Set(state.r2Items.filter(it => it.Prix !== '' && it.Prix != null).map(it => Number(it.Prix)))].sort((a,b) => a-b);
-  return `<datalist id="price-suggestions">${prices.map(p => `<option value="${p}">`).join('')}</datalist>`;
+  document.getElementById('price-suggestions').innerHTML = prices.map(p => `<option value="${p}">`).join('');
 }
+// Somme d'une colonne numérique (Qte, PrixTotal…) ; les cellules vides comptent 0
+const sumBy = (list, key) => list.reduce((s, x) => s + Number(x[key] || 0), 0);
 
 // Premier chargement : squelette affiché à la place de l'écran de chargement.
 // Rafraîchissements automatiques : silencieux, sans bloquer l'écran.
@@ -810,7 +807,7 @@ async function loadAll(background){
     if(seqAtStart !== writeSeq){ if(!firstLoadDone) return loadAll(background); return; }
     state = data;
     firstLoadDone = true;
-    document.body.classList.remove('is-loading', 'load-error');
+    document.body.classList.remove('load-error');
     render();
   }catch(e){
     if(background && firstLoadDone) return;
@@ -836,14 +833,27 @@ async function retryLoad(btn){
   clearBusy(btn, orig);
 }
 
-function remainingR1(day){
-  const used = state.r1Bookings.filter(b => b.Date === day.Date).reduce((s,b)=> s + Number(b.Qte), 0);
-  return Number(day.Capacite) - used;
+// Index des données, reconstruits seulement quand `state` est remplacé (chargement ou
+// écriture : state n'est jamais modifié sur place). Le calendrier, le sélecteur de date et
+// les fiches lisent ainsi les places restantes sans reparcourir toutes les réservations.
+let dataIndex = null, dataIndexFor = null;
+function idx(){
+  if(dataIndexFor === state) return dataIndex;
+  const add = (map, key, n) => map.set(key, (map.get(key) || 0) + n);
+  const r1Used = new Map(), r2Used = new Map(), r2ItemsByDate = new Map();
+  state.r1Bookings.forEach(b => add(r1Used, b.Date, Number(b.Qte) || 0));
+  state.r2Bookings.forEach(b => add(r2Used, b.ItemID, Number(b.Qte) || 0));
+  state.r2Items.forEach(it => { if(!r2ItemsByDate.has(it.Date)) r2ItemsByDate.set(it.Date, []); r2ItemsByDate.get(it.Date).push(it); });
+  dataIndex = {
+    r1Days: new Map(state.r1Days.map(d => [d.Date, d])), r2Days: new Map(state.r2Days.map(d => [d.Date, d])),
+    r1Used, r2Used, r2ItemsByDate, status: { r1: new Map(), r2: new Map() }
+  };
+  dataIndexFor = state;
+  return dataIndex;
 }
-function remainingItem(item){
-  const used = state.r2Bookings.filter(b => b.ItemID === item.ID).reduce((s,b)=> s + Number(b.Qte), 0);
-  return Number(item.Stock) - used;
-}
+function remainingR1(day){ return Number(day.Capacite) - (idx().r1Used.get(day.Date) || 0); }
+function remainingItem(item){ return Number(item.Stock) - (idx().r2Used.get(item.ID) || 0); }
+const itemsR2 = iso => idx().r2ItemsByDate.get(iso) || [];
 // Aristide : les commandes en ligne ferment à 10 h le jour même ; ensuite, commande sur place à 12 h
 const R2_CUTOFF_HOUR = 10, R2_ONSITE_HOUR = 12;
 const r2ClosedMsg = () => `Commandes en ligne closes depuis ${R2_CUTOFF_HOUR} h. Venez au restaurant ${state.name2} à partir de ${R2_ONSITE_HOUR} h pour commander sur place.`;
@@ -856,18 +866,24 @@ function capacityClass(rem, cap){
   if(rem < cap * 0.5) return 'cap-low'; // moins de la moitié des places restantes
   return 'cap-ok';
 }
+// Disponibilité d'un jour (pastille du calendrier), mémorisée jusqu'au prochain changement de données
+function cachedStatus(rest, iso, compute){
+  const cache = idx().status[rest];
+  if(!cache.has(iso)) cache.set(iso, compute());
+  return cache.get(iso);
+}
 function dayStatusR1(iso){
-  const day = state.r1Days.find(d=>d.Date===iso);
-  if(!day) return null;
-  return capacityClass(remainingR1(day), day.Capacite);
+  return cachedStatus('r1', iso, () => {
+    const day = idx().r1Days.get(iso);
+    return day ? capacityClass(remainingR1(day), day.Capacite) : null;
+  });
 }
 function dayStatusR2(iso){
-  const day = state.r2Days.find(d=>d.Date===iso);
-  const items = state.r2Items.filter(it => it.Date === iso);
-  if(!day || items.length===0) return null;
-  const totalStock = items.reduce((s,it)=>s+Number(it.Stock),0);
-  const totalRem = items.reduce((s,it)=>s+remainingItem(it),0);
-  return capacityClass(totalRem, totalStock);
+  return cachedStatus('r2', iso, () => {
+    const items = itemsR2(iso);
+    if(!idx().r2Days.has(iso) || items.length === 0) return null;
+    return capacityClass(items.reduce((s, it) => s + remainingItem(it), 0), sumBy(items, 'Stock'));
+  });
 }
 
 // Sélecteur de mode (bouton segmenté M3). Le balisage est créé une seule fois
@@ -894,14 +910,14 @@ function leaveThen(key, done){
   if(!el || reduceMotion.matches){ done(); return; }
   if(el.classList.contains('leaving')) return; // double clic : une seule fermeture
   el.classList.add('leaving');
-  const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-fast')) * 1000 || 120;
   // si la page a été réaffichée entre-temps (autre formulaire ouvert…), on n'applique plus cette fermeture
-  setTimeout(() => { if(el.isConnected) done(); }, ms);
+  setTimeout(() => { if(el.isConnected) done(); }, tokenMs('--dur-fast', 120));
 }
 // La fiche du jour n'entre en animation que lorsqu'on change de jour (ou de mode)
 const lastCard = { r1:null, r2:null };
+const cardKey = iso => iso + (isAdmin ? '·a' : '·c'); // la fiche change aussi au passage client / collègue
 function cardEnter(rest, iso){
-  const key = iso + (isAdmin ? '·a' : '·c');
+  const key = cardKey(iso);
   if(lastCard[rest] === key) return '';
   lastCard[rest] = key;
   return ' enter';
@@ -971,20 +987,25 @@ function syncPwdToggle(){
   btn.innerHTML = visible ? EYE_OFF : EYE_ON;
   btn.setAttribute('aria-label', visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
 }
-let inactivityTimer = null;
-function resetInactivityTimer(){
-  if(inactivityTimer) clearTimeout(inactivityTimer);
+// Déconnexion après 10 minutes d'inactivité : les événements ne font que noter l'heure ;
+// un seul minuteur vérifie à l'échéance et se réarme pour le temps restant.
+const INACTIVITY_MS = 600000;
+let inactivityTimer = null, lastActivity = Date.now();
+function armInactivityTimer(){
+  clearTimeout(inactivityTimer);
   if(!isAdmin) return;
-  inactivityTimer = setTimeout(()=>{
-    if(isAdmin){ logoutAdmin(); showToast('Déconnecté du mode collègue après 10 minutes d\'inactivité.'); }
-  }, 600000);
+  inactivityTimer = setTimeout(() => {
+    if(!isAdmin) return;
+    if(Date.now() - lastActivity < INACTIVITY_MS){ armInactivityTimer(); return; }
+    logoutAdmin(); showToast('Déconnecté du mode collègue après 10 minutes d\'inactivité.');
+  }, INACTIVITY_MS - (Date.now() - lastActivity));
 }
-['click','keydown','mousemove','touchstart'].forEach(evt => document.addEventListener(evt, resetInactivityTimer));
+['click','keydown','mousemove','touchstart'].forEach(evt => document.addEventListener(evt, () => { lastActivity = Date.now(); }, { passive: true }));
 async function tryLogin(){
   const val = document.getElementById('pwdInput').value;
   try{
     const res = await apiPost('checkPassword', { password: val });
-    if(res.ok){ isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); resetInactivityTimer(); if(firstLoadDone) render(); else renderModeBox();
+    if(res.ok){ isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); lastActivity = Date.now(); armInactivityTimer(); if(firstLoadDone) render(); else renderModeBox();
       document.getElementById('segColleague').focus({ preventScroll: true }); }
     else { showToast('Mot de passe incorrect.', true); }
   }catch(e){ showToast('Erreur de connexion. Réessayez.', true); }
@@ -993,12 +1014,12 @@ async function tryLogin(){
 function renderDashboard(){
   const el = document.getElementById('dashboard');
   if(!isAdmin){ el.innerHTML=''; return; }
-  const tomorrow = addDaysISO(todayISO(), 1);
-  const r1Qty = state.r1Bookings.filter(b=>b.Date===tomorrow).reduce((s,b)=>s+Number(b.Qte),0);
-  const r2Qty = state.r2Bookings.filter(b=>b.Date===tomorrow).reduce((s,b)=>s+Number(b.Qte),0);
+  const tomorrow = getTomorrowISO();
+  const r1Qty = sumBy(state.r1Bookings.filter(b => b.Date === tomorrow), 'Qte');
+  const r2Qty = sumBy(state.r2Bookings.filter(b => b.Date === tomorrow), 'Qte');
   el.innerHTML = `
     <div class="panel">
-      <h3 style="margin:0 0 2px;font-size:0.95rem;">Demain (${formatDate(tomorrow)})</h3>
+      <h3 class="dash-title">Demain (${formatDate(tomorrow)})</h3>
       <div class="summary-row">
         <div class="summary-item">${escapeHtml(state.name1)} : <b>${r1Qty}</b> ${r1Qty > 1 ? 'couverts réservés' : 'couvert réservé'}</div>
         <div class="summary-item">${escapeHtml(state.name2)} : <b>${r2Qty}</b> ${r2Qty > 1 ? 'portions réservées' : 'portion réservée'}</div>
@@ -1058,6 +1079,10 @@ async function saveSettings(btn){
 const datePicker = { rest:null, month:null };   // calendrier déplié et mois affiché (1er du mois, ISO)
 const dateChoice = { r1:null, r2:null };        // date choisie ; sinon, le jour sélectionné du calendrier
 const CAL_ICON = `<svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z"/></svg>`;
+// Chevrons ‹ › du calendrier et du sélecteur de date ; initiales des jours (lundi en premier)
+const CHEVRON_PREV = `<svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>`;
+const CHEVRON_NEXT = `<svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>`;
+const WEEKDAY_INITIALS = ['L','M','M','J','V','S','D'];
 const firstOfMonth = iso => iso.slice(0, 8) + '01';
 function formDate(rest){ return dateChoice[rest] || calState[rest].selected; }
 function dateFieldHtml(rest){
@@ -1075,7 +1100,7 @@ function datePickerHtml(rest, selected){
   const cells = buildMonthCells(month);
   const focusIso = cells.some(c => c.inMonth && c.iso === selected) ? selected
     : (cells.find(c => c.inMonth && c.iso >= today) || cells.find(c => c.inMonth)).iso;
-  const wd = ['L','M','M','J','V','S','D'].map(l => `<span class="dp-wd" aria-hidden="true">${l}</span>`).join('');
+  const wd = WEEKDAY_INITIALS.map(l => `<span class="dp-wd" aria-hidden="true">${l}</span>`).join('');
   const days = cells.map(c => {
     if(!c.inMonth) return '<span aria-hidden="true"></span>';
     const past = c.iso < today, open = !!statusFn(c.iso);
@@ -1087,9 +1112,9 @@ function datePickerHtml(rest, selected){
   }).join('');
   return `<div class="date-picker" role="dialog" aria-label="Choisir la date" onkeydown="dpKey(event,'${rest}')">
     <div class="dp-head">
-      <button type="button" class="icon-btn" data-nav="dp-${rest}-prev" onclick="dpMonth('${rest}',-1)" aria-label="Mois précédent"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+      <button type="button" class="icon-btn" data-nav="dp-${rest}-prev" onclick="dpMonth('${rest}',-1)" aria-label="Mois précédent">${CHEVRON_PREV}</button>
       <span class="dp-label" aria-live="polite">${monthLabel(month)}</span>
-      <button type="button" class="icon-btn" data-nav="dp-${rest}-next" onclick="dpMonth('${rest}',1)" aria-label="Mois suivant"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+      <button type="button" class="icon-btn" data-nav="dp-${rest}-next" onclick="dpMonth('${rest}',1)" aria-label="Mois suivant">${CHEVRON_NEXT}</button>
     </div>
     <div class="dp-grid">${wd}${days}</div>
     <p class="dp-legend"><span class="dp-dot" aria-hidden="true"></span> déjà ouvert</p>
@@ -1130,12 +1155,8 @@ function dpMonth(rest, dir){
 function dpKey(e, rest){
   if(e.key === 'Escape'){ e.preventDefault(); closeDatePicker(); return; }
   const cell = e.target.closest('.dp-day'); if(!cell) return;
-  const iso = cell.dataset.iso, d = new Date(iso + 'T00:00:00'), dow = (d.getDay() + 6) % 7;
-  const moves = { ArrowLeft:-1, ArrowRight:1, ArrowUp:-7, ArrowDown:7, Home:-dow, End:6-dow };
-  let target;
-  if(e.key in moves) target = addDaysISO(iso, moves[e.key]);
-  else if(e.key === 'PageUp' || e.key === 'PageDown'){ d.setMonth(d.getMonth() + (e.key === 'PageUp' ? -1 : 1)); target = toISO(d); }
-  else return;
+  const target = keyTargetIso(e.key, cell.dataset.iso);
+  if(!target) return;
   e.preventDefault();
   // Les flèches déplacent seulement le focus (M3) ; Entrée ou Espace choisit le jour
   if(firstOfMonth(target) !== datePicker.month){ datePicker.month = firstOfMonth(target); refreshDateField(rest); }
@@ -1148,8 +1169,8 @@ document.addEventListener('pointerdown', e => {
 });
 function renderAdminFormR1(){
   const el = document.getElementById('admin-r1');
-  if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
-  el.className = 'new-day-form open panel add-day';
+  el.className = isAdmin ? 'panel add-day' : '';
+  if(!isAdmin){ el.innerHTML = ''; return; }
   el.innerHTML = `<details class="disclosure" ${addDayOpen.r1 ? 'open' : ''} ontoggle="addDayOpen.r1 = this.open">
     <summary class="add-day-summary"><span class="add-day-plus" aria-hidden="true">+</span>Ouvrir un jour</summary>
     <div class="add-day-body">
@@ -1168,11 +1189,8 @@ async function addDayR1(btn){
   const noteVal = document.getElementById('note-r1').value.trim();
   const themeVal = document.getElementById('theme-r1').value.trim();
   const collegueVal = document.getElementById('collegue-r1').value.trim();
-  const formR1 = btn.closest('.add-day');
-  clearFieldErrors(formR1);
-  if(!dateVal) fieldError('date-r1', 'Choisissez une date.');
-  if(!capVal || capVal <= 0) fieldError('cap-r1', 'Indiquez un nombre de couverts supérieur à 0.');
-  if(formR1 && formR1.querySelector('.field-error')){ focusFirstError(formR1); return; }
+  if(!checkFields(btn, [['date-r1', !dateVal, 'Choisissez une date.'],
+    ['cap-r1', !capVal || capVal <= 0, 'Indiquez un nombre de couverts supérieur à 0.']])) return;
   const orig = setBusy(btn, 'Ouverture en cours…');
   try{
     state = await apiPost('addDayR1', { password: adminPassword, date: dateVal, capacity: capVal, menu: noteVal, theme: themeVal, collegue: collegueVal });
@@ -1185,8 +1203,8 @@ async function addDayR1(btn){
 
 function renderAdminFormR2(){
   const el = document.getElementById('admin-r2');
-  if(!isAdmin){ el.className='new-day-form'; el.innerHTML=''; return; }
-  el.className = 'new-day-form open panel add-day';
+  el.className = isAdmin ? 'panel add-day' : '';
+  if(!isAdmin){ el.innerHTML = ''; return; }
   // Une ligne par plat : les en-têtes de colonnes sont visibles au-dessus,
   // chaque champ porte en plus un nom complet pour les lecteurs d'écran.
   const itemsHtml = draftItems.map((it, i) => `
@@ -1208,7 +1226,6 @@ function renderAdminFormR2(){
       <legend>Plats disponibles ce jour-là</legend>
       <div class="draft-item-row draft-head" aria-hidden="true"><span>Plat</span><span>Stock</span><span>Prix (optionnel)</span><span></span></div>
       ${itemsHtml}
-      ${priceSuggestionsDatalist()}
       <button class="btn ghost small" onclick="addDraftItemRow()" type="button">+ Ajouter un plat</button>
     </fieldset>
     <div class="form-submit"><button class="btn primary" onclick="addDayR2(this)">Ouvrir ce jour</button></div>
@@ -1216,8 +1233,8 @@ function renderAdminFormR2(){
   </details>`;
 }
 function updateDraftItem(i, field, value){ draftItems[i][field] = value; }
-function addDraftItemRow(){ draftItems.push({name:'', stock:'', price:''}); render(); }
-function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push({name:'',stock:'',price:''}); render(); }
+function addDraftItemRow(){ draftItems.push({name:'', stock:'', price:''}); render(['admin-r2']); }
+function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push({name:'',stock:'',price:''}); render(['admin-r2']); }
 
 async function addDayR2(btn){
   const dateVal = document.getElementById('date-r2').value;
@@ -1227,11 +1244,9 @@ async function addDayR2(btn){
   const items = draftItems
     .filter(it => it.name.trim() && parseInt(it.stock,10) > 0)
     .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10), price: it.price ? parseFloat(it.price) : '' }));
-  const formR2 = btn.closest('.add-day');
-  clearFieldErrors(formR2);
-  if(!dateVal) fieldError('date-r2', 'Choisissez une date.');
-  if(items.length === 0) blockError(formR2 && [...formR2.querySelectorAll('.draft-item-row')].pop(), 'Ajoutez au moins un plat avec un nom et un stock.');
-  if(formR2 && formR2.querySelector('.field-error')){ focusFirstError(formR2); return; }
+  const lastRow = [...btn.closest('.add-day').querySelectorAll('.draft-item-row')].pop();
+  if(!checkFields(btn, [['date-r2', !dateVal, 'Choisissez une date.'],
+    [lastRow, items.length === 0, 'Ajoutez au moins un plat avec un nom et un stock.']])) return;
   const orig = setBusy(btn, 'Ouverture en cours…');
   try{
     state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal, collegue: collegueVal });
@@ -1243,26 +1258,19 @@ async function addDayR2(btn){
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 
-async function deleteDayR1(date, btn){
-  if(!confirmClick(btn, 'Confirmer la suppression du jour et de toutes ses réservations')) return;
-  try{ state = await apiPost('deleteDayR1', { password: adminPassword, date }); showToast('Jour supprimé.'); render(); }
+// Suppression (mode collègue) en deux clics : voir confirmClick
+async function adminDelete(btn, confirmMsg, action, payload, okMsg){
+  if(!confirmClick(btn, confirmMsg)) return;
+  try{ state = await apiPost(action, { password: adminPassword, ...payload }); showToast(okMsg); render(); }
   catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
 }
-async function deleteDayR2(date, btn){
-  if(!confirmClick(btn, 'Confirmer la suppression du jour et de toutes ses réservations')) return;
-  try{ state = await apiPost('deleteDayR2', { password: adminPassword, date }); showToast('Jour supprimé.'); render(); }
-  catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
-}
-async function deleteBookingR1(id, btn){
-  if(!confirmClick(btn, 'Confirmer la suppression de cette réservation')) return;
-  try{ state = await apiPost('deleteBookingR1', { password: adminPassword, id }); showToast('Réservation supprimée.'); render(); }
-  catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
-}
-async function deleteBookingR2(id, btn){
-  if(!confirmClick(btn, 'Confirmer la suppression de cette réservation')) return;
-  try{ state = await apiPost('deleteBookingR2', { password: adminPassword, id }); showToast('Réservation supprimée.'); render(); }
-  catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
-}
+const DELETE_DAY_MSG = 'Confirmer la suppression du jour et de toutes ses réservations';
+const DELETE_BOOKING_MSG = 'Confirmer la suppression de cette réservation';
+const deleteDayR1 = (date, btn) => adminDelete(btn, DELETE_DAY_MSG, 'deleteDayR1', { date }, 'Jour supprimé.');
+const deleteDayR2 = (date, btn) => adminDelete(btn, DELETE_DAY_MSG, 'deleteDayR2', { date }, 'Jour supprimé.');
+const deleteBookingR1 = (id, btn) => adminDelete(btn, DELETE_BOOKING_MSG, 'deleteBookingR1', { id }, 'Réservation supprimée.');
+const deleteBookingR2 = (id, btn) => adminDelete(btn, DELETE_BOOKING_MSG, 'deleteBookingR2', { id }, 'Réservation supprimée.');
+const deleteItemR2 = (itemId, btn) => adminDelete(btn, 'Confirmer la suppression de ce plat', 'deleteItemR2', { itemId }, 'Plat supprimé.');
 
 function openBookingR1(date){
   bookingConfirmation = null; openBookingTarget = { rest:'r1', date }; enterKey = 'bk-' + date; render();
@@ -1271,7 +1279,7 @@ function openBookingR1(date){
   const form = document.querySelector('#detail-r1 .form-reveal');
   if(form && form.getBoundingClientRect().top > window.innerHeight * 0.6) form.scrollIntoView({ block:'start' });
 }
-function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date, multi:true }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
+function openBookingR2Day(date){ bookingConfirmation = null; openBookingTarget = { rest:'r2', date }; chosenServiceMode='emporter'; multiBookingQty = {}; enterKey = 'bk-' + date; menuAnim = 'up'; render();
   focusFirstField('#detail-r2 .booking-form');
   // la liste repliée raccourcit la page : on remonte en douceur au début de la fiche si elle est hors de vue
   const card = document.querySelector('#detail-r2 .day-card');
@@ -1295,7 +1303,7 @@ function focusFirstField(sel){
 }
 function setServiceMode(mode){
   if(chosenServiceMode === mode) return;
-  chosenServiceMode = mode; render(); popSeg(`service-${mode}`);
+  chosenServiceMode = mode; render(['detail-r2']); popSeg(`service-${mode}`);
 }
 function setMultiQty(itemId, value){
   const n = parseInt(value, 10);
@@ -1312,39 +1320,32 @@ function updateR2PriceLive(){
   if(!el) return;
   let total = 0;
   let hasGap = false;
-  let anyQty = false;
   Object.keys(multiBookingQty).forEach(itemId => {
     const item = state.r2Items.find(it => it.ID === itemId);
     if(!item) return;
-    anyQty = true;
     if(item.Prix !== '' && item.Prix != null){ total += Number(item.Prix) * multiBookingQty[itemId]; }
     else { hasGap = true; }
   });
-  if(!anyQty){ el.textContent = ''; return; }
   el.textContent = total > 0 ? ('Total' + (hasGap ? ' (hors plats sans prix indiqué)' : '') + ' : ' + formatEuro(total)) : '';
 }
 
+// Avertissement du récapitulatif quand l'email de confirmation n'a pas pu partir
+function emailWarning(status){
+  const failed = status && status.sent === false && status.reason !== 'no-email';
+  return failed ? "L'email de confirmation n'a pas pu être envoyé. Gardez ce récapitulatif." : '';
+}
 async function submitBookingR1(date, btn){
-  const name = document.getElementById('bk-name').value.trim();
-  const contact = document.getElementById('bk-contact').value.trim();
-  const classe = document.getElementById('bk-classe').value.trim();
+  const f = readBooker(), { name, contact, classe, obs } = f;
   const { nbEleve, nbProf, nbExt } = countsR1('bk');
-  const obs = document.getElementById('bk-obs').value.trim();
   const totalPersonnes = nbEleve + nbProf + nbExt;
-  const form = btn.closest('.booking-form');
-  clearFieldErrors(form);
-  if(!name) fieldError('bk-name', 'Indiquez vos nom et prénom.');
-  if(emailError(contact)) fieldError('bk-contact', emailError(contact));
-  if(!classe) fieldError('bk-classe', 'Indiquez votre classe ou votre service.');
-  if(totalPersonnes <= 0) blockError(document.getElementById('bk-nbEleve').closest('.row3'), 'Indiquez au moins une personne.');
-  if(form && form.querySelector('.field-error')){ focusFirstError(form); return; }
+  if(!checkFields(btn, [...bookerRules(f),
+    [document.getElementById('bk-nbEleve').closest('.row3'), totalPersonnes <= 0, 'Indiquez au moins une personne.']])) return;
   const orig = setBusy(btn, 'Envoi en cours…');
   try{
     const res = await apiPost('addBookingR1', { date, nom:name, contact, classe, nbEleve, nbProf, nbExt, observation: obs });
     const emailStatus = res._emailStatus;
     delete res._emailStatus;
     state = res;
-    const emailFailed = emailStatus && emailStatus.sent === false && emailStatus.reason !== 'no-email';
     const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe }];
     if(nbEleve) lines.push({ label:'Élèves', value:String(nbEleve) });
     if(nbProf) lines.push({ label:'Personnels', value:String(nbProf) });
@@ -1353,7 +1354,7 @@ async function submitBookingR1(date, btn){
     bookingConfirmation = {
       rest:'r1', date, lines,
       total: plural(totalPersonnes, 'couvert') + (totalPrix > 0 ? ' — ' + formatEuro(totalPrix) : ''),
-      warning: emailFailed ? "L'email de confirmation n'a pas pu être envoyé. Garde ce récapitulatif." : ''
+      warning: emailWarning(emailStatus)
     };
     showToast('Réservation confirmée.');
     openBookingTarget = null;
@@ -1361,19 +1362,10 @@ async function submitBookingR1(date, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 async function submitBookingR2Multi(date, btn){
-  const name = document.getElementById('bk-name').value.trim();
-  const contact = document.getElementById('bk-contact').value.trim();
-  const classe = document.getElementById('bk-classe').value.trim();
-  const obs = document.getElementById('bk-obs').value.trim();
+  const f = readBooker(), { name, contact, classe, obs } = f;
   const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
-  const form = btn.closest('.booking-form');
-  clearFieldErrors(form);
   if(r2OrdersClosed(date)){ openBookingTarget = null; showToast(r2ClosedMsg()); render(); return; }
-  if(items.length === 0) blockError(form && form.querySelector('#bk-r2-total'), 'Choisissez au moins un plat.');
-  if(!name) fieldError('bk-name', 'Indiquez vos nom et prénom.');
-  if(emailError(contact)) fieldError('bk-contact', emailError(contact));
-  if(!classe) fieldError('bk-classe', 'Indiquez votre classe ou votre service.');
-  if(form && form.querySelector('.field-error')){ focusFirstError(form); return; }
+  if(!checkFields(btn, [[document.getElementById('bk-r2-total'), items.length === 0, 'Choisissez au moins un plat.'], ...bookerRules(f)])) return;
   // Réservations déjà connues : les nouvelles (celles réellement enregistrées) serviront au récapitulatif
   const knownIds = new Set(state.r2Bookings.map(b => b.ID));
   const orig = setBusy(btn, 'Envoi en cours…');
@@ -1388,7 +1380,6 @@ async function submitBookingR2Multi(date, btn){
       showToast('Aucun des plats choisis n\'est disponible en quantité suffisante.', true);
     } else {
       const partial = r.adjusted.length > 0 || r.skipped.length > 0;
-      const emailFailed = emailStatus && emailStatus.sent === false && emailStatus.reason !== 'no-email';
       const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe },
         { label:'Mode', value: chosenServiceMode === 'emporter' ? 'À emporter' : 'Sur place' }];
       // Quantités réellement enregistrées par le serveur (après ajustement éventuel du stock)
@@ -1402,7 +1393,7 @@ async function submitBookingR2Multi(date, btn){
         rest:'r2', date, lines,
         total: r.totalPrix > 0 ? formatEuro(r.totalPrix) + (r.hasPriceGap ? ' (hors plats sans prix)' : '') : '',
         warning: partial ? 'Certaines quantités ont été ajustées faute de stock. Vérifiez votre email pour le détail.'
-               : emailFailed ? "L'email de confirmation n'a pas pu être envoyé. Garde ce récapitulatif." : ''
+               : emailWarning(emailStatus)
       };
       showToast('Réservation confirmée.');
     }
@@ -1431,39 +1422,44 @@ function bookingEditForm(rest, b){
 
 function openEditItem(itemId){ editItemTarget = itemId; enterKey = 'ei-' + itemId; render(); }
 function closeEditItem(){ leaveThen(editItemTarget && 'ei-' + editItemTarget, ()=>{ editItemTarget = null; render(); }); }
+// Formulaire d'un plat d'Aristide, commun à l'ajout (préfixe 'nit') et à la modification ('eit')
+function itemFormHtml(key, prefix, item, onSubmit, submitLabel, onCancel){
+  return `<div class="booking-form${enterOnce(key)}" data-form="${key}">
+    <div class="row2">
+      <div class="field"><label>Nom du plat</label><input type="text" id="${prefix}-name" ${item ? `value="${escapeHtml(item.Nom)}"` : 'placeholder="Ex. salade César"'}></div>
+      <div class="field"><label>Stock</label><input type="number" min="1" id="${prefix}-stock" ${item ? `value="${item.Stock}"` : 'placeholder="Ex. 10"'}></div>
+    </div>
+    <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="${prefix}-price" value="${item ? item.Prix || '' : ''}" list="price-suggestions" placeholder="Ex. 3,50"></div>
+    ${formActionsHtml(onSubmit, submitLabel, onCancel)}
+  </div>`;
+}
+// Lit et vérifie ce formulaire ; null si un champ est en erreur (message affiché)
+function readItemForm(prefix, btn){
+  const name = document.getElementById(prefix + '-name').value.trim();
+  const stock = parseInt(document.getElementById(prefix + '-stock').value, 10);
+  const priceVal = document.getElementById(prefix + '-price').value.trim();
+  if(!checkFields(btn, [[prefix + '-name', !name, 'Indiquez le nom du plat.'], [prefix + '-stock', !stock || stock <= 0, 'Indiquez un stock supérieur à 0.']])) return null;
+  return { name, stock, price: priceVal ? parseFloat(priceVal) : '' };
+}
 async function submitEditItemR2(itemId, btn){
-  const name = document.getElementById('eit-name').value.trim();
-  const stock = parseInt(document.getElementById('eit-stock').value, 10);
-  const priceVal = document.getElementById('eit-price').value.trim();
-  const price = priceVal ? parseFloat(priceVal) : '';
-  if(!checkFields(btn, [['eit-name', !name, 'Indiquez le nom du plat.'], ['eit-stock', !stock || stock <= 0, 'Indiquez un stock supérieur à 0.']])) return;
+  const fields = readItemForm('eit', btn);
+  if(!fields) return;
   const orig = setBusy(btn, 'Enregistrement…');
   try{
-    state = await apiPost('editItemR2', { password: adminPassword, itemId, name, stock, price });
+    state = await apiPost('editItemR2', { password: adminPassword, itemId, ...fields });
     showToast('Plat modifié.');
     editItemTarget = null;
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
-async function deleteItemR2(itemId, btn){
-  if(!confirmClick(btn, 'Confirmer la suppression de ce plat')) return;
-  try{
-    state = await apiPost('deleteItemR2', { password: adminPassword, itemId });
-    showToast('Plat supprimé.');
-    render();
-  }catch(e){ disarm(btn); showToast(e.message || 'Erreur', true); }
-}
 function openAddItemForm(date){ addItemFormOpen = date; enterKey = 'ai-' + date; render(); }
 function closeAddItemForm(){ leaveThen(addItemFormOpen && 'ai-' + addItemFormOpen, ()=>{ addItemFormOpen = null; render(); }); }
 async function submitAddItemR2(date, btn){
-  const name = document.getElementById('nit-name').value.trim();
-  const stock = parseInt(document.getElementById('nit-stock').value, 10);
-  const priceVal = document.getElementById('nit-price').value.trim();
-  const price = priceVal ? parseFloat(priceVal) : '';
-  if(!checkFields(btn, [['nit-name', !name, 'Indiquez le nom du plat.'], ['nit-stock', !stock || stock <= 0, 'Indiquez un stock supérieur à 0.']])) return;
+  const fields = readItemForm('nit', btn);
+  if(!fields) return;
   const orig = setBusy(btn, 'Ajout en cours…');
   try{
-    state = await apiPost('addItemR2', { password: adminPassword, date, name, stock, price });
+    state = await apiPost('addItemR2', { password: adminPassword, date, ...fields });
     showToast('Plat ajouté.');
     addItemFormOpen = null;
     render();
@@ -1494,23 +1490,14 @@ function editMaxR1(b){
   return day ? Math.max(Number(b.Qte), remainingR1(day) + Number(b.Qte)) : Number(b.Qte);
 }
 async function submitEditBookingR1(id, btn){
-  const nom = document.getElementById('ebk-nom').value.trim();
-  const contact = document.getElementById('ebk-contact').value.trim();
-  const classe = document.getElementById('ebk-classe').value.trim();
+  const f = readEditIdentity(), { nom, contact, classe, observation } = f;
   const { nbEleve, nbProf, nbExt } = countsR1('ebk');
   const qte = nbEleve + nbProf + nbExt;
   const b = state.r1Bookings.find(x => x.ID === id);
   const max = b ? editMaxR1(b) : Infinity;
-  const observation = document.getElementById('ebk-obs').value.trim();
-  const form = btn.closest('.booking-form');
-  clearFieldErrors(form);
-  if(!nom) fieldError('ebk-nom', 'Indiquez le nom.');
-  if(!classe) fieldError('ebk-classe', 'Indiquez la classe ou le service.');
-  if(!contact) fieldError('ebk-contact', 'Indiquez un téléphone ou un email.');
-  const row3 = form.querySelector('.row3');
-  if(qte <= 0) blockError(row3, 'Indiquez au moins une personne.');
-  else if(qte > max) blockError(row3, `${plural(max, 'couvert')} au maximum pour cette réservation (places restantes ce jour-là).`);
-  if(form.querySelector('.field-error')){ focusFirstError(form); return; }
+  const row3 = btn.closest('.booking-form').querySelector('.row3');
+  if(!checkFields(btn, [...editIdentityRules(f), [row3, qte <= 0, 'Indiquez au moins une personne.'],
+    [row3, qte > max, `${plural(max, 'couvert')} au maximum pour cette réservation (places restantes ce jour-là).`]])) return;
   const prixTotal = Math.round(priceR1(nbEleve, nbProf, nbExt) * 100) / 100;
   const orig = setBusy(btn, 'Enregistrement…');
   try{
@@ -1521,13 +1508,10 @@ async function submitEditBookingR1(id, btn){
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
 async function submitEditBookingR2(id, btn){
-  const nom = document.getElementById('ebk-nom').value.trim();
-  const contact = document.getElementById('ebk-contact').value.trim();
-  const classe = document.getElementById('ebk-classe').value.trim();
+  const f = readEditIdentity(), { nom, contact, classe, observation } = f;
   const qte = parseInt(document.getElementById('ebk-qte').value, 10);
   const mode = document.getElementById('ebk-mode').value;
-  const observation = document.getElementById('ebk-obs').value.trim();
-  if(!checkFields(btn, [['ebk-nom', !nom, 'Indiquez le nom.'], ['ebk-classe', !classe, 'Indiquez la classe ou le service.'], ['ebk-contact', !contact, 'Indiquez un téléphone ou un email.'], ['ebk-qte', !qte || qte <= 0, 'Indiquez une quantité supérieure à 0.']])) return;
+  if(!checkFields(btn, [...editIdentityRules(f), ['ebk-qte', !qte || qte <= 0, 'Indiquez une quantité supérieure à 0.']])) return;
   const orig = setBusy(btn, 'Enregistrement…');
   try{
     state = await apiPost('editBookingR2', { password: adminPassword, id, nom, contact, classe, qte, mode, observation });
@@ -1536,45 +1520,76 @@ async function submitEditBookingR2(id, btn){
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
 }
+// ---------- Blocs communs des formulaires ----------
+// Boutons « Enregistrer / Confirmer… » + « Annuler » en bas d'un formulaire
+function formActionsHtml(onSubmit, submitLabel, onCancel){
+  return `<div class="day-actions">
+      <button class="btn primary" onclick="${onSubmit}">${submitLabel}</button>
+      <button class="btn ghost" onclick="${onCancel}">Annuler</button>
+    </div>`;
+}
+// Réservation par le public (préfixe 'bk') : nom et prénom, email, classe ; observation
+function bookerFieldsHtml(){
+  return `<div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
+      <div class="row2">
+        ${contactFieldHtml()}
+        <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
+      </div>`;
+}
+const BOOKER_OBS_HTML = `<div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="Ex. table partagée, allergie…"></div>`;
+function readBooker(){
+  const v = id => document.getElementById('bk-' + id).value.trim();
+  return { name: v('name'), contact: v('contact'), classe: v('classe'), obs: v('obs') };
+}
+function bookerRules(f){
+  return [['bk-name', !f.name, 'Indiquez vos nom et prénom.'], ['bk-contact', !!emailError(f.contact), emailError(f.contact)],
+    ['bk-classe', !f.classe, 'Indiquez votre classe ou votre service.']];
+}
+// Modification d'une réservation par un collègue (préfixe 'ebk') : nom, classe, contact ; observation
+function editIdentityHtml(b){
+  return `<div class="row2">
+      <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
+      <div class="field"><label>Classe ou service</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
+    </div>`;
+}
+const editContactHtml = b => `<div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>`;
+const editObsHtml = b => `<div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>`;
+function readEditIdentity(){
+  const v = id => document.getElementById('ebk-' + id).value.trim();
+  return { nom: v('nom'), contact: v('contact'), classe: v('classe'), observation: v('obs') };
+}
+function editIdentityRules(f){
+  return [['ebk-nom', !f.nom, 'Indiquez le nom.'], ['ebk-classe', !f.classe, 'Indiquez la classe ou le service.'],
+    ['ebk-contact', !f.contact, 'Indiquez un téléphone ou un email.']];
+}
+
 function editBookingFormR1Html(b){
   // anciennes réservations : pas de détail Élèves / Personnels / Extérieurs (champs laissés vides)
   const count = v => (v === '' || v == null) ? '' : Number(v);
   const hasDetail = [b.NbEleve, b.NbProf, b.NbExt].some(v => Number(v) > 0);
   return `<div class="booking-form${enterOnce('eb-' + b.ID)}" data-form="eb-${b.ID}">
-    <div class="row2">
-      <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
-      <div class="field"><label>Classe ou service</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
-    </div>
-    <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+    ${editIdentityHtml(b)}
+    ${editContactHtml(b)}
     ${countsFieldsetR1Html('ebk', editMaxR1(b), { nbEleve: count(b.NbEleve), nbProf: count(b.NbProf), nbExt: count(b.NbExt) },
       hasDetail ? '' : `<p class="field-help">Réservation enregistrée avant les tarifs : indiquez la répartition de ses ${plural(Number(b.Qte), 'couvert')}.</p>`)}
     <p id="ebk-r1-total" class="form-total" aria-live="polite"></p>
-    <div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
-    <div class="day-actions">
-      <button class="btn primary" onclick="submitEditBookingR1('${b.ID}', this)">Enregistrer</button>
-      <button class="btn ghost" onclick="closeEditBooking()">Annuler</button>
-    </div>
+    ${editObsHtml(b)}
+    ${formActionsHtml(`submitEditBookingR1('${b.ID}', this)`, 'Enregistrer', 'closeEditBooking()')}
   </div>`;
 }
 function editBookingFormR2Html(b){
   return `<div class="booking-form${enterOnce('eb-' + b.ID)}" data-form="eb-${b.ID}">
+    ${editIdentityHtml(b)}
     <div class="row2">
-      <div class="field"><label>Nom</label><input type="text" id="ebk-nom" value="${escapeHtml(b.Nom)}"></div>
-      <div class="field"><label>Classe ou service</label><input type="text" id="ebk-classe" value="${escapeHtml(b.Classe)}"></div>
-    </div>
-    <div class="row2">
-      <div class="field"><label>Téléphone ou email</label><input type="text" id="ebk-contact" value="${escapeHtml(b.Contact)}"></div>
+      ${editContactHtml(b)}
       <div class="field"><label>Portions</label><input type="number" min="1" id="ebk-qte" value="${Number(b.Qte)}"></div>
     </div>
     <div class="field"><label>Mode de service</label><select id="ebk-mode">
       <option value="emporter" ${b.Mode==='emporter'?'selected':''}>À emporter</option>
       <option value="surplace" ${b.Mode==='surplace'?'selected':''}>Sur place</option>
     </select></div>
-    <div class="field"><label>Observation (optionnel)</label><input type="text" id="ebk-obs" value="${escapeHtml(b.Observation||'')}"></div>
-    <div class="day-actions">
-      <button class="btn primary" onclick="submitEditBookingR2('${b.ID}', this)">Enregistrer</button>
-      <button class="btn ghost" onclick="closeEditBooking()">Annuler</button>
-    </div>
+    ${editObsHtml(b)}
+    ${formActionsHtml(`submitEditBookingR2('${b.ID}', this)`, 'Enregistrer', 'closeEditBooking()')}
   </div>`;
 }
 
@@ -1585,18 +1600,11 @@ function bookingFormHtml(date, rem){
   return `
     <div class="form-reveal${enter}" data-form="bk-${date}"><div class="form-reveal-inner">
     <div class="booking-form${enter}">
-      <div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
-      <div class="row2">
-        ${contactFieldHtml()}
-        <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
-      </div>
+      ${bookerFieldsHtml()}
       ${countsFieldsetR1Html('bk', rem)}
       <p id="bk-r1-total" class="form-total" aria-live="polite">Total : 0,00 €</p>
-      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="Ex. table partagée, allergie…"></div>
-      <div class="day-actions">
-        <button class="btn primary" onclick="submitBookingR1('${date}', this)">Confirmer la réservation</button>
-        <button class="btn ghost" onclick="closeBooking()">Annuler</button>
-      </div>
+      ${BOOKER_OBS_HTML}
+      ${formActionsHtml(`submitBookingR1('${date}', this)`, 'Confirmer la réservation', 'closeBooking()')}
     </div>
     </div></div>
   `;
@@ -1644,16 +1652,9 @@ function bookingFormMultiHtml(date, items){
       ${rows}
       </fieldset>
       <p id="bk-r2-total" class="form-total" aria-live="polite"></p>
-      <div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
-      <div class="row2">
-        ${contactFieldHtml()}
-        <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
-      </div>
-      <div class="field"><label>Observation (optionnel)</label><input type="text" id="bk-obs" placeholder="Ex. table partagée, allergie…"></div>
-      <div class="day-actions">
-        <button class="btn primary" onclick="submitBookingR2Multi('${date}', this)">Confirmer la réservation</button>
-        <button class="btn ghost" onclick="closeBooking()">Annuler</button>
-      </div>
+      ${bookerFieldsHtml()}
+      ${BOOKER_OBS_HTML}
+      ${formActionsHtml(`submitBookingR2Multi('${date}', this)`, 'Confirmer la réservation', 'closeBooking()')}
     </div>
   `;
 }
@@ -1676,29 +1677,30 @@ function buildMonthCells(anchorISO){
 function weekLabel(anchorISO){
   const mon = mondayOf(new Date(anchorISO+'T00:00:00'));
   const sun = new Date(mon); sun.setDate(mon.getDate()+6);
-  const startStr = mon.toLocaleDateString('fr-FR',{day:'numeric'});
-  const endStr = sun.toLocaleDateString('fr-FR',{day:'numeric', month:'short'});
-  return `${startStr} – ${endStr} ${sun.getFullYear()}`;
+  return `${DAY_FMT.format(mon)} – ${DAY_MONTH_FMT.format(sun)} ${sun.getFullYear()}`;
 }
 function monthLabel(anchorISO){
-  const d = new Date(anchorISO+'T00:00:00');
-  const s = d.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+  const s = MONTH_FMT.format(new Date(anchorISO+'T00:00:00'));
   return s.charAt(0).toUpperCase()+s.slice(1);
 }
+// Libellé affiché au-dessus du calendrier (semaine ou mois selon le mode)
+const calLabel = (st, iso) => st.mode === 'week' ? weekLabel(iso) : monthLabel(iso);
 // Transitions du calendrier (motifs Material 3), via les transitions de vue du navigateur :
 //  - semaine / mois précédents ou suivants : axe partagé X (libellé et grille glissent ensemble) ;
 //  - Semaine <-> Mois : axe partagé Z (zoom avant vers la semaine, arrière vers le mois).
 // Sans prise en charge, ou si l'utilisateur réduit les animations : changement instantané
 // (le libellé garde alors son ancien glissement d'entrée, st.slide).
 const canViewTransition = () => !!document.startViewTransition && !reduceMotion.matches;
+// (le focus sur ‹ ›, Semaine, Mois… est rendu par render() / restoreUi)
 function calTransition(rest, anim, update){
-  const run = () => keepFocus(update);
-  if(!canViewTransition()){ run(); return; }
+  if(!canViewTransition()){ update(); return; }
   const root = document.documentElement;
   root.dataset.calAnim = anim; root.dataset.calRest = rest; // seul ce calendrier-là s'anime
-  document.startViewTransition(run).finished.finally(() => { delete root.dataset.calAnim; delete root.dataset.calRest; });
+  const vt = document.startViewTransition(update);
+  vt.ready.catch(() => {}); // clics enchaînés : la transition précédente est abandonnée, ce n'est pas une erreur
+  vt.finished.finally(() => { delete root.dataset.calAnim; delete root.dataset.calRest; });
 }
-// Le calendrier est réaffiché : on rend le focus au bouton qui l'avait (‹ ›, Semaine, Mois…)
+// Seul le champ Date est réaffiché (sans render) : on rend le focus au bouton ‹ › qui l'avait
 function keepFocus(update){
   const a = document.activeElement;
   const key = a && (a.dataset.nav ? `[data-nav="${a.dataset.nav}"]` : a.dataset.seg ? `[data-seg="${a.dataset.seg}"]` : null);
@@ -1709,7 +1711,7 @@ function keepFocus(update){
 function setCalMode(rest, mode){
   if(calState[rest].mode === mode) return;
   calTransition(rest, mode === 'month' ? 'zoom-out' : 'zoom-in', () => {
-    calState[rest].mode = mode; render(); popSeg(`cal-${rest}-${mode}`);
+    calState[rest].mode = mode; render(['cal-' + rest]); popSeg(`cal-${rest}-${mode}`);
   });
 }
 function navCal(rest, dir){
@@ -1720,25 +1722,24 @@ function navCal(rest, dir){
   calTransition(rest, dir > 0 ? 'next' : 'prev', () => {
     st.anchor = toISO(d);
     if(!canViewTransition()) st.slide = dir;
-    render();
+    render(['cal-' + rest]);
   });
 }
 function jumpToday(rest){
   const st = calState[rest], t = todayISO();
-  const labelOf = iso => st.mode==='week' ? weekLabel(iso) : monthLabel(iso);
-  const dir = labelOf(t) === labelOf(st.anchor) ? 0 : (t > st.anchor ? 1 : -1);
-  const update = () => { if(dir && !canViewTransition()) st.slide = dir; st.anchor = t; st.selected = t; render(); };
+  const dir = calLabel(st, t) === calLabel(st, st.anchor) ? 0 : (t > st.anchor ? 1 : -1);
+  const update = () => { if(dir && !canViewTransition()) st.slide = dir; st.anchor = t; st.selected = t; render(restParts(rest)); };
   if(dir) calTransition(rest, dir > 0 ? 'next' : 'prev', update); else update();
 }
-function selectDate(rest, iso){ calState[rest].selected = iso; dateChoice[rest] = null; openBookingTarget = null; bookingConfirmation = null; render(); }
+function selectDate(rest, iso){ const parts = restParts(rest); calState[rest].selected = iso; dateChoice[rest] = null; openBookingTarget = null; bookingConfirmation = null; render(parts); }
 
 function renderCalendar(rest, containerId, statusFn){
   const cs = calState[rest];
   const cells = cs.mode==='week' ? buildWeekCells(cs.anchor) : buildMonthCells(cs.anchor);
   const today = todayISO();
-  const label = cs.mode==='week' ? weekLabel(cs.anchor) : monthLabel(cs.anchor);
+  const label = calLabel(cs, cs.anchor);
   // Initiales pour l'œil ; les lecteurs d'écran entendent la date complète sur chaque case
-  const weekdayHeader = ['L','M','M','J','V','S','D'].map(l=>`<div class="wd-label" aria-hidden="true">${l}</div>`).join('');
+  const weekdayHeader = WEEKDAY_INITIALS.map(l=>`<div class="wd-label" aria-hidden="true">${l}</div>`).join('');
   // Le jour sélectionné est le seul atteignable par Tab (s'il est affiché, sinon le 1er jour visible) ;
   // les flèches déplacent ensuite la sélection (voir calKey).
   const focusIso = cells.some(c => c.iso === cs.selected) ? cs.selected : cells[0].iso;
@@ -1761,9 +1762,9 @@ function renderCalendar(rest, containerId, statusFn){
   const unit = cs.mode==='week' ? 'Semaine' : 'Mois';
   document.getElementById(containerId).innerHTML = `
     <div class="cal-header">
-      <button class="icon-btn tonal" data-nav="${rest}-prev" onclick="navCal('${rest}',-1)" aria-label="${unit} précédent${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+      <button class="icon-btn tonal" data-nav="${rest}-prev" onclick="navCal('${rest}',-1)" aria-label="${unit} précédent${cs.mode==='week'?'e':''}">${CHEVRON_PREV}</button>
       <div class="cal-label" aria-live="polite"><span class="${slideClass}">${label}</span></div>
-      <button class="icon-btn tonal" data-nav="${rest}-next" onclick="navCal('${rest}',1)" aria-label="${unit} suivant${cs.mode==='week'?'e':''}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+      <button class="icon-btn tonal" data-nav="${rest}-next" onclick="navCal('${rest}',1)" aria-label="${unit} suivant${cs.mode==='week'?'e':''}">${CHEVRON_NEXT}</button>
     </div>
     <div class="cal-toggle">
       ${segGroup('Affichage du calendrier', [
@@ -1779,23 +1780,25 @@ function renderCalendar(rest, containerId, statusFn){
 const CAL_STATUS_WORD = { 'cap-ok':'places disponibles', 'cap-low':'bientôt complet', 'cap-full':'complet' };
 // Clavier (modèle Material 3 / ARIA d'un sélecteur de date) :
 // ← → un jour, ↑ ↓ une semaine, Début / Fin : lundi / dimanche, Page ↑ / ↓ : mois précédent / suivant.
-function calKey(e, rest){
-  const cell = e.target.closest('.cal-cell');
-  if(!cell) return;
-  const iso = cell.dataset.iso;
+// Jour visé par une touche depuis `iso` (calendrier et sélecteur de date), ou null
+function keyTargetIso(key, iso){
   const d = new Date(iso + 'T00:00:00');
   const dow = (d.getDay() + 6) % 7; // lundi = 0
   const moves = { ArrowLeft:-1, ArrowRight:1, ArrowUp:-7, ArrowDown:7, Home:-dow, End:6-dow };
-  let target;
-  if(e.key in moves) target = addDaysISO(iso, moves[e.key]);
-  else if(e.key === 'PageUp' || e.key === 'PageDown'){ d.setMonth(d.getMonth() + (e.key === 'PageUp' ? -1 : 1)); target = toISO(d); }
-  else return;
+  if(key in moves) return addDaysISO(iso, moves[key]);
+  if(key === 'PageUp' || key === 'PageDown'){ d.setMonth(d.getMonth() + (key === 'PageUp' ? -1 : 1)); return toISO(d); }
+  return null;
+}
+function calKey(e, rest){
+  const cell = e.target.closest('.cal-cell');
+  if(!cell) return;
+  const target = keyTargetIso(e.key, cell.dataset.iso);
+  if(!target) return;
   e.preventDefault();
   const st = calState[rest];
-  const labelOf = x => st.mode==='week' ? weekLabel(x) : monthLabel(x);
-  if(labelOf(target) !== labelOf(st.anchor)) st.anchor = target; // pas de glissement du libellé au clavier
+  if(calLabel(st, target) !== calLabel(st, st.anchor)) st.anchor = target; // pas de glissement du libellé au clavier
   // au clavier on enchaîne vite : la fiche change sans animation d'entrée
-  lastCard[rest] = target + (isAdmin ? '·a' : '·c');
+  lastCard[rest] = cardKey(target);
   pickDate(rest, target);
 }
 // Sélection d'un jour (clic, Entrée, Espace ou flèches) : le calendrier est réaffiché,
@@ -1810,20 +1813,26 @@ function pickDate(rest, iso, animate = false){
     if(cell) cell.focus({ preventScroll: true });
   };
   if(!animate || iso === from || !canViewTransition()){ update(); return; }
-  lastCard[rest] = iso + (isAdmin ? '·a' : '·c'); // la transition remplace l'animation d'entrée de la fiche
+  lastCard[rest] = cardKey(iso); // la transition remplace l'animation d'entrée de la fiche
   calTransition(rest, iso > from ? 'day-next' : 'day-prev', update);
 }
 
+// Fiche d'un jour sans service, commune aux deux restaurants
+function emptyDayCardHtml(rest, iso){
+  const msg = isAdmin ? 'Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date.' : 'Aucune réservation possible ce jour-là.';
+  return `<div class="day-card${iso < todayISO() ? ' is-past' : ''}${cardEnter(rest, iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${msg}</p></div>`;
+}
+// Bloc « Thème du jour », « Menu du jour » ou « Note » d'une fiche
+function menuBlockHtml(label, text){
+  return `<div class="menu-block"><span class="kicker">${label}</span><div class="menu-text">${escapeHtml(text)}</div></div>`;
+}
 function renderDetailR1(){
   const iso = calState.r1.selected;
-  const day = state.r1Days.find(d=>d.Date===iso);
+  const day = idx().r1Days.get(iso);
   const today = todayISO();
   const isPast = iso < today;
   const el = document.getElementById('detail-r1');
-  if(!day){
-    el.innerHTML = `<div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r1', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
-    return;
-  }
+  if(!day){ el.innerHTML = emptyDayCardHtml('r1', iso); return; }
   const rem = remainingR1(day);
   const capClass = capacityClass(rem, day.Capacite);
   const bookingsForDay = state.r1Bookings.filter(b=>b.Date===day.Date);
@@ -1837,14 +1846,11 @@ function renderDetailR1(){
           <div class="field"><label>Thème du jour (optionnel)</label><input type="text" id="edd-theme" value="${escapeHtml(day.Theme||'')}"></div>
         </div>
         <div class="field"><label>Menu du jour (optionnel)</label><input type="text" id="edd-menu" value="${escapeHtml(day.Menu||'')}"></div>
-        <div class="day-actions">
-          <button class="btn primary" onclick="submitEditDayR1('${day.Date}', this)">Enregistrer</button>
-          <button class="btn ghost" onclick="closeEditDayR1()">Annuler</button>
-        </div>
+        ${formActionsHtml(`submitEditDayR1('${day.Date}', this)`, 'Enregistrer', 'closeEditDayR1()')}
       </div>` : '';
     adminHtml = `
       <div class="bookings-list">
-        ${bookingsForDay.length===0 ? '<p class="empty" style="padding:4px 0;">Aucune réservation.</p>' :
+        ${bookingsForDay.length===0 ? '<p class="empty compact">Aucune réservation.</p>' :
           bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'couvert')}${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span>${bookingActions('r1', b)}</div>${bookingEditForm('r1', b)}`).join('')}
       </div>
       <div class="day-actions">
@@ -1862,8 +1868,8 @@ function renderDetailR1(){
         <div class="day-date">${formatDate(day.Date)}</div>
         <span class="capacity-pill ${capClass}" style="${gaugeStyle(rem, Number(day.Capacite))}">${rem} / ${day.Capacite} couverts</span>
       </div>
-      ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
-      ${day.Menu ? `<div class="menu-block"><span class="menu-label">Menu du jour</span><div class="menu-text">${escapeHtml(day.Menu)}</div></div>` : ''}
+      ${day.Theme ? menuBlockHtml('Thème du jour', day.Theme) : ''}
+      ${day.Menu ? menuBlockHtml('Menu du jour', day.Menu) : ''}
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${!isAdmin && !isOpenForm && rem>0 && !isPast ? `<div class="day-actions"><button class="btn primary" onclick="openBookingR1('${day.Date}')">Réserver</button></div>` : ''}
       ${!isAdmin && isOpenForm ? bookingFormHtml(day.Date, rem) : ''}
@@ -1884,17 +1890,14 @@ function menuListHtml(itemsHtml, isMultiOpen){
 }
 function renderDetailR2(){
   const iso = calState.r2.selected;
-  const day = state.r2Days.find(d=>d.Date===iso);
+  const day = idx().r2Days.get(iso);
   const today = todayISO();
   const isPast = iso < today;
   const el = document.getElementById('detail-r2');
-  if(!day){
-    el.innerHTML = `<div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r2', iso)}"><div class="day-date">${formatDate(iso)}</div><p class="empty">${isAdmin ? "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date." : "Aucune réservation possible ce jour-là."}</p></div>`;
-    return;
-  }
-  const items = state.r2Items.filter(it => it.Date === iso);
+  if(!day){ el.innerHTML = emptyDayCardHtml('r2', iso); return; }
+  const items = itemsR2(iso);
   const isClosed = r2OrdersClosed(iso);
-  const isMultiOpen = !isClosed && openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso && openBookingTarget.multi;
+  const isMultiOpen = !isClosed && openBookingTarget && openBookingTarget.rest==='r2' && openBookingTarget.date===iso;
   const anyAvailable = items.some(it => remainingItem(it) > 0);
   const closedNote = !isAdmin && !isPast && isClosed ? `<p class="note-warning closed-note">${escapeHtml(r2ClosedMsg())}</p>` : '';
   const itemsHtml = items.map(item=>{
@@ -1910,26 +1913,15 @@ function renderDetailR2(){
         <button class="btn danger small" onclick="deleteItemR2('${item.ID}', this)">Supprimer ce plat</button>
       </div>`;
       if(editItemTarget === item.ID){
-        editItemForm = `<div class="booking-form${enterOnce('ei-' + item.ID)}" data-form="ei-${item.ID}">
-          <div class="row2">
-            <div class="field"><label>Nom du plat</label><input type="text" id="eit-name" value="${escapeHtml(item.Nom)}"></div>
-            <div class="field"><label>Stock</label><input type="number" min="1" id="eit-stock" value="${item.Stock}"></div>
-          </div>
-          <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="eit-price" value="${item.Prix||''}" list="price-suggestions" placeholder="Ex. 3,50"></div>
-          ${priceSuggestionsDatalist()}
-          <div class="day-actions">
-            <button class="btn primary" onclick="submitEditItemR2('${item.ID}', this)">Enregistrer</button>
-            <button class="btn ghost" onclick="closeEditItem()">Annuler</button>
-          </div>
-        </div>`;
+        editItemForm = itemFormHtml('ei-' + item.ID, 'eit', item, `submitEditItemR2('${item.ID}', this)`, 'Enregistrer', 'closeEditItem()');
       }
       adminBookings = `<div class="bookings-list">
-        ${bookingsForItem.length===0 ? '<p class="empty" style="padding:2px 0;">Aucune réservation.</p>' :
+        ${bookingsForItem.length===0 ? '<p class="empty compact">Aucune réservation.</p>' :
           bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'portion')}${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span>${bookingActions('r2', b)}</div>${bookingEditForm('r2', b)}`).join('')}
       </div>`;
     }
-    return `<div class="item-row" style="flex-direction:column;align-items:stretch;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+    return `<div class="item-row stacked">
+      <div class="item-row-head">
         <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}</span>
         <span class="capacity-pill ${capClass}" style="${gaugeStyle(rem, Number(item.Stock))}">${rem} / ${item.Stock}</span>
       </div>
@@ -1940,26 +1932,15 @@ function renderDetailR2(){
   }).join('');
   const addItemHtml = isAdmin ? (
     addItemFormOpen === iso ?
-      `<div class="booking-form${enterOnce('ai-' + iso)}" data-form="ai-${iso}">
-        <div class="row2">
-          <div class="field"><label>Nom du plat</label><input type="text" id="nit-name" placeholder="Ex. salade César"></div>
-          <div class="field"><label>Stock</label><input type="number" min="1" id="nit-stock" placeholder="Ex. 10"></div>
-        </div>
-        <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="nit-price" list="price-suggestions" placeholder="Ex. 3,50"></div>
-        ${priceSuggestionsDatalist()}
-        <div class="day-actions">
-          <button class="btn primary" onclick="submitAddItemR2('${iso}', this)">Ajouter ce plat</button>
-          <button class="btn ghost" onclick="closeAddItemForm()">Annuler</button>
-        </div>
-      </div>` :
-      `<div class="day-actions" style="margin-top:10px;"><button class="btn small" onclick="openAddItemForm('${iso}')">+ Ajouter un plat à ce jour</button></div>`
+      itemFormHtml('ai-' + iso, 'nit', null, `submitAddItemR2('${iso}', this)`, 'Ajouter ce plat', 'closeAddItemForm()') :
+      `<div class="day-actions"><button class="btn small" onclick="openAddItemForm('${iso}')">+ Ajouter un plat à ce jour</button></div>`
   ) : '';
   el.innerHTML = `
     ${confirmationHtml('r2')}
     <div class="day-card${isPast ? ' is-past' : ''}${cardEnter('r2', iso)}">
       <div class="day-top"><div class="day-date">${formatDate(day.Date)}</div></div>
-      ${day.Theme ? `<div class="menu-block"><span class="menu-label">Thème du jour</span><div class="menu-text">${escapeHtml(day.Theme)}</div></div>` : ''}
-      ${day.Note ? `<div class="menu-block"><span class="menu-label">Note</span><div class="menu-text">${escapeHtml(day.Note)}</div></div>` : ''}
+      ${day.Theme ? menuBlockHtml('Thème du jour', day.Theme) : ''}
+      ${day.Note ? menuBlockHtml('Note', day.Note) : ''}
       ${isAdmin && day.OuvertPar ? `<p class="day-meta">Ouvert par ${escapeHtml(day.OuvertPar)}</p>` : ''}
       ${menuListHtml(itemsHtml, isMultiOpen)}
       ${addItemHtml}
@@ -1971,27 +1952,32 @@ function renderDetailR2(){
   `;
 }
 
-function printDayR1(date){
-  const day = state.r1Days.find(d=>d.Date===date);
+// Liste du restaurant 1 pour un jour (« Imprimer la liste »), ou version courte pour le résumé
+// « demain » : sans Thème, Menu, Contact ni signature.
+function printDayR1(date, tomorrow = false){
+  const day = idx().r1Days.get(date);
   const bookings = state.r1Bookings.filter(b=>b.Date===date);
-  const total = bookings.reduce((s,b)=>s+Number(b.Qte),0);
-  const totalPrix = bookings.reduce((s,b)=>s+Number(b.PrixTotal||0),0);
-  const table = printTable(
-    [{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true},{label:'Contact'}],
-    bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), b.PrixTotal ? formatEuro(b.PrixTotal) : '', escapeHtml(b.Contact)]),
+  const total = sumBy(bookings, 'Qte');
+  const totalPrix = sumBy(bookings, 'PrixTotal');
+  const cols = [{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true}];
+  if(!tomorrow) cols.push({label:'Contact'});
+  const table = printTable(cols,
+    bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), b.PrixTotal ? formatEuro(b.PrixTotal) : '', escapeHtml(b.Contact)].slice(0, cols.length)),
     'Aucune réservation.');
+  const meta = !day ? [] : [
+    ...(tomorrow ? [] : [
+      { label:'Thème', value: day.Theme ? escapeHtml(day.Theme) : '' },
+      { label:'Menu', value: day.Menu ? escapeHtml(day.Menu) : '' }]),
+    { label:'Ouvert par', value: day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' },
+    { label:'Places', value: `${total} / ${day.Capacite} couverts réservés` }
+  ];
   openPrint(printDoc({
-    title: `${escapeHtml(state.name1)} — ${formatDate(date)}`, accent:'r1',
-    heading: escapeHtml(state.name1), date: formatDate(date),
-    meta: [
-      { label:'Thème', value: day && day.Theme ? escapeHtml(day.Theme) : '' },
-      { label:'Menu', value: day && day.Menu ? escapeHtml(day.Menu) : '' },
-      { label:'Ouvert par', value: day && day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' },
-      { label:'Places', value: day ? `${total} / ${day.Capacite} couverts réservés` : '' }
-    ],
-    body: table,
-    total: printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')),
-    signature: true
+    title: `${escapeHtml(state.name1)} — ${tomorrow ? 'demain ' : ''}${formatDate(date)}`, accent:'r1',
+    heading: escapeHtml(state.name1), date: (tomorrow ? 'Demain, ' : '') + formatDate(date),
+    meta,
+    body: day ? table : '<p class="pb-note">Aucun jour ouvert pour demain.</p>',
+    total: day ? printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : '',
+    signature: !tomorrow
   }));
 }
 function printDayR2(date){
@@ -2022,8 +2008,8 @@ function printDayR2(date){
   });
   clients.sort((a,b)=> String(a.Classe||'').localeCompare(String(b.Classe||'')) || String(a.Nom||'').localeCompare(String(b.Nom||'')));
 
-  const grandTotal = clients.reduce((s,c)=>s+c.prix,0);
-  const totalPortions = clients.reduce((s,c)=>s+c.qte,0);
+  const grandTotal = sumBy(clients, 'prix');
+  const totalPortions = sumBy(clients, 'qte');
 
   // En gras : quantité de chaque plat, commentaire du client et mode (à emporter / sur place)
   const clientTable = printTable(
@@ -2037,7 +2023,7 @@ function printDayR2(date){
   const recapTable = printTable(
     [{label:'Plat'},{label:'Prix unitaire',num:true},{label:'Portions',num:true},{label:'Montant',num:true}],
     items.map(item=>{
-      const total = bookings.filter(b=>b.ItemID===item.ID).reduce((s,b)=>s+Number(b.Qte),0);
+      const total = sumBy(bookings.filter(b=>b.ItemID===item.ID), 'Qte');
       return [escapeHtml(item.Nom), item.Prix ? formatEuro(item.Prix) : '', `${total} / ${item.Stock}`, item.Prix ? formatEuro(total * Number(item.Prix)) : ''];
     }),
     'Aucun plat.');
@@ -2067,19 +2053,19 @@ function showTomorrowSummary(){
   const r2Items = state.r2Items.filter(it => it.Date === tomorrow);
   const r2Bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
   
-  let html = `<div class="summary-panel">
+  let html = `<div class="panel card-top-accent summary-panel">
     <div class="summary-title">Résumé pour demain (${formatDate(tomorrow)})</div>`;
   
   if (!r1Day && !r2Day) {
-    html += '<p class="text-muted" style="margin:0;">Aucun jour ouvert pour demain.</p>';
+    html += '<p class="text-muted">Aucun jour ouvert pour demain.</p>';
   } else {
     if (r1Day) {
-      const totalCouverts = r1Bookings.reduce((s, b) => s + Number(b.Qte), 0);
-      const totalPrixR1 = r1Bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
+      const totalCouverts = sumBy(r1Bookings, 'Qte');
+      const totalPrixR1 = sumBy(r1Bookings, 'PrixTotal');
       const collegueR1 = r1Day.OuvertPar ? escapeHtml(r1Day.OuvertPar) : '(aucun)';
       html += `<div class="summary-block">
         <div class="summary-head">
-          <b class="summary-name-r1">${escapeHtml(state.name1)}</b>
+          <b class="summary-name accent-green">${escapeHtml(state.name1)}</b>
           <button class="icon-btn summary-print" onclick="printTomorrowSummaryR1()" title="Imprimer" aria-label="Imprimer">${ICONS.print}</button>
         </div>
         <div class="summary-meta">Ouvert par ${collegueR1}</div>
@@ -2096,7 +2082,7 @@ function showTomorrowSummary(){
       let hasGapR2 = false;
       html += `<div class="summary-block">
         <div class="summary-head">
-          <b class="summary-name-r2">${escapeHtml(state.name2)}</b>
+          <b class="summary-name accent-magenta">${escapeHtml(state.name2)}</b>
           <button class="icon-btn summary-print" onclick="printTomorrowSummaryR2()" title="Imprimer" aria-label="Imprimer">${ICONS.print}</button>
         </div>
         <div class="summary-meta">Ouvert par ${collegueR2}</div>`;
@@ -2104,7 +2090,7 @@ function showTomorrowSummary(){
         html += '<br>';
         r2Items.forEach(item => {
           const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
-          const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
+          const total = sumBy(bookings, 'Qte');
           if (item.Prix) { totalPrixR2 += total * Number(item.Prix); } else if (total > 0) { hasGapR2 = true; }
           if (total > 0 || bookings.length > 0) {
             html += `<span class="summary-line">
@@ -2127,27 +2113,7 @@ function showTomorrowSummary(){
 }
 
 // Résumés « demain » (bouton imprimer du résumé) : un document par restaurant
-function printTomorrowSummaryR1(){
-  const tomorrow = getTomorrowISO();
-  const day = state.r1Days.find(d => d.Date === tomorrow);
-  const bookings = state.r1Bookings.filter(b => b.Date === tomorrow);
-  const total = bookings.reduce((s, b) => s + Number(b.Qte), 0);
-  const totalPrix = bookings.reduce((s, b) => s + Number(b.PrixTotal||0), 0);
-  openPrint(printDoc({
-    title: `${escapeHtml(state.name1)} — demain ${formatDate(tomorrow)}`, accent:'r1',
-    heading: escapeHtml(state.name1), date: 'Demain, ' + formatDate(tomorrow),
-    meta: day ? [
-      { label:'Ouvert par', value: day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' },
-      { label:'Places', value: `${total} / ${day.Capacite} couverts réservés` }
-    ] : [],
-    body: day
-      ? printTable([{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true}],
-          bookings.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), b.PrixTotal ? formatEuro(b.PrixTotal) : '']),
-          'Aucune réservation.')
-      : '<p class="pb-note">Aucun jour ouvert pour demain.</p>',
-    total: day ? printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : ''
-  }));
-}
+function printTomorrowSummaryR1(){ printDayR1(getTomorrowISO(), true); }
 
 function printTomorrowSummaryR2(){
   const tomorrow = getTomorrowISO();
@@ -2159,7 +2125,7 @@ function printTomorrowSummaryR2(){
   else if(items.length === 0) body = '<p class="pb-note">Aucun plat ouvert.</p>';
   else items.forEach(item => {
     const bk = bookings.filter(b => b.ItemID === item.ID);
-    const total = bk.reduce((s, b) => s + Number(b.Qte), 0);
+    const total = sumBy(bk, 'Qte');
     totalPortions += total;
     if(item.Prix) totalPrix += total * Number(item.Prix);
     body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + ' l\'unité' : ''}<span>${total} / ${item.Stock}</span></h3>`
@@ -2216,24 +2182,37 @@ function restoreUi(memo){
   }
   if(target) target.focus({ preventScroll: true });
 }
-function render(){
+// Zones d'un restaurant qu'on peut réafficher seules (clé = id du conteneur)
+const PARTS = {
+  'admin-r1': renderAdminFormR1, 'admin-r2': renderAdminFormR2,
+  'cal-r1': () => renderCalendar('r1', 'cal-r1', dayStatusR1), 'cal-r2': () => renderCalendar('r2', 'cal-r2', dayStatusR2),
+  'detail-r1': renderDetailR1, 'detail-r2': renderDetailR2
+};
+// render() : toute la page (données, mode, formulaires…). render(['cal-r1', …]) : seulement ces
+// zones, pour les actions fréquentes qui ne touchent qu'un restaurant (jour, semaine, mois).
+function render(parts){
   const memo = captureUi();
-  renderAll();
+  if(parts){
+    new Set(parts).forEach(id => { PARTS[id](); linkLabels(document.getElementById(id)); });
+  } else renderAll();
   restoreUi(memo);
+}
+// Tout ce qui dépend du jour sélectionné d'un restaurant : champ Date du formulaire collègue,
+// calendrier et fiche. Plus la fiche où un formulaire ou un récapitulatif va se fermer.
+function restParts(rest){
+  const parts = ['admin-' + rest, 'cal-' + rest, 'detail-' + rest];
+  [openBookingTarget, bookingConfirmation].forEach(t => { if(t) parts.push('detail-' + t.rest); });
+  return parts;
 }
 function renderAll(){
   renderTexts(state);
   if(firstLoadDone) saveTexts(state); // y compris après « Enregistrer les paramètres »
   renderModeBox();
+  renderPriceSuggestions();
   renderDashboard();
   renderSettings();
-  renderAdminFormR1();
-  renderAdminFormR2();
   showTomorrowSummary();
-  renderCalendar('r1', 'cal-r1', dayStatusR1);
-  renderCalendar('r2', 'cal-r2', dayStatusR2);
-  renderDetailR1();
-  renderDetailR2();
+  Object.values(PARTS).forEach(fn => fn());
   linkLabels();
 }
 
