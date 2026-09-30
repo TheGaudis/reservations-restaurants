@@ -5,9 +5,9 @@
 Site de réservation des deux restaurants pédagogiques du lycée professionnel Aristide Briand :
 
 - 🟢 **Restaurant 1** (couleur verte) : réservation de couverts sur un jour de service, avec une capacité et un menu.
-- 🟣 **Restaurant 2** (couleur magenta) : réservation de plats en portions limitées, sur place ou à emporter. Les commandes en ligne ferment à 10 h le jour même : le menu et les stocks restent affichés, et le site invite à venir commander sur place à partir de 12 h (heures réglables par `R2_CUTOFF_HOUR` et `R2_ONSITE_HOUR` dans `index.html`).
+- 🟣 **Restaurant 2** (couleur magenta) : réservation de plats en portions limitées, sur place ou à emporter. Les commandes en ligne ferment à 10 h le jour même : le menu et les stocks restent affichés, et le site invite à venir commander sur place à partir de 12 h (heures réglables par `R2_CUTOFF_HOUR` et `R2_ONSITE_HOUR` dans `js/donnees.js`).
 
-Le site est une page statique unique. Les données sont stockées dans une feuille Google Sheets, lue et modifiée par un script Google Apps Script qui sert d'API.
+Le site est une page statique unique, sans outil de compilation : du HTML, du CSS et quelques fichiers JavaScript chargés tels quels. Les données sont stockées dans une feuille Google Sheets, lue et modifiée par un script Google Apps Script qui sert d'API.
 
 ## ✨ Fonctionnalités
 
@@ -16,6 +16,7 @@ Le site est une page statique unique. Les données sont stockées dans une feuil
 - 📅 Calendrier des jours de service, accessible au clavier (flèches, Début / Fin, Page ↑ / ↓).
 - 🔢 Places ou portions restantes affichées pour chaque jour et chaque plat.
 - ⚡ Affichage immédiat : à la visite suivante, le calendrier de la dernière visite s'affiche aussitôt, en consultation seule, le temps que les places se mettent à jour. La copie gardée dans le navigateur ne contient aucune donnée personnelle (ni nom, ni e-mail, ni téléphone).
+- 🚀 Chargement anticipé : la lecture des données part dès le début de la page, avant les polices et les styles, et la connexion à Google Apps Script est préparée (`preconnect`).
 - 🛡️ Anti-doublon : chaque réservation envoie un identifiant unique (`requestId`), conservé si l'on réessaie après une erreur ; le script peut ainsi ignorer un envoi déjà enregistré (voir l'installation).
 - 📝 Formulaire de réservation avec contrôle des champs et message d'erreur sous chaque champ.
 - 📧 E-mail de confirmation, puis rappel la veille, si le contact saisi est une adresse e-mail.
@@ -33,8 +34,17 @@ Le site est une page statique unique. Les données sont stockées dans une feuil
 
 | Fichier | Rôle |
 | --- | --- |
-| `index.html` | La page : HTML, styles propres à la page et JavaScript. |
+| `index.html` | La page : structure HTML, adresse du script (`APPS_SCRIPT_URL`) et chargement des fichiers ci-dessous. |
 | `design-system.css` | Jetons de la charte (couleurs, tailles, rayons, animations) et composants communs. |
+| `app.css` | Styles propres à la page. |
+| `js/donnees.js` | État de la page, copie locale, échanges avec Apps Script, places restantes, heures d'Aristide. |
+| `js/outils.js` | Dates, messages, montants, suppression en deux clics, erreurs des champs. |
+| `js/impression.js` | Documents imprimés (`PRINT_TOKENS`, `PRINT_CSS`) et résumés du lendemain. |
+| `js/interface.js` | Éléments communs : récapitulatif, icônes, boutons segmentés, apparitions. |
+| `js/collegue.js` | Mode collègue : connexion, déconnexion automatique, paramètres, jours, plats, modifications. |
+| `js/reservation.js` | Réservation par le public et formulaires. |
+| `js/calendrier.js` | Calendriers et fiches du jour. |
+| `js/main.js` | Affichage de la page, démarrage et actualisation automatique. |
 | `Code.gs` | API JSON Google Apps Script (`doGet` pour lire l'état, `doPost` pour les actions). |
 | `charte-graphique.pdf` | Charte graphique : couleurs, contrastes, composants et règles d'usage. |
 | `logo.png` | Logo du lycée, affiché dans ce README. |
@@ -60,11 +70,15 @@ Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_It
 
 ### 2. 🔌 Brancher la page
 
-Dans `index.html`, remplacer la valeur de `APPS_SCRIPT_URL` par l'URL copiée à l'étape précédente. Sans URL valide, la page affiche un bandeau « Configuration manquante ».
+Dans `index.html`, tout en haut du fichier (premier `<script>` du `<head>`), remplacer la valeur de `APPS_SCRIPT_URL` par l'URL copiée à l'étape précédente. Sans URL valide, la page affiche un bandeau « Configuration manquante ».
 
 ### 3. 🌐 Héberger
 
-N'importe quel hébergement de fichiers statiques convient (GitHub Pages, Netlify…) : il suffit de publier `index.html` et `design-system.css` dans le même dossier.
+N'importe quel hébergement de fichiers statiques convient (GitHub Pages, Netlify…) : il suffit de publier `index.html`, `design-system.css`, `app.css` et le dossier `js/` en gardant cette organisation. La page doit être servie par un serveur web : ouverte d'un double-clic (`file://`), elle ne peut pas lire les données.
+
+🔄 Après chaque mise en ligne, augmenter ensemble tous les numéros `?v=` des fichiers CSS et JavaScript dans `index.html` (même numéro partout) : les navigateurs téléchargent alors la nouvelle version complète, sans mélanger anciens et nouveaux fichiers.
+
+🧩 Les fichiers `js/*.js` sont des scripts classiques (pas des modules) : ils partagent les mêmes variables et fonctions, et doivent rester chargés dans l'ordre indiqué dans `index.html`, `js/main.js` en dernier.
 
 ## 🎨 Charte graphique
 
@@ -114,4 +128,4 @@ Toute l'interface s'appuie sur `design-system.css` et suit les bonnes pratiques 
 
 📄 Le détail figure dans [charte-graphique.pdf](charte-graphique.pdf).
 
-🖨️ Les documents imprimés s'ouvrent dans une fenêtre sans feuille de styles : les jetons nécessaires y sont recopiés au moment d'imprimer à partir de la liste `PRINT_TOKENS` de `index.html`. Tout nouveau jeton utilisé dans `PRINT_CSS` doit être ajouté à cette liste.
+🖨️ Les documents imprimés s'ouvrent dans une fenêtre sans feuille de styles : les jetons nécessaires y sont recopiés au moment d'imprimer à partir de la liste `PRINT_TOKENS` de `js/impression.js`. Tout nouveau jeton utilisé dans `PRINT_CSS` doit être ajouté à cette liste.
