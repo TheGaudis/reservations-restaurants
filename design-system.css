@@ -115,6 +115,17 @@
 
   /* --- Plans --- */
   --z-toast:50; --z-loader:60;
+
+  /* --- Alertes et notifications --- */
+  --alert-bar:6px;          /* filet gauche à la couleur d'état (repère ≥ 3:1) */
+  --alert-icon:28px;        /* icône des encadrés et des notifications */
+  --alert-tint:9%;          /* part de la couleur d'état dans le fond teinté */
+  --alert-edge:35%;         /* part de la couleur d'état dans le contour fin */
+  --alert-ink:75%;          /* part de la couleur d'état dans le titre (≥ 4,5:1) */
+  --note-ink:70%;           /* part de la couleur d'état dans le texte d'une note (≥ 4,5:1) */
+  --note-bar:4px;           /* filet gauche des notes, plus discret que --alert-bar */
+  --icon-glyph:70%;         /* taille du pictogramme dans sa pastille */
+  --toast-scale:.96;        /* légère réduction de départ d'une notification qui entre */
 }
 
 
@@ -348,23 +359,43 @@ label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:va
 
 /* --- Encadré d'alerte --- */
 /* Structure : .alert-icon (aria-hidden) + .alert-text (le message, un titre en <b>)
-   + une action. L'icône et le filet reprennent la couleur d'état ; le mot reste obligatoire. */
-.alert{display:flex;align-items:center;gap:var(--space-3) var(--space-4);flex-wrap:wrap;background:var(--surface);
-  border:1px solid var(--danger-border);border-left:4px solid var(--danger);border-radius:var(--radius);padding:var(--space-3) var(--space-4);}
-.alert.warning{border-color:color-mix(in srgb,var(--warning) 30%,transparent);border-left-color:var(--warning);}
-.alert-icon{flex:0 0 auto;align-self:flex-start;display:inline-flex;color:var(--danger);}
-.alert.warning .alert-icon{color:var(--warning);}
-.alert-icon svg{width:24px;height:24px;fill:currentColor;}
-.alert-text{flex:1 1 calc(var(--space-10) * 4);min-width:0; /* l'icône reste à côté du texte ; faute de place, seul le bouton passe à la ligne */margin:0;font-size:var(--fs-md);color:var(--text);}
-.note-warning{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--warning-soft);color:color-mix(in srgb,var(--warning) 70%,var(--text));font-size:var(--fs-sm);font-weight:var(--fw-medium);} /* ≥ 4,5:1 sur le fond teinté */
+   + une action. Fond teinté, filet épais et icône à la couleur d'état ; le mot reste obligatoire. */
+.alert{--alert-color:var(--danger);
+  display:flex;align-items:center;gap:var(--space-3) var(--space-4);flex-wrap:wrap;
+  background:color-mix(in srgb,var(--alert-color) var(--alert-tint),var(--surface));
+  border:1px solid color-mix(in srgb,var(--alert-color) var(--alert-edge),transparent);border-left:var(--alert-bar) solid var(--alert-color);
+  border-radius:var(--radius);padding:var(--space-4) var(--space-5);} /* pas d'ombre : le fond teinté suffit (Material 3) */
+.alert.warning{--alert-color:var(--warning);}
+.alert-icon{flex:0 0 auto;align-self:flex-start;display:inline-flex;color:var(--alert-color);}
+.alert-icon svg{width:var(--alert-icon);height:var(--alert-icon);fill:currentColor;}
+.alert-text{flex:1 1 calc(var(--space-10) * 4);min-width:0; /* l'icône reste à côté du texte ; faute de place, seul le bouton passe à la ligne */
+  margin:0;font-size:var(--fs-lg);font-weight:var(--fw-medium);color:var(--text);}
+.alert-text b{color:color-mix(in srgb,var(--alert-color) var(--alert-ink),var(--text));} /* titre à la couleur d'état, contraste ≥ 4,5:1 */
+/* Avertissement court dans une fiche : fond teinté + filet à la couleur d'état */
+.note-warning{padding:var(--space-3) var(--space-4);border-radius:var(--radius-sm);
+  background:var(--warning-soft);border-left:var(--note-bar) solid var(--warning);
+  color:color-mix(in srgb,var(--warning) var(--note-ink),var(--text));font-size:var(--fs-md);font-weight:var(--fw-semibold);} /* ≥ 4,5:1 sur le fond teinté */
 
 /* --- Notification (toast) --- */
-.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,10px);z-index:var(--z-toast);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--success); /* repère ≥ 3:1 (le vert du logo n'atteint que 2:1) */
+/* Fond teinté, filet épais et pastille-icône à la couleur d'état (vert = réussite, rouge = erreur).
+   L'icône est décorative (dessinée en masque, rien n'est lu) : le message porte le sens. */
+.toast{--toast-color:var(--success); /* repère ≥ 3:1 (le vert du logo n'atteint que 2:1) */
+  --toast-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z'/%3E%3C/svg%3E");
+  position:fixed;bottom:var(--space-6);left:50%;transform:translate(-50%,var(--space-3)) scale(var(--toast-scale));z-index:var(--z-toast);
+  display:flex;align-items:center;gap:var(--space-3);
+  background:color-mix(in srgb,var(--toast-color) var(--alert-tint),var(--surface));
+  border:1px solid color-mix(in srgb,var(--toast-color) var(--alert-edge),transparent);border-left:var(--alert-bar) solid var(--toast-color);
   width:max-content;max-width:calc(100vw - 2 * var(--space-4));
-  color:var(--text);padding:var(--space-3) var(--space-4);border-radius:var(--radius-sm);font-size:var(--fs-md);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;
+  color:var(--text);padding:var(--space-3) var(--space-5) var(--space-3) var(--space-4);border-radius:var(--radius-sm);
+  font-size:var(--fs-lg);font-weight:var(--fw-medium);box-shadow:var(--shadow-pop);opacity:0;pointer-events:none;
   transition:opacity var(--dur) var(--ease-exit),transform var(--dur) var(--ease-exit);}  /* sortie : accélère */
-.toast.show{opacity:1;transform:translate(-50%,0);transition-duration:.3s;transition-timing-function:var(--ease-enter);}  /* entrée : décélère */
-.toast.error{border-left-color:var(--danger);}
+.toast::before{content:"";flex:0 0 auto;width:var(--alert-icon);height:var(--alert-icon);border-radius:var(--radius-full);
+  background:var(--toast-color) padding-box;
+  -webkit-mask:var(--toast-icon) center/var(--icon-glyph) no-repeat,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:var(--toast-icon) center/var(--icon-glyph) no-repeat exclude,linear-gradient(#000 0 0);} /* pastille pleine, icône évidée */
+.toast.show{opacity:1;transform:translate(-50%,0) scale(1);transition-duration:.3s;transition-timing-function:var(--ease-enter);}  /* entrée : décélère */
+.toast.error{--toast-color:var(--danger);
+  --toast-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M440-400v-360h80v360h-80Zm0 200v-80h80v80h-80Z'/%3E%3C/svg%3E");}
 
 /* --- Chargement --- */
 /* Voile de chargement (M3 : voile uni + indicateur de progression circulaire).
