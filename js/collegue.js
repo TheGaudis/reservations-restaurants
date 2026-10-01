@@ -77,12 +77,16 @@ async function tryLogin(){
   // Le mode collègue agit sur les vraies données : jamais sur la copie de la dernière visite
   if(dataStale){ showToast('Les données se chargent. Réessayez dans un instant.', true); return; }
   const val = document.getElementById('pwdInput').value;
+  // Une seule requête : vérifie le mot de passe et rapporte l'état complet (réservations détaillées).
+  // Une lecture publique en cours au moment de la connexion est jetée par loadAll (isAdmin a changé).
+  showLoader();
   try{
-    const res = await apiPost('checkPassword', { password: val });
-    if(res.ok){ isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); lastActivity = Date.now(); armInactivityTimer(); if(firstLoadDone) render(); else renderModeBox();
-      document.getElementById('segColleague').focus({ preventScroll: true }); }
-    else { showToast('Mot de passe incorrect.', true); }
-  }catch(e){ showToast('Erreur de connexion. Réessayez.', true); }
+    state = await fetchAdminState(val);
+    isAdmin = true; adminPassword = val; loginOpen = false; showToast('Mode collègue activé.'); lastActivity = Date.now(); armInactivityTimer(); if(firstLoadDone) render(); else renderModeBox();
+    document.getElementById('segColleague').focus({ preventScroll: true });
+  }catch(e){
+    showToast(e.message === 'Mot de passe incorrect.' ? 'Mot de passe incorrect.' : 'Erreur de connexion. Réessayez.', true);
+  }finally{ hideLoader(); }
 }
 
 function renderDashboard(){
