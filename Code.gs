@@ -30,9 +30,13 @@ const ARCHIVE_AFTER_DAYS = 60;
 
 // Mémoire de l'état public (CacheService) : renouvelée aussitôt après chaque écriture faite
 // par le site, et recalculée toutes les 5 minutes en journée par rafraichirCache() (déclencheur).
-// Une modification faite à la main dans Google Sheets apparaît donc en 5 minutes au plus ;
-// exécuter viderCache() pour qu'elle apparaisse tout de suite.
-const STATE_TTL = 900;     // secondes ; filet de sécurité si le déclencheur ne passe pas
+// Gardée 6 heures (le maximum de CacheService) : le soir et la nuit, quand rafraichirCache()
+// ne tourne pas, les visiteurs sont encore servis sans relire la feuille. Aucun risque pour les
+// places : chaque écriture du site change la version, et l'ancien état n'est plus jamais servi.
+// Une modification faite à la main dans Google Sheets apparaît en 5 minutes au plus en journée,
+// mais seulement vers 6 h si elle est faite le soir : exécuter viderCache() pour qu'elle
+// apparaisse tout de suite.
+const STATE_TTL = 21600;   // secondes (6 heures)
 const STATE_CHUNK = 30000; // caractères par entrée (limite CacheService : 100 Ko par entrée)
 const REFRESH_FROM_HOUR = 6, REFRESH_TO_HOUR = 21; // rafraichirCache() ne travaille qu'entre ces heures
 
@@ -56,7 +60,8 @@ function doPost(e) {
   MEMO = {};
   DIRTY = false;
   LAST_PUBLIC = null;
-  let lock = null;
+  MAILS = [];
+  let lock = null, result;
   try {
     const body = JSON.parse(e.postData.contents);
     const action = body.action;
@@ -66,7 +71,6 @@ function doPost(e) {
       lock = LockService.getScriptLock();
       if (!lock.tryLock(20000)) throw new Error('Le serveur est très sollicité : réessayez dans quelques secondes.');
     }
-    let result;
     switch (action) {
       case 'checkPassword': result = { ok: checkPassword(body.password) }; break;
       case 'getAdminState': result = getAdminState(body.password); break;
@@ -88,9 +92,8 @@ function doPost(e) {
       case 'setConfigField': result = setConfigField(body.password, body.key, body.value); break;
       default: throw new Error('Action inconnue: ' + action);
     }
-    return jsonOut(result);
   } catch (err) {
-    return jsonOut({ error: err.message });
+    result = { error: err.message };
   } finally {
     if (DIRTY) {
       const ver = stateChanged();
@@ -100,6 +103,10 @@ function doPost(e) {
     }
     if (lock) lock.releaseLock();
   }
+  // E-mails envoyés une fois le verrou libéré (même si une erreur a suivi l'écriture :
+  // ce qui a été enregistré est confirmé). Leurs statuts sont complétés avant la réponse.
+  sendQueuedMails();
+  return jsonOut(result);
 }
 
 // ---------- Accès à la feuille ----------
@@ -369,8 +376,19 @@ function markProcessed(requestId) {
   }
 }
 
+// Pendant une requête du site (doPost), l'e-mail est seulement mis en file : doPost l'envoie
+// après avoir libéré le verrou, pour qu'une autre réservation n'attende pas cet envoi.
+// Le statut renvoyé est alors complété à l'envoi (la réponse JSON est construite après).
+// Hors requête (rappels de la veille), l'e-mail part tout de suite.
+let MAILS = null;
 function sendMailSafe(to, subject, body) {
   if (!isEmail(to)) return { sent: false, reason: 'no-email' };
+  if (!MAILS) return sendMailNow(to, subject, body);
+  const status = { sent: false, reason: 'pending' };
+  MAILS.push({ to: to, subject: subject, body: body, status: status });
+  return status;
+}
+function sendMailNow(to, subject, body) {
   try {
     MailApp.sendEmail(to, subject, body);
     return { sent: true };
@@ -378,6 +396,16 @@ function sendMailSafe(to, subject, body) {
     console.log('Erreur envoi email: ' + e);
     return { sent: false, reason: String(e) };
   }
+}
+// Envoie les e-mails mis en file pendant la requête, chacun complétant son statut.
+function sendQueuedMails() {
+  const queue = MAILS || [];
+  MAILS = null;
+  queue.forEach(m => {
+    const res = sendMailNow(m.to, m.subject, m.body);
+    delete m.status.reason;
+    Object.assign(m.status, res);
+  });
 }
 
 function getConfig() {

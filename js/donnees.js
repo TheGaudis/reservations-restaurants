@@ -30,7 +30,9 @@ function saveTexts(s){
 // Copie locale des dernières données, pour afficher le calendrier dès l'ouverture de la page.
 // Réduite à ce qui sert à la consultation : jours, plats, capacités et places prises par jour
 // ou par plat. Aucun nom, email, téléphone ni observation n'est gardé dans le navigateur.
-// Tant que les données fraîches ne sont pas arrivées (dataStale), rien ne peut être réservé.
+// Tant que les données fraîches ne sont pas arrivées (dataStale), on peut déjà ouvrir et remplir
+// un formulaire : le script recompte les places restantes au moment d'enregistrer (sous verrou)
+// et refuse ce qui n'est plus disponible.
 // CACHE_KEY et CACHE_MAX_AGE : définis dans le <head> d'index.html (lecture anticipée).
 const CONFIG_KEYS = ['name1', 'name2', 'desc1', 'desc2', 'contactAnnulation', 'priceEleve', 'priceProf', 'priceExterieur'];
 let dataStale = false, cachedFor = null;
@@ -62,11 +64,9 @@ function loadCache(){
       r2Bookings: Object.entries(snap.r2Used).map(([ItemID, Qte]) => ({ ItemID, Qte })) };
   }catch(e){ return null; }
 }
-// Bouton « Réserver » : inactif tant que les places ne sont pas à jour
+// Bouton « Réserver » : actif dès la copie locale (voir dataStale ci-dessus)
 function reserveButtonHtml(onclick){
-  return dataStale
-    ? `<div class="day-actions"><button class="btn primary" disabled>Mise à jour des places…</button></div>`
-    : `<div class="day-actions"><button class="btn primary" onclick="${onclick}">Réserver</button></div>`;
+  return `<div class="day-actions"><button class="btn primary" onclick="${onclick}">Réserver</button></div>`;
 }
 let draftItems = [{name:'', stock:'', price:''}];
 let openBookingTarget = null;
@@ -106,6 +106,19 @@ function hideLoader(){
 // Une seconde tentative, 1,5 s plus tard, suffit en général ; les écritures ne sont jamais rejouées.
 // Une erreur renvoyée par le script lui-même (data.error) ne change pas en réessayant : pas de seconde tentative.
 // since : etag de l'état affiché ; si rien n'a changé, le script répond seulement { unchanged: true }.
+// Google met parfois plus de 10 s à démarrer le script, et le délai change d'une requête à l'autre :
+// si la lecture n'a pas répondu après HEDGE_MS, une seconde part en parallèle et la première
+// réponse arrivée l'emporte (une lecture peut être doublée sans risque, jamais une écriture).
+const HEDGE_MS = 6000;
+function hedgedRead(first, since){
+  return new Promise((resolve, reject) => {
+    let left = 1, over = false, timer = null;
+    const finish = fn => v => { if(!over){ over = true; clearTimeout(timer); fn(v); } };
+    const watch = p => p.then(finish(resolve), e => { if(--left === 0) finish(reject)(e); });
+    watch(first);
+    timer = setTimeout(() => { if(!over){ left++; watch(fetch(stateUrl(since)).then(r => r.json())); } }, HEDGE_MS);
+  });
+}
 async function apiGet(silent, since = ''){
   if(!silent) showLoader();
   try{
@@ -114,7 +127,7 @@ async function apiGet(silent, since = ''){
       try{
         // La lecture anticipée du <head> ne sert que si elle a été faite avec le même etag
         const early = earlyGet; earlyGet = null;
-        data = await ((early && earlySince === since) ? early : fetch(stateUrl(since)).then(r => r.json()));
+        data = await hedgedRead((early && earlySince === since) ? early : fetch(stateUrl(since)).then(r => r.json()), since);
         break;
       }catch(e){
         if(attempt >= 2 || !navigator.onLine) throw e;
@@ -180,6 +193,7 @@ async function fetchAdminState(password){
 function adoptBookingState(res){
   if(isAdmin){ loadAll(true); return; }
   state = res;
+  dataStale = false; // réservation faite depuis la copie locale : la réponse est l'état à jour
 }
 
 // Somme d'une colonne numérique (Qte, PrixTotal…) ; les cellules vides comptent 0
@@ -217,7 +231,7 @@ function showLoadError(){
   const msg = (navigator.onLine
     ? '<b>Le service de réservation ne répond pas.</b><br>Réessayez dans un instant. Si le problème continue, prévenez l\'établissement.'
     : '<b>Vous semblez hors ligne.</b><br>Vérifiez votre connexion internet, puis réessayez.'
-  ) + (dataStale ? '<br>Le calendrier affiché date de votre dernière visite : les réservations reprendront une fois les places à jour.' : '');
+  ) + (dataStale ? '<br>Le calendrier affiché date de votre dernière visite : les places restantes ont pu changer depuis.' : '');
   document.body.classList.add('load-error');
   box.textContent = '';
   requestAnimationFrame(() => { box.innerHTML = msg; });
