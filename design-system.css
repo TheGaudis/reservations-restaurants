@@ -261,6 +261,7 @@ details.disclosure[open]::details-content{block-size:auto;opacity:1;
 .seg-btn + .seg-btn{border-left:1px solid var(--outline);}
 .seg-btn:first-child{border-radius:var(--radius-full) 0 0 var(--radius-full);}
 .seg-btn:last-child{border-radius:0 var(--radius-full) var(--radius-full) 0;}
+.seg-btn:only-child{border-radius:var(--radius-full);} /* segment seul (ex. « Sur place » un jour au ticket restaurant) */
 .seg-btn::after{content:"";position:absolute;inset:-4px 0;} /* cible tactile 48 px */
 .seg-btn:focus-visible{z-index:1;} /* anneau de focus global (section 3), au-dessus du segment voisin */
 .seg-btn[aria-pressed="true"]{background:var(--accent-container);color:var(--accent-ink);font-weight:var(--fw-semibold);}

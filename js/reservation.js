@@ -43,13 +43,19 @@ function setMultiQty(itemId, value){
     if(next && next.classList.contains('field-error')) next.remove();
   }
 }
+// Montant d'une commande du client : quels que soient le nombre de plats au ticket restaurant et
+// leurs portions, la commande coûte un seul ticket restaurant (plus les plats payés en euros).
+function orderAmounts(lines){
+  const sum = r2Amounts(lines);
+  return { ...sum, tickets: Math.min(sum.tickets, 1) };
+}
 function updateR2PriceLive(){
   const el = document.getElementById('bk-r2-total');
   if(!el) return;
   const lines = Object.keys(multiBookingQty)
     .map(itemId => ({ item: state.r2Items.find(it => it.ID === itemId), qte: multiBookingQty[itemId] }))
     .filter(l => l.item);
-  const sum = r2Amounts(lines), amounts = amountsText(sum);
+  const sum = orderAmounts(lines), amounts = amountsText(sum);
   el.textContent = amounts ? ('Total' + (sum.gap ? ' (hors plats sans prix indiqué)' : '') + ' : ' + amounts) : '';
 }
 
@@ -123,10 +129,10 @@ async function submitBookingR2Multi(date, btn){
       const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe },
         { label:'Mode', value: mode === 'emporter' ? 'À emporter' : 'Sur place' }];
       // Quantités réellement enregistrées par le serveur (après ajustement éventuel du stock). Le total
-      // est recalculé ici (r2Amounts) : le script compte les plats au ticket comme des plats « sans prix ».
+      // est recalculé ici (orderAmounts) : le script compte les plats au ticket comme des plats « sans prix ».
       const confirmed = r.confirmed.map(c => ({ item: flagTicket({ Nom: c.nom, Prix: c.prix }), qte: c.qte }));
       confirmed.forEach(({ item, qte }) => lines.push({ label: item.Nom || 'Plat', value: '× ' + qte }));
-      const sum = r2Amounts(confirmed), amounts = amountsText(sum);
+      const sum = orderAmounts(confirmed), amounts = amountsText(sum);
       bookingConfirmation = {
         rest:'r2', date, lines,
         total: amounts ? amounts + (sum.gap ? ' (hors plats sans prix)' : '') : '',
