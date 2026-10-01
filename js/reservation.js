@@ -66,7 +66,7 @@ function newRequestId(){
 function handleDuplicate(res){
   if(!res._duplicate) return false;
   ['_duplicate', '_emailStatus', '_bookingResult'].forEach(k => delete res[k]);
-  state = res;
+  adoptBookingState(res);
   openBookingTarget = null; multiBookingQty = {};
   showToast('Cette réservation était déjà enregistrée : elle n\'a pas été ajoutée une seconde fois.');
   render();
@@ -89,7 +89,7 @@ async function submitBookingR1(date, btn){
     if(handleDuplicate(res)) return;
     const emailStatus = res._emailStatus;
     delete res._emailStatus;
-    state = res;
+    adoptBookingState(res);
     const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe }];
     if(nbEleve) lines.push({ label:'Élèves', value:String(nbEleve) });
     if(nbProf) lines.push({ label:'Personnels', value:String(nbProf) });
@@ -110,8 +110,6 @@ async function submitBookingR2Multi(date, btn){
   const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
   if(r2OrdersClosed(date)){ openBookingTarget = null; showToast(r2ClosedMsg()); render(); return; }
   if(!checkFields(btn, [[document.getElementById('bk-r2-total'), items.length === 0, 'Choisissez au moins un plat.'], ...bookerRules(f)])) return;
-  // Réservations déjà connues : les nouvelles (celles réellement enregistrées) serviront au récapitulatif
-  const knownIds = new Set(state.r2Bookings.map(b => b.ID));
   const orig = setBusy(btn, 'Envoi en cours…');
   try{
     const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs, requestId: openBookingTarget && openBookingTarget.requestId });
@@ -120,7 +118,7 @@ async function submitBookingR2Multi(date, btn){
     const emailStatus = res._emailStatus;
     delete res._bookingResult;
     delete res._emailStatus;
-    state = res;
+    adoptBookingState(res);
     if(r.confirmed.length === 0){
       showToast('Aucun des plats choisis n\'est disponible en quantité suffisante.', true);
     } else {
@@ -128,12 +126,7 @@ async function submitBookingR2Multi(date, btn){
       const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe },
         { label:'Mode', value: chosenServiceMode === 'emporter' ? 'À emporter' : 'Sur place' }];
       // Quantités réellement enregistrées par le serveur (après ajustement éventuel du stock)
-      state.r2Bookings
-        .filter(b => !knownIds.has(b.ID) && String(b.Nom).trim() === name && items.some(it => it.itemId === b.ItemID))
-        .forEach(b => {
-          const item = state.r2Items.find(x => x.ID === b.ItemID);
-          lines.push({ label: item ? item.Nom : 'Plat', value: '× ' + b.Qte });
-        });
+      r.confirmed.forEach(c => lines.push({ label: c.nom || 'Plat', value: '× ' + c.qte }));
       bookingConfirmation = {
         rest:'r2', date, lines,
         total: r.totalPrix > 0 ? formatEuro(r.totalPrix) + (r.hasPriceGap ? ' (hors plats sans prix)' : '') : '',

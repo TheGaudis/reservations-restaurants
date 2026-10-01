@@ -17,7 +17,19 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLVvpP6oSS-qCm
 // Première lecture lancée dès maintenant, sans attendre les feuilles de styles ni le reste
 // de la page : apiGet() la reprend à son premier appel. Le .catch évite une alerte
 // « promesse rejetée » dans la console ; l'erreur est traitée par apiGet().
-let earlyGet = fetch(APPS_SCRIPT_URL).then(r => r.json());
+// Si la copie locale de la dernière visite existe, son etag est envoyé : si rien n'a changé,
+// la réponse est minuscule et la copie locale devient l'état à jour.
+// CACHE_KEY et CACHE_MAX_AGE sont définis ici une seule fois et repris par js/donnees.js.
+const CACHE_KEY = 'reservations-cache-v1';
+const CACHE_MAX_AGE = 14 * 24 * 3600 * 1000; // au-delà, la copie est ignorée
+let earlySince = '';
+try {
+  const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+  if (c && c.etag && Date.now() - c.savedAt < CACHE_MAX_AGE) earlySince = c.etag;
+} catch (e) {}
+// Adresse de lecture publique, avec l'etag connu (repris par apiGet dans js/donnees.js)
+const stateUrl = since => APPS_SCRIPT_URL + (since ? '?since=' + encodeURIComponent(since) : '');
+let earlyGet = fetch(stateUrl(earlySince)).then(r => r.json());
 earlyGet.catch(() => {});
 </script>
 <!-- La lecture ci-dessus ouvre déjà script.google.com, qui redirige vers script.googleusercontent.com -->
@@ -25,8 +37,8 @@ earlyGet.catch(() => {});
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="design-system.css?v=4">
-<link rel="stylesheet" href="app.css?v=4">
+<link rel="stylesheet" href="design-system.css?v=5">
+<link rel="stylesheet" href="app.css?v=5">
 </head>
 <body>
 <div class="setup-banner" id="setupBanner" style="display:none;">
@@ -88,13 +100,13 @@ earlyGet.catch(() => {});
 
 <!-- Scripts de la page, dans cet ordre (portée globale partagée, pas de modules).
      Après chaque mise en ligne, augmenter ensemble tous les ?v= de la page (CSS et JS). -->
-<script src="js/donnees.js?v=4"></script>
-<script src="js/outils.js?v=4"></script>
-<script src="js/impression.js?v=4"></script>
-<script src="js/interface.js?v=4"></script>
-<script src="js/collegue.js?v=4"></script>
-<script src="js/reservation.js?v=4"></script>
-<script src="js/calendrier.js?v=4"></script>
-<script src="js/main.js?v=4"></script>
+<script src="js/donnees.js?v=5"></script>
+<script src="js/outils.js?v=5"></script>
+<script src="js/impression.js?v=5"></script>
+<script src="js/interface.js?v=5"></script>
+<script src="js/collegue.js?v=5"></script>
+<script src="js/reservation.js?v=5"></script>
+<script src="js/calendrier.js?v=5"></script>
+<script src="js/main.js?v=5"></script>
 </body>
 </html>

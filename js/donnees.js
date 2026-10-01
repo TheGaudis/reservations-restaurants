@@ -31,8 +31,7 @@ function saveTexts(s){
 // Réduite à ce qui sert à la consultation : jours, plats, capacités et places prises par jour
 // ou par plat. Aucun nom, email, téléphone ni observation n'est gardé dans le navigateur.
 // Tant que les données fraîches ne sont pas arrivées (dataStale), rien ne peut être réservé.
-const CACHE_KEY = 'reservations-cache-v1';
-const CACHE_MAX_AGE = 14 * 24 * 3600 * 1000; // au-delà, la copie est ignorée
+// CACHE_KEY et CACHE_MAX_AGE : définis dans le <head> d'index.html (lecture anticipée).
 const CONFIG_KEYS = ['name1', 'name2', 'desc1', 'desc2', 'contactAnnulation', 'priceEleve', 'priceProf', 'priceExterieur'];
 let dataStale = false, cachedFor = null;
 function saveCache(s){
@@ -42,8 +41,10 @@ function saveCache(s){
   const r1Used = {}, r2Used = {};
   s.r1Bookings.forEach(b => { r1Used[b.Date] = (r1Used[b.Date] || 0) + (Number(b.Qte) || 0); });
   s.r2Bookings.forEach(b => { r2Used[b.ItemID] = (r2Used[b.ItemID] || 0) + (Number(b.Qte) || 0); });
+  // etag : présent seulement pour l'état public, dont cette copie reprend exactement le contenu.
+  // Au chargement suivant, la page le renvoie (?since=) : si rien n'a changé, la réponse est minuscule.
   const snap = {
-    savedAt: Date.now(), config: pick(s, CONFIG_KEYS), r1Used, r2Used,
+    savedAt: Date.now(), etag: s.etag, config: pick(s, CONFIG_KEYS), r1Used, r2Used,
     r1Days: s.r1Days.map(d => pick(d, ['Date', 'Capacite', 'Theme', 'Menu'])),
     r2Days: s.r2Days.map(d => pick(d, ['Date', 'Theme', 'Note'])),
     r2Items: s.r2Items.map(it => pick(it, ['ID', 'Date', 'Nom', 'Stock', 'Prix']))
@@ -56,7 +57,7 @@ function loadCache(){
   try{
     const snap = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
     if(!snap || !(Date.now() - snap.savedAt < CACHE_MAX_AGE)) return null;
-    return { ...snap.config, r1Days: snap.r1Days, r2Days: snap.r2Days, r2Items: snap.r2Items,
+    return { ...snap.config, etag: snap.etag, r1Days: snap.r1Days, r2Days: snap.r2Days, r2Items: snap.r2Items,
       r1Bookings: Object.entries(snap.r1Used).map(([Date, Qte]) => ({ Date, Qte })),
       r2Bookings: Object.entries(snap.r2Used).map(([ItemID, Qte]) => ({ ItemID, Qte })) };
   }catch(e){ return null; }
@@ -104,14 +105,16 @@ function hideLoader(){
 // Lecture : Google renvoie parfois une page d'erreur passagère (403 / 404) au lieu du JSON.
 // Une seconde tentative, 1,5 s plus tard, suffit en général ; les écritures ne sont jamais rejouées.
 // Une erreur renvoyée par le script lui-même (data.error) ne change pas en réessayant : pas de seconde tentative.
-async function apiGet(silent){
+// since : etag de l'état affiché ; si rien n'a changé, le script répond seulement { unchanged: true }.
+async function apiGet(silent, since = ''){
   if(!silent) showLoader();
   try{
     let data;
     for(let attempt = 1; ; attempt++){
       try{
+        // La lecture anticipée du <head> ne sert que si elle a été faite avec le même etag
         const early = earlyGet; earlyGet = null;
-        data = await (early || fetch(APPS_SCRIPT_URL).then(r => r.json()));
+        data = await ((early && earlySince === since) ? early : fetch(stateUrl(since)).then(r => r.json()));
         break;
       }catch(e){
         if(attempt >= 2 || !navigator.onLine) throw e;
@@ -130,21 +133,53 @@ function setBusy(btn, label){
   return orig;
 }
 function clearBusy(btn, orig){ btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = orig; }
+async function postJson(action, payload){
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  const data = await res.json();
+  if(data.error){
+    // Mot de passe changé côté script pendant une session collègue (actualisation ou écriture)
+    if(isAdmin && data.error === 'Mot de passe incorrect.') throw adminSessionExpired();
+    throw new Error(data.error);
+  }
+  return data;
+}
+function adminSessionExpired(){
+  const msg = 'Le mot de passe du mode collègue a changé. Reconnectez-vous.';
+  logoutAdmin(); showToast(msg, true);
+  loadAll(true); // état public à la place de l'état complet
+  return new Error(msg);
+}
 let writeSeq = 0;
 async function apiPost(action, payload={}){
   writeSeq++;
   const quiet = !!document.querySelector('button[aria-busy="true"]');
   if(!quiet) showLoader();
-  try{
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, ...payload })
-    });
-    const data = await res.json();
-    if(data.error) throw new Error(data.error);
+  try{ return await postJson(action, payload); }
+  finally{ if(!quiet) hideLoader(); }
+}
+// La lecture publique ne contient que les places prises. Le mode collègue lit l'état complet
+// (réservations détaillées) avec son mot de passe ; c'est aussi la vérification à la connexion.
+async function fetchAdminState(password){
+  try{ return await postJson('getAdminState', { password }); }
+  catch(e){
+    if(!/^Action inconnue/.test(e.message)) throw e;
+    // Script Apps Script pas encore mis à jour : sa lecture publique contient encore tout
+    const res = await postJson('checkPassword', { password });
+    if(!res.ok) throw new Error('Mot de passe incorrect.');
+    const data = await apiGet(true);
+    if(!Array.isArray(data.r1Bookings)) throw new Error('Réponse inattendue du service.');
     return data;
-  }finally{ if(!quiet) hideLoader(); }
+  }
+}
+// Réponse d'une réservation publique (totaux anonymes) : si un collègue s'est connecté pendant
+// l'envoi, elle ne doit pas remplacer l'état complet ; on relit celui-ci pour y voir la réservation.
+function adoptBookingState(res){
+  if(isAdmin){ loadAll(true); return; }
+  state = res;
 }
 
 // Somme d'une colonne numérique (Qte, PrixTotal…) ; les cellules vides comptent 0
@@ -154,12 +189,17 @@ const sumBy = (list, key) => list.reduce((s, x) => s + Number(x[key] || 0), 0);
 // Rafraîchissements automatiques : silencieux, sans bloquer l'écran.
 let firstLoadDone = false;
 async function loadAll(background){
+  const seqAtStart = writeSeq, asAdmin = isAdmin;
   try{
-    const seqAtStart = writeSeq;
-    const data = await apiGet(true);
-    // Une écriture a eu lieu pendant la lecture : ces données sont peut-être périmées.
-    if(seqAtStart !== writeSeq){ if(!firstLoadDone) return loadAll(background); return; }
-    state = data;
+    const data = asAdmin ? await fetchAdminState(adminPassword) : await apiGet(true, state.etag || '');
+    // Une écriture, une connexion ou une déconnexion a eu lieu pendant la lecture : données à jeter.
+    if(seqAtStart !== writeSeq || asAdmin !== isAdmin){ if(!firstLoadDone) return loadAll(background); return; }
+    if(data.unchanged){
+      // Rien n'a changé depuis l'état affiché (copie locale comprise) : il devient l'état à jour
+      if(background && firstLoadDone && !dataStale) return;
+    } else {
+      state = data;
+    }
     firstLoadDone = true;
     dataStale = false; // les boutons « Réserver » redeviennent actifs
     document.body.classList.remove('load-error');

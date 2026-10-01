@@ -15,11 +15,13 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 
 - 📅 Calendrier des jours de service, accessible au clavier (flèches, Début / Fin, Page ↑ / ↓).
 - 🔢 Places ou portions restantes affichées pour chaque jour et chaque plat.
+- 🔐 Aucune donnée personnelle pour le public : la lecture publique ne contient que les jours, les plats et le nombre de places prises (un total par jour ou par plat). Noms, e-mails, téléphones et observations ne sont envoyés qu'au mode collègue.
 - ⚡ Affichage immédiat : à la visite suivante, le calendrier de la dernière visite s'affiche aussitôt, en consultation seule, le temps que les places se mettent à jour. La copie gardée dans le navigateur ne contient aucune donnée personnelle (ni nom, ni e-mail, ni téléphone).
 - 🚀 Chargement anticipé : la lecture des données part dès le début de la page, avant les polices et les styles, et la connexion à Google Apps Script est préparée (`preconnect`).
-- 🛡️ Anti-doublon : chaque réservation envoie un identifiant unique (`requestId`), conservé si l'on réessaie après une erreur ; le script peut ainsi ignorer un envoi déjà enregistré (voir l'installation).
-- 📝 Formulaire de réservation avec contrôle des champs et message d'erreur sous chaque champ.
-- 📧 E-mail de confirmation, puis rappel la veille, si le contact saisi est une adresse e-mail.
+- 🪶 Actualisation légère : la page envoie l'empreinte (`etag`) de ce qu'elle affiche ; si rien n'a changé, le script répond en quelques octets (`{ unchanged: true }`), à l'ouverture comme lors de l'actualisation toutes les 3 minutes.
+- 🛡️ Anti-doublon : chaque réservation envoie un identifiant unique (`requestId`), conservé si l'on réessaie après une erreur ; le script ignore un envoi déjà enregistré (double clic, réponse perdue) et la page affiche « Cette réservation était déjà enregistrée ».
+- 📝 Formulaire de réservation avec contrôle des champs et message d'erreur sous chaque champ ; le script revérifie les quantités (nombres entiers positifs) et les places restantes avant d'écrire.
+- 📧 E-mail de confirmation, puis rappel la veille, si le contact saisi est une adresse e-mail (dates en toutes lettres, montants « 12,50 € »).
 
 **🧑‍🍳 Pour l'équipe (« mode collègue », protégé par mot de passe)**
 
@@ -28,7 +30,7 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 - 📋 Consultation, modification et suppression des réservations ; au restaurant 1, le détail élèves / personnels / extérieurs est modifiable et le prix est recalculé aux tarifs en vigueur.
 - 🖨️ Impression de la liste d'un jour et du résumé du lendemain pour chaque restaurant, au format A4 paysage ; la liste du jour se termine par un cadre « Nom du responsable / Signature ».
 - ⚙️ Réglage du nom des restaurants et du contact d'annulation.
-- 🔒 Déconnexion automatique après 10 minutes d'inactivité.
+- 🔒 Déconnexion automatique après 10 minutes d'inactivité, ou dès que le mot de passe est changé dans le script.
 
 ## 📁 Contenu du dépôt
 
@@ -56,17 +58,27 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 
 1. Créer une feuille Google Sheets vide.
 2. Ouvrir **Extensions > Apps Script** et coller le contenu de `Code.gs`.
-3. 🔑 Remplacer la valeur de `ADMIN_PASSWORD` par un mot de passe propre à l'établissement.
+3. 🔑 Définir le mot de passe du mode collègue, **sans l'écrire dans `Code.gs`** (ce fichier est public) : **Paramètres du projet** (roue dentée) > **Propriétés du script** > **Ajouter une propriété**, nom `ADMIN_PASSWORD`, valeur = un mot de passe propre à l'établissement. Sans cette propriété, la connexion au mode collègue est refusée.
 4. **Déployer > Nouveau déploiement**, type **Application Web** :
    - Exécuter en tant que : *moi* ;
    - Accès : *tout le monde*.
 5. Copier l'URL du déploiement (elle se termine par `/exec`).
 
-Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_Items`, `R2_Bookings`) sont créés automatiquement au premier appel.
+Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_Items`, `R2_Bookings`) et leurs colonnes manquantes sont créés automatiquement à la première écriture (premier jour ouvert, premier paramètre enregistré…).
 
-⏰ Pour les rappels de la veille, exécuter une fois la fonction `setupDailyTrigger` depuis l'éditeur Apps Script : elle programme l'envoi chaque jour à 18 h.
+⏰ Exécuter une fois la fonction `setupDailyTrigger` depuis l'éditeur Apps Script (et de nouveau après chaque mise à jour qui ajoute un déclencheur) : elle programme les rappels de la veille chaque jour à 18 h, l'archivage chaque nuit vers 3 h et le rafraîchissement de la mémoire de l'état toutes les 5 minutes (`rafraichirCache`, de 6 h à 21 h).
 
-🛡️ Anti-doublon : les actions `addBookingR1` et `addBookingR2Multi` reçoivent un champ `requestId`. Si le script a déjà traité cet identifiant (à vérifier sous le verrou `LockService`, avant d'écrire), il doit renvoyer l'état avec `_duplicate: true` sans rien ajouter ; la page affiche alors « Cette réservation était déjà enregistrée ». Tant que le script ne le gère pas, le champ est simplement ignoré.
+🔐 Lecture publique et mode collègue : `doGet` renvoie l'état public (jours, plats, paramètres, totaux de places prises, `etag`) ; `doGet?since=<etag>` renvoie `{ unchanged: true }` si rien n'a changé. L'action `getAdminState` (mot de passe obligatoire) renvoie l'état complet ; la page l'utilise à la connexion et pour les actualisations en mode collègue. Les actions du mode collègue renvoient l'état complet, les réservations du public l'état public.
+
+🗄️ Archivage : chaque nuit, les jours de service passés depuis plus de 60 jours (constante `ARCHIVE_AFTER_DAYS`), avec leurs plats et leurs réservations, sont déplacés vers les onglets `Archive_R1_Days`, `Archive_R1_Bookings`, `Archive_R2_Days`, `Archive_R2_Items` et `Archive_R2_Bookings`. Rien n'est supprimé, mais ces jours n'apparaissent plus sur le site.
+
+⚡ Mémoire de l'état : la réponse publique est gardée en mémoire (`CacheService`), renouvelée aussitôt après chaque modification faite depuis le site et recalculée toutes les 5 minutes en journée : presque tous les visiteurs sont servis sans ouvrir la feuille. Une modification faite **directement dans Google Sheets** apparaît en 5 minutes au plus ; exécuter la fonction `viderCache` pour qu'elle apparaisse tout de suite.
+
+✍️ Texte saisi : le script l'enregistre précédé d'une apostrophe, pour que Google Sheets le garde tel quel (un numéro « 0612345678 » ne devient pas un nombre, une classe « 1/2 » ne devient pas une date).
+
+🛡️ Anti-doublon : les actions `addBookingR1` et `addBookingR2Multi` reçoivent un champ `requestId`. Le script le mémorise 6 heures (`CacheService`) ; s'il le reçoit à nouveau, il renvoie l'état avec `_duplicate: true` sans rien ajouter ni renvoyer d'e-mail.
+
+🔄 Mise à jour du script : après avoir collé la nouvelle version, utiliser **Déployer > Gérer les déploiements > Modifier (crayon) > Version : Nouvelle version**, pour garder la même URL `/exec`.
 
 ### 2. 🔌 Brancher la page
 
