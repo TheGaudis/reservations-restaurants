@@ -267,12 +267,12 @@ function renderDetailR2(){
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty compact">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span>${bookingLine(b, plural(Number(b.Qte), 'portion'), item.Prix ? formatEuro(item.Prix * b.Qte) : '', b.Mode==='emporter'?'à emporter':'sur place')}</span>${bookingActions('r2', b)}</div>${bookingEditForm('r2', b)}`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span>${bookingLine(b, plural(Number(b.Qte), 'portion'), itemAmountText(item, Number(b.Qte)), b.Mode==='emporter'?'à emporter':'sur place')}</span>${bookingActions('r2', b)}</div>${bookingEditForm('r2', b)}`).join('')}
       </div>`;
     }
     return `<div class="item-row stacked">
       <div class="item-row-head">
-        <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}</span>
+        <span class="item-name">${escapeHtml(item.Nom)}${dash(itemPriceText(item))}</span>
         <span class="capacity-pill ${capClass}" style="${gaugeStyle(rem, Number(item.Stock))}">${rem} / ${item.Stock}</span>
       </div>
       ${adminItemActions}

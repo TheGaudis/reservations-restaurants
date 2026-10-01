@@ -49,7 +49,7 @@ function saveCache(s){
     savedAt: Date.now(), etag: s.etag, config: pick(s, CONFIG_KEYS), r1Used, r2Used,
     r1Days: s.r1Days.map(d => pick(d, ['Date', 'Capacite', 'Theme', 'Menu'])),
     r2Days: s.r2Days.map(d => pick(d, ['Date', 'Theme', 'Note'])),
-    r2Items: s.r2Items.map(it => pick(it, ['ID', 'Date', 'Nom', 'Stock', 'Prix']))
+    r2Items: s.r2Items.map(it => pick(it, ['ID', 'Date', 'Nom', 'Stock', 'Prix', 'Ticket']))
   };
   try{ localStorage.setItem(CACHE_KEY, JSON.stringify(snap)); }catch(e){}
 }
@@ -59,16 +59,18 @@ function loadCache(){
   try{
     const snap = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
     if(!snap || !(Date.now() - snap.savedAt < CACHE_MAX_AGE)) return null;
-    return { ...snap.config, etag: snap.etag, r1Days: snap.r1Days, r2Days: snap.r2Days, r2Items: snap.r2Items,
+    return withTicketFlags({ ...snap.config, etag: snap.etag, r1Days: snap.r1Days, r2Days: snap.r2Days, r2Items: snap.r2Items,
       r1Bookings: Object.entries(snap.r1Used).map(([Date, Qte]) => ({ Date, Qte })),
-      r2Bookings: Object.entries(snap.r2Used).map(([ItemID, Qte]) => ({ ItemID, Qte })) };
+      r2Bookings: Object.entries(snap.r2Used).map(([ItemID, Qte]) => ({ ItemID, Qte })) });
   }catch(e){ return null; }
 }
 // Bouton « Réserver » : actif dès la copie locale (voir dataStale ci-dessus)
 function reserveButtonHtml(onclick){
   return `<div class="day-actions"><button class="btn primary" onclick="${onclick}">Réserver</button></div>`;
 }
-let draftItems = [{name:'', stock:'', price:''}];
+// Ligne vide d'un plat dans « Ouvrir un jour » (Aristide)
+function newDraftItem(){ return { name:'', stock:'', price:'', ticket:false }; }
+let draftItems = [newDraftItem()];
 let openBookingTarget = null;
 let chosenServiceMode = 'emporter';
 let multiBookingQty = {};
@@ -135,7 +137,7 @@ async function apiGet(silent, since = ''){
       }
     }
     if(data.error) throw new Error(data.error);
-    return data;
+    return withTicketFlags(data);
   }finally{ if(!silent) hideLoader(); }
 }
 // Bouton en cours d'envoi : il porte lui-même le retour (libellé + aria-busy),
@@ -158,7 +160,7 @@ async function postJson(action, payload){
     if(isAdmin && data.error === 'Mot de passe incorrect.') throw adminSessionExpired();
     throw new Error(data.error);
   }
-  return data;
+  return withTicketFlags(data);
 }
 function adminSessionExpired(){
   const msg = 'Le mot de passe du mode collègue a changé. Reconnectez-vous.';
@@ -198,6 +200,42 @@ function adoptBookingState(res){
 
 // Somme d'une colonne numérique (Qte, PrixTotal…) ; les cellules vides comptent 0
 const sumBy = (list, key) => list.reduce((s, x) => s + Number(x[key] || 0), 0);
+
+// Plats d'Aristide payés au prix d'un ticket restaurant. Le script Apps Script n'a pas de colonne
+// pour cela : la mention est rangée à la fin du nom du plat (« Bowl (ticket restaurant) »), que le
+// script enregistre et reprend tel quel dans ses e-mails. Elle n'est lue qu'à l'arrivée des données
+// (withTicketFlags) : le plat y reçoit Ticket = true et son nom perd la mention ; elle n'est remise
+// qu'à l'envoi (withTicketMark). Ces plats n'ont pas de prix en euros : ils ne comptent ni dans les
+// totaux en euros, ni comme « plats sans prix ».
+const TICKET_MARK = ' (ticket restaurant)';
+const TICKET_RE = /\s*\(ticket restaurant\)\s*$/i;
+const plainName = name => String(name ?? '').replace(TICKET_RE, '');
+const withTicketMark = (name, ticket) => plainName(name) + (ticket ? TICKET_MARK : '');
+const isTicket = item => !!item && item.Ticket === true;
+// Plat reçu du script (ou de la copie locale) : drapeau Ticket lu une fois, nom sans la mention.
+// Sans effet sur un plat déjà traité.
+const flagTicket = it => ({ ...it, Nom: plainName(it.Nom), Ticket: it.Ticket === true || TICKET_RE.test(String(it.Nom ?? '')) });
+function withTicketFlags(data){
+  return data && Array.isArray(data.r2Items) ? { ...data, r2Items: data.r2Items.map(flagTicket) } : data;
+}
+const ticketsText = n => plural(n, 'ticket') + ' restaurant';
+// Prix affiché d'un plat : « 3,50 € », « prix d'un ticket restaurant » ou rien
+function itemPriceText(item){ return isTicket(item) ? 'prix d\'un ticket restaurant' : (item.Prix ? formatEuro(item.Prix) : ''); }
+// Somme de portions d'Aristide ([{ item, qte }]) : euros, tickets et présence d'un plat réservé
+// sans prix (ni euros ni ticket), pour la mention « hors plats sans prix ».
+function r2Amounts(lines){
+  const sum = { euros: 0, tickets: 0, gap: false };
+  lines.forEach(({ item, qte }) => {
+    if(isTicket(item)) sum.tickets += qte;
+    else if(item.Prix !== '' && item.Prix != null) sum.euros += Number(item.Prix) * qte;
+    else if(qte > 0) sum.gap = true;
+  });
+  return sum;
+}
+// Total en euros et en tickets : « 12,00 € + 2 tickets restaurant » (parties nulles omises)
+function amountsText({ euros, tickets }){ return [euros > 0 ? formatEuro(euros) : '', tickets > 0 ? ticketsText(tickets) : ''].filter(Boolean).join(' + '); }
+// Montant de n portions d'un plat : « 7,00 € », « 2 tickets restaurant » ou rien
+const itemAmountText = (item, qte) => amountsText(r2Amounts([{ item, qte }]));
 
 // Premier chargement : squelette affiché à la place de l'écran de chargement.
 // Rafraîchissements automatiques : silencieux, sans bloquer l'écran.
@@ -264,6 +302,10 @@ function idx(){
 function remainingR1(day){ return Number(day.Capacite) - (idx().r1Used.get(day.Date) || 0); }
 function remainingItem(item){ return Number(item.Stock) - (idx().r2Used.get(item.ID) || 0); }
 const itemsR2 = iso => idx().r2ItemsByDate.get(iso) || [];
+// Jour d'Aristide avec au moins un plat au ticket restaurant : commande sur place seulement.
+// serviceMode() donne le mode réellement retenu ; le choix du client (chosenServiceMode) n'est pas modifié.
+const dayHasTicket = iso => itemsR2(iso).some(isTicket);
+const serviceMode = iso => dayHasTicket(iso) ? 'surplace' : chosenServiceMode;
 // Aristide : les commandes en ligne ferment à 10 h le jour même ; ensuite, commande sur place à 12 h
 const R2_CUTOFF_HOUR = 10, R2_ONSITE_HOUR = 12;
 const r2ClosedMsg = () => `Commandes en ligne closes depuis ${R2_CUTOFF_HOUR} h. Venez au restaurant ${state.name2} à partir de ${R2_ONSITE_HOUR} h pour commander sur place.`;
