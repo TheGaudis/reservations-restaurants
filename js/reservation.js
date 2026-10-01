@@ -151,7 +151,7 @@ function formActionsHtml(onSubmit, submitLabel, onCancel){
 }
 // Réservation par le public (préfixe 'bk') : nom et prénom, email, classe ; observation
 function bookerFieldsHtml(){
-  return `<div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Camille Martin" autocomplete="name"></div>
+  return `<div class="field"><label>Nom et prénom</label><input type="text" id="bk-name" placeholder="Ex. Cyrille Ungerer" autocomplete="name"></div>
       <div class="row2">
         ${contactFieldHtml()}
         <div class="field"><label>Classe ou service</label><input type="text" id="bk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>

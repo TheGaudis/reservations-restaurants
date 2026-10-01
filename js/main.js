@@ -29,6 +29,7 @@ function restoreUi(memo){
   fieldsToReset = new Set();
   updateR1PriceLive('bk');
   updateR1PriceLive('ebk');
+  updateR1PriceLive('abk');
   if(document.getElementById('bk-r2-total')) updateR2PriceLive();
   if(!memo.focus || document.activeElement !== document.body) return;
   let target = document.querySelector(memo.focus);
