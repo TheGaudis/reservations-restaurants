@@ -16,7 +16,7 @@ function focusKey(el){
 }
 function captureUi(){
   const fields = {};
-  document.querySelectorAll('.wrap input[id]:not([type="password"]), .wrap select[id], .wrap textarea[id]').forEach(el => { fields[el.id] = el.value; });
+  document.querySelectorAll('.wrap input[id]:not([type="password"]), .wrap select[id], .wrap textarea[id]').forEach(el => { fields[el.id] = el.type === 'checkbox' ? el.checked : el.value; });
   const active = document.activeElement;
   const region = active && active.closest ? active.closest('#detail-r1, #detail-r2, #admin-r1, #admin-r2, #settings') : null;
   return { fields, focus: focusKey(active), region: region && region.id };
@@ -24,11 +24,15 @@ function captureUi(){
 function restoreUi(memo){
   for(const [id, value] of Object.entries(memo.fields)){
     const el = document.getElementById(id);
-    if(el && !fieldsToReset.has(id) && el.value !== value) el.value = value;
+    if(!el || fieldsToReset.has(id)) continue;
+    if(el.type === 'checkbox') el.checked = value;
+    else if(el.value !== value) el.value = value;
   }
   fieldsToReset = new Set();
   updateR1PriceLive('bk');
   updateR1PriceLive('ebk');
+  updateR1PriceLive('abk');
+  document.querySelectorAll('.booking-form .check input[id$="-ticket"]').forEach(syncTicketPrice); // champ Prix d'un plat au ticket
   if(document.getElementById('bk-r2-total')) updateR2PriceLive();
   if(!memo.focus || document.activeElement !== document.body) return;
   let target = document.querySelector(memo.focus);

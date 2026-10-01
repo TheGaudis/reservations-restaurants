@@ -180,7 +180,7 @@ function printDayR1(date, tomorrow = false){
     heading: escapeHtml(state.name1), date: (tomorrow ? 'Demain, ' : '') + formatDate(date),
     meta,
     body: day ? table : '<p class="pb-note">Aucun jour ouvert pour demain.</p>',
-    total: day ? printTotal('Total', plural(total, 'couvert') + detail +(totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : '',
+    total: day ? printTotal('Total', plural(total, 'couvert') + detail + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : '',
     signature: !tomorrow
   }));
 }
@@ -199,20 +199,18 @@ function printDayR2(date){
     const key = [norm(b.Nom).toLowerCase(), norm(b.Classe).toLowerCase(), norm(b.Contact).toLowerCase()].join('|');
     let c = byKey[key];
     if(!c){
-      c = byKey[key] = { Nom:b.Nom, Classe:b.Classe, Contact:b.Contact, lignes:[], qte:0, prix:0, modes:{} };
+      c = byKey[key] = { Nom:b.Nom, Classe:b.Classe, Contact:b.Contact, lignes:[], qte:0, modes:{} };
       clients.push(c);
     }
     const item = itemById[b.ItemID];
     const qte = Number(b.Qte);
-    const prix = item.Prix ? Number(item.Prix) * qte : 0;
-    c.lignes.push({ nom:item.Nom, qte:qte, prix:prix, obs:b.Observation });
+    c.lignes.push({ nom:item.Nom, item, qte, obs:b.Observation }); // montants : r2Amounts(c.lignes)
     c.qte += qte;
-    c.prix += prix;
     c.modes[b.Mode==='emporter'?'À emporter':'Sur place'] = true;
   });
   clients.sort((a,b)=> String(a.Classe||'').localeCompare(String(b.Classe||'')) || String(a.Nom||'').localeCompare(String(b.Nom||'')));
 
-  const grandTotal = sumBy(clients, 'prix');
+  const grandTotal = amountsText(r2Amounts(clients.flatMap(c => c.lignes)));
   const totalPortions = sumBy(clients, 'qte');
 
   // En gras : quantité de chaque plat, commentaire du client et mode (à emporter / sur place)
@@ -220,15 +218,15 @@ function printDayR2(date){
     [{label:'Nom'},{label:'Classe'},{label:'Plats'},{label:'Portions',num:true},{label:'Prix',num:true},{label:'Mode'},{label:'Contact'}],
     clients.map(c=>[
       escapeHtml(c.Nom), escapeHtml(c.Classe),
-      c.lignes.map(l=>`<b>${l.qte}×</b> ${escapeHtml(l.nom)}${l.prix ? ' — ' + formatEuro(l.prix) : ''}${l.obs ? '<br><b><i>' + escapeHtml(l.obs) + '</i></b>' : ''}`).join('<br>'),
-      c.qte, c.prix ? formatEuro(c.prix) : '', '<b>' + Object.keys(c.modes).join(' + ') + '</b>', escapeHtml(c.Contact)
+      c.lignes.map(l=>`<b>${l.qte}×</b> ${escapeHtml(l.nom)}${dash(itemAmountText(l.item, l.qte))}${l.obs ? '<br><b><i>' + escapeHtml(l.obs) + '</i></b>' : ''}`).join('<br>'),
+      c.qte, amountsText(r2Amounts(c.lignes)), '<b>' + Object.keys(c.modes).join(' + ') + '</b>', escapeHtml(c.Contact)
     ]),
     'Aucune réservation.');
   const recapTable = printTable(
     [{label:'Plat'},{label:'Prix unitaire',num:true},{label:'Portions',num:true},{label:'Montant',num:true}],
     items.map(item=>{
       const total = sumBy(bookings.filter(b=>b.ItemID===item.ID), 'Qte');
-      return [escapeHtml(item.Nom), item.Prix ? formatEuro(item.Prix) : '', `${total} / ${item.Stock}`, item.Prix ? formatEuro(total * Number(item.Prix)) : ''];
+      return [escapeHtml(item.Nom), itemPriceText(item), `${total} / ${item.Stock}`, itemAmountText(item, total)];
     }),
     'Aucun plat.');
 
@@ -241,7 +239,7 @@ function printDayR2(date){
       { label:'Ouvert par', value: day && day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' }
     ],
     body: `<h2>Par client (${clients.length})</h2>${clientTable}<h2>Récapitulatif par plat</h2>${recapTable}`,
-    total: printTotal('Total du jour', plural(clients.length, 'client') + ' · ' + plural(totalPortions, 'portion') + (grandTotal > 0 ? ' · ' + formatEuro(grandTotal) : '')),
+    total: printTotal('Total du jour', plural(clients.length, 'client') + ' · ' + plural(totalPortions, 'portion') + dash(grandTotal, ' · ')),
     signature: true
   }));
 }
@@ -283,8 +281,7 @@ function showTomorrowSummary(){
     }
     if (r2Day) {
       const collegueR2 = r2Day.OuvertPar ? escapeHtml(r2Day.OuvertPar) : '(aucun)';
-      let totalPrixR2 = 0;
-      let hasGapR2 = false;
+      const linesR2 = []; // { item, qte } par plat, pour le total (r2Amounts)
       html += `<div class="summary-block">
         <div class="summary-head">
           <b class="summary-name accent-magenta">${escapeHtml(state.name2)}</b>
@@ -296,15 +293,16 @@ function showTomorrowSummary(){
         r2Items.forEach(item => {
           const bookings = r2Bookings.filter(b => b.ItemID === item.ID);
           const total = sumBy(bookings, 'Qte');
-          if (item.Prix) { totalPrixR2 += total * Number(item.Prix); } else if (total > 0) { hasGapR2 = true; }
+          linesR2.push({ item, qte: total });
           if (total > 0 || bookings.length > 0) {
             html += `<span class="summary-line">
-              • ${escapeHtml(item.Nom)}: ${total} portion(s)${item.Prix ? ' — ' + formatEuro(total * Number(item.Prix)) : ''}${bookings.length > 0 ? ' (' + bookings.map(b => escapeHtml(b.Nom)).join(', ') + ')' : ''}
+              • ${escapeHtml(item.Nom)}: ${total} portion(s)${dash(itemAmountText(item, total))}${bookings.length > 0 ? ' (' + bookings.map(b => escapeHtml(b.Nom)).join(', ') + ')' : ''}
             </span>`;
           }
         });
-        if (totalPrixR2 > 0) {
-          html += `<span class="summary-line summary-total">Total ${escapeHtml(state.name2)}${hasGapR2 ? ' (hors plats sans prix)' : ''} : ${formatEuro(totalPrixR2)}</span>`;
+        const sumR2 = r2Amounts(linesR2), amountsR2 = amountsText(sumR2);
+        if (amountsR2) {
+          html += `<span class="summary-line summary-total">Total ${escapeHtml(state.name2)}${sumR2.gap ? ' (hors plats sans prix)' : ''} : ${amountsR2}</span>`;
         }
       } else {
         html += '<br><span class="summary-meta">Aucun plat ouvert.</span>';
@@ -325,17 +323,18 @@ function printTomorrowSummaryR2(){
   const day = state.r2Days.find(d => d.Date === tomorrow);
   const items = state.r2Items.filter(it => it.Date === tomorrow);
   const bookings = state.r2Bookings.filter(b => b.Date === tomorrow);
-  let body = '', totalPrix = 0, totalPortions = 0;
+  let body = '', totalPortions = 0;
+  const lines = []; // { item, qte } par plat, pour le total (r2Amounts)
   if(!day) body = '<p class="pb-note">Aucun jour ouvert pour demain.</p>';
   else if(items.length === 0) body = '<p class="pb-note">Aucun plat ouvert.</p>';
   else items.forEach(item => {
     const bk = bookings.filter(b => b.ItemID === item.ID);
     const total = sumBy(bk, 'Qte');
     totalPortions += total;
-    if(item.Prix) totalPrix += total * Number(item.Prix);
-    body += `<h3>${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) + ' l\'unité' : ''}<span>${total} / ${item.Stock}</span></h3>`
+    lines.push({ item, qte: total });
+    body += `<h3>${escapeHtml(item.Nom)}${dash(itemPriceText(item))}${!isTicket(item) && item.Prix ? ' l\'unité' : ''}<span>${total} / ${item.Stock}</span></h3>`
       + printTable([{label:'Nom'},{label:'Classe'},{label:'Portions',num:true},{label:'Prix',num:true}],
-          bk.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), item.Prix ? formatEuro(item.Prix * b.Qte) : '']),
+          bk.map(b => [escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), itemAmountText(item, Number(b.Qte))]),
           'Aucune réservation.');
   });
   openPrint(printDoc({
@@ -343,6 +342,6 @@ function printTomorrowSummaryR2(){
     heading: escapeHtml(state.name2), date: 'Demain, ' + formatDate(tomorrow),
     meta: day ? [{ label:'Ouvert par', value: day.OuvertPar ? escapeHtml(day.OuvertPar) : 'Non renseigné' }] : [],
     body,
-    total: day && items.length ? printTotal('Total', plural(totalPortions, 'portion') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : ''
+    total: day && items.length ? printTotal('Total', plural(totalPortions, 'portion') + dash(amountsText(r2Amounts(lines)), ' · ')) : ''
   }));
 }

@@ -261,6 +261,7 @@ details.disclosure[open]::details-content{block-size:auto;opacity:1;
 .seg-btn + .seg-btn{border-left:1px solid var(--outline);}
 .seg-btn:first-child{border-radius:var(--radius-full) 0 0 var(--radius-full);}
 .seg-btn:last-child{border-radius:0 var(--radius-full) var(--radius-full) 0;}
+.seg-btn:only-child{border-radius:var(--radius-full);} /* segment seul (ex. « Sur place » un jour au ticket restaurant) */
 .seg-btn::after{content:"";position:absolute;inset:-4px 0;} /* cible tactile 48 px */
 .seg-btn:focus-visible{z-index:1;} /* anneau de focus global (section 3), au-dessus du segment voisin */
 .seg-btn[aria-pressed="true"]{background:var(--accent-container);color:var(--accent-ink);font-weight:var(--fw-semibold);}
@@ -284,6 +285,17 @@ input::placeholder,textarea::placeholder{color:var(--text-subtle);}
 /* Focus façon champ M3 : bordure qui s'épaissit à 2 px (lisible), plus un halo doux */
 input:focus,select:focus,textarea:focus,.date-trigger:focus-visible,.date-trigger[aria-expanded="true"]{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 0 4px var(--accent-soft);}
 label{display:block;font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);margin:0 0 var(--space-1);}
+/* Champ désactivé (ex. Prix d'un plat au ticket restaurant) : fond secondaire, texte atténué ;
+   la raison est dite à côté (case cochée, exemple remplacé par « Ticket ») */
+input:disabled,select:disabled{background:var(--surface-alt);border-color:var(--border-strong);color:var(--text-muted);cursor:not-allowed;}
+/* Case à cocher — label.check > input[type=checkbox] + texte.
+   Case native à la couleur d'accent (celle du restaurant dans un .accent-…), libellé cliquable
+   en texte courant, zone tactile de 48 px ; focus clavier : anneau global. */
+.check{display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--touch-target);margin:0;
+  font-size:var(--fs-sm);font-weight:var(--fw-medium);color:var(--text);cursor:pointer;}
+.check input{flex:0 0 auto;width:18px;height:18px;margin:0;padding:0;accent-color:var(--accent);cursor:pointer;}
+.check input:focus{box-shadow:none;}
+.check input:focus-visible{outline:var(--focus-width) solid var(--accent);outline-offset:2px;}
 .field{margin-bottom:var(--space-3);}
 /* Texte d'aide sous un champ (M3 « supporting text ») : relié au champ par aria-describedby */
 .field-help{margin:var(--space-1) 0 0;font-size:var(--fs-xs);color:var(--text-muted);}

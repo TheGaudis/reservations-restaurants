@@ -166,6 +166,13 @@ function emptyDayCardHtml(rest, iso){
 function menuBlockHtml(label, text){
   return `<div class="menu-block"><span class="kicker">${label}</span><div class="menu-text">${escapeHtml(text)}</div></div>`;
 }
+// Ligne d'une réservation (mode collègue) : nom, classe, quantité, prix, mode, contact, observation.
+// Les champs vides sont omis, pour ne jamais afficher de tirets qui se suivent.
+function bookingLine(b, qty, price, mode){
+  const parts = [b.Nom ? `<b>${escapeHtml(b.Nom)}</b>` : '', escapeHtml(b.Classe), qty, price, mode, escapeHtml(b.Contact),
+    b.Observation ? `<i>${escapeHtml(b.Observation)}</i>` : ''];
+  return parts.filter(Boolean).join(' — ');
+}
 function renderDetailR1(){
   const iso = calState.r1.selected;
   const day = idx().r1Days.get(iso);
@@ -191,13 +198,15 @@ function renderDetailR1(){
     adminHtml = `
       <div class="bookings-list">
         ${bookingsForDay.length===0 ? '<p class="empty compact">Aucune réservation.</p>' :
-          bookingsForDay.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'couvert')}${b.PrixTotal ? ' — ' + formatEuro(b.PrixTotal) : ''} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span>${bookingActions('r1', b)}</div>${bookingEditForm('r1', b)}`).join('')}
+          bookingsForDay.map(b=>`<div class="booking-row"><span>${bookingLine(b, plural(Number(b.Qte), 'couvert'), b.PrixTotal ? formatEuro(b.PrixTotal) : '')}</span>${bookingActions('r1', b)}</div>${bookingEditForm('r1', b)}`).join('')}
       </div>
       <div class="day-actions">
+        ${rem > 0 ? addBookingButtonHtml('r1', day.Date) : ''}
         <button class="btn small" onclick="openEditDayR1('${day.Date}')">Modifier ce jour</button>
         <button class="btn small" onclick="printDayR1('${day.Date}')">${ICONS.print} Imprimer la liste</button>
         <button class="btn danger small" onclick="deleteDayR1('${day.Date}', this)">Supprimer ce jour</button>
       </div>
+      ${addBookingFormR1Html(day)}
       ${editDayForm}
     `;
   }
@@ -249,6 +258,7 @@ function renderDetailR2(){
     let editItemForm = '';
     if(isAdmin){
       adminItemActions = `<div class="item-actions">
+        ${rem > 0 ? addBookingButtonHtml('r2', item.ID) : ''}
         <button class="btn small" onclick="openEditItem('${item.ID}')">Modifier ce plat</button>
         <button class="btn danger small" onclick="deleteItemR2('${item.ID}', this)">Supprimer ce plat</button>
       </div>`;
@@ -257,15 +267,16 @@ function renderDetailR2(){
       }
       adminBookings = `<div class="bookings-list">
         ${bookingsForItem.length===0 ? '<p class="empty compact">Aucune réservation.</p>' :
-          bookingsForItem.map(b=>`<div class="booking-row"><span><b>${escapeHtml(b.Nom)}</b> — ${escapeHtml(b.Classe)} — ${plural(Number(b.Qte), 'portion')}${item.Prix ? ' — ' + formatEuro(item.Prix * b.Qte) : ''} · ${b.Mode==='emporter'?'à emporter':'sur place'} — ${escapeHtml(b.Contact)}${b.Observation ? ' — <i>' + escapeHtml(b.Observation) + '</i>' : ''}</span>${bookingActions('r2', b)}</div>${bookingEditForm('r2', b)}`).join('')}
+          bookingsForItem.map(b=>`<div class="booking-row"><span>${bookingLine(b, plural(Number(b.Qte), 'portion'), itemAmountText(item, Number(b.Qte)), b.Mode==='emporter'?'à emporter':'sur place')}</span>${bookingActions('r2', b)}</div>${bookingEditForm('r2', b)}`).join('')}
       </div>`;
     }
     return `<div class="item-row stacked">
       <div class="item-row-head">
-        <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}</span>
+        <span class="item-name">${escapeHtml(item.Nom)}${dash(itemPriceText(item))}</span>
         <span class="capacity-pill ${capClass}" style="${gaugeStyle(rem, Number(item.Stock))}">${rem} / ${item.Stock}</span>
       </div>
       ${adminItemActions}
+      ${isAdmin ? addBookingFormR2Html(item) : ''}
       ${editItemForm}
       ${adminBookings}
     </div>`;
