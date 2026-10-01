@@ -58,13 +58,31 @@ const PRINT_CSS = `
   td{padding:2mm 2.5mm;border-bottom:1px solid var(--border);vertical-align:top;}
   tr{break-inside:avoid;}
   .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .center{text-align:center;font-variant-numeric:tabular-nums;}
+  /* Tableau quadrillé (liste du restaurant 1) : une colonne par information, filets entre les cases */
+  table.pb-grid{font-size:9pt;border:1px solid var(--border-strong);}
+  .pb-grid th,.pb-grid td{padding:2mm;border:1px solid var(--border-strong);vertical-align:middle;}
+  .pb-grid thead th{background:var(--surface-alt);border-bottom:2px solid var(--p-accent);}
+  thead tr.pb-groups th{font-size:7pt;color:var(--text-muted);border-bottom:1px solid var(--border-strong);}
+  /* largeur et style de chaque colonne (classe posée sur l'en-tête et les cases) */
+  .pb-grid .pb-name,.pb-grid .pb-class,.pb-grid .pb-chef{width:30mm;}
+  .pb-grid .pb-count{width:14mm;} .pb-grid .pb-big{width:18mm;} .pb-grid .pb-price{width:19mm;}
+  .pb-grid .pb-contact{width:38mm;} .pb-grid .pb-table{width:16mm;}
+  td.pb-name{font-weight:var(--fw-semibold);}
+  td.pb-zero{color:var(--text-muted);}
+  td.pb-big{font-family:var(--font-display);font-size:12pt;font-weight:var(--fw-semibold);color:var(--p-ink);}
+  /* observation du client : case marquée pour être vue tout de suite ; lignes assez hautes pour écrire */
+  td.pb-obs{font-weight:var(--fw-medium);background:var(--surface-alt);border-left:3px solid var(--p-accent);}
+  td.pb-chef{height:11mm;}
   td.pb-empty{text-align:center;color:var(--text-muted);font-style:italic;}
   /* le total ne part jamais seul sur une page : il reste avec la fin du tableau */
   .pb-total{break-before:avoid;display:flex;justify-content:space-between;align-items:baseline;gap:6mm;margin:5mm 0 0;padding:3mm 4mm;background:var(--surface-alt);border-left:4px solid var(--p-accent);border-radius:var(--radius-sm);break-inside:avoid;}
   .pb-total span{font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);}
   .pb-total b{font-family:var(--font-display);font-weight:var(--fw-semibold);font-size:12pt;font-variant-numeric:tabular-nums;}
-  .pb-sign{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:10mm;break-inside:avoid;}
-  .pb-sign div{padding-bottom:10mm;border-bottom:1px solid var(--border-strong);font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);}
+  /* intitulé puis trait d'écriture à sa droite, sur la même ligne (gain de hauteur) */
+  .pb-sign{display:grid;grid-template-columns:1fr 1fr;gap:10mm;margin-top:8mm;break-inside:avoid;}
+  .pb-sign div{display:flex;align-items:flex-end;gap:3mm;white-space:nowrap;font-size:7.5pt;font-weight:var(--fw-semibold);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted);}
+  .pb-sign div::after{content:"";flex:1;height:8mm;border-bottom:1px solid var(--border-strong);}
   .pb-note{color:var(--text-muted);}
   .pb-foot{margin-top:10mm;padding-top:3mm;border-top:1px solid var(--border);font-size:7.5pt;color:var(--text-muted);text-align:center;}
 `;
@@ -92,13 +110,19 @@ function printDoc({ title, accent, heading, date, meta = [], body, total = '', s
       <div class="pb-foot">Lycée professionnel Aristide Briand · Restaurants pédagogiques</div>
     </body></html>`;
 }
-// Tableau : cols = [{ label, num? }], rows = tableaux de cellules (HTML) ; message si vide
-function printTable(cols, rows, emptyMsg){
-  const head = cols.map(c => `<th${c.num ? ' class="num"' : ''}>${c.label}</th>`).join('');
+// Tableau : cols = [{ label, num?, center?, cls? }] (cls posée sur l'en-tête et toutes les cases de la colonne),
+// rows = tableaux de cellules (HTML, ou { html, cls } pour une classe propre à la case) ; message si vide.
+// Options : cls (classe du tableau), groups = [{ label, span, center? }] pour une ligne d'en-têtes de groupe.
+function printTable(cols, rows, emptyMsg, { cls, groups } = {}){
+  const attr = (...names) => { const c = names.filter(Boolean).join(' '); return c ? ` class="${c}"` : ''; };
+  const colAttr = cols.map(c => [c.num ? 'num' : c.center ? 'center' : '', c.cls]);
+  const groupRow = groups ? `<tr class="pb-groups">${groups.map(g => `<th colspan="${g.span}"${attr(g.center && 'center')}>${g.label}</th>`).join('')}</tr>` : '';
+  const head = cols.map((c, i) => `<th${attr(...colAttr[i])}>${c.label}</th>`).join('');
+  const cell = (v, i) => { const o = v && typeof v === 'object' ? v : { html: v }; return `<td${attr(...colAttr[i], o.cls)}>${o.html}</td>`; };
   const body = rows.length === 0
     ? `<tr><td class="pb-empty" colspan="${cols.length}">${emptyMsg}</td></tr>`
-    : rows.map(r => '<tr>' + r.map((cell, i) => `<td${cols[i].num ? ' class="num"' : ''}>${cell}</td>`).join('') + '</tr>').join('');
-  return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+    : rows.map(r => '<tr>' + r.map(cell).join('') + '</tr>').join('');
+  return `<table${attr(cls)}><thead>${groupRow}<tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
 }
 function printTotal(label, value){ return `<div class="pb-total"><span>${label}</span><b>${value}</b></div>`; }
 // Ouvre la fenêtre et lance l'impression une fois les polices de la charte chargées
@@ -110,18 +134,40 @@ function openPrint(html){
   Promise.race([ready, new Promise(r => setTimeout(r, 2000))]).then(() => setTimeout(() => w.print(), 100));
 }
 
-// Liste du restaurant 1 pour un jour (« Imprimer la liste »), ou version courte pour le résumé
-// « demain » : sans Thème, Menu, Contact ni signature.
+// Liste du restaurant 1 pour un jour (« Imprimer la liste ») : tableau quadrillé, une colonne par
+// information, observation du client et deux colonnes vides à remplir en salle (N° table, Chef de rang).
+// Version courte pour le résumé « demain » : sans Thème, Menu, détail, Contact, Observation ni signature.
 function printDayR1(date, tomorrow = false){
   const day = idx().r1Days.get(date);
   const bookings = state.r1Bookings.filter(b=>b.Date===date);
   const total = sumBy(bookings, 'Qte');
   const totalPrix = sumBy(bookings, 'PrixTotal');
-  const cols = [{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true}];
-  if(!tomorrow) cols.push({label:'Contact'});
-  const table = printTable(cols,
-    bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), b.PrixTotal ? formatEuro(b.PrixTotal) : '', escapeHtml(b.Contact)].slice(0, cols.length)),
-    'Aucune réservation.');
+  const prix = b => b.PrixTotal ? formatEuro(b.PrixTotal) : '';
+  const count = v => Number(v) || { html:'–', cls:'pb-zero' };
+  const table = tomorrow
+    ? printTable([{label:'Nom'},{label:'Classe'},{label:'Couverts',num:true},{label:'Prix',num:true}],
+        bookings.map(b=>[escapeHtml(b.Nom), escapeHtml(b.Classe), Number(b.Qte), prix(b)]),
+        'Aucune réservation.')
+    : printTable([
+        {label:'Nom', cls:'pb-name'}, {label:'Classe ou service', cls:'pb-class'},
+        {label:'Élèves', center:true, cls:'pb-count'}, {label:'Pers.', center:true, cls:'pb-count'}, {label:'Ext.', center:true, cls:'pb-count'},
+        {label:'Couverts', center:true, cls:'pb-big'}, {label:'Prix', num:true, cls:'pb-price'},
+        {label:'Contact', cls:'pb-contact'}, {label:'Observation'},
+        {label:'N° table', center:true, cls:'pb-table'}, {label:'Chef de rang', center:true, cls:'pb-chef'}],
+        bookings.map(b=>[
+          escapeHtml(b.Nom), escapeHtml(b.Classe),
+          count(b.NbEleve), count(b.NbProf), count(b.NbExt),
+          Number(b.Qte), prix(b), escapeHtml(b.Contact),
+          b.Observation ? { html: escapeHtml(b.Observation), cls:'pb-obs' } : '',
+          '', '']),
+        'Aucune réservation.',
+        { cls:'pb-grid', groups:[{label:'Client', span:2}, {label:'Réservation', span:5, center:true},
+          {label:'Informations', span:2}, {label:'À remplir en salle', span:2, center:true}] });
+  // détail du total (liste complète) : élèves, personnels, extérieurs ; omis si d'anciennes
+  // réservations sans détail empêchent qu'il retombe sur le total
+  const e = sumBy(bookings, 'NbEleve'), p = sumBy(bookings, 'NbProf'), x = sumBy(bookings, 'NbExt');
+  const detail = !tomorrow && total > 0 && e + p + x === total
+    ? ' · ' + [[e,'élève'], [p,'personnel'], [x,'extérieur']].filter(([n]) => n).map(([n, word]) => plural(n, word)).join(', ') : '';
   const meta = !day ? [] : [
     ...(tomorrow ? [] : [
       { label:'Thème', value: day.Theme ? escapeHtml(day.Theme) : '' },
@@ -134,7 +180,7 @@ function printDayR1(date, tomorrow = false){
     heading: escapeHtml(state.name1), date: (tomorrow ? 'Demain, ' : '') + formatDate(date),
     meta,
     body: day ? table : '<p class="pb-note">Aucun jour ouvert pour demain.</p>',
-    total: day ? printTotal('Total', plural(total, 'couvert') + (totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : '',
+    total: day ? printTotal('Total', plural(total, 'couvert') + detail +(totalPrix > 0 ? ' · ' + formatEuro(totalPrix) : '')) : '',
     signature: !tomorrow
   }));
 }
