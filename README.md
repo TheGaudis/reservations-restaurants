@@ -16,8 +16,9 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 - 📅 Calendrier des jours de service, accessible au clavier (flèches, Début / Fin, Page ↑ / ↓).
 - 🔢 Places ou portions restantes affichées pour chaque jour et chaque plat.
 - 🔐 Aucune donnée personnelle pour le public : la lecture publique ne contient que les jours, les plats et le nombre de places prises (un total par jour ou par plat). Noms, e-mails, téléphones et observations ne sont envoyés qu'au mode collègue.
-- ⚡ Affichage immédiat : à la visite suivante, le calendrier de la dernière visite s'affiche aussitôt, en consultation seule, le temps que les places se mettent à jour. La copie gardée dans le navigateur ne contient aucune donnée personnelle (ni nom, ni e-mail, ni téléphone).
-- 🚀 Chargement anticipé : la lecture des données part dès le début de la page, avant les polices et les styles, et la connexion à Google Apps Script est préparée (`preconnect`).
+- ⚡ Affichage immédiat : à la visite suivante, le calendrier de la dernière visite s'affiche aussitôt, le temps que les places se mettent à jour. On peut déjà ouvrir et remplir un formulaire : le script recompte les places au moment d'enregistrer et refuse ce qui n'est plus disponible. La copie gardée dans le navigateur ne contient aucune donnée personnelle (ni nom, ni e-mail, ni téléphone).
+- 🚀 Chargement anticipé : la lecture des données part dès le début de la page, avant les polices et les styles, et la connexion à Google Apps Script est préparée (`preconnect`). Les polices Google Fonts ne bloquent pas l'affichage (police système en attendant).
+- ⏱️ Lecture doublée si Google tarde : Google met parfois plus de 10 secondes à démarrer le script ; si la lecture n'a pas répondu après 6 secondes, une seconde part en parallèle et la première réponse arrivée l'emporte (jamais pour une écriture).
 - 🪶 Actualisation légère : la page envoie l'empreinte (`etag`) de ce qu'elle affiche ; si rien n'a changé, le script répond en quelques octets (`{ unchanged: true }`), à l'ouverture comme lors de l'actualisation toutes les 3 minutes.
 - 🛡️ Anti-doublon : chaque réservation envoie un identifiant unique (`requestId`), conservé si l'on réessaie après une erreur ; le script ignore un envoi déjà enregistré (double clic, réponse perdue) et la page affiche « Cette réservation était déjà enregistrée ».
 - 📝 Formulaire de réservation avec contrôle des champs et message d'erreur sous chaque champ ; le script revérifie les quantités (nombres entiers positifs) et les places restantes avant d'écrire.
@@ -72,7 +73,9 @@ Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_It
 
 🗄️ Archivage : chaque nuit, les jours de service passés depuis plus de 60 jours (constante `ARCHIVE_AFTER_DAYS`), avec leurs plats et leurs réservations, sont déplacés vers les onglets `Archive_R1_Days`, `Archive_R1_Bookings`, `Archive_R2_Days`, `Archive_R2_Items` et `Archive_R2_Bookings`. Rien n'est supprimé, mais ces jours n'apparaissent plus sur le site.
 
-⚡ Mémoire de l'état : la réponse publique est gardée en mémoire (`CacheService`), renouvelée aussitôt après chaque modification faite depuis le site et recalculée toutes les 5 minutes en journée : presque tous les visiteurs sont servis sans ouvrir la feuille. Une modification faite **directement dans Google Sheets** apparaît en 5 minutes au plus ; exécuter la fonction `viderCache` pour qu'elle apparaisse tout de suite.
+⚡ Mémoire de l'état : la réponse publique est gardée en mémoire (`CacheService`) pendant 6 heures, renouvelée aussitôt après chaque modification faite depuis le site et recalculée toutes les 5 minutes en journée : presque tous les visiteurs sont servis sans ouvrir la feuille, y compris le soir. Une modification faite **directement dans Google Sheets** apparaît en 5 minutes au plus en journée, mais seulement vers 6 h si elle est faite le soir ; exécuter la fonction `viderCache` pour qu'elle apparaisse tout de suite.
+
+📨 E-mails après le verrou : les réservations s'enregistrent l'une après l'autre (verrou), mais les e-mails de confirmation et d'annulation ne partent qu'une fois le verrou libéré. Une réservation n'attend donc pas l'envoi de l'e-mail de la précédente, et la page sait toujours si l'e-mail est parti.
 
 ✍️ Texte saisi : le script l'enregistre précédé d'une apostrophe, pour que Google Sheets le garde tel quel (un numéro « 0612345678 » ne devient pas un nombre, une classe « 1/2 » ne devient pas une date).
 
