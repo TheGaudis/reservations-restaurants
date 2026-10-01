@@ -411,7 +411,7 @@ function addIdentityHtml(){
       <div class="field"><label>Nom et prénom</label><input type="text" id="abk-nom" placeholder="Ex. Cyrille Ungerer"></div>
       <div class="field"><label>Classe ou service</label><input type="text" id="abk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
     </div>
-    <div class="field"><label>Adresse email (optionnel)</label><input type="email" id="abk-contact" placeholder="Ex. cyrille.ungerer@exemple.fr" inputmode="email" spellcheck="false"><p class="field-help">Si elle est indiquée, la confirmation y est envoyée.</p></div>`;
+    <div class="field"><label>Adresse email (optionnel)</label><input type="email" id="abk-contact" placeholder="Ex. Ariele.gsell@exemple.fr" inputmode="email" spellcheck="false"><p class="field-help">Si elle est indiquée, la confirmation y est envoyée.</p></div>`;
 }
 const ADD_OBS_HTML = `<div class="field"><label>Observation (optionnel)</label><input type="text" id="abk-obs" placeholder="Ex. table partagée, allergie…"></div>`;
 function addBookingFormR1Html(day){

@@ -104,12 +104,12 @@ function linkLabels(root){
 }
 // Champ email des deux formulaires de réservation (obligatoire, sert à envoyer la confirmation)
 function contactFieldHtml(){
-  return `<div class="field"><label>Adresse email</label><input type="email" id="bk-contact" placeholder="Ex. cyrille.ungerer@exemple.fr" autocomplete="email" inputmode="email" spellcheck="false"><p class="field-help">Pour vous envoyer la confirmation.</p></div>`;
+  return `<div class="field"><label>Adresse email</label><input type="email" id="bk-contact" placeholder="Ex. Ariele.gsell@exemple.fr" autocomplete="email" inputmode="email" spellcheck="false"><p class="field-help">Pour vous envoyer la confirmation.</p></div>`;
 }
 // Message d'erreur du champ email, ou chaîne vide s'il est correct
 function emailError(v){
   if(!v) return 'Indiquez votre adresse email.';
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Vérifiez votre adresse email (ex. cyrille.ungerer@exemple.fr).';
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Vérifiez votre adresse email (ex. Ariele.gsell@exemple.fr).';
 }
 function plural(n, word){ return n + ' ' + word + (n > 1 ? 's' : ''); }
 // « — texte » à la suite d'un libellé, ou rien si le texte est vide (prix, montants).
