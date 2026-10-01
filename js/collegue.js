@@ -289,8 +289,9 @@ function renderAdminFormR2(){
     <div class="draft-item-row">
       <input type="text" placeholder="Ex. salade César" aria-label="Plat ${i+1} : nom" value="${escapeHtml(it.name)}" oninput="updateDraftItem(${i}, 'name', this.value)">
       <input type="number" min="1" placeholder="10" aria-label="Plat ${i+1} : stock" value="${it.stock}" oninput="updateDraftItem(${i}, 'stock', this.value)">
-      <input type="number" step="0.01" min="0" placeholder="3,50" aria-label="Plat ${i+1} : prix en euros (optionnel)" value="${it.price||''}" list="price-suggestions" oninput="updateDraftItem(${i}, 'price', this.value)">
+      <input type="number" step="0.01" min="0" aria-label="Plat ${i+1} : prix en euros (optionnel)" value="${it.price||''}" list="price-suggestions" oninput="updateDraftItem(${i}, 'price', this.value)" ${priceInputAttrs(it.ticket, '3,50')}>
       <button class="icon-btn" onclick="removeDraftItem(${i})" type="button" aria-label="Retirer le plat ${i+1}"><svg viewBox="0 -960 960 960" aria-hidden="true"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
+      ${ticketCheckHtml('', it.ticket, `setDraftTicket(${i}, this)`, `Plat ${i+1} : au prix d'un ticket restaurant`)}
     </div>
   `).join('');
   el.innerHTML = `<details class="disclosure" ${addDayOpen.r2 ? 'open' : ''} ontoggle="addDayOpen.r2 = this.open">
@@ -311,8 +312,31 @@ function renderAdminFormR2(){
   </details>`;
 }
 function updateDraftItem(i, field, value){ draftItems[i][field] = value; }
-function addDraftItemRow(){ draftItems.push({name:'', stock:'', price:''}); render(['admin-r2']); }
-function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push({name:'',stock:'',price:''}); render(['admin-r2']); }
+function addDraftItemRow(){ draftItems.push(newDraftItem()); render(['admin-r2']); }
+function removeDraftItem(i){ draftItems.splice(i,1); if(draftItems.length===0) draftItems.push(newDraftItem()); render(['admin-r2']); }
+
+// Case « Ticket restaurant » d'un plat d'Aristide : cochée, le plat n'a pas de prix en euros
+// (champ Prix vidé et désactivé) ; la mention est ajoutée à son nom (withTicketMark), voir isTicket.
+// id : pour les formulaires d'un plat (relu par readItemForm) ; vide pour les lignes de « Ouvrir un jour ».
+function ticketCheckHtml(id, checked, onchange, ariaLabel){
+  return `<label class="check"><input type="checkbox"${id ? ` id="${id}"` : ''}${checked ? ' checked' : ''}${ariaLabel ? ` aria-label="${escapeHtml(ariaLabel)}"` : ''} onchange="${onchange}">Ticket restaurant</label>`;
+}
+// Champ Prix d'un plat : repéré par data-price, exemple gardé dans data-example ;
+// au ticket, désactivé avec « Ticket » à la place de l'exemple (même règle que syncTicketPrice)
+function priceInputAttrs(ticket, example){
+  return `data-price data-example="${example}" placeholder="${ticket ? 'Ticket' : example}"${ticket ? ' disabled' : ''}`;
+}
+function syncTicketPrice(cb){
+  const price = cb.closest('.draft-item-row, .booking-form').querySelector('[data-price]');
+  price.disabled = cb.checked;
+  price.placeholder = cb.checked ? 'Ticket' : price.dataset.example;
+  if(cb.checked) price.value = '';
+}
+function setDraftTicket(i, cb){
+  draftItems[i].ticket = cb.checked;
+  if(cb.checked) draftItems[i].price = '';
+  syncTicketPrice(cb);
+}
 
 async function addDayR2(btn){
   const dateVal = document.getElementById('date-r2').value;
@@ -321,7 +345,7 @@ async function addDayR2(btn){
   const collegueVal = document.getElementById('collegue-r2').value.trim();
   const items = draftItems
     .filter(it => it.name.trim() && parseInt(it.stock,10) > 0)
-    .map(it => ({ name: it.name.trim(), stock: parseInt(it.stock,10), price: it.price ? parseFloat(it.price) : '' }));
+    .map(it => ({ name: withTicketMark(it.name.trim(), it.ticket), stock: parseInt(it.stock,10), price: !it.ticket && it.price ? parseFloat(it.price) : '' }));
   const lastRow = [...btn.closest('.add-day').querySelectorAll('.draft-item-row')].pop();
   if(!checkFields(btn, [['date-r2', !dateVal, 'Choisissez une date.'],
     [lastRow, items.length === 0, 'Ajoutez au moins un plat avec un nom et un stock.']])) return;
@@ -330,7 +354,7 @@ async function addDayR2(btn){
     state = await apiPost('addDayR2', { password: adminPassword, date: dateVal, note: noteVal, items, theme: themeVal, collegue: collegueVal });
     showToast('Jour ajouté.');
     resetFields('collegue-r2', 'note-r2', 'theme-r2');
-    draftItems = [{name:'',stock:'',price:''}];
+    draftItems = [newDraftItem()];
     calState.r2.selected = dateVal; calState.r2.anchor = dateVal;
     render();
   }catch(e){ showToast(e.message || 'Erreur', true); clearBusy(btn, orig); }
@@ -369,7 +393,7 @@ function bookingEditForm(rest, b){
 
 // Ajout d'une personne par un collègue (préfixe 'abk') : au restaurant 1 sous la fiche du jour,
 // à Aristide sous chaque plat. Mêmes actions que la réservation du public : le script vérifie
-// les places restantes (sous verrou) et envoie la confirmation si le contact est un email.
+// les places restantes (sous verrou) et envoie la confirmation si une adresse email est indiquée.
 // Pas d'heure limite à Aristide : un collègue peut enregistrer une commande prise sur place.
 let addBookingOpen = null; // { rest, key (date ou ID du plat), requestId }
 const isAddingBooking = (rest, key) => !!addBookingOpen && addBookingOpen.rest === rest && addBookingOpen.key === key;
@@ -387,7 +411,7 @@ function addIdentityHtml(){
       <div class="field"><label>Nom et prénom</label><input type="text" id="abk-nom" placeholder="Ex. Cyrille Ungerer"></div>
       <div class="field"><label>Classe ou service</label><input type="text" id="abk-classe" placeholder="Ex. TS2 ou vie scolaire"></div>
     </div>
-    <div class="field"><label>Téléphone ou email (optionnel)</label><input type="text" id="abk-contact"><p class="field-help">Avec un email, la confirmation y est envoyée.</p></div>`;
+    <div class="field"><label>Adresse email (optionnel)</label><input type="email" id="abk-contact" placeholder="Ex. cyrille.ungerer@exemple.fr" inputmode="email" spellcheck="false"><p class="field-help">Si elle est indiquée, la confirmation y est envoyée.</p></div>`;
 }
 const ADD_OBS_HTML = `<div class="field"><label>Observation (optionnel)</label><input type="text" id="abk-obs" placeholder="Ex. table partagée, allergie…"></div>`;
 function addBookingFormR1Html(day){
@@ -419,7 +443,9 @@ function readAddIdentity(){
   const v = id => document.getElementById('abk-' + id).value.trim();
   return { nom: v('nom'), contact: v('contact'), classe: v('classe'), observation: v('obs') };
 }
-const addIdentityRules = f => [['abk-nom', !f.nom, 'Indiquez le nom.'], ['abk-classe', !f.classe, 'Indiquez la classe ou le service.']];
+// Email facultatif, mais vérifié s'il est saisi
+const addIdentityRules = f => [['abk-nom', !f.nom, 'Indiquez le nom.'], ['abk-classe', !f.classe, 'Indiquez la classe ou le service.'],
+  ['abk-contact', !!f.contact && !!emailError(f.contact), emailError(f.contact)]];
 // Le script répond avec l'état public (totaux anonymes) : on relit l'état complet pour voir
 // le nom dans la liste. La personne est déjà enregistrée : un échec de cette relecture n'est pas une erreur.
 // Comme dans loadAll : si une autre écriture ou une déconnexion a eu lieu pendant la relecture,
@@ -481,7 +507,8 @@ function itemFormHtml(key, prefix, item, onSubmit, submitLabel, onCancel){
       <div class="field"><label>Nom du plat</label><input type="text" id="${prefix}-name" ${item ? `value="${escapeHtml(item.Nom)}"` : 'placeholder="Ex. salade César"'}></div>
       <div class="field"><label>Stock</label><input type="number" min="1" id="${prefix}-stock" ${item ? `value="${item.Stock}"` : 'placeholder="Ex. 10"'}></div>
     </div>
-    <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="${prefix}-price" value="${item ? item.Prix || '' : ''}" list="price-suggestions" placeholder="Ex. 3,50"></div>
+    <div class="field"><label>Prix (optionnel)</label><input type="number" step="0.01" min="0" id="${prefix}-price" value="${item ? item.Prix || '' : ''}" list="price-suggestions" ${priceInputAttrs(isTicket(item), 'Ex. 3,50')}>
+      ${ticketCheckHtml(prefix + '-ticket', isTicket(item), 'syncTicketPrice(this)')}</div>
     ${formActionsHtml(onSubmit, submitLabel, onCancel)}
   </div>`;
 }
@@ -491,7 +518,8 @@ function readItemForm(prefix, btn){
   const stock = parseInt(document.getElementById(prefix + '-stock').value, 10);
   const priceVal = document.getElementById(prefix + '-price').value.trim();
   if(!checkFields(btn, [[prefix + '-name', !name, 'Indiquez le nom du plat.'], [prefix + '-stock', !stock || stock <= 0, 'Indiquez un stock supérieur à 0.']])) return null;
-  return { name, stock, price: priceVal ? parseFloat(priceVal) : '' };
+  const ticket = document.getElementById(prefix + '-ticket').checked;
+  return { name: withTicketMark(name, ticket), stock, price: !ticket && priceVal ? parseFloat(priceVal) : '' };
 }
 async function submitEditItemR2(itemId, btn){
   const fields = readItemForm('eit', btn);

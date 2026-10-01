@@ -112,6 +112,9 @@ function emailError(v){
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Vérifiez votre adresse email (ex. cyrille.ungerer@exemple.fr).';
 }
 function plural(n, word){ return n + ' ' + word + (n > 1 ? 's' : ''); }
+// « — texte » à la suite d'un libellé, ou rien si le texte est vide (prix, montants).
+// Espace insécable avant le tiret : il ne commence jamais une ligne.
+const dash = (text, sep = ' — ') => text ? sep + text : '';
 // Vérification d'un formulaire : rules = [[cible, estInvalide, message], …].
 // Cible = id d'un champ (message sous le champ) ou élément de bloc (message juste après,
 // ex. la rangée Élèves / Personnels / Extérieurs). Place ensuite le focus sur la première erreur.

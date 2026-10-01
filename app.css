@@ -179,6 +179,8 @@
   /* Disponibilité sous le nom du plat (texte secondaire M3), jamais coupée en deux lignes */
   .item-avail{display:block;margin-top:var(--space-1);white-space:nowrap;color:var(--text-muted);font-size:var(--fs-xs);font-weight:var(--fw-regular);}
   .draft-item-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) var(--touch-target);gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;}
+  /* Case « Ticket restaurant » d'un plat : sous ses champs, sur toute la largeur de la ligne */
+  .draft-item-row .check{grid-column:1 / -1;justify-self:start;margin-top:calc(-1 * var(--space-2));}
   .draft-head{align-items:end;margin-bottom:var(--space-1);font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-muted);}
   .booking-form{margin-top:var(--space-4);border-top:1px solid var(--border);padding-top:var(--space-4);}
   /* Formulaire du restaurant pédagogique : se déplie depuis le bouton « Réserver », se replie à l'annulation.
@@ -210,6 +212,7 @@
   .settings-grid .span-all{grid-column:1/-1;}
   @media (max-width:520px){.row2, .row3{grid-template-columns:1fr !important;}}
   .mode-choice{margin-bottom:var(--space-3);}
+  .mode-choice + .mode-help{margin:calc(-1 * var(--space-2)) 0 var(--space-3);} /* texte « Sur place uniquement » sous le choix */
   .bookings-list{margin-top:var(--space-2);border-top:1px solid var(--border);padding-top:var(--space-2);}
   .booking-row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-2);font-size:var(--fs-sm);padding:var(--space-2) 0;color:var(--text-muted);border-bottom:1px dashed var(--border);}
   .booking-row:last-child{border-bottom:none;}

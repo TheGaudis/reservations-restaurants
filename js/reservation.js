@@ -46,15 +46,11 @@ function setMultiQty(itemId, value){
 function updateR2PriceLive(){
   const el = document.getElementById('bk-r2-total');
   if(!el) return;
-  let total = 0;
-  let hasGap = false;
-  Object.keys(multiBookingQty).forEach(itemId => {
-    const item = state.r2Items.find(it => it.ID === itemId);
-    if(!item) return;
-    if(item.Prix !== '' && item.Prix != null){ total += Number(item.Prix) * multiBookingQty[itemId]; }
-    else { hasGap = true; }
-  });
-  el.textContent = total > 0 ? ('Total' + (hasGap ? ' (hors plats sans prix indiqué)' : '') + ' : ' + formatEuro(total)) : '';
+  const lines = Object.keys(multiBookingQty)
+    .map(itemId => ({ item: state.r2Items.find(it => it.ID === itemId), qte: multiBookingQty[itemId] }))
+    .filter(l => l.item);
+  const sum = r2Amounts(lines), amounts = amountsText(sum);
+  el.textContent = amounts ? ('Total' + (sum.gap ? ' (hors plats sans prix indiqué)' : '') + ' : ' + amounts) : '';
 }
 
 // Anti-doublon : chaque formulaire de réservation reçoit à l'ouverture un identifiant, renvoyé
@@ -110,9 +106,10 @@ async function submitBookingR2Multi(date, btn){
   const items = Object.keys(multiBookingQty).map(itemId => ({ itemId, qte: multiBookingQty[itemId] }));
   if(r2OrdersClosed(date)){ openBookingTarget = null; showToast(r2ClosedMsg()); render(); return; }
   if(!checkFields(btn, [[document.getElementById('bk-r2-total'), items.length === 0, 'Choisissez au moins un plat.'], ...bookerRules(f)])) return;
+  const mode = serviceMode(date);
   const orig = setBusy(btn, 'Envoi en cours…');
   try{
-    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode: chosenServiceMode, items, observation: obs, requestId: openBookingTarget && openBookingTarget.requestId });
+    const res = await apiPost('addBookingR2Multi', { date, nom:name, contact, classe, mode, items, observation: obs, requestId: openBookingTarget && openBookingTarget.requestId });
     if(handleDuplicate(res)) return;
     const r = res._bookingResult || { confirmed:[], adjusted:[], skipped:[] };
     const emailStatus = res._emailStatus;
@@ -124,12 +121,15 @@ async function submitBookingR2Multi(date, btn){
     } else {
       const partial = r.adjusted.length > 0 || r.skipped.length > 0;
       const lines = [{ label:'Nom', value:name }, { label:'Classe / service', value:classe },
-        { label:'Mode', value: chosenServiceMode === 'emporter' ? 'À emporter' : 'Sur place' }];
-      // Quantités réellement enregistrées par le serveur (après ajustement éventuel du stock)
-      r.confirmed.forEach(c => lines.push({ label: c.nom || 'Plat', value: '× ' + c.qte }));
+        { label:'Mode', value: mode === 'emporter' ? 'À emporter' : 'Sur place' }];
+      // Quantités réellement enregistrées par le serveur (après ajustement éventuel du stock). Le total
+      // est recalculé ici (r2Amounts) : le script compte les plats au ticket comme des plats « sans prix ».
+      const confirmed = r.confirmed.map(c => ({ item: flagTicket({ Nom: c.nom, Prix: c.prix }), qte: c.qte }));
+      confirmed.forEach(({ item, qte }) => lines.push({ label: item.Nom || 'Plat', value: '× ' + qte }));
+      const sum = r2Amounts(confirmed), amounts = amountsText(sum);
       bookingConfirmation = {
         rest:'r2', date, lines,
-        total: r.totalPrix > 0 ? formatEuro(r.totalPrix) + (r.hasPriceGap ? ' (hors plats sans prix)' : '') : '',
+        total: amounts ? amounts + (sum.gap ? ' (hors plats sans prix)' : '') : '',
         warning: partial ? 'Certaines quantités ont été ajustées faute de stock. Vérifiez votre email pour le détail.'
                : emailWarning(emailStatus)
       };
@@ -254,21 +254,24 @@ function updateR1PriceLive(prefix = 'bk'){
   el.textContent = plural(nbEleve + nbProf + nbExt, 'couvert') + ' · Total : ' + formatEuro(priceR1(nbEleve, nbProf, nbExt));
 }
 function bookingFormMultiHtml(date, items){
+  const ticketDay = dayHasTicket(date), mode = serviceMode(date);
   const rows = items.map(item=>{
-    const rem = remainingItem(item);
-    if(rem <= 0) return `<div class="item-row"><span class="item-name">${escapeHtml(item.Nom)}</span><span class="item-stock">Épuisé</span></div>`;
+    const rem = remainingItem(item), name = escapeHtml(item.Nom);
+    if(rem <= 0) return `<div class="item-row"><span class="item-name">${name}</span><span class="item-stock">Épuisé</span></div>`;
     const qtyVal = multiBookingQty[item.ID] || '';
     return `<div class="item-row">
-      <span class="item-name">${escapeHtml(item.Nom)}${item.Prix ? ' — ' + formatEuro(item.Prix) : ''}<span class="item-avail">${rem} disponible${rem > 1 ? 's' : ''}</span></span>
-      <input type="number" class="qty-input" min="0" max="${rem}" value="${qtyVal}" placeholder="0" inputmode="numeric" aria-label="Quantité : ${escapeHtml(item.Nom)}" oninput="setMultiQty('${item.ID}', this.value); updateR2PriceLive()">
+      <span class="item-name">${name}${dash(itemPriceText(item))}<span class="item-avail">${rem} disponible${rem > 1 ? 's' : ''}</span></span>
+      <input type="number" class="qty-input" min="0" max="${rem}" value="${qtyVal}" placeholder="0" inputmode="numeric" aria-label="Quantité : ${name}" oninput="setMultiQty('${item.ID}', this.value); updateR2PriceLive()">
     </div>`;
   }).join('');
   return `
     <div class="booking-form${enterOnce('bk-' + date)}" data-form="bk-${date}">
       ${segGroup('Mode de service', [
-        { key:'service-emporter', label:'À emporter', pressed: chosenServiceMode==='emporter', onclick:`setServiceMode('emporter')` },
-        { key:'service-surplace', label:'Sur place', pressed: chosenServiceMode==='surplace', onclick:`setServiceMode('surplace')` }
+        // Jour avec au moins un plat au ticket restaurant : pas de vente à emporter ce jour-là
+        ...(ticketDay ? [] : [{ key:'service-emporter', label:'À emporter', pressed: mode==='emporter', onclick:`setServiceMode('emporter')` }]),
+        { key:'service-surplace', label:'Sur place', pressed: mode==='surplace', onclick:`setServiceMode('surplace')` }
       ], 'block mode-choice')}
+      ${ticketDay ? '<p class="field-help mode-help">Sur place uniquement ce jour-là : repas au prix d\'un ticket restaurant.</p>' : ''}
       <fieldset class="field-group"><legend>Choisissez vos plats et quantités</legend>
       ${rows}
       </fieldset>
