@@ -308,7 +308,7 @@ const dayHasTicket = iso => itemsR2(iso).some(isTicket);
 const serviceMode = iso => dayHasTicket(iso) ? 'surplace' : chosenServiceMode;
 // Aristide : les commandes en ligne ferment à 10 h le jour même ; ensuite, commande sur place à 12 h
 const R2_CUTOFF_HOUR = 10, R2_ONSITE_HOUR = 12;
-const r2ClosedMsg = () => `Commandes en ligne closes depuis ${R2_CUTOFF_HOUR} h. Venez au restaurant ${state.name2} à partir de ${R2_ONSITE_HOUR} h pour commander sur place.`;
+const r2ClosedMsg = () => `Commandes en ligne clôturées à ${R2_CUTOFF_HOUR}h. Venez au restaurant ${state.name2} à partir de ${R2_ONSITE_HOUR}h pour commander sur place.`;
 function r2OrdersClosed(iso){
   const today = todayISO();
   return iso < today || (iso === today && new Date().getHours() >= R2_CUTOFF_HOUR);
