@@ -25,7 +25,7 @@
 1. **Document lu en média d'impression** (`emulateMedia({ media: "print" })`) sur les deux sites : on lit ce que reçoit l'imprimante. Sur l'ancien site, le pied `.pb-foot` disparaît (07 § 2.2) ; sur le nouveau, le reste de la page est masqué par `styles/print.css` (PLAN § 3.8) et les rôles (`heading`, `term`, `row`, `cell`) ne trouvent que le document. Aucun sélecteur `.print-root` : la règle « aucun sélecteur de classe dans e2e/ » l'emporte sur la formulation de REG-40 dans `parite.md`.
 2. **`print()` neutralisé** par un compteur `window.e2ePrintCalls` posé par `context.addInitScript` ; vérifié sur le popup `about:blank` de l'ancien site (le `document.write` garde la fenêtre). Le nouveau site ne reçoit pas `afterprint` tant que `closePrintedDocument` ne l'envoie pas : le portail reste rempli pendant la lecture.
 3. **Connexion** : `enterStaffMode` (`print-helpers.ts`) au lieu de `login()` de `login.ts`, que P1 (c) écrit en parallèle. Variante `react` d'après E-23 : lien « Collègue ». Elle attend le texte « Mode collègue activé. » et non `toast()` de `home.ts` (voir « Contradictions »).
-4. **Minuit** : deux tests de plus sous le préfixe de REG-25 (variantes d'invariants, aucun identifiant nouveau), `@parity`, `@p4`, étiquettes d'écran P-01, P-04, P-12, P-05. Ils ne vérifient que le comportement commun (voir « Contradictions »).
+4. **Minuit** : trois tests de plus sous le préfixe de REG-25 (variantes d'invariants, aucun identifiant nouveau), `@p4` : deux `@parity` (après un clic sur « Aujourd'hui » ; formulaire ouvert), un `@changed:E-54` (sans aucune action : rien ne bouge sur `legacy`, même après l'actualisation `{ unchanged }` de 00 h 02 min 30 s ; les deux calendriers passent au mardi sur `react`, sans lecture).
 5. **I-00** : étiqueté `@legacy-only` comme le dit `parite.md`, avec une branche `react` écrite comme REG-07 : `window.open` qui rend `null` n'empêche pas l'impression, aucun toast.
 6. **Montants par plat d'un plat au ticket sur le nouveau site** (case « Plats » d'un client et colonne « Montant » du récapitulatif de REG-41, ligne « • Bowl : … » de REG-39) : non vérifiés côté `react`. La règle « un ticket par commande » fixe le total d'une commande, pas sa répartition entre plats. Les totaux et la case « Prix » d'un client (« 1 ticket restaurant ») sont vérifiés.
 7. **Panneau fusionné du nouveau site** supposé exposé en `region` nommée par son titre `Demain ({date})` (D-07) ; les blocs par restaurant se trouvent par le nom du restaurant et le texte « Ouvert par ».
@@ -34,10 +34,10 @@
 
 ## Contradictions et remarques
 
-- **Minuit, PLAN § 3.4 contre l'ancien site, sans écart E-xx.** Le plan veut que « les calendriers sans `r1` / `r2` dans l'URL suivent » le nouveau jour. L'ancien site fige la sélection au chargement (`calState.selected = todayISO()` au démarrage de `calendrier.js`), ne met à jour « passé » et `aria-current` qu'au rendu suivant, et une actualisation `{ unchanged }` ne rend rien (`loadAll`, `donnees.js` l. 251) : après minuit, la fiche de la veille garde « Réserver » jusqu'à la première action. Les scénarios ne vérifient que ce qui est commun (après un clic sur « Aujourd'hui »). À trancher par l'orchestrateur : un écart E-53 avec une variante `@changed` de ce scénario, ou un nouveau site qui ne suit pas.
-- **`toast()` de `home.ts` sur l'ancien site** : pendant la connexion (voile G-06), le `<p role="status">` du voile perd son `aria-hidden` et devient visible ; `toast()` trouve alors deux éléments (échec en mode strict, 1 essai sur 18 de `print.spec.ts` répété 6 fois). P1 (c) rencontrera le même cas (connexion, suppressions).
-- **E-44, « Ce jour n'est plus ouvert. »** (`print.r1.list.dayClosed`) : inatteignable par l'interface de l'ancien site (le bouton « Imprimer la liste » n'existe que pour un jour présent dans l'état affiché) ; aucun scénario. Reste au rendu de `ListDocumentR1` (P6 (a)).
-- **REG-42 et E-44** : `parite.md` cite « lignes R2 du résumé selon l'annexe F » ; les documents C et D n'en ont pas. Le scénario vérifie la ligne du résumé à côté du bouton d'impression R2.
+- **Minuit, PLAN § 3.4 contre l'ancien site** : l'ancien site fige la sélection au chargement (`calState.selected = todayISO()` au démarrage de `calendrier.js`), ne met à jour « passé » et `aria-current` qu'au rendu suivant, et une actualisation `{ unchanged }` ne rend rien (`loadAll`, `donnees.js` l. 251) : après minuit, la fiche de la veille garde « Réserver » jusqu'à la première action. Tranché par l'orchestrateur : le nouveau site suit le nouveau jour, écart **E-54** ajouté au PLAN § 4.2 par cette session (autorisation exceptionnelle, une ligne, placée après E-52 : la ligne E-53 citée par l'orchestrateur n'existe pas encore sur cette branche) ; variante `@changed:E-54` « midnight without any action » dans `invariants.spec.ts`, ligne E-54 → REG-25 dans `parite.md` § 4.
+- **`toast()` de `home.ts` sur l'ancien site** : pendant la connexion (voile G-06), le `<p role="status">` du voile perd son `aria-hidden` et devient visible ; `toast()` trouvait alors deux éléments (échec en mode strict, 1 essai sur 18 de `print.spec.ts` répété 6 fois). Corrigé sur autorisation de l'orchestrateur : la variante `legacy` ne garde que le statut qui porte `aria-live` (le toast) ; `enterStaffMode` attend de nouveau `toast()`.
+- **E-44, « Ce jour n'est plus ouvert. »** (`print.r1.list.dayClosed`) : accord de l'orchestrateur. Inatteignable par l'interface de l'ancien site (le bouton « Imprimer la liste » n'existe que pour un jour présent dans l'état affiché) ; aucun scénario. Reste au rendu de `ListDocumentR1` (P6 (a)).
+- **REG-42 et E-44** : `parite.md` cite « lignes R2 du résumé selon l'annexe F » ; les documents C et D n'en ont pas. Le scénario vérifie la ligne du résumé à côté du bouton d'impression R2 (accord de l'orchestrateur).
 - `staff.ts` (P1 (c)) déclare `staffPanel(page, "Demain (…)")` : recouvre `tomorrowPanel` de `print.ts`. Les deux peuvent coexister ; une session de P5 ou P6 pourra en garder un seul.
 
 ## Versions
@@ -51,7 +51,7 @@ Aucun. Corrections du code : compteur de la fenêtre nommé sans tiret bas (`no-
 ## Reste à faire
 
 - Après l'intégration de P1 (c) : remplacer `enterStaffMode` par `login()` de `e2e/pages/login.ts` et supprimer `print-helpers.ts` si rien d'autre n'y reste.
-- Orchestrateur : trancher l'écart de minuit ci-dessus ; corriger `toast()` de `home.ts` (proposition dans le compte rendu) ; PR, CI verte sur la PR.
+- Orchestrateur : PR, CI verte sur la PR ; au rebase, garder E-53 de l'intégration avant E-54 au PLAN § 4.2.
 - P6 (a), (b) : jouer REG-39 à REG-42 sur `react` ; ajuster les corps `react` de `print.ts` (`tomorrowPanel` en `region`, lien « Collègue ») sans toucher aux assertions ; décider de la répartition des tickets par plat (décision 6).
 - P4 : jouer les deux scénarios de minuit sur `react`.
 
@@ -60,5 +60,5 @@ Aucun. Corrections du code : compteur de la fenêtre nommé sans tiret bas (`no-
 Titre : « P1 (d) : impression, panneau « Demain » et passage de minuit (REG-39 à REG-42, variantes de REG-25) ».
 
 - Scénarios d'impression et du panneau « Demain » verts sur `legacy` trois fois de suite ; variantes `react` écrites d'après le plan (E-15, E-16, E-20, E-30, E-44).
-- Deux variantes d'invariants (minuit) sous REG-25, `@parity` ; un écart de minuit sans E-xx signalé à l'orchestrateur.
+- Trois variantes d'invariants (minuit) sous REG-25, dont l'écart E-54 ajouté au PLAN § 4.2 ; `toast()` de `home.ts` corrigé pour le voile G-06.
 - Aucune action humaine.
