@@ -2,5 +2,21 @@
   "common.action.cancel": {
     "defaultMessage": "Annuler",
     "description": "00 § 2.3 — bouton de fermeture d'un formulaire"
+  },
+  "common.document.description": {
+    "defaultMessage": "Réservation des repas aux restaurants pédagogiques du Lycée professionnel Aristide Briand.",
+    "description": "03 § 2.1 — meta description"
+  },
+  "common.document.title": {
+    "defaultMessage": "Réservations — Restaurants pédagogiques",
+    "description": "03 § 2.1 — <title> de la page"
+  },
+  "common.notFound.home": {
+    "defaultMessage": "Revenir à l'accueil",
+    "description": "PLAN annexe F — lien de la route attrape-tout vers la page publique"
+  },
+  "common.notFound.title": {
+    "defaultMessage": "Page introuvable",
+    "description": "PLAN annexe F — titre de la route attrape-tout"
   }
 }
