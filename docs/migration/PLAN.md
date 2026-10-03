@@ -374,7 +374,7 @@ Les deux pages partagent `features/page/Page.tsx` ; la route fournit les blocs p
 
 Middlewares sur les deux routes : `retainSearchParams(['r1', 'r2', 'r1vue', 'r2vue', 'r1periode', 'r2periode'])` (on garde les calendriers en passant de `/` à `/collegue` et inversement) et `stripSearchParams` sur les valeurs par défaut. Jamais de donnée saisie dans l'URL (nom, contact, quantités) ; le récapitulatif reste un état local (`09` PA 5).
 
-**Transformations pures** (`domain/navigation.ts`, testées par tables) : `selectDay(search, restaurant, iso)` pose `rX`, retire `rXperiode`, et ferme ce qui dépend du jour **dans ce restaurant seulement** (`reserver` s'il vaut ce restaurant, `ouvrirDate` si `ouvrir` vaut ce restaurant, `editJour`, `editResa` et `ajout` de ce restaurant, `ajoutPlat` et `editPlat` pour R2) : c'est la correction de a-12. `shiftPeriod(search, restaurant, ±1, view)`, `goToToday(search, restaurant)` (retire `rX` et `rXperiode`, et ferme comme `selectDay` ce qui dépend du jour dans ce restaurant, `reserver` compris : le formulaire ouvert sur une autre date ne se rouvre pas sur aujourd'hui), `publicSearch(search)` (garde seulement `CALENDAR_KEYS`, déclarées dans ce même fichier). Le récapitulatif, état local de la colonne, est effacé par le gestionnaire qui appelle `selectDay`.
+**Transformations pures** (`domain/navigation.ts`, testées par tables) : `selectDay(search, restaurant, iso)` pose `rX`, retire `rXperiode` (sauf un clic sur un jour hors du mois affiché en vue mois : l'ancre est gardée, `05` § 3.1, REG-10 ; `clickDay` de P2 (a)), et ferme ce qui dépend du jour **dans ce restaurant seulement** (`reserver` s'il vaut ce restaurant, `ouvrirDate` si `ouvrir` vaut ce restaurant, `editJour`, `editResa` et `ajout` de ce restaurant, `ajoutPlat` et `editPlat` pour R2) : c'est la correction de a-12. `shiftPeriod(search, restaurant, ±1, view)`, `goToToday(search, restaurant)` (retire `rX` et `rXperiode`, et ferme comme `selectDay` ce qui dépend du jour dans ce restaurant, `reserver` compris : le formulaire ouvert sur une autre date ne se rouvre pas sur aujourd'hui), `publicSearch(search)` (garde seulement `CALENDAR_KEYS`, déclarées dans ce même fichier). Le récapitulatif, état local de la colonne, est effacé par le gestionnaire qui appelle `selectDay`.
 
 Exemple (route publique) :
 
@@ -947,9 +947,9 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | Phase | Contenu | j-p | Sessions | Parallélisable | Statut |
 | --- | --- | --- | --- | --- | --- |
 | P0 | squelette, outillage (dont react-intl et l'extraction en CI), fichiers actuels déplacés dans `legacy/`, coquille, vérification d'hydratation sur le vrai projet, CI sans déploiement | 3 | 3 | non ((a) → (b) → (c)) | terminé le 3 oct. : (a) `c336b2e`, (b) `8c18127`, (c) `42c89f2` ; CI à confirmer sur GitHub |
-| P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | à faire |
-| P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | à faire |
-| P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | à faire |
+| P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | en cours : (a1) `d56570a`, (a2) `00564a4`, (b) `2f8304a` terminés le 3 oct. |
+| P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | en cours : (a) `7aa65f1` terminé le 3 oct. |
+| P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | en cours : (0) `554fad8` terminé le 3 oct. |
 | P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | à faire |
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | à faire |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | à faire |
