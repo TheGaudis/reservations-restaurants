@@ -5,40 +5,17 @@
     "src/**/*.{ts,tsx}!",
     "!src/mocks/**!",
     "!src/test/**!",
+    "!src/intl/common-messages.ts!", // retirer en P4 (a), qui l'importe dans la page
     "e2e/**/*.ts",
-    "scripts/*.ts",
-    ".storybook/*.{ts,tsx}"
+    "scripts/*.ts"
   ],
-  // Identiques dans .oxlintrc.json et .oxfmtrc.json (PLAN P0)
-  "ignore": [
-    "legacy/**",
-    "docs/**",
-    ".claude/**",
-    "Code.gs",
-    "public/mockServiceWorker.js",
-    "src/routeTree.gen.ts",
-    "dist/**",
-    "coverage/**",
-    "storybook-static/**",
-    "playwright-report/**",
-    "test-results/**",
-    ".vitest/**"
-  ],
-  // Temporaire : fichiers sans importeur de production tant que la coquille n'existe pas
-  "ignoreFiles": [
-    "src/config.ts", // retirer en P0 (b)
-    "src/intl/intl.ts", // retirer en P0 (b)
-    "src/intl/common-messages.ts" // retirer en P4 (a)
-  ],
-  // Temporaire : paquets installés en P0 (a), importés par une phase suivante
+  // Le plugin Vitest de knip lirait les tests des projets copiés dans docs/migration/recherche/
+  "ignore": ["docs/**"],
   "ignoreDependencies": [
-    "@tanstack/react-router", // retirer en P0 (b)
-    "@tanstack/react-start", // retirer en P0 (b)
-    "react-dom", // retirer en P0 (b)
-    "@fontsource-variable/outfit", // retirer en P0 (b)
-    "@fontsource-variable/work-sans", // retirer en P0 (b)
-    "@tanstack/react-query-devtools", // retirer en P0 (b)
-    "@tanstack/react-router-devtools", // retirer en P0 (b)
+    // Lues par url() dans src/styles/base.css, que knip n'analyse pas
+    "@fontsource-variable/outfit",
+    "@fontsource-variable/work-sans",
+    // Temporaire : paquets installés en P0 (a), importés par une phase suivante
     "@msw/playwright", // retirer en P1 (a1)
     "zustand" // retirer en P2 (c)
   ]
