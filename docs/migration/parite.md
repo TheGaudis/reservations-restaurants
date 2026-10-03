@@ -124,7 +124,7 @@ Pour revenir sous 40 scénarios, on peut fusionner REG-03 dans REG-02, REG-06 da
 | E-14 | REG-23 | E-31 | REG-13 | E-48 | REG-35 |
 | E-15 | REG-40 | E-32 | REG-13 | E-49 | n/a |
 | E-16 | REG-41, REG-42 | E-33 | REG-19 | E-50 | REG-22 |
-| E-17 | REG-29 | E-34 | REG-15, REG-22 | | |
+| E-17 | REG-29 | E-34 | REG-15, REG-22 | E-54 | REG-25 |
 
 ## 5. Matrice par identifiant de `09`
 
