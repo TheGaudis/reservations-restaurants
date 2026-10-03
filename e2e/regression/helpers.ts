@@ -20,7 +20,8 @@ export function posts(requests: Requests): Array<Record<string, unknown>> {
 
 /** Fake page clock paused at `time`: page timers only fire through `runFor` (call before `goto`). */
 export async function pauseClock(page: Page, time = TEST_NOW): Promise<void> {
-  await page.clock.install({ time });
+  // The installed clock runs until `pauseAt`, which cannot go back: install it a moment earlier.
+  await page.clock.install({ time: time - 1000 });
   await page.clock.pauseAt(time);
 }
 

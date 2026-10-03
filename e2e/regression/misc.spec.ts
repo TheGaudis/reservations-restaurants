@@ -1,7 +1,6 @@
-import { TEST_NOW } from "@/test/clock";
-
 import { expect, test } from "../fixtures";
 import { BLOCKED_FONT_PRELOAD, columnTitle, gotoHome, logo } from "../pages/home";
+import { pauseClock } from "./helpers";
 
 // Easter egg (09 § 7, D-01).
 
@@ -17,8 +16,7 @@ test(
   "easterEgg (REG-43)",
   { tag: ["@parity", "@09-7", "@p4"] },
   async ({ page, context, isolation }) => {
-    await page.clock.install({ time: TEST_NOW });
-    await page.clock.pauseAt(TEST_NOW);
+    await pauseClock(page);
     // Every `window.open` of the page, with its arguments and what it returned.
     await page.addInitScript(() => {
       const opened: Array<{ args: unknown[]; returned: string }> = [];
