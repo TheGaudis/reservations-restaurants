@@ -19,14 +19,14 @@ Un **seul** formulaire public peut être ouvert à la fois (`openBookingTarget`)
 
 ## 2. Page d'accueil
 
-- En-tête : logo, `Lycée professionnel Aristide Briand`, `<h1>Réservations des restaurants pédagogiques et Aristide</h1>`, sous-titre `Table côté {name1} · Plats à emporter ou sur place côté {name2}`, sélecteur `Client` / `Collègue` (mode collègue : autre spécification).
+- En-tête : logo, `Lycée professionnel Aristide Briand`, `<h1>Réservations des restaurants pédagogiques et Aristide</h1>`, sous-titre `Table côté {name1} · Plats à emporter ou sur place côté {name2}`, sélecteur `Client` / `Collègue` (mode collègue : voir `06`).
 - Deux colonnes côte à côte (empilées sur mobile) :
   - **R1** (`.accent-green`) : titre `{name1}` (défaut `Restaurant Pédagogique`), description `{desc1}`, calendrier, fiche du jour sélectionné.
   - **R2** (`.accent-magenta`) : titre `{name2}` (défaut `Aristide`), description `{desc2}`, calendrier, fiche du jour.
 - Titres/descriptions ne sont réécrits que s'ils changent, avec un court fondu (`.text-updated`), sans animation au premier affichage ; une valeur vide n'est pas appliquée.
 - Pied : `Les places se mettent à jour automatiquement toutes les 3 minutes. Vous pouvez aussi actualiser la page.`
 
-## 3. Sélection d'un jour (résumé ; détail dans la spécification du calendrier)
+## 3. Sélection d'un jour (résumé ; détail dans `05`)
 
 - Chaque calendrier démarre en vue **Semaine**, sur la semaine d'aujourd'hui, jour sélectionné = **aujourd'hui** (date locale).
 - Commandes : `‹` / `›` (semaine ou mois précédent/suivant), segments `Semaine` / `Mois`, bouton `Aujourd'hui`.
@@ -328,7 +328,7 @@ Les toasts restent 3,5 s, en bas au centre ; vert avec coche (succès/neutre), r
 | Annonces | Toast `role="status" aria-live="polite"` ; récapitulatif `role="status"` ; encadré d'échec `role="alert"` ; voile `role="status"` (« Chargement… ») et spinner `role="progressbar" aria-label="Chargement en cours"`. |
 | Focus | Ouverture : premier champ (sans défilement brusque) ; annulation : retour sur `Réserver` ; erreur : premier champ invalide ; actualisation : focus et saisies restaurés ; si l'élément focalisé disparaît, focus sur la date de la fiche (`tabindex="-1"`) de la même zone. |
 | Liste repliée R2 | `inert` + `aria-hidden="true"` pendant son repli. |
-| Calendrier | Cases annonçant la date complète et la disponibilité en mots (la couleur seule ne suffit pas) ; navigation au clavier ARIA (voir spécification du calendrier). |
+| Calendrier | Cases annonçant la date complète et la disponibilité en mots (la couleur seule ne suffit pas) ; navigation au clavier ARIA (voir `05` § 3.2). |
 | Clavier dans les formulaires | Tab / Maj+Tab dans l'ordre DOM ; pas d'élément `<form>` : **Entrée ne soumet pas**, Échap ne ferme pas. |
 | Mouvement réduit | `prefers-reduced-motion: reduce` : toutes les animations et transitions désactivées, fermeture immédiate. |
 | Zones tactiles | 48 px minimum (charte). |

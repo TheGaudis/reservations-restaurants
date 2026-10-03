@@ -190,6 +190,21 @@ Minuteur jusqu'au prochain `10:00:00.000` local (aujourd'hui si avant 10 h, sino
 
 ---
 
+### 5.4 Conservation des saisies et du focus à chaque `render()` (`main.js` l. 3-61)
+
+Chaque rendu reconstruit le HTML des zones concernées (`innerHTML`). Pour ne rien perdre :
+
+1. **Avant** (`captureUi`) : valeur de chaque `input[id]` (sauf `type="password"`), `select[id]` et `textarea[id]` situés dans `.wrap` (`checked` pour une case à cocher) ; clé de l'élément focalisé (`focusKey`) : `#id` s'il a un id, sinon `[data-iso=…]`, `[data-nav=…]` ou `[data-seg=…]` préfixé de l'id du plus proche ancêtre identifié ; et la zone qui le contient parmi `#detail-r1`, `#detail-r2`, `#admin-r1`, `#admin-r2`, `#settings`.
+2. **Rendu** : `render()` = page entière (`renderAll`) ; `render([ids])` = seulement les zones listées de `PARTS` (`admin-rX`, `cal-rX`, `detail-rX`), utilisé pour les actions fréquentes (changer de jour, de semaine, de mode, de mode de service). `restParts(rest)` ajoute la fiche de l'autre restaurant si un formulaire public ou un récapitulatif s'y ferme.
+3. **Après** (`restoreUi`) :
+   - chaque valeur mémorisée est réécrite dans le champ de même id s'il existe encore, **sauf** les ids marqués par `resetFields(...)` (formulaire enregistré avec succès : « Ouvrir un jour » R1/R2) ; la liste est ensuite vidée ;
+   - les totaux en direct sont recalculés (`updateR1PriceLive('bk' | 'ebk' | 'abk')`, `updateR2PriceLive()`), et chaque case « Ticket restaurant » d'un formulaire de plat resynchronise son champ Prix (`syncTicketPrice`) ;
+   - le focus n'est restauré **que si** le focus est retombé sur `body` : élément retrouvé par sa clé ; s'il a disparu (réservation supprimée, formulaire fermé…), focus sur la `.day-date` de la même zone (rendue focalisable par `tabindex=-1`), à défaut sur son premier `summary`, `button` ou `input` ; `preventScroll: true`. Un élément sans id ni attribut `data-*` reconnu (ex. bouton « Confirmer la réservation ») n'a pas de clé : le focus reste sur `body`.
+4. Les champs **sans id** ne sont pas capturés mais leur valeur vit dans l'état JS et est réécrite au rendu : quantités du formulaire R2 (`multiBookingQty`), lignes de plats de « Ouvrir un jour » R2 (`draftItems`).
+5. Effet de bord : deux formulaires partageant des ids (`bk-name`, `bk-contact`, `bk-classe`, `bk-obs` en R1 et R2) se transmettent leurs saisies (voir `04`, point d'attention 9).
+
+En React : composants contrôlés à clés stables ; ce mécanisme disparaît, mais son **résultat** (aucune saisie ni focus perdu lors d'une actualisation) est une exigence.
+
 ## 6. À préserver dans la version React (et pourquoi)
 
 Apps Script est lent et irrégulier (démarrage à froid fréquent, parfois > 10 s, pages d'erreur passagères). Toute la perception de rapidité repose sur les mécanismes suivants :

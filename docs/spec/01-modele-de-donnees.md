@@ -213,7 +213,7 @@ remainingItem(item) = Number(item.Stock) − Σ Number(b.Qte) pour b ∈ r2Booki
 - `R2_CUTOFF_HOUR = 10`, `R2_ONSITE_HOUR = 12` (`donnees.js`).
 - `r2OrdersClosed(iso) = iso < todayISO() || (iso === todayISO() && new Date().getHours() >= 10)` — heure locale de l'appareil.
 - Message : `r2ClosedMsg()` = `Commandes en ligne clôturées à 10h. Venez au restaurant {state.name2} à partir de 12h pour commander sur place.`
-- Effets : voir `04` § 5.6. Le menu, les prix et les stocks restent affichés.
+- Effets : voir `04` § 4.3 (fiche R2 : message de clôture, pas de « Réserver ») et § 5.3 (contrôle à l'envoi) ; `03` § 5.3 (bascule à 10 h pile). Le menu, les prix et les stocks restent affichés.
 - Mode collègue : pas de cut-off (commentaire du code : « Pas d'heure limite à Aristide : un collègue peut enregistrer une commande prise sur place. ») ; le message de clôture n'est pas affiché en mode collègue.
 - **Non vérifié côté serveur** (`addBookingR2Multi` accepte toute date et toute heure).
 - R1 n'a **aucun** cut-off horaire : seul un jour passé (`iso < todayISO()`) masque « Réserver ».
@@ -288,7 +288,7 @@ En React : `useMemo` sur `state`.
 | `multiBookingQty` | `Record<itemId, number>` (entiers > 0 seulement) | Quantités saisies dans le formulaire R2. |
 | `bookingConfirmation` (`interface.js`) | `null` ou `{ rest, date, lines: {label, value}[], total: string, warning: string, shown?: boolean }` | Récapitulatif affiché. |
 | `loaderCount`, `loaderTimer`, `loaderFocus` | | Voile de chargement réentrant. |
-| `draftItems`, `editBookingTarget`, `editItemTarget`, `addItemFormOpen`, `editDayR1Open`, `addDayOpen` | | États de formulaires du mode collègue (spécifiés ailleurs). |
+| `draftItems`, `editBookingTarget`, `editItemTarget`, `addItemFormOpen`, `editDayR1Open`, `addDayOpen` | | États de formulaires du mode collègue (voir `06`). |
 | `fieldsToReset` (`main.js`) | `Set<string>` | Ids de champs à vider au prochain rendu. |
 | `refreshMissed` (`main.js`) | boolean | Actualisation manquée pendant que l'onglet était caché. |
 
@@ -298,7 +298,7 @@ En React : `useMemo` sur `state`.
 
 1. **Noms par défaut divergents** : le serveur renvoie `Restaurant 1` / `Restaurant 2` si `name1`/`name2` ne sont pas renseignés, alors que le client affiche `Restaurant Pédagogique` / `Aristide` avant la réponse. Sur une installation neuve, les titres changent à l'arrivée des données.
 2. **`Timestamp` tronqué** : `table()` convertit toute cellule date en `yyyy-MM-dd` ; l'heure de réservation n'est jamais transmise au client.
-3. **Plat supprimé, réservations orphelines** : `deleteItemR2` ne supprime pas les lignes `R2_Bookings` du plat. Elles restent dans l'état complet (comptées dans « Demain : N portions réservées » du tableau de bord, qui filtre par `Date`) et dans les agrégats publics (avec un `ItemID` inexistant, sans effet visible).
+3. **Plat supprimé, réservations orphelines** : `deleteItemR2` ne supprime pas les lignes `R2_Bookings` du plat. Elles restent dans l'état complet (comptées dans le panneau « Demain (…) » du tableau de bord — « {name2} : N portions réservées » —, qui filtre par `Date`) et dans les agrégats publics (avec un `ItemID` inexistant, sans effet visible).
 4. **Restants négatifs possibles** : `addDayR1` sur une date existante écrase `Capacite` sans contrôle ; `editItemR2` / `addItemR2` ne contrôlent pas le stock. Les pastilles peuvent afficher `-2 / 5`.
 5. **Ticket codé dans le nom** : renommer un plat en retirant le suffixe à la main dans Sheets change son mode de paiement. Le total des e-mails serveur traite un plat au ticket comme « sans prix » (« Total (hors plats sans prix indiqué) : … ») et ne mentionne pas la règle « un seul ticket par commande » appliquée par le client.
 6. **Règles métier client uniquement** : cut-off 10 h, « sur place uniquement » les jours de ticket, jour passé, validité de l'e-mail, présence du nom et de la classe : rien n'est revérifié par le serveur. `addBookingR2Multi` ne vérifie pas non plus que les plats appartiennent à la `date` envoyée. Le serveur ne revérifie que les quantités (entiers ≥ 0) et les places/stock.

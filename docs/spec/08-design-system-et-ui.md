@@ -220,7 +220,7 @@ Défini (petit badge avec pastille grise, variante bleue « admin ») mais **non
 
 ### 4.10 Panneaux et cartes
 - `.panel` : fond `--surface`, bordure `--border`, rayon `--radius`, padding 16 px, marge basse 16 px, ombre `--shadow`.
-- `.card-top-accent` : filet haut 4 px `--accent` (récapitulatifs ; jaune `--warning` si `.has-warning`).
+- `.card-top-accent` : filet haut 4 px `--accent` (récapitulatifs ; `--warning` #9A600A, ocre orangé, si `.has-warning`).
 - `.day-card` (fiche du jour) : fond `--tint`, bordure `--border`, rayon `--radius`, padding 16 px.
 - `.item-row` (plat) : fond `--surface`, bordure, rayon `--radius-sm`, padding 8 × 12 px.
 - `.panel.add-day` (« Ouvrir un jour ») : sans padding, bordure **pointillée** `color-mix(--accent 45 %, --border)`, fond `--tint`, sans ombre ; ouvert → bordure pleine, fond `--surface`, ombre.
@@ -316,7 +316,7 @@ Affiché au-dessus de la fiche du jour après une réservation publique réussie
 ```
 
 - Animation d'entrée une seule fois (`shown`), pas à chaque actualisation ; coche ronde verte 36 px qui apparaît après la carte.
-- Avertissement → filet haut jaune (`.has-warning`).
+- Avertissement → filet haut `--warning` (ocre orangé, `.has-warning`).
 - Contenu des lignes/total/avertissement : fourni par la réservation publique (`04-parcours-public-reservation.md`).
 
 ### 6.2 Icônes SVG inline
@@ -473,6 +473,6 @@ Remplit `<datalist id="price-suggestions">` avec les prix distincts des plats R2
 4. **Pas de `@media print`** pour la page principale.
 5. La charte cite « Revenir en mode client » comme libellé type : il n'existe pas dans l'interface.
 6. `.tag` / `.tag.admin-on` et `ICONS.eye` sont définis mais inutilisés.
-7. `font-size: 15px` du `body` et plusieurs largeurs sont en dur, contrairement à la règle « aucune taille en dur ».
+7. `font-size: 15px` du `body` et plusieurs largeurs sont en dur, contrairement à la règle du README « Aucune couleur, taille ou rayon en dur » (la charte PDF ne mentionne que les couleurs).
 8. Le thème vert redéfinit `--text-muted` (`#5E6653`) et `--border` dans la colonne R1 ; les copies de jetons pour l'impression lisent les valeurs de `:root` (non thématisées) — cohérent, mais à garder en tête si l'impression est rendue à l'intérieur d'une colonne.
 9. Easter egg sur le logo (5 clics en 2 s → vidéo YouTube) : à décider (conserver ou non) lors de la migration.

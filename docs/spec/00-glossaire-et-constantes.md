@@ -1,7 +1,7 @@
 # 00 — Glossaire, constantes et fonctions utilitaires
 
 Périmètre : `index.html` (script inline du `<head>`), `js/donnees.js`, `js/outils.js`, `js/reservation.js`, `js/main.js`, contrat de `Code.gs`.
-Les fichiers `js/collegue.js`, `js/calendrier.js`, `js/interface.js`, `js/impression.js` sont spécifiés ailleurs ; seules les fonctions qu'ils fournissent au périmètre sont citées (§ 4).
+Les fichiers `js/collegue.js`, `js/calendrier.js`, `js/interface.js`, `js/impression.js` sont spécifiés ailleurs (`05` calendrier et fiches, `06` mode collègue, `07` impression, `08` interface) ; seules les fonctions qu'ils fournissent au périmètre sont citées (§ 4).
 
 Conventions de ce document :
 - `␣` désigne une espace insécable U+00A0 lorsqu'elle compte (ex. `12,50␣€`).
@@ -76,7 +76,7 @@ Conventions de ce document :
 | Regex e-mail client | `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` | `outils.js` l. 112 | |
 | Intervalle d'actualisation | `180000` ms (3 min) | `main.js` l. 100 | |
 | Easter egg logo | 5 clics en moins de `2000` ms → ouvre `https://youtu.be/dQw4w9WgXcQ?list=RDdQw4w9WgXcQ` (`_blank`, `noopener`) | `main.js` l. 112-124 | Voir points d'attention de `03`. |
-| `INACTIVITY_MS` | `600000` ms (10 min) | `collegue.js` | Déconnexion du mode collègue (autre spécification). |
+| `INACTIVITY_MS` | `600000` ms (10 min) | `collegue.js` | Déconnexion du mode collègue (voir `06` § 1.6). |
 | Animation de fermeture d'un formulaire | `--dur-fast` (`.12s` → 120 ms ; repli 120) | `interface.js` (`leaveThen`) | Ignorée si `prefers-reduced-motion: reduce`. |
 | Jetons de mouvement CSS | `--dur-fast: .12s; --dur: .2s; --dur-slow: .35s` | `design-system.css` l. 105 | |
 | Version des ressources | `?v=21` sur tous les CSS/JS | `index.html` | Cache-busting manuel (remplacé par le hash de build en React). |
@@ -184,7 +184,7 @@ Inversement, le périmètre fournit aux autres fichiers : `state`, `isAdmin`, `a
 | `plainName`, `withTicketMark`, `isTicket`, `flagTicket`, `withTicketFlags` | Gestion du suffixe « (ticket restaurant) ». |
 | `ticketsText(n)` | `plural(n,'ticket') + ' restaurant'` → `1 ticket restaurant`, `2 tickets restaurant`. |
 | `itemPriceText(item)` | `prix d'un ticket restaurant` / `3,50␣€` / `''`. |
-| `r2Amounts(lines)` / `amountsText(sum)` / `itemAmountText(item, qte)` | Montants R2 (voir `01` § 3.4). |
+| `r2Amounts(lines)` / `amountsText(sum)` / `itemAmountText(item, qte)` | Montants R2 (voir `01` § 3.5). |
 | `loadAll(background)` / `showLoadError()` / `retryLoad(btn)` | Chargement (voir `03`). |
 | `idx()` | Index mémoïsés des données (Maps). |
 | `remainingR1(day)`, `remainingItem(item)`, `itemsR2(iso)` | Places/portions restantes. |

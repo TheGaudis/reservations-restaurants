@@ -8,8 +8,8 @@ Sources : `js/impression.js` (intégralité). Dépendances : `state` (`r1Days`, 
 
 | Document | Déclencheur (mode collègue) | Fonction | Thème |
 | --- | --- | --- | --- |
-| A. Liste du jour — restaurant 1 | bouton « 🖨 Imprimer la liste » de la fiche R1 (tout jour ouvert, passé ou futur) | `printDayR1(date)` | vert (`r1`) |
-| B. Liste du jour — restaurant 2 | bouton « 🖨 Imprimer la liste » de la fiche R2 | `printDayR2(date)` | magenta (`r2`) |
+| A. Liste du jour — restaurant 1 | bouton « Imprimer la liste » (icône SVG `ICONS.print`, pas d'emoji) de la fiche R1 (tout jour ouvert, passé ou futur) | `printDayR1(date)` | vert (`r1`) |
+| B. Liste du jour — restaurant 2 | bouton « Imprimer la liste » (icône `ICONS.print`) de la fiche R2 | `printDayR2(date)` | magenta (`r2`) |
 | C. Résumé du lendemain — restaurant 1 | icône « Imprimer » du bloc R1 dans « Résumé pour demain » | `printTomorrowSummaryR1()` = `printDayR1(demain, true)` | vert |
 | D. Résumé du lendemain — restaurant 2 | icône « Imprimer » du bloc R2 dans « Résumé pour demain » | `printTomorrowSummaryR2()` | magenta |
 

@@ -133,7 +133,7 @@ Le client garde alors l'état affiché (copie locale comprise) et le considère 
 ```json
 { "error": "<message>" }
 ```
-Le client ne l'affiche pas telle quelle : il montre l'encadré d'échec de chargement (voir `03` § 4).
+Le client ne l'affiche pas telle quelle : il montre l'encadré d'échec de chargement (voir `03` § 3 et § 3.1).
 
 ### 3.5 Mémoire serveur (comportement observable)
 
@@ -318,7 +318,7 @@ Aucune vérification de `nom`, `classe`, de la date passée, ni du format de l'e
 
 Paramètres `date, itemId, nom, contact, classe, qte, mode`. Conservée pour d'anciennes pages en cache. Erreurs : `Indiquez une quantité supérieure à 0.`, `Ce plat n'existe plus.`, `Il ne reste que {n} portion(s) de ce plat.`, `Quantité invalide…`. Pas d'anti-doublon, pas d'`Observation`, pas de `_emailStatus`. **Ne pas utiliser** dans la version React.
 
-### 4.7 Actions collègue (contrat seulement ; parcours spécifiés ailleurs)
+### 4.7 Actions collègue (contrat seulement ; parcours dans `06`)
 
 Toutes renvoient l'**état complet** ; le client fait `state = réponse`, toast de succès, ferme le formulaire concerné et `render()`.
 
