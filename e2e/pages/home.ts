@@ -52,8 +52,12 @@ export async function retryLoad(page: Page): Promise<void> {
  */
 export function toast(page: Page): Locator {
   if (currentTarget() === "react") return page.getByRole("region", { name: "Notifications" });
-  // The booking summary is the other status of the page; it holds a « Fermer » button.
-  return page.getByRole("status").filter({ hasNot: page.getByRole("button") });
+  // The booking summary is another status of the page, with a « Fermer » button; the loading veil (G-06) has one
+  // too, exposed during a login or a deletion. Only the toast is a live region of its own (`aria-live`).
+  return page
+    .getByRole("status")
+    .filter({ hasNot: page.getByRole("button") })
+    .and(page.locator("[aria-live]"));
 }
 
 /** Kind of the last toast: green (success or neutral, 04 § 9) or red (error). */
