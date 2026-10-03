@@ -139,7 +139,7 @@ Suffixe ajouté si `dataStale` (copie locale affichée) :
 
 ### 3.2 Bouton « Réessayer » (`retryLoad`)
 
-`setBusy(btn, 'Nouvelle tentative…')` (désactivé, `aria-busy="true"`), `await loadAll()` (non background), `clearBusy`. L'encadré reste affiché pendant la tentative ; il disparaît en cas de succès. Si l'échec se répète après un premier chargement réussi, un toast d'erreur `Impossible de charger les données. Réessayez.` s'ajoute.
+`setBusy(btn, 'Nouvelle tentative…')` (désactivé, `aria-busy="true"`), `await loadAll()` (non background), `clearBusy`. L'encadré reste affiché pendant la tentative ; il disparaît en cas de succès. Si l'échec se répète après un premier chargement réussi, un toast d'erreur `Impossible de charger les données. Réessayez.` s'ajoute. En pratique ce toast est **inatteignable** : l'encadré n'est affiché que tant qu'aucun chargement n'a réussi (`firstLoadDone` faux), et le premier succès le masque ; `loadAll()` non « background » n'est appelé qu'au démarrage et par ce bouton.
 
 ---
 

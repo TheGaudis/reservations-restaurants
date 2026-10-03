@@ -32,7 +32,7 @@ Un **seul** formulaire public peut être ouvert à la fois (`openBookingTarget`)
 - Commandes : `‹` / `›` (semaine ou mois précédent/suivant), segments `Semaine` / `Mois`, bouton `Aujourd'hui`.
 - Chaque case est un bouton avec pastille de disponibilité (`cap-ok` vert, `cap-low` orange, `cap-full` rouge ; aucune si pas de service) et `aria-label` = `{formatDate(iso)}, {places disponibles|bientôt complet|complet|aucun service}[, passé]`, `aria-pressed` sur le jour sélectionné, `aria-current="date"` sur aujourd'hui.
 - Clavier : ← → (jour), ↑ ↓ (semaine), Début / Fin (lundi / dimanche), Page ↑ / ↓ (mois) ; seul le jour sélectionné est atteignable par Tab.
-- Sélectionner un jour (`selectDate`) : met à jour le jour sélectionné, **ferme le formulaire ouvert** (`openBookingTarget = null`) et **efface le récapitulatif** (`bookingConfirmation = null`).
+- Sélectionner un jour (`selectDate`) : met à jour le jour sélectionné, **ferme le formulaire ouvert** (`openBookingTarget = null`, quel que soit le restaurant), **efface le récapitulatif** (`bookingConfirmation = null`) et oublie la date choisie dans le sélecteur « Ouvrir un jour » de ce restaurant (`dateChoice[rest] = null`, mode collègue).
 
 ## 4. Fiche du jour
 
@@ -171,7 +171,7 @@ Structure (ordre DOM) :
 - Champ : `aria-invalid="true"`, `aria-describedby="{idChamp}-error {idAide}"`.
 - Au nouvel envoi, toutes les erreurs du formulaire sont effacées puis recalculées.
 - Dès la première frappe dans un champ en erreur, son message disparaît (écouteur global `input`).
-- Focus sur le premier élément `input`/`select` situé dans un conteneur en erreur.
+- Focus sur le premier élément `input`/`select`/`.date-trigger` situé dans un conteneur en erreur, **dans l'ordre du DOM** (pas dans l'ordre des règles). Un conteneur en erreur sans champ (paragraphe du total R2) est ignoré : si « Choisissez au moins un plat. » est la seule erreur, le focus ne bouge pas.
 
 ## 6. Envoi
 
@@ -304,7 +304,7 @@ La carte prend alors la classe `has-warning` (filet supérieur orange).
 | Toast neutre | `Commandes en ligne clôturées à 10h. Venez au restaurant {name2} à partir de 12h pour commander sur place.` |
 | Toast erreur | `Aucun des plats choisis n'est disponible en quantité suffisante.` |
 | Toast erreur | message serveur (§ 6.3) ou `Erreur` |
-| Toast erreur | `Impossible de charger les données. Réessayez.` (rechargement manuel échoué, voir `03`) |
+| Toast erreur | `Impossible de charger les données. Réessayez.` (rechargement manuel échoué ; en pratique inatteignable, voir `03` § 3.2) |
 | Erreur de champ | `Indiquez vos nom et prénom.` · `Indiquez votre adresse email.` · `Vérifiez votre adresse email (ex. Ariele.gsell@exemple.fr).` · `Indiquez votre classe ou votre service.` · `Indiquez au moins une personne.` · `Choisissez au moins un plat.` |
 | Note de fiche | `Commandes en ligne clôturées à 10h. Venez au restaurant {name2} à partir de 12h pour commander sur place.` |
 | Fiche vide | `Aucune réservation possible ce jour-là.` |
