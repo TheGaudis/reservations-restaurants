@@ -20,7 +20,7 @@
     "test:node": "vitest run --project node --project node-ny",
     "test:browser": "vitest run --project browser",
     "test:e2e": "playwright test",
-    "test:e2e:legacy": "playwright test --project legacy",
+    "test:e2e:legacy": "playwright test --project=legacy",
     "budget": "node scripts/check-budget.ts",
     "knip": "knip && knip --production",
     "check:fast": "pnpm i18n:extract && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:node",
