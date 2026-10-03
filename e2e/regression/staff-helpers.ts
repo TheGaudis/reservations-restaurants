@@ -14,7 +14,7 @@ import type { Restaurant } from "../pages/target";
 // Helpers shared by the staff scenarios (09 § 4; 06).
 
 /** People of the base data set (parite.md § 2): none may stay in the page after a logout (invariant 1). */
-export const SEED_NAMES = [
+const SEED_NAMES = [
   "Cyrille Ungerer",
   "Ariele Gsell",
   "Noah Bernard",
