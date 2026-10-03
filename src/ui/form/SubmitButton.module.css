@@ -16,7 +16,7 @@
   background: var(--accent);
   border: var(--border-width) solid var(--accent);
   border-radius: var(--radius-sm);
-  /* 0 6px 14px -8px */
+  /* 0, 6, 14 and -8 px in legacy/design-system.css */
   box-shadow: 0 calc(var(--space-2) - var(--space-1) / 2) calc(var(--space-3) + var(--space-1) / 2)
     calc(-1 * var(--space-2)) var(--accent);
   cursor: pointer;
