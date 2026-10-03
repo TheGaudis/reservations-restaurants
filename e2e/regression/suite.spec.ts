@@ -152,13 +152,24 @@ test("pageObjectSignatures", { tag: ["@framework"] }, () => {
     "serviceModeOption",
     "submitOrderR2",
   ]);
-  expect(exported(login)).toStrictEqual(["login", "logout", "openLogin", "passwordField"]);
+  expect(exported(login)).toStrictEqual([
+    "login",
+    "logout",
+    "modeButton",
+    "openLogin",
+    "passwordField",
+  ]);
   expect(exported(staff)).toStrictEqual([
+    "bookingLines",
     "bookingRow",
     "confirmDelete",
+    "datePicker",
     "openAddPerson",
     "openDayForm",
+    "openDayPanel",
     "openSettings",
+    "staffCard",
+    "staffDish",
     "staffPanel",
   ]);
   expect(exported(print)).toStrictEqual(["printedDocument", "stubPrint"]);
