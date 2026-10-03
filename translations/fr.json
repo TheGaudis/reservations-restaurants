@@ -55,6 +55,14 @@
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
   },
+  "public.dayCard.status.almostFull": {
+    "defaultMessage": "Bientôt complet",
+    "description": "D-02 — mot d'état à côté de la jauge, état orange"
+  },
+  "public.dayCard.status.full": {
+    "defaultMessage": "Complet",
+    "description": "D-02 — mot d'état à côté de la jauge, état rouge"
+  },
   "public.r1.form.total": {
     "defaultMessage": "{seats, plural, one {# couvert} other {# couverts}} · Total : {total}",
     "description": "04 § 5.2 — total en direct du formulaire R1 (« 3 couverts · Total : 16,00 € »)"
@@ -118,5 +126,9 @@
   "ui.submitButton.pending": {
     "defaultMessage": "Envoi en cours…",
     "description": "04 § 6.1 — libellé du bouton d'envoi pendant l'envoi"
+  },
+  "ui.toast.viewport": {
+    "defaultMessage": "Notifications",
+    "description": "PLAN annexe F, a-8 — nom de la zone des notifications"
   }
 }

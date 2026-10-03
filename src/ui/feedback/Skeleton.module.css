@@ -1,0 +1,50 @@
+/* .sk, .sk-line, .sk-circle, .sk-cell, .sk-card of legacy/design-system.css and legacy/app.css (08 § 4.16):
+   --text at 6 % and 11 % gives the legacy rgba(31, 35, 40, .06) and .11. */
+.skeleton {
+  display: block;
+  height: var(--skeleton-line);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text) 6%, transparent) 0%,
+    color-mix(in srgb, var(--text) 11%, transparent) 50%,
+    color-mix(in srgb, var(--text) 6%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer var(--dur-shimmer) linear infinite;
+}
+
+.skeleton[data-shape="title"] {
+  height: var(--space-8);
+}
+
+.skeleton[data-shape="circle"] {
+  flex: 0 0 auto;
+  width: var(--control-height);
+  height: var(--control-height);
+  border-radius: var(--radius-full);
+}
+
+.skeleton[data-shape="cell"] {
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.skeleton[data-shape="card"] {
+  height: var(--skeleton-card);
+  border-radius: var(--radius);
+}
+
+/* Load failure: the page stops pretending to load (08 § 4.16). */
+.skeleton[data-still] {
+  animation: none;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}

@@ -1,0 +1,64 @@
+/* .capacity-pill and .cap-ok|low|full of legacy/design-system.css (08 § 4.8, 05 § 4.5): the filled part is the share
+   still free (width of .fill, `gaugeStyle` of 00 § 3); --cap is the state colour, the text a darker mix of it
+   (≥ 4.5:1 on the filled part). */
+.gauge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1) var(--space-2);
+}
+
+.pill,
+.word {
+  --cap: var(--text-muted);
+}
+
+:is(.pill, .word)[data-state="available"] {
+  --cap: var(--success);
+}
+
+:is(.pill, .word)[data-state="almostFull"] {
+  --cap: var(--warning);
+}
+
+:is(.pill, .word)[data-state="full"] {
+  --cap: var(--danger);
+}
+
+.pill {
+  --fill: color-mix(in srgb, var(--cap) 20%, transparent);
+  --track: color-mix(in srgb, var(--cap) 6%, transparent);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: var(--capacity-pill-min-width);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: center;
+  color: color-mix(in srgb, var(--cap) 65%, var(--text));
+  background: var(--track);
+  border: var(--border-width) solid color-mix(in srgb, var(--cap) 30%, transparent);
+  border-radius: var(--radius-xs);
+  user-select: none;
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  background: var(--fill);
+}
+
+/* State word next to the gauge (D-02), in the colour of the pill text. */
+.word {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--cap) 65%, var(--text));
+  user-select: none;
+}
