@@ -62,7 +62,7 @@ Le panneau se déplie sous le sélecteur (grille `0fr → 1fr`, entrée 0,35 s `
 1. Si `dataStale` (la page affiche encore la copie locale de la dernière visite, données fraîches pas arrivées) : toast d'erreur « Les données se chargent. Réessayez dans un instant. » et arrêt.
 2. Lecture du champ (sans `trim`, valeur vide acceptée et envoyée).
 3. Voile de chargement.
-4. Appel `fetchAdminState(motDePasse)` = action API **`getAdminState`** `{ password }` (une seule requête qui vérifie le mot de passe et renvoie l'état complet, réservations nominatives comprises). Repli automatique si le script n'est pas à jour (erreur « Action inconnue… ») : `checkPassword` puis lecture publique (voir spécification des données).
+4. Appel `fetchAdminState(motDePasse)` = action API **`getAdminState`** `{ password }` (une seule requête qui vérifie le mot de passe et renvoie l'état complet, réservations nominatives comprises). Repli automatique si le script n'est pas à jour (erreur « Action inconnue… ») : `checkPassword` puis lecture publique (voir `02-contrat-api.md` et `03-cache-local-et-chargement.md`).
 5. Succès :
    - `state = réponse` ; `isAdmin = true` ; `adminPassword = motDePasse` ; `loginOpen = false` ;
    - toast « Mode collègue activé. » ;

@@ -2,7 +2,7 @@
 
 Sources : `js/calendrier.js` (rendu, clavier, fiches), avec des fonctions venant de `js/donnees.js` (`idx`, `remainingR1`, `remainingItem`, `itemsR2`, `capacityClass`, `dayStatusR1`, `dayStatusR2`, `r2OrdersClosed`, `r2ClosedMsg`, `reserveButtonHtml`, `itemPriceText`, `itemAmountText`), `js/outils.js` (`calState`, `toISO`, `todayISO`, `addDaysISO`, `mondayOf`, `formatDate`, `formatEuro`, `gaugeStyle`, `plural`, `dash`, `escapeHtml`), `js/interface.js` (`segGroup`, `popSeg`, `cardEnter`, `lastCard`, `cardKey`, `confirmationHtml`, `ICONS`, `reduceMotion`), `js/collegue.js` (`CHEVRON_PREV`, `CHEVRON_NEXT`, `WEEKDAY_INITIALS`, formulaires collègue) et `js/main.js` (`render`, `restParts`, `PARTS`). Styles : `app.css` (sections « Calendrier » et « Fiche du jour »).
 
-Le formulaire de réservation du public (contenu, validations, envoi) est spécifié ailleurs (spécification de la réservation publique). Ce document indique seulement **où** et **quand** il apparaît dans la fiche. Les formulaires du mode collègue qui s'ouvrent dans la fiche sont détaillés dans `06-mode-collegue.md`.
+Le formulaire de réservation du public (contenu, validations, envoi) est spécifié dans `04-parcours-public-reservation.md`. Ce document indique seulement **où** et **quand** il apparaît dans la fiche. Les formulaires du mode collègue qui s'ouvrent dans la fiche sont détaillés dans `06-mode-collegue.md`.
 
 ---
 
