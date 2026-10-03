@@ -1,15 +1,6 @@
-import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
 import { afterEach, expect, it } from "vitest";
-import { render } from "vitest-browser-react";
 
-import { getRouter } from "@/router";
-
-async function renderRoute(url: string) {
-  const router = getRouter();
-  router.update({ ...router.options, history: createMemoryHistory({ initialEntries: [url] }) });
-  const screen = await render(<RouterProvider router={router} />);
-  return { router, screen };
-}
+import { renderRoute } from "@/test/render";
 
 afterEach(() => {
   localStorage.clear();
