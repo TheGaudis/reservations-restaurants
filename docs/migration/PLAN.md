@@ -905,6 +905,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-48 | Focus après la fermeture d'un formulaire collègue | focus sur la date de la fiche (`03` § 5.4) | focus rendu au bouton qui a ouvert le formulaire (« Modifier », « + Ajouter une personne », « Modifier ce plat »…), comme « Annuler » du formulaire public (`04` § 5.1) ; après une suppression, date de la fiche (identique) | architecture, F-06 | REG-35 |
 | E-49 | Lecture anticipée et CSS | script du `<head>` exécuté avant la CSS | exécuté après la CSS et les `modulepreload` (React 19 et le routeur remontent la CSS, R-12) | Start | n/a |
 | E-50 | Mode de service (public R2) et mode d'une réservation R2 (collègue) | boutons `aria-pressed` dans un `role="group"` (public) ; `<select>` (collègue) | vrai groupe radio (`RadioGroup` de Base UI, `SegmentedRadio`), une seule option un jour au ticket | accessibilité, § 3.5 ; relevé par P3 (b) | REG-22 |
+| E-51 | Bouton de suppression armé pendant une actualisation | recréé désarmé par le rendu complet | reste armé jusqu'à la fin de ses 4 s (React garde le composant) | architecture ; relevé par P3 (a) | n/a |
 
 ### 4.3 Traitement des points a-*
 
