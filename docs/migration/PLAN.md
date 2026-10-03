@@ -289,7 +289,7 @@ reservations-restaurants/
     │   └── request-id.ts       newRequestId() : requestId (crypto.randomUUID, repli de 02 § 5.3)
     ├── queries/
     │   ├── client.ts           createQueryClient() : défauts, QueryCache/MutationCache onError (mot de passe changé)
-    │   ├── state.ts            stateKeys, publicStateOptions (queryFn etag), staffStateOptions(id) (gcTime: 0)
+    │   ├── state.ts            stateKeys, publicStateOptions (queryFn etag), staffStateOptions(id, password) (mot de passe dans la fermeture de la queryFn, jamais dans la clé ; gcTime: 0)
     │   ├── local-cache.ts      LocalCacheV1 (schéma du format v1, champs tels quels), restoreLocalCache, persistLocalCache, readFallbackTexts,
     │   │                       conversions v1 ↔ PublicState dans les deux sens
     │   ├── use-app-state.ts    useAppState(select), useIsFromCache(), APP_START
@@ -457,7 +457,7 @@ export const publicStateOptions = queryOptions({
 3. Le bundle s'exécute. `getRouter()` (appelé aussi dans Node au build, d'où la garde `typeof window`) crée le `QueryClient`, puis côté navigateur : `restoreLocalCache()` valide la copie par `LocalCacheV1`, la convertit en `PublicState` et la pose par `setQueryData(['state','public'], state, { updatedAt: savedAt })` ; sans copie valide, `readFallbackTexts()` lit `reservations-textes` pour les titres du squelette ; `persistLocalCache()` s'abonne au cache ; le routeur est créé avec `context: { queryClient, session }` ; l'abonnement de session et les tâches de fond démarrent.
 4. `router.load()` exécute le loader de la route : avec la copie, `queryClient.query({ ..., staleTime: 'static' })` répond aussitôt ; sans copie, il lance la `queryFn` (qui reprend la lecture anticipée) et attend, le squelette reste affiché (G-01) ; un échec sans donnée affiche l'`errorComponent` de la route, c'est-à-dire la page avec l'encadré d'échec (G-03).
 5. Hydratation puis rendu : le squelette de la coquille reste affiché jusqu'à la fin de l'hydratation (barrière `useHydrated()` de la route `/`, qui seule permet `pendingMinMs: 0` ; ailleurs `pendingMinMs` garde sa valeur par défaut, arbitrage 16), puis `useAppState()` renvoie la copie ; `useIsFromCache()` vaut `dataUpdatedAt < APP_START` (G-02 : « Réserver » actif, connexion collègue refusée avec le toast `Les données se chargent. Réessayez dans un instant.`).
-6. `<AutoRefresh/>` se monte : la donnée restaurée est périmée, la `queryFn` part ; `takeEarlyFetch(since)` rend la lecture du `<head>` si son `since` est identique (une seule fois), sinon un nouveau `fetch` part ; la lecture doublée est armée pour le **temps restant** jusqu'à 6 s depuis `startedAt` ; un nouvel essai après 1,5 s si l'échec est transitoire et que le navigateur est en ligne.
+6. `<AutoRefresh/>` se monte : la donnée restaurée est périmée (`restoreLocalCache` l'invalide aussitôt : avec `updatedAt = savedAt` et `staleTime` 180 s, une copie de moins de 3 min serait sinon jugée fraîche, P2 (b2)), la `queryFn` part ; `takeEarlyFetch(since)` rend la lecture du `<head>` si son `since` est identique (une seule fois), sinon un nouveau `fetch` part ; la lecture doublée est armée pour le **temps restant** jusqu'à 6 s depuis `startedAt` ; un nouvel essai après 1,5 s si l'échec est transitoire et que le navigateur est en ligne.
 7. Réponse : `{ unchanged: true }` → même référence, la donnée redevient fraîche, la copie est réécrite avec un `savedAt` neuf ; nouvel état → validé, partage structurel (seuls les jours modifiés sont rendus de nouveau), copie réécrite ; échec → la donnée affichée est conservée et l'encadré d'échec apparaît, avec le suffixe « copie locale » si `useIsFromCache()`.
 
 #### 3.3.2 Actualisation
@@ -906,6 +906,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-49 | Lecture anticipée et CSS | script du `<head>` exécuté avant la CSS | exécuté après la CSS et les `modulepreload` (React 19 et le routeur remontent la CSS, R-12) | Start | n/a |
 | E-50 | Mode de service (public R2) et mode d'une réservation R2 (collègue) | boutons `aria-pressed` dans un `role="group"` (public) ; `<select>` (collègue) | vrai groupe radio (`RadioGroup` de Base UI, `SegmentedRadio`), une seule option un jour au ticket | accessibilité, § 3.5 ; relevé par P3 (b) | REG-22 |
 | E-51 | Bouton de suppression armé pendant une actualisation | recréé désarmé par le rendu complet | reste armé jusqu'à la fin de ses 4 s (React garde le composant) | architecture ; relevé par P3 (a) | n/a |
+| E-52 | Copie locale sans `config` | gardée (les tarifs et noms prennent leurs valeurs par défaut) | ignorée par le schéma `LocalCacheV1` | aucune copie écrite par `saveCache` n'est dans ce cas ; relevé par P2 (b2) | n/a |
 
 ### 4.3 Traitement des points a-*
 

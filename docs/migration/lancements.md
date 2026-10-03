@@ -451,7 +451,7 @@ price "" compris) ; 03 § 1.1 : l'exemple relu, converti puis réécrit à l'ide
 ignorée, sans etag acceptée, JSON invalide ignoré ; aucune écriture depuis l'état complet ni sans etag ; copie écrite relue par
 loadCache de legacy/ ; unchanged → même référence et dataUpdatedAt rafraîchi ; purge sur un QueryClient réel (PLAN § 3.3.4) ;
 mutations jamais rejouées (retry: false, networkMode: 'always' : une erreur réseau = un seul POST) ;
-test grep : aucun champ du script hors api/schemas.ts, api/actions.ts, api/early-fetch.ts, queries/local-cache.ts, src/mocks/**
+test grep : aucun champ du script hors api/schemas.ts, api/staff-schemas.ts, api/actions.ts, api/early-fetch.ts, queries/local-cache.ts, src/mocks/**
 et leurs tests.
 Commandes :
 - pnpm test:node src/api src/queries ; pnpm test:node -t golden ;
