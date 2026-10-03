@@ -127,6 +127,16 @@
 
   /* Sizes written in the legacy component rules (08 § 4), turned into tokens (PLAN § 3.6) */
   --spinner-size: 48px; /* .spinner, 08 § 4.15 */
+  --border-width: 1px; /* contour of fields, buttons and segments (08 § 4.2, 4.5, 4.6) */
+  --control-height: 40px; /* fields, buttons, segments, icon buttons (08 § 4.2, 4.4, 4.5, 4.6) */
+  --control-height-coarse: 44px; /* buttons on a touch screen (08 § 4.2) */
+  --icon-size: 24px; /* glyph of an icon button (08 § 4.4) */
+  --check-size: 18px; /* check box, check of a selected segment (08 § 4.5, 4.6) */
+  --field-error-halo: 3px; /* halo around a field in error (08 § 4.6) */
+  --field-error-mark: 15px; /* round « ! » before a field error (08 § 4.6) */
+  --fs-error-mark: 0.66rem; /* « ! » inside that mark */
+  --fs-field-touch: 16px; /* fields on a touch screen: iOS zooms into a smaller one (08 § 4.6) */
+  --qty-input-width: calc(var(--space-10) + var(--space-8)); /* .qty-input, legacy/app.css */
 }
 
 /* Restaurant accents, set on a container (docs/spec/08 § 2); blue keeps the :root values. */
