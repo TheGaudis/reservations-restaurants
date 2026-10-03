@@ -97,7 +97,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Code en anglais : identifiants, fichiers, dossiers, ids de messages, clés de requête, commentaires ; glossaire : PLAN annexe E
   (un terme absent y est ajouté avant usage). Textes affichés et documentation en français.
 - Restent en français car visibles dans l'URL : chemin `/collegue` (`routes/collegue.tsx`) et search params (`r1`, `r1vue`, `reserver`…).
-- Champs du script et de la copie locale (`Date`, `Capacite`, `Qte`, `Nom`…) seulement dans `api/schemas.ts`, `api/actions.ts`,
+- Champs du script et de la copie locale (`Date`, `Capacite`, `Qte`, `Nom`…) seulement dans `api/schemas.ts`, `api/staff-schemas.ts`, `api/actions.ts`,
   `api/early-fetch.ts`, `queries/local-cache.ts`, `src/mocks/**` et leurs tests ; ailleurs, le modèle de `domain/types.ts`,
   écrit à la main, que les schémas produisent.
 - Exports nommés ; pas de barrels ; alias `@/` ; co-location `X.tsx`, `X.module.css`, `X.test.tsx`, `X.stories.tsx`.
