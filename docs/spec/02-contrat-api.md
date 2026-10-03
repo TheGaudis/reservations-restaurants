@@ -380,6 +380,35 @@ Ils doivent être retirés avant de stocker la réponse comme état (sinon ils f
 
 ---
 
+## 6. Tâches planifiées et e-mails envoyés par le script (hors requêtes du site)
+
+Comportement **serveur uniquement**, à conserver tel quel (le backend n'est pas migré), décrit ici parce que les visiteurs le voient dans leur boîte mail. `setupDailyTrigger()` (à exécuter une fois à la main) supprime puis recrée trois déclencheurs : `sendReminders` chaque jour vers 18 h, `archiveOldData` chaque jour vers 3 h, `rafraichirCache` toutes les 5 min (fuseau du script).
+
+### 6.1 Rappel de la veille (`sendReminders`)
+
+« Demain » = date du jour + 1 dans le fuseau du script. Un e-mail par **ligne** de réservation de demain dont `Contact` vérifie `/\S+@\S+\.\S+/` (une commande R2 de plusieurs plats reçoit donc un rappel par plat). Envoi immédiat (pas de file d'attente).
+
+| | Objet | Corps |
+| --- | --- | --- |
+| R1 | `Rappel : réservation demain - {name1}` | `Bonjour {Nom},` / ligne vide / `Petit rappel : vous avez une réservation demain ({dateLongue}) au {name1} pour {Qte} couvert(s)[ — menu : {Menu}].` / ligne vide / `Pour annuler, contactez {contactAnnulation}.` |
+| R2 | `Rappel : réservation demain - {name2}` | `Bonjour {Nom},` / ligne vide / `Petit rappel : vous avez une réservation demain ({dateLongue}) au {name2} — {Qte} portion(s) de {nom du plat, ou « plat » s'il a été supprimé}, {à emporter\|sur place}.` / ligne vide / `Pour annuler, contactez {contactAnnulation}.` |
+
+Le nom du plat est celui de la feuille, donc avec la mention « (ticket restaurant) » le cas échéant.
+
+### 6.2 E-mail d'annulation (`deleteBookingR1`, `deleteBookingR2`)
+
+Envoyé (après libération du verrou) si le `Contact` de la réservation supprimée est un e-mail ; son statut n'est pas renvoyé au client.
+- Objet : `Annulation de réservation - {nom du restaurant} - {dateLongue}`.
+- Corps R1 : `Bonjour {Nom},` / ligne vide / `Votre réservation a été annulée :` / `- Restaurant : {name1}` / `- Date : {dateLongue}` / `- Nombre de couverts : {Qte}` / ligne vide / `Pour toute question, contactez {contactAnnulation}.`
+- Corps R2 : idem avec `- Plat : {nom du plat ou « plat »}` et `- Quantité : {Qte}` à la place de la ligne des couverts.
+- `deleteDayR1`, `deleteDayR2`, `deleteItemR2` et `editBooking…` n'envoient **aucun** e-mail.
+
+### 6.3 Archivage (`archiveOldData`)
+
+Chaque nuit, sous `waitLock(30000)` : les lignes dont `Date` (`yyyy-MM-dd`) est antérieure à « aujourd'hui − 60 jours » sont copiées dans `Archive_{onglet}` puis retirées de l'onglet actif (`R1_Bookings`, `R1_Days`, `R2_Bookings`, `R2_Items`, `R2_Days`) ; la version de l'état public est ensuite renouvelée. Conséquence visible : un jour de plus de 60 jours disparaît du calendrier (« aucun service »), même en mode collègue.
+
+---
+
 ## Points d'attention
 
 1. **Pas de délai d'expiration** : ni les lectures ni les écritures n'ont de timeout ; une écriture bloquée laisse le bouton « Envoi en cours… » indéfiniment.
@@ -392,3 +421,4 @@ Ils doivent être retirés avant de stocker la réponse comme état (sinon ils f
 8. **Ajout collègue = deux allers-retours** : la réponse publique oblige à relire l'état complet.
 9. **Actualisation collègue coûteuse** : `getAdminState` renvoie tout l'état complet à chaque actualisation (pas d'etag), sans mémoire serveur.
 10. **`Action inconnue:`** : le repli `checkPassword` de `fetchAdminState` ne sert qu'avec un script antérieur ; il peut être supprimé si le script déployé est à jour.
+11. **Aucune limitation des essais de mot de passe** : `getAdminState`/`checkPassword` ne sont ni verrouillés ni ralentis ; un mot de passe peut être essayé sans limite (ni côté client, ni côté script).

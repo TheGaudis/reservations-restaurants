@@ -249,7 +249,7 @@ Parties jointes par « — » (espaces **normales** de part et d'autre : `join('
 <b>{Nom}</b> — {Classe} — {quantité} — {prix} — {mode} — {Contact} — <i>{Observation}</i>
 ```
 
-- R1 : quantité `plural(Qte, 'couvert')` (« 1 couvert », « 3 couverts ») ; prix `formatEuro(PrixTotal)` si non vide ; pas de mode.
+- R1 : quantité `plural(Qte, 'couvert')` (« 1 couvert », « 3 couverts ») ; prix `formatEuro(PrixTotal)` si `PrixTotal` est « vrai » (un `PrixTotal` vide **ou égal à 0** n'est pas affiché) ; pas de mode.
 - R2 : quantité `plural(Qte, 'portion')` ; prix `itemAmountText(plat, Qte)` (« 7,00 € », « 2 tickets restaurant » ou rien) ; mode « à emporter » si `Mode === 'emporter'`, sinon « sur place ».
 - Suivie des boutons « Modifier » et « Supprimer » (voir 06).
 - Ordre : ordre du tableau `state.r1Bookings` / `state.r2Bookings` (ordre d'insertion dans la feuille). **Aucun tri.**

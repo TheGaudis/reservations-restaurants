@@ -86,7 +86,7 @@ Titre de la fenêtre (`<title>`, sert de nom de fichier PDF proposé) : voir cha
 | | Pers. | `NbProf`, ou « – » grisé | centré, 14 mm |
 | | Ext. | `NbExt`, ou « – » grisé | centré, 14 mm |
 | | Couverts | `Qte` (Outfit 600, 12 pt, `--p-ink`) | centré, 18 mm |
-| | Prix | `formatEuro(PrixTotal)` ou vide | droite, 19 mm |
+| | Prix | `formatEuro(PrixTotal)` ou vide (un `PrixTotal` de 0 est aussi laissé vide) | droite, 19 mm |
 | **Informations** (2) | Contact | `Contact` | 38 mm |
 | | Observation | `Observation` ; case non vide marquée : texte 500, fond `--surface-alt`, filet gauche 3 px `--p-accent` | largeur restante |
 | **À remplir en salle** (2, groupe centré) | N° table | vide | centré, 16 mm |
