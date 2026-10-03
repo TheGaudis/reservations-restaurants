@@ -6,16 +6,17 @@ Références : [`PLAN.md`](PLAN.md) § 1.5 (S1), § 4.2 (écarts `E-xx`), P1 ; [
 
 ## 1. Conventions
 
-- **Fichiers** : `e2e/regression/{loading,calendar,public-r1,public-r2,staff,print,misc}.spec.ts`.
+- **Fichiers** : `e2e/regression/{loading,calendar,public-r1,public-r2,staff,print,misc}.spec.ts` (répartition au § 3). Deux fichiers hors scénarios : `smoke.spec.ts` (G-04 affiché depuis le faux script) et `suite.spec.ts` (étiquette `@framework` : isolation réseau, étiquettes `@changed`, signatures des page objects).
 - **Étiquettes Playwright** : `test("…", { tag: [...] }, …)` avec
   - `@parity` (comportement identique attendu sur `legacy` et `react`) ou `@changed:E-xx` (écart du PLAN § 4.2 : l'assertion a une variante `legacy` et une variante `react`, choisie par `target(testInfo)`, c'est-à-dire par le nom du projet Playwright) ; un scénario peut porter plusieurs `@changed:E-xx` et garder des assertions communes ;
-  - l'identifiant d'écran de `09` (`@G-01`, `@P-05`…), pour le filtre `--grep` de la CI ;
+  - l'identifiant d'écran de `09` (`@G-01`, `@P-05`…), un par ligne de `09` citée, pour le filtre `--grep` de la CI ; `09` § 7 s'écrit `@09-7` ;
   - la phase de sortie : `@p4`, `@p5` ou `@p6` ;
   - `@legacy-only` pour un scénario non exécutable sur `react` (couvert autrement, voir la colonne « Story ou test navigateur »).
-- Titres de test en anglais (nom de code ci-dessous), textes attendus en français, recopiés de la spec ou de l'annexe F du plan.
-- Un test de P1 compare l'ensemble des étiquettes `@changed:E-xx` au tableau du PLAN § 4.2 : ni plus, ni moins.
-- **Horloge** : `TEST_NOW` de `src/test/clock.ts` = `2026-10-05T07:30:00.000Z`, **lundi 5 octobre 2026, 9 h 30 à Paris** (`timezoneId: 'Europe/Paris'`), `TODAY = '2026-10-05'`. `page.clock.setFixedTime(TEST_NOW)` par défaut (date figée, minuteurs réels) ; `page.clock.install({ time })` avant `goto` pour 10 h, minuit, l'inactivité et la lecture doublée, puis `runFor` / `fastForward` ; `setSystemTime` pour avancer l'heure sans déclencher les minuteurs. Jamais d'horloge réelle.
-- **Faux script** : une instance de `createFakeAppsScript({ seed, password })` par test (`src/mocks/apps-script.ts`), exposée aux tests par la fixture `fakeScript` ; `fakeScript.requests` pour les corps et en-têtes ; `hold()` pour retenir une réponse ; `failNext('html' | 'network' | 'error', message?)` ; `setPassword(p)`. Isolation réseau en premier (`e2e/fixtures.ts`).
+- Titres de test en anglais : nom de code ci-dessous suivi de l'identifiant, `"shellSkeletonWithStoredTitles (REG-01)"` ; un scénario découpé en plusieurs tests garde ce préfixe. Textes attendus en français, recopiés de la spec ou de l'annexe F du plan.
+- `changedTagsMatchPlanGaps` (`suite.spec.ts`) compare l'ensemble des étiquettes `@changed:E-xx` de `e2e/regression/` (scénarios écrits ou encore déclarés en `test.fixme`) aux lignes du PLAN § 4.2 dont la colonne « Scénario » n'est pas « n/a » : ni plus, ni moins. Liste attendue (45) : E-01 à E-21, E-23, E-24, E-27 à E-48 ; hors suite : E-22, E-25, E-26, E-49.
+- **Horloge** : `TEST_NOW` de `src/test/clock.ts` = `2026-10-05T07:30:00.000Z`, **lundi 5 octobre 2026, 9 h 30 à Paris** (`timezoneId: 'Europe/Paris'`), `TODAY = '2026-10-05'`. La fixture `pageClock` pose `page.clock.setFixedTime(fixedTime)` avant le test (date figée, minuteurs réels ; `fixedTime` vaut `TEST_NOW`, `test.use({ fixedTime: Date.parse('2026-09-30T07:00:00Z') })` pour une autre heure). Pour 10 h, minuit, l'inactivité et la lecture doublée : `test.use({ fixedTime: null })`, puis `page.clock.install({ time })` avant `goto`, puis `runFor` / `fastForward` ; `setSystemTime` pour avancer l'heure sans déclencher les minuteurs. Jamais d'horloge réelle.
+- **Faux script** : une instance de `createFakeAppsScript({ seed, password })` par test (`src/mocks/apps-script.ts`), exposée aux tests par la fixture `fakeScript` (`test.use({ fakeScriptOptions: { seed } })` pour un autre jeu) ; `fakeScript.db` (tables du script, modifiables en cours de test pour jouer un autre visiteur : l'etag suit le contenu) ; `fakeScript.requests` (méthode, URL, en-têtes, corps brut et `json`) ; `hold()` retient la **prochaine** requête jusqu'à l'appel de la fonction rendue (traitée à ce moment) ; `failNext(kind, message?)` fait échouer la **prochaine** requête (appels cumulés, un par requête) : `html` = page d'erreur de Google en statut 500, rien n'est traité ; `network` = requête traitée puis connexion coupée (réponse perdue de REG-19) ; `error` = `{ error: message }` sans traitement, message du verrou par défaut ; `setPassword(p)` ; `db.mailError` = raison d'échec de MailApp pour les e-mails de confirmation. Isolation réseau en premier (`e2e/fixtures.ts`, fixtures `isolation` : `allowed` et `blocked`) ; une requête vers le script que le faux script n'a pas traitée fait échouer le test.
+- **Console stricte** : fixture `consoleLog` ; toute erreur ou tout avertissement de la console, et toute exception de la page, fait échouer le test, sauf les « Failed to load resource » d'une adresse externe (isolation, échecs demandés au faux script) et le statut 404 d'un lien profond. Une erreur provoquée par le scénario s'accepte par `consoleLog.allow(/motif/u)`.
 - **Copie locale** : semée par `addInitScript` (format v1 exact de `03` § 1.1) ; `storageState` neuf par test.
 
 ## 2. Jeu de base `src/mocks/fixtures/seed.ts`
@@ -23,7 +24,8 @@ Références : [`PLAN.md`](PLAN.md) § 1.5 (S1), § 4.2 (écarts `E-xx`), P1 ; [
 Champs du script tels quels ; dates calculées par rapport à `TODAY` (`addDays(TODAY, n)`), valeurs ci-dessous pour `TODAY = 2026-10-05`.
 
 - Paramètres : défauts client (`Restaurant Pédagogique`, `Aristide`), `contactAnnulation` « le secrétariat », tarifs `4.95` / `6.10` / `9.90`.
-- Mot de passe collègue `secret` ; etag initial `E1`.
+- Mot de passe collègue `secret` (`SEED_PASSWORD`) ; etag initial `E1`.
+- Identifiants lisibles, relatifs au jour : `r1b-d+1-ungerer` (réservation R1 de demain), `r2i-d0-lasagnes` (plat R2 d'aujourd'hui), `r2b-d+1-durand` (réservation R2 orpheline). Personnes : Cyrille Ungerer, Ariele Gsell, Noah Bernard, Léa Martin (contact téléphonique), Jean Petit, Paul Durand, Lycée Voltaire, Association des anciens. `createSeed(today)` décale tout le jeu (`pnpm dev` le date du jour réel).
 
 Jours R1 :
 
@@ -49,6 +51,8 @@ Jours R2 :
 Le 2026-10-07 (J+2) n'a aucun jour, ni R1 ni R2 (variante « demain sans jour » de REG-39, horloge au 2026-10-06).
 
 ## 3. Scénarios REG-01 à REG-43
+
+Fichiers : `loading.spec.ts` REG-01 à REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-26 ; `staff.spec.ts` REG-27 à REG-38 ; `print.spec.ts` REG-39 à REG-42 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
 
 Phases de sortie : `@p4` = REG-01 à REG-26 et REG-43 ; `@p5` = REG-27 à REG-38 ; `@p6` = REG-39 à REG-42. Sessions de P1 : (b) REG-01 à REG-26 et REG-43 ; (c) REG-27 à REG-38 ; (d) REG-39 à REG-42 et les variantes « invariants » (REG-02, REG-03, REG-25, REG-29).
 
@@ -133,7 +137,7 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 | G-01 | REG-01, REG-03 | `@parity` | à faire | à faire | story `PageSkeleton` | E-45 |
 | G-02 | REG-02, REG-05, REG-27 | `@changed` | à faire | à faire | test de `useIsFromCache` | E-47 |
 | G-03 | REG-04, REG-05, REG-06 | `@parity` | à faire | à faire | stories `LoadErrorBox` (en ligne, hors ligne, copie) | E-42 |
-| G-04 | REG-01, REG-08 et tous les scénarios publics | `@parity` | à faire | à faire | stories de `Page` | E-08 |
+| G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | à faire (smoke vert, P1 (a1), 3 oct.) | à faire | stories de `Page` | E-08 |
 | G-05 | REG-07 | `@legacy-only` | à faire | sans objet | story et test Vitest de `ConfigBanner` | E-29 |
 | G-07 | REG-27, REG-17 | `@changed` | à faire | à faire | stories et tests de `Toaster` | E-02 |
 | P-01 | REG-09, REG-11, REG-12 | `@changed` | à faire | à faire | table des touches de `CalendarGrid` | E-05, E-07, E-21 |
