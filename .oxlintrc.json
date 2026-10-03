@@ -328,8 +328,8 @@
       "rules": { "max-classes-per-file": "off" }
     },
     {
-      // Faux script pour les tests de api/ : setupServer de msw/node (PLAN P0)
-      "files": ["src/mocks/node.ts"],
+      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33)
+      "files": ["src/test/setup-node.ts", "src/test/network-isolation.test.ts"],
       "rules": { "import/no-nodejs-modules": "off" }
     },
     {

@@ -59,6 +59,7 @@ export default defineConfig({
           env: { TZ: "Europe/Paris" },
           include: ["src/**/*.test.ts"],
           exclude: [`${BROWSER_DIRS}/*`],
+          setupFiles: ["src/test/setup-node.ts"],
         },
       },
       {
@@ -68,6 +69,7 @@ export default defineConfig({
           environment: "node",
           env: { TZ: "America/New_York" },
           include: ["src/{domain,intl}/**/*.test.ts"],
+          setupFiles: ["src/test/setup-node.ts"],
         },
       },
       {
