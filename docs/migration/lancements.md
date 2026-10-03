@@ -165,13 +165,13 @@ Livrables :
 Critères d'acceptation :
 - pnpm check, pnpm build verts ; dist/client contient index.html, 404.html, assets préfixés par /reservations-restaurants/,
   sans mockServiceWorker.js ;
-- pnpm build:e2e && pnpm test:e2e --project react-only vert dans la session ; test Vitest de rendu de route (createMemoryHistory)
+- pnpm build:e2e && pnpm test:e2e --project=react-only vert dans la session ; test Vitest de rendu de route (createMemoryHistory)
   et test node de getRouter() sans window verts ;
 - pnpm dev sert la coquille sans aucune requête vers script.google.com ;
 - budget de la coquille mesuré (kB gzip JS et CSS) et noté au journal ; mesures d'hydratation et résultat de l'essai au § 2.1.
 Commandes :
 - pnpm build && ls dist/client ; pnpm serve & curl -sI http://127.0.0.1:4311/reservations-restaurants/collegue (404 + coquille) ;
-- pnpm build:e2e && pnpm test:e2e --project react-only ; pnpm budget ; git diff --exit-code src/routeTree.gen.ts.
+- pnpm build:e2e && pnpm test:e2e --project=react-only ; pnpm budget ; git diff --exit-code src/routeTree.gen.ts.
 Ne touche pas : package.json (sauf scripts manquants), .oxlintrc.json (sauf override justifié), src/intl/.
 ```
 
@@ -187,9 +187,9 @@ Livrables :
    permissions {} puis minimales par job ; persist-credentials: false ; concurrency.
    Jobs parallèles : `check` (i18n:extract + git diff --exit-code translations/fr.json, ! grep -F '\\u00A0' translations/fr.json,
    format:check, oxlint -f github, typecheck, test:node, knip, grep des effets S6 hors tests et stories) ; `browser`
-   (playwright install --with-deps chromium, test:browser, et test --project storybook à partir de P3) ; `e2e` (build:e2e,
-   git diff --exit-code src/routeTree.gen.ts, playwright install --with-deps chromium, test:e2e --project react-only puis
-   --project legacy, et --project react filtré par étiquettes quand P4 commence ; puis build de production avec BASE_PATH et
+   (playwright install --with-deps chromium, test:browser, et test --project=storybook à partir de P3) ; `e2e` (build:e2e,
+   git diff --exit-code src/routeTree.gen.ts, playwright install --with-deps chromium, test:e2e --project=react-only puis
+   --project=legacy, et --project=react filtré par étiquettes quand P4 commence ; puis build de production avec BASE_PATH et
    VITE_APPS_SCRIPT_URL depuis vars, budget, upload-artifact de dist/client et du rapport HTML). retries: 1 en CI seulement.
    Job `deploy` (upload-pages-artifact → deploy-pages) avec if: github.ref == 'refs/heads/main' && github.event_name == 'push'.
    Actions épinglées par SHA relevés avec `git ls-remote` (connu : actions/checkout v7.0.1 = 3d3c42e5aac5ba805825da76410c181273ba90b1),
@@ -397,7 +397,7 @@ codage du ticket idempotent ; serviceMode ; isR2OrderingClosed 9 h 59 / 10 h 00 
 selectDay et goToToday ne touchent qu'un restaurant (a-12 ; goToToday retire aussi reserver de ce restaurant) ;
 couverture de src/domain ≥ 95 % des lignes (pnpm test:node --coverage).
 Commandes :
-- pnpm test:node src/domain --coverage ; pnpm vitest run --project node-ny src/domain ;
+- pnpm test:node src/domain --coverage ; pnpm vitest run --project=node-ny src/domain ;
 - grep -rnE "from \"@/(api|queries|features|ui|intl)" src/domain (doit être vide).
 Ne fais pas : textes (intl/ est en P2 (c)), api/, queries/, session/.
 ```
@@ -481,7 +481,7 @@ tests du projet browser) ; horloge qui tique à 10 h 00 et à minuit heure de Pa
 0 → « 0,00␣€ » ; pluriels 0, 1, 2 couverts, 1 et 2 tickets restaurant ; séparateur « ␣— » devant un prix ; libellé
 « 28 sept. – 4 oct. 2026 ».
 Commandes :
-- pnpm test:node src/session src/intl ; pnpm test:browser src/background ; pnpm vitest run --project node-ny src/intl ;
+- pnpm test:node src/session src/intl ; pnpm test:browser src/background ; pnpm vitest run --project=node-ny src/intl ;
 - pnpm i18n:extract && git diff translations/fr.json (nouveaux messages attendus).
 Ne touche pas : domain/, api/, queries/.
 ```
@@ -515,7 +515,7 @@ Pièges : storybookTest remplace test.include (projet séparé obligatoire) ; un
 échouer Vitest au démarrage ; parameters.msw est déprécié (CSF Next) ; ajouter les dépendances à optimizeDeps.include si Vitest
 recharge au premier lancement.
 Commandes :
-- pnpm install ; pnpm test --project storybook ; pnpm build-storybook ; pnpm check ;
+- pnpm install ; pnpm test --project=storybook ; pnpm build-storybook ; pnpm check ;
 - pnpm storybook en tâche de fond seulement si nécessaire, arrêté avant la fin de session.
 Ne fais pas : autres composants de ui/.
 ```
@@ -542,7 +542,7 @@ Pièges : ToggleGroup de Base UI renvoie une valeur vide au 2e clic (l'ignorer) 
 libellés anglais de Base UI à surcharger ; un toast d'erreur doit être annoncé en priorité (R-16) ; dans un play, chercher les
 portails avec screen de storybook/test, pas canvas.
 Commandes :
-- pnpm test:browser src/ui/button src/ui/toggle src/ui/feedback ; pnpm test --project storybook ;
+- pnpm test:browser src/ui/button src/ui/toggle src/ui/feedback ; pnpm test --project=storybook ;
 - grep -rnE "#[0-9a-fA-F]{3,6}|[0-9]+px" src/ui --include=*.module.css (seulement des var(--…)).
 Ne touche pas : ui/icons.tsx, .storybook/, src/test/ (demande à l'orchestrateur), ui/form/, ui/calendar/.
 ```
@@ -569,7 +569,7 @@ affiché jusqu'à ce que la valeur soit valide : E-46) ; 04 § 10 ; NumberField 
 Pièges (R-17) : handleSubmit relance l'erreur d'onSubmit ; erreurs Standard Schema = objets (errorText) ; defaultValues lues au
 montage seulement ; useStore déprécié (useSelector ou form.Subscribe) ; NumberField renvoie null et refuse datalist.
 Commandes :
-- pnpm test:browser src/ui/form ; pnpm test --project storybook ;
+- pnpm test:browser src/ui/form ; pnpm test --project=storybook ;
 - grep -rn "@base-ui" src --include=*.tsx | grep -v src/ui (doit être vide).
 Ne touche pas : ui/button, ui/feedback, ui/calendar, ui/icons.tsx, .storybook/.
 ```
@@ -594,7 +594,7 @@ date picker 06 § 3.2-3.3 (flèches = focus, jours passés aria-disabled, « dé
 Pièges : une case en <Link> recevrait aria-current="page" et écraserait aria-current="date" ; Page ↑ / ↓ borné au dernier
 jour du mois (a-23) ; jour hors mois cliquable sans changer de mois (05 § 3) ; transitions coupées par prefers-reduced-motion.
 Commandes :
-- pnpm test:browser src/ui/calendar ; pnpm test --project storybook ;
+- pnpm test:browser src/ui/calendar ; pnpm test --project=storybook ;
 - grep -rn "useLayoutEffect\|useEffect" src/ui/calendar (doit être vide).
 Ne touche pas : domain/, intl/dates.ts (demande à l'orchestrateur), autres dossiers de ui/.
 ```
@@ -623,8 +623,8 @@ au retour ; D-24 ; ConfigBanner : story et test Vitest (URL absente, invalide, C
 (pnpm build && pnpm budget) ; 0 à 2 useEffect dans src (hors tests et stories), chacun commenté ; régression : @G-01, @G-03 et @G-07
 verts sur react (G-02 et G-04 en P4 (b) ; G-05 couvert par la story) ; parite.md, colonne react mise à jour pour ces lignes.
 Commandes :
-- pnpm build && pnpm budget ; pnpm build:e2e && pnpm test:e2e --project react --grep "@G-01|@G-03|@G-07" ;
-- pnpm test:e2e --project react-only e2e/hydration.spec.ts ;
+- pnpm build && pnpm budget ; pnpm build:e2e && pnpm test:e2e --project=react --grep "@G-01|@G-03|@G-07" ;
+- pnpm test:e2e --project=react-only e2e/hydration.spec.ts ;
 - grep -rnE "use(Layout)?Effect\(" src --include=*.tsx --exclude=*.test.tsx --exclude=*.stories.tsx.
 Ne touche pas : domain/, api/, queries/ hors AutoRefresh.tsx et use-app-state.ts, ui/ (demande à l'orchestrateur),
 assertions de e2e/regression/*.spec.ts (page objects côté react : oui).
@@ -652,7 +652,7 @@ Pièges (R-19) : ?connexion=1 et ?reserver=1 sont des nombres (fallback) ; locat
 « aujourd'hui » jamais dans validateSearch ; r1periode effacé par toute sélection de jour.
 Commandes :
 - pnpm test:browser src/features/calendar src/features/r1 src/features/r2 ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@G-02|@G-04|@P-0[1-48]|@P-1[0-25-7]".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@G-02|@G-04|@P-0[1-48]|@P-1[0-25-7]".
 Ne touche pas : features/page/* (sauf remplir les emplacements prévus), ui/, domain/, intl/common-messages.ts.
 ```
 
@@ -678,7 +678,7 @@ D-15 à 20 s ; « Annuler » désactivé pendant l'envoi ; récapitulatif 04 § 
 régression : @P-05, @P-06 verts sur react.
 Commandes :
 - pnpm test:browser src/features/r1 src/features/booking src/mutations ;
-- pnpm build && pnpm budget ; pnpm build:e2e && pnpm test:e2e --project react --grep "@P-05|@P-06".
+- pnpm build && pnpm budget ; pnpm build:e2e && pnpm test:e2e --project=react --grep "@P-05|@P-06".
 Ne touche pas : features/r2/, features/page/*, ui/.
 ```
 
@@ -704,7 +704,7 @@ Pièges : formulaire monté avec key={`r2:${date}`} (defaultValues lues au monta
 le nombre de plats au ticket ; la fermeture de 10 h vient de la tâche de fond, pas d'un effet dans le formulaire.
 Commandes :
 - pnpm test:browser src/features/r2 src/mutations ;
-- pnpm build && pnpm budget ; pnpm build:e2e && pnpm test:e2e --project react --grep "@p4".
+- pnpm build && pnpm budget ; pnpm build:e2e && pnpm test:e2e --project=react --grep "@p4".
 Ne touche pas : features/r1/, features/booking/* (sauf correctif signalé), features/page/*.
 ```
 
@@ -738,7 +738,7 @@ de localStorage, sessionStorage, URL, clés de requête et sorties console.* (es
 (setState(initial, true)) ; régression : @L-01, @G-06 (connexion), @G-08, @C-30 verts sur react.
 Commandes :
 - pnpm test:browser src/routes src/features/page src/mutations ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@L-01|@G-08|@C-30" ; pnpm build && pnpm budget (le code collègue hors
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@L-01|@G-08|@C-30" ; pnpm build && pnpm budget (le code collègue hors
   du chunk public, sauf mutations/login.ts).
 Ne touche pas : features/staff/* au-delà des emplacements, features/r1, features/r2, mutations/bookings.ts.
 ```
@@ -765,7 +765,7 @@ Pièges : D-09 non retenue (pas de « Modifier ce jour » R2, editJour n'accepte
 dans mutationFn via le store, jamais en prop ni en clé ; chaque panneau ouvert = un paramètre d'URL.
 Commandes :
 - pnpm test:browser src/features/staff ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@C-04|@C-05|@C-06|@C-13|@C-14".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@C-04|@C-05|@C-06|@C-13|@C-14".
 Ne touche pas : routes/collegue.tsx, StaffPage.tsx (sauf ton emplacement), mutations/staff/write.ts, autres mutations/staff/*.
 ```
 
@@ -789,7 +789,7 @@ Pièges : le ticket est codé dans le nom (« (ticket restaurant) ») à l'envoi
 le mot de passe n'est lu que dans mutationFn via le store.
 Commandes :
 - pnpm test:browser src/features/staff ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@C-20|@C-21|@C-22|@C-14".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@C-20|@C-21|@C-22|@C-14".
 Ne touche pas : routes/collegue.tsx, write.ts, mutations/staff/* autres que dishes.ts, BookingList.
 ```
 
@@ -816,7 +816,7 @@ après une actualisation getAdminState ; régression : @C-10, @C-10b, @C-11, @C-
 Pièges : R2 = une ligne par plat (BookingR2) ; anciennes réservations avec compteurs vides (null, jamais 0).
 Commandes :
 - pnpm test:browser src/features/staff ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@C-10|@C-11|@C-24|@C-14".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@C-10|@C-11|@C-24|@C-14".
 Ne touche pas : routes/collegue.tsx, write.ts, mutations/staff/* autres que bookings.ts.
 ```
 
@@ -841,7 +841,7 @@ Pièges : addBookingR1 / addBookingR2Multi sans password ; la réponse est l'ét
 (invalidateQueries ['state','staff', id]) ; jour au ticket → « Sur place » seule option (a-17).
 Commandes :
 - pnpm test:browser src/features/staff ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@C-12|@C-23".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@C-12|@C-23".
 Ne touche pas : mutations/bookings.ts (demande à l'orchestrateur si un ajout est nécessaire), routes/collegue.tsx.
 ```
 
@@ -865,7 +865,7 @@ Pièges : une requête setConfigField par champ modifié, en séquence (jamais e
 SETTINGS_API_KEYS d'api/actions.ts ; échec partiel : les champs déjà enregistrés le restent.
 Commandes :
 - pnpm test:browser src/features/staff src/mutations/staff ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@C-01|@C-02".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@C-01|@C-02".
 Ne touche pas : routes/collegue.tsx, write.ts, autres mutations/staff/*.
 ```
 
@@ -891,7 +891,7 @@ Pièges (R-27) : @page global interdit (page nommée list) ; attendre document.f
 flushSync avant window.print() ; titre du document rétabli à afterprint.
 Commandes :
 - pnpm test:browser src/features/print src/ui/print ;
-- pnpm build:e2e && pnpm test:e2e --project react-only e2e/print-pdf.spec.ts ; pnpm test:e2e --project react --grep "@I-01|@I-03".
+- pnpm build:e2e && pnpm test:e2e --project=react-only e2e/print-pdf.spec.ts ; pnpm test:e2e --project=react --grep "@I-01|@I-03".
 Ne touche pas : features/staff/TomorrowPanel.tsx, documents R2.
 ```
 
@@ -913,7 +913,7 @@ Pièges : regroupement R2 par client fragile (nom + classe + contact, clé actue
 réservations de plats supprimés exclues partout (b-3).
 Commandes :
 - pnpm test:browser src/features/print src/features/staff ;
-- pnpm build:e2e && pnpm test:e2e --project react --grep "@p6".
+- pnpm build:e2e && pnpm test:e2e --project=react --grep "@p6".
 Ne touche pas : ui/print/*, styles/print.css (sauf correctif signalé), documents R1.
 ```
 
@@ -960,8 +960,8 @@ validation.md relu par l'orchestrateur.
 Pièges : U+202F produit par Intl au-delà de 999 € (R-20) ; aucune exception axe acceptée ;
 les collègues utiliseront le vrai script : la procédure ne doit jamais proposer de faux jour sans le supprimer ensuite.
 Commandes :
-- pnpm build:e2e && pnpm test:e2e --project react-only e2e/a11y.spec.ts ; pnpm build && pnpm budget ;
-- pnpm test --project storybook (axe sur toutes les stories).
+- pnpm build:e2e && pnpm test:e2e --project=react-only e2e/a11y.spec.ts ; pnpm build && pnpm budget ;
+- pnpm test --project=storybook (axe sur toutes les stories).
 Ne fais pas : lancer le site contre le vrai script ; les vérifications manuelles et la validation par les collègues sont humaines.
 ```
 
@@ -988,7 +988,7 @@ retour arrière décrit pas à pas.
 Pièges (R-04, R-05) : en mode « branche », Jekyll ignore les chunks _*.js ; cache de 10 min de Pages ;
 Pages sert le dernier déploiement du mode branche jusqu'au premier déploiement par Actions.
 Commandes :
-- pnpm check && pnpm build:e2e && pnpm test:e2e --project react --project react-only ;
+- pnpm check && pnpm build:e2e && pnpm test:e2e --project=react --project=react-only ;
 - pnpm build && test ! -e dist/client/mockServiceWorker.js && ! grep -rl "setupWorker" dist/client ;
 - grep -n "if:" .github/workflows/ci.yml (relire la condition du job deploy).
 Ne fais pas : tag, réglages Pages, environnements, fusion dans main, message envoyé : tout cela est humain.

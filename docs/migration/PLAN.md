@@ -3,6 +3,7 @@
 *Rédigé le 3 octobre 2026. Feuille de route des sessions d'implémentation (humaines ou agents). Branche d'intégration : `claude/frontend-react-migration-lw5zfz`.*
 
 **Journal du plan** (le plus récent en tête) :
+- Exécution, 3 octobre 2026 (orchestrateur) : P0 (b) a réussi l'essai de la barrière client-only. Sur la route `/`, `useHydrated()` fait rendre exactement `PageSkeleton` pendant l'hydratation, ce qui permet `pendingMinMs: 0` sans erreur #418 (contenu à 127 ms, 628 ms avec CPU ×6, 10 chargements sans #418). La barrière est retenue (arbitrage 16 bis). `pendingMinMs: 0` **sans** barrière reste interdit, comme `onRecoverableError`. Sections mises à jour : § 0, § 3.2, § 3.3.1, § 3.9, E-47, P4, annexe C.
 - Révision du 3 octobre 2026 (relecture) : arbitrage 16 + synthèse des corrections C/F/X/faisabilité.
   - Arbitrage 16 : **TanStack Start conservé** malgré le résultat du spike R-01. Avec la copie locale, la coquille prérendue affiche le squelette environ 500 à 600 ms (`pendingMinMs` par défaut) avant le contenu ; ce délai est accepté. `pendingMinMs: 0` est interdit (erreur React #418 à chaque chargement) ; un `onRecoverableError` qui masquerait #418 est refusé. « Router seul » reste un repli documenté, seulement en cas de bogue bloquant d'hydratation (§ 1.4 invariant 2, S4, § 2.1, P0, R-01).
   - Relecture de cohérence (C-01 à C-39) : renvois, vocabulaire (`available` / `almostFull` / `full`), types du domaine écrits à la main, exceptions de `background/`, projets Vitest et Playwright, checklist de bascule, journal des arbitrages 1 à 11.
@@ -49,7 +50,7 @@ Conventions de ce document : « j-p » = jour-personne ; « session » = une ses
 7. **Textes et formats.** Tous les textes passent par react-intl (FormatJS) en français seul : pluriels ICU, montants et dates `Intl`, extraction `translations/fr.json` vérifiée en CI ; les textes nouveaux sont listés à l'annexe F.
 8. **Qualité.** TypeScript 7 strict, oxlint type-aware pédantique, oxfmt, knip ; Vitest (projets `node` et `node-ny` pour la logique pure, **Vitest Browser Mode** dans Chromium pour les composants et les routes, projet `storybook` où chaque story est un test avec axe), un seul faux Apps Script msw partagé par les tests, Storybook et l'E2E (arbitrage 13) ; aucun test ni agent n'appelle le vrai script (isolation réseau). **La parité se prouve** : une suite Playwright de régression de 43 scénarios ([`parite.md`](parite.md)) est écrite d'abord contre l'ancien site (phase P1, arbitrage 14), puis rejouée contre le nouveau à chaque phase ; un comportement ne change que s'il figure au § 4.2 avec son identifiant `E-xx` et son scénario `@changed`.
 9. **Effort.** Environ **35,5 j-p** (43 avec 20 % de marge), soit **31 sessions d'agent** réparties en 9 phases (P0 à P8), plus 1 à 2 semaines calendaires de test par les collègues.
-10. **Risques principaux.** (1) Hydratation de la coquille Start avec un premier rendu issu de la copie locale : tranché par l'arbitrage 16 (squelette ≤ 600 ms accepté, `pendingMinMs: 0` interdit, Router seul en repli seulement si un bogue bloquant apparaît). (2) Budget JS initial (200 kB gzip ; 166,9 kB mesurés sur le projet d'essai) : formulaires publics et mode collègue chargés à la demande. (3) Outils récents ou expérimentaux (React Compiler en Rust, jsPlugins d'oxlint, oxfmt 0.x, msw 3 publié le 28 septembre 2026) : un plan B pour chacun. (4) Lenteur et pages d'erreur d'Apps Script. (5) Bascule Pages directe, sans préproduction publiée : source « GitHub Actions » à changer juste avant la fusion, Jekyll, cache de 10 min, copies locales v1 des visiteurs habituels à relire. (6) Requête de test qui partirait vers le vrai script : isolation réseau obligatoire (R-33).
+10. **Risques principaux.** (1) Hydratation de la coquille Start avec un premier rendu issu de la copie locale : tranché par l'arbitrage 16 et l'essai réussi de P0 (b) (barrière client-only `useHydrated()` + `pendingMinMs: 0` sur `/`, contenu à environ 130 ms ; `pendingMinMs: 0` sans barrière interdit, Router seul en repli seulement si un bogue bloquant apparaît). (2) Budget JS initial (200 kB gzip ; 166,9 kB mesurés sur le projet d'essai) : formulaires publics et mode collègue chargés à la demande. (3) Outils récents ou expérimentaux (React Compiler en Rust, jsPlugins d'oxlint, oxfmt 0.x, msw 3 publié le 28 septembre 2026) : un plan B pour chacun. (4) Lenteur et pages d'erreur d'Apps Script. (5) Bascule Pages directe, sans préproduction publiée : source « GitHub Actions » à changer juste avant la fusion, Jekyll, cache de 10 min, copies locales v1 des visiteurs habituels à relire. (6) Requête de test qui partirait vers le vrai script : isolation réseau obligatoire (R-33).
 11. **À valider par vous.** 27 décisions produit (§ 4.1) : D-01 (conservé), D-04, D-08, D-09 et D-25 (non retenues, comportement actuel) sont tranchées depuis le 3 octobre 2026 ; les autres ont une valeur par défaut que le plan applique sauf avis contraire ; s'y ajoutent les 49 écarts de parité numérotés (§ 4.2) et les textes nouveaux (annexe F).
 
 ---
@@ -402,11 +403,12 @@ export const Route = createFileRoute("/")({
       stripSearchParams({ r1vue: "semaine", r2vue: "semaine", connexion: false }),
     ],
   },
-  // With the local cache: resolves at once (staleTime 'static'); the prerendered skeleton still stays for
-  // pendingMinMs (default 500 ms). Never set it to 0: React error #418 on hydration (PLAN arbitrage 16).
+  // With the local cache: resolves at once (staleTime 'static'). pendingMinMs: 0 is safe only because PublicPage
+  // renders exactly PageSkeleton while hydrating (useHydrated); without that barrier, React error #418 (arbitrage 16).
   // Without the cache: waits for the first read (skeleton, then errorComponent on failure).
   loader: async ({ context: { queryClient } }) => queryClient.query({ ...publicStateOptions, staleTime: "static" }),
   pendingMs: 0,
+  pendingMinMs: 0,
   component: PublicPage,
 });
 ```
@@ -454,7 +456,7 @@ export const publicStateOptions = queryOptions({
 2. Le `<ScriptOnce>` de lecture anticipée s'exécute (React le place après la CSS, voir R-12) : il lit `reservations-cache-v1` dans un `try/catch`, retient l'`etag` s'il est non vide et si `savedAt` a moins de 14 jours, lance `fetch(URL + (etag ? '?since=' + encodeURIComponent(etag) : ''))`, ajoute `.catch(() => {})`, et expose `window.__EARLY_FETCH__ = { since, response, startedAt: performance.now() }`. Il garde la `Response`, pas `r.json()`, pour que le traitement d'erreur soit celui des autres lectures.
 3. Le bundle s'exécute. `getRouter()` (appelé aussi dans Node au build, d'où la garde `typeof window`) crée le `QueryClient`, puis côté navigateur : `restoreLocalCache()` valide la copie par `LocalCacheV1`, la convertit en `PublicState` et la pose par `setQueryData(['state','public'], state, { updatedAt: savedAt })` ; sans copie valide, `readFallbackTexts()` lit `reservations-textes` pour les titres du squelette ; `persistLocalCache()` s'abonne au cache ; le routeur est créé avec `context: { queryClient, session }` ; l'abonnement de session et les tâches de fond démarrent.
 4. `router.load()` exécute le loader de la route : avec la copie, `queryClient.query({ ..., staleTime: 'static' })` répond aussitôt ; sans copie, il lance la `queryFn` (qui reprend la lecture anticipée) et attend, le squelette reste affiché (G-01) ; un échec sans donnée affiche l'`errorComponent` de la route, c'est-à-dire la page avec l'encadré d'échec (G-03).
-5. Hydratation puis rendu : le squelette de la coquille reste affiché au moins `pendingMinMs` (500 ms par défaut, jamais 0 : erreur #418, arbitrage 16), puis `useAppState()` renvoie la copie ; `useIsFromCache()` vaut `dataUpdatedAt < APP_START` (G-02 : « Réserver » actif, connexion collègue refusée avec le toast `Les données se chargent. Réessayez dans un instant.`).
+5. Hydratation puis rendu : le squelette de la coquille reste affiché jusqu'à la fin de l'hydratation (barrière `useHydrated()` de la route `/`, qui seule permet `pendingMinMs: 0` ; ailleurs `pendingMinMs` garde sa valeur par défaut, arbitrage 16), puis `useAppState()` renvoie la copie ; `useIsFromCache()` vaut `dataUpdatedAt < APP_START` (G-02 : « Réserver » actif, connexion collègue refusée avec le toast `Les données se chargent. Réessayez dans un instant.`).
 6. `<AutoRefresh/>` se monte : la donnée restaurée est périmée, la `queryFn` part ; `takeEarlyFetch(since)` rend la lecture du `<head>` si son `since` est identique (une seule fois), sinon un nouveau `fetch` part ; la lecture doublée est armée pour le **temps restant** jusqu'à 6 s depuis `startedAt` ; un nouvel essai après 1,5 s si l'échec est transitoire et que le navigateur est en ligne.
 7. Réponse : `{ unchanged: true }` → même référence, la donnée redevient fraîche, la copie est réécrite avec un `savedAt` neuf ; nouvel état → validé, partage structurel (seuls les jours modifiés sont rendus de nouveau), copie réécrite ; échec → la donnée affichée est conservée et l'encadré d'échec apparaît, avec le suffixe « copie locale » si `useIsFromCache()`.
 
@@ -681,7 +683,7 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 
 | Situation | Mécanisme | Rendu et texte (référence) |
 | --- | --- | --- |
-| Premier chargement sans copie (G-01) | coquille prérendue + `pendingComponent` | squelette des deux calendriers (`aria-hidden`), titres par défaut ou de `reservations-textes`, aucun texte « Chargement » (`03` § 3) ; avec la copie locale aussi, le squelette reste au moins `pendingMinMs` (≤ 600 ms, arbitrage 16, E-47) |
+| Premier chargement sans copie (G-01) | coquille prérendue + `pendingComponent` | squelette des deux calendriers (`aria-hidden`), titres par défaut ou de `reservations-textes`, aucun texte « Chargement » (`03` § 3) ; avec la copie locale aussi, le squelette reste jusqu'à la fin de l'hydratation (barrière `useHydrated()`, environ 130 ms mesurés, ≤ 600 ms exigés, E-47) |
 | Copie locale affichée, données pas encore confirmées (G-02) | `useIsFromCache()` | page complète interactive, « Réserver » actif ; connexion refusée : toast `Les données se chargent. Réessayez dans un instant.` |
 | Échec de lecture (G-03) | `errorComponent` de la route si aucune donnée ; sinon `error` de la requête | `LoadErrorBox` (`role="alert"`) : textes exacts de `03` § 3.1 (en ligne / hors ligne via `navigator.onLine`, suffixe « copie locale ») ; bouton `Réessayer` occupé `Nouvelle tentative…` → `reset()` puis `router.invalidate()` ou `refetch()` ; réannonce seulement si le texte change (a-21) ; le toast inatteignable de `03` § 3.2 n'est pas recréé |
 | Configuration manquante (G-05) | `isConfigMissing()` au build et à l'exécution | `ConfigBanner` si l'URL est absente, ne ressemble pas à `https://script.google.com/macros/s/…/exec` ou contient `COLLE_ICI` (a-25) ; texte selon D-05 ; couvert par une story et un test Vitest du composant (`isConfigMissing` simulé), pas par l'E2E (F-07) |
@@ -899,7 +901,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-44 | Textes du résumé du lendemain | « portion(s) », « {Nom}: », « Aucun jour ouvert pour demain. » aussi hors résumé | accords ICU, `{name} :`, texte propre hors résumé (annexe F) | a-24 | REG-39, REG-42 |
 | E-45 | Délai des lectures | aucun (`02` § 1.5) | chaque essai de lecture borné à 30 s, puis échec traité comme les autres (encadré, nouvel essai) | a-2 | REG-03 |
 | E-46 | Message d'erreur d'un champ | retiré à la première frappe, même si la valeur reste invalide (`04` § 5.4) | après un envoi refusé, revalidé à chaque frappe : reste affiché (ou change) jusqu'à ce que la valeur soit valide | architecture (`revalidateLogic`), F-20 | REG-15 |
-| E-47 | Squelette avec la copie locale | remplacé dès l'exécution des scripts | squelette de la coquille prérendue affiché ≤ 600 ms (`pendingMinMs`) avant le contenu de la copie | arbitrage 16 | REG-02 |
+| E-47 | Squelette avec la copie locale | remplacé dès l'exécution des scripts | squelette de la coquille prérendue affiché jusqu'à la fin de l'hydratation (≤ 600 ms ; environ 130 ms avec la barrière `useHydrated()`) avant le contenu de la copie | arbitrage 16 | REG-02 |
 | E-48 | Focus après la fermeture d'un formulaire collègue | focus sur la date de la fiche (`03` § 5.4) | focus rendu au bouton qui a ouvert le formulaire (« Modifier », « + Ajouter une personne », « Modifier ce plat »…), comme « Annuler » du formulaire public (`04` § 5.1) ; après une suppression, date de la fiche (identique) | architecture, F-06 | REG-35 |
 | E-49 | Lecture anticipée et CSS | script du `<head>` exécuté avant la CSS | exécuté après la CSS et les `modulepreload` (React 19 et le routeur remontent la CSS, R-12) | Start | n/a |
 
@@ -944,7 +946,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 
 | Phase | Contenu | j-p | Sessions | Parallélisable | Statut |
 | --- | --- | --- | --- | --- | --- |
-| P0 | squelette, outillage (dont react-intl et l'extraction en CI), fichiers actuels déplacés dans `legacy/`, coquille, vérification d'hydratation sur le vrai projet, CI sans déploiement | 3 | 3 | non ((a) → (b) → (c)) | à faire |
+| P0 | squelette, outillage (dont react-intl et l'extraction en CI), fichiers actuels déplacés dans `legacy/`, coquille, vérification d'hydratation sur le vrai projet, CI sans déploiement | 3 | 3 | non ((a) → (b) → (c)) | en cours : (a) terminé le 3 oct. (`c336b2e`), (b) terminé le 3 oct. (`8c18127`) |
 | P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | à faire |
 | P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | à faire |
 | P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | à faire |
@@ -1130,7 +1132,7 @@ La colonne « Statut » est tenue par l'orchestrateur (à faire / en cours / ter
 - **Tests attendus** : Vitest Browser Mode + msw en service worker (`onUnhandledFrame: 'error'`, une instance de `createFakeAppsScript` par test) par état d'écran, et stories ; routes en mémoire (`createMemoryHistory`) pour les search params (fallbacks, `?connexion=1`, `reserver` sur un jour non réservable) ; E2E propre au nouveau code seulement : `e2e/hydration.spec.ts` ; les parcours « réserver R1 » et « commander R2 avant et après 10 h » sont des scénarios de régression déjà écrits en P1.
 - **Délégable à un agent** : oui, 4 sessions séquentielles : (a) page, en-tête, états de chargement, actualisation, lecture anticipée, textes communs ; (b) calendriers câblés et fiches ; (c) formulaire R1, envoi, récapitulatif, briques communes (premier commit : `IdentityFields`, `BookingSummary`, `useBookR1`, signature de `useOrderR2`) ; (d) formulaire R2. Consignes : chaque texte est un message react-intl à id explicite (`public.…`) dont le `defaultMessage` est recopié de `04` § 9 (ou de l'annexe F) et la `description` cite la section ; données lues par `useAppState(select)` dans les feuilles, pas de props sur cinq niveaux ; état du formulaire uniquement dans TanStack Form ; `requestId` par `useState(() => newRequestId())` dans le composant monté avec `key={`${restaurant}:${date}`}`.
 - **Estimation** : 5 j-p, 4 sessions.
-- **Risques propres** : budget JS (R-15), squelette de la coquille (arbitrage 16 : ne jamais baisser `pendingMinMs` hors de l'essai validé en P0), `?reserver=1`, `handleSubmit` qui relance l'erreur, `defaultValues` lues au montage seulement (clé par jour), messages hors `defineMessages` (R-34).
+- **Risques propres** : budget JS (R-15), squelette de la coquille (arbitrage 16 : `pendingMinMs: 0` seulement sur une route dont le composant rend `PageSkeleton` tant que `useHydrated()` vaut `false`, essai validé en P0 (b)), `?reserver=1`, `handleSubmit` qui relance l'erreur, `defaultValues` lues au montage seulement (clé par jour), messages hors `defineMessages` (R-34).
 
 ### P5 — Mode collègue
 
@@ -1413,8 +1415,9 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Écritures jamais doublées, rejouées ni interrompues ; `requestId` créé au montage du formulaire, gardé pour un nouvel essai.
 - POST en `Content-Type: text/plain;charset=utf-8`, aucun autre en-tête ; GET sans en-tête.
 - Heure de référence : Europe/Paris (`domain/paris.ts`) ; jours métier = chaînes ISO ; jamais `new Date()` ni `Date.now()` au rendu.
-- Hydratation (arbitrage 16) : `pendingMinMs` garde sa valeur par défaut (squelette ≤ 600 ms) ; jamais `pendingMinMs: 0` seul,
-  jamais de `onRecoverableError` pour masquer l'erreur #418.
+- Hydratation (arbitrage 16) : `pendingMinMs` garde sa valeur par défaut, sauf sur une route dont le composant rend exactement
+  `PageSkeleton` tant que `useHydrated()` vaut `false` (route `/`, essai validé en P0 (b)) ; jamais `pendingMinMs: 0` sans cette
+  barrière, jamais de `onRecoverableError` pour masquer l'erreur #418.
 
 ## Où vit l'état
 - URL (search params valibot + `v.fallback`) : jours, vues, formulaire ouvert, panneaux collègue.
