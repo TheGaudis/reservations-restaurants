@@ -858,7 +858,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-01 | Heure de référence | heure locale de l'appareil (`01` § 3.7) | heure de Paris | D-12, b-2 | REG-26 |
 | E-02 | Toasts | plusieurs toasts qui se chevauchent, erreurs annoncées en `polite` | un seul toast (le nouveau remplace l'ancien), erreurs en annonce prioritaire | a-8 | REG-27 |
 | E-03 | Touche Entrée dans les formulaires | sans effet (pas de `<form>`, `04` § 10) | soumet le formulaire (`<form noValidate>`) | accessibilité, comportement natif | REG-15 |
-| E-04 | Voile de chargement plein écran (G-06) | connexion et suppressions | bouton occupé (`aria-busy`, « … en cours »), page non bloquée ; G-06 disparaît | simplicité, pas de perte de focus | REG-27, REG-35 |
+| E-04 | Voile de chargement plein écran (G-06) | connexion et suppressions ; le focus tombe sur `body` sous le voile (mesuré par P1 (c) après la connexion et après une suppression) | bouton occupé (`aria-busy`, « … en cours »), page non bloquée, focus conservé ; G-06 disparaît | simplicité, pas de perte de focus | REG-27, REG-35 |
 | E-05 | Calendrier et sélecteur de date C-05 | `role="group"` + boutons `aria-pressed` (aussi dans le sélecteur de `06` § 3.2) | `role="grid"`, `gridcell` `aria-selected`, boutons | lecteurs d'écran en mode navigation | REG-09, REG-33 |
 | E-06 | Libellé de semaine à cheval | « 28 – 4 oct. 2026 » | « 28 sept. – 4 oct. 2026 » | a-23 | REG-09 |
 | E-07 | Page ↑ / ↓ en fin de mois | débordement (`setMonth`) | borné au dernier jour du mois | a-23 | REG-11 |
@@ -902,12 +902,13 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-45 | Délai des lectures | aucun (`02` § 1.5) | chaque essai de lecture borné à 30 s, puis échec traité comme les autres (encadré, nouvel essai) | a-2 | REG-03 |
 | E-46 | Message d'erreur d'un champ | retiré à la première frappe, même si la valeur reste invalide (`04` § 5.4) | après un envoi refusé, revalidé à chaque frappe : reste affiché (ou change) jusqu'à ce que la valeur soit valide | architecture (`revalidateLogic`), F-20 | REG-15 |
 | E-47 | Squelette avec la copie locale | remplacé dès l'exécution des scripts | squelette de la coquille prérendue affiché jusqu'à la fin de l'hydratation (≤ 600 ms ; environ 130 ms avec la barrière `useHydrated()`) avant le contenu de la copie | arbitrage 16 | REG-02 |
-| E-48 | Focus après la fermeture d'un formulaire collègue | focus sur la date de la fiche (`03` § 5.4) | focus rendu au bouton qui a ouvert le formulaire (« Modifier », « + Ajouter une personne », « Modifier ce plat »…), comme « Annuler » du formulaire public (`04` § 5.1) ; après une suppression, date de la fiche (identique) | architecture, F-06 | REG-35 |
+| E-48 | Focus après la fermeture d'un formulaire collègue | focus sur la date de la fiche (`03` § 5.4) ; mesuré par P1 (c) : sur `body` après « Annuler » d'une modification et après une suppression | focus rendu au bouton qui a ouvert le formulaire (« Modifier », « + Ajouter une personne », « Modifier ce plat »…), comme « Annuler » du formulaire public (`04` § 5.1) ; après une suppression, date de la fiche | architecture, F-06 | REG-35 |
 | E-49 | Lecture anticipée et CSS | script du `<head>` exécuté avant la CSS | exécuté après la CSS et les `modulepreload` (React 19 et le routeur remontent la CSS, R-12) | Start | n/a |
 | E-50 | Mode de service (public R2) et mode d'une réservation R2 (collègue) | boutons `aria-pressed` dans un `role="group"` (public) ; `<select>` (collègue) | vrai groupe radio (`RadioGroup` de Base UI, `SegmentedRadio`), une seule option un jour au ticket | accessibilité, § 3.5 ; relevé par P3 (b) | REG-22 |
 | E-51 | Bouton de suppression armé pendant une actualisation | recréé désarmé par le rendu complet | reste armé jusqu'à la fin de ses 4 s (React garde le composant) | architecture ; relevé par P3 (a) | n/a |
 | E-52 | Copie locale sans `config` | gardée (les tarifs et noms prennent leurs valeurs par défaut) | ignorée par le schéma `LocalCacheV1` | aucune copie écrite par `saveCache` n'est dans ce cas ; relevé par P2 (b2) | n/a |
 | E-53 | Sélecteur de date C-05 | inséré dans le panneau « Ouvrir un jour », pousse le formulaire vers le bas | s'ouvre en popover (Base UI `Popover`) au-dessus du formulaire ; Échap, clic extérieur et retour du focus gérés | § 3.5 ; relevé par P3 (c) | n/a |
+| E-55 | Écriture collègue qui répond après la déconnexion | toast de succès affiché quand même (« Jour modifié. »…) | réponse jetée par la garde de session (§ 3.3.3, F-02) : ni toast, ni écriture dans le cache | invariant 1 ; relevé par P1 (c) | n/a (à couvrir par la variante `react` de REG-29 en P5 (a), qui passera la colonne à REG-29) |
 
 ### 4.3 Traitement des points a-*
 

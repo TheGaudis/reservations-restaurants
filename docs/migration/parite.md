@@ -52,7 +52,7 @@ Le 2026-10-07 (J+2) n'a aucun jour, ni R1 ni R2 (variante « demain sans jour »
 
 ## 3. Scénarios REG-01 à REG-43
 
-Fichiers : `loading.spec.ts` REG-01, REG-02, REG-04, REG-05, REG-07 ; `loading-reads.spec.ts` (horloge de la page en pause) REG-03, REG-06, REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-15 ; `public-r1-send.spec.ts` REG-16 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-24 ; `public-r2-cutoff.spec.ts` REG-25, REG-26 ; `staff.spec.ts` REG-27 à REG-38 ; `print.spec.ts` REG-39 à REG-42 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
+Fichiers : `loading.spec.ts` REG-01, REG-02, REG-04, REG-05, REG-07 ; `loading-reads.spec.ts` (horloge de la page en pause) REG-03, REG-06, REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-15 ; `public-r1-send.spec.ts` REG-16 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-24 ; `public-r2-cutoff.spec.ts` REG-25, REG-26 ; `staff-access.spec.ts`, `staff-session.spec.ts`, `staff-settings.spec.ts`, `staff-open-day.spec.ts`, `staff-open-day-r2.spec.ts`, `staff-r1.spec.ts`, `staff-r1-add.spec.ts`, `staff-r2.spec.ts` REG-27 à REG-38 (aides dans `staff-helpers.ts`) ; `print.spec.ts` REG-39 à REG-42 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
 
 Phases de sortie : `@p4` = REG-01 à REG-26 et REG-43 ; `@p5` = REG-27 à REG-38 ; `@p6` = REG-39 à REG-42. Sessions de P1 : (b) REG-01 à REG-26 et REG-43 ; (c) REG-27 à REG-38 ; (d) REG-39 à REG-42 et les variantes « invariants » (REG-02, REG-03, REG-25, REG-29).
 
@@ -112,7 +112,7 @@ Pour revenir sous 40 scénarios, on peut fusionner REG-03 dans REG-02, REG-06 da
 | E-02 | REG-27 | E-19 | REG-15 | E-36 | REG-33, REG-34, REG-37, REG-38 |
 | E-03 | REG-15 | E-20 | REG-40 | E-37 | REG-32 |
 | E-04 | REG-27, REG-35 | E-21 | REG-12, REG-14 | E-38 | REG-35, REG-37 |
-| E-05 | REG-09 | E-22 | n/a | E-39 | REG-34 |
+| E-05 | REG-09, REG-33 | E-22 | n/a | E-39 | REG-34 |
 | E-06 | REG-09 | E-23 | REG-10, REG-27, REG-28 | E-40 | REG-32 |
 | E-07 | REG-11 | E-24 | REG-29 | E-41 | REG-22 |
 | E-08 | REG-08, REG-29 | E-25 | n/a | E-42 | REG-06 |
