@@ -1,0 +1,47 @@
+/* label.check > input[type=checkbox] of legacy/design-system.css (08 § 4.6): accent box, clickable text, 48 px. */
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.box {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--check-size);
+  height: var(--check-size);
+  background: var(--surface);
+  border: var(--border-width) solid var(--outline);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.box[data-checked] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.box[data-disabled] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.indicator {
+  display: inline-flex;
+}
+
+.indicator svg {
+  display: block;
+  width: var(--check-size);
+  height: var(--check-size);
+}
