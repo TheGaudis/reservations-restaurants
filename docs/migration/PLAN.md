@@ -908,7 +908,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-51 | Bouton de suppression armé pendant une actualisation | recréé désarmé par le rendu complet | reste armé jusqu'à la fin de ses 4 s (React garde le composant) | architecture ; relevé par P3 (a) | n/a |
 | E-52 | Copie locale sans `config` | gardée (les tarifs et noms prennent leurs valeurs par défaut) | ignorée par le schéma `LocalCacheV1` | aucune copie écrite par `saveCache` n'est dans ce cas ; relevé par P2 (b2) | n/a |
 | E-53 | Sélecteur de date C-05 | inséré dans le panneau « Ouvrir un jour », pousse le formulaire vers le bas | s'ouvre en popover (Base UI `Popover`) au-dessus du formulaire ; Échap, clic extérieur et retour du focus gérés | § 3.5 ; relevé par P3 (c) | n/a |
-| E-55 | Écriture collègue qui répond après la déconnexion | toast de succès affiché quand même (« Jour modifié. »…) | réponse jetée par la garde de session (§ 3.3.3, F-02) : ni toast, ni écriture dans le cache | invariant 1 ; relevé par P1 (c) | n/a (à couvrir par la variante `react` de REG-29 en P5 (a), qui passera la colonne à REG-29) |
+| E-55 | Écriture collègue qui répond après la déconnexion | toast de succès affiché quand même (« Jour modifié. »…) | réponse jetée par la garde de session (§ 3.3.3, F-02) : ni toast, ni écriture dans le cache | invariant 1 ; relevé par P1 (c) ; P5 (a) l'étiquette dans la variante `react` de REG-29 et remplace « n/a » par REG-29 | n/a |
 
 ### 4.3 Traitement des points a-*
 
