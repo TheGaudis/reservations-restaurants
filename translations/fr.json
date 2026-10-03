@@ -79,6 +79,18 @@
     "defaultMessage": "{amounts} (hors plats sans prix indiqué)",
     "description": "04 § 7, D-03, E-28 — total du récapitulatif R2 avec un plat sans prix"
   },
+  "staff.session.inactivity": {
+    "defaultMessage": "Déconnecté du mode collègue après 10 minutes d'inactivité.",
+    "description": "06 § 1.6 — toast de la déconnexion automatique"
+  },
+  "staff.session.logout": {
+    "defaultMessage": "Retour au mode client.",
+    "description": "06 § 1.5 — toast après un clic sur « Client »"
+  },
+  "staff.session.passwordChanged": {
+    "defaultMessage": "Le mot de passe du mode collègue a changé. Reconnectez-vous.",
+    "description": "06 § 1.7 — toast d'erreur quand le script refuse le mot de passe pendant une session"
+  },
   "ui.numberField.roleDescription": {
     "defaultMessage": "champ numérique",
     "description": "D-17, R-16 — aria-roledescription du champ numérique (remplace « Number field » de Base UI)"
