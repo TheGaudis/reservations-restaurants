@@ -243,7 +243,7 @@ Libellés utilisés : « Thème du jour », « Menu du jour » (R1), « Note » 
 
 ### 4.6 Ligne de réservation (mode collègue, `bookingLine`)
 
-Parties jointes par « — » (espace insécable avant), les parties vides étant omises :
+Parties jointes par « — » (espaces **normales** de part et d'autre : `join(' — ')` dans `calendrier.js`, contrairement à `dash()` qui met une insécable avant le tiret), les parties vides étant omises :
 
 ```
 <b>{Nom}</b> — {Classe} — {quantité} — {prix} — {mode} — {Contact} — <i>{Observation}</i>
