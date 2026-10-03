@@ -82,9 +82,8 @@ describe("TextField", () => {
     await expect.element(contact).toHaveAttribute("aria-invalid", "true");
     const ids = contact.element().getAttribute("aria-describedby")?.split(" ") ?? [];
     const texts = ids.map((id) => document.querySelector(`#${CSS.escape(id)}`)?.textContent);
-    // The error starts with its hidden « ! » mark.
     expect(texts).toStrictEqual([
-      "!Indiquez votre adresse email.",
+      "Indiquez votre adresse email.",
       "Pour vous envoyer la confirmation.",
     ]);
     await expect.element(screen.getByText("Pour vous envoyer la confirmation.")).not.toBeVisible();

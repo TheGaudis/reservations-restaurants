@@ -5,7 +5,8 @@ import type { FieldMessagesState } from "@/ui/form/use-field-messages";
 
 import styles from "@/ui/form/Field.module.css";
 
-// Drawn in a red round before the message (08 § 4.6); hidden from assistive technologies, which read the message.
+// Red round before the message (08 § 4.6). It stays outside the error element: the error text, read through
+// `aria-describedby` and by the tests, is the message of the spec alone.
 const MARK = "!";
 
 interface FieldMessagesProps {
@@ -19,12 +20,14 @@ export function FieldMessages({ messages, description }: FieldMessagesProps) {
   return (
     <>
       {messages.invalid ? (
-        <Field.Error match id={messages.errorId} className={styles["error"]}>
+        <div className={styles["error"]}>
           <span className={styles["mark"]} aria-hidden="true">
             {MARK}
           </span>
-          {messages.error}
-        </Field.Error>
+          <Field.Error match id={messages.errorId}>
+            {messages.error}
+          </Field.Error>
+        </div>
       ) : null}
       {description === undefined ? null : (
         <Field.Description id={messages.helpId} className={styles["help"]}>
