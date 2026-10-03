@@ -1,0 +1,12 @@
+trustPolicy: no-downgrade
+trustPolicyExclude: [semver@6.3.1]
+strictDepBuilds: true
+allowBuilds:
+  esbuild: false
+  msw: false
+  lefthook: false
+strictPeerDependencies: true
+peerDependencyRules:
+  allowedVersions: { eslint: "10", vite: "8", typescript: "7", msw: "3" }
+minimumReleaseAgeExclude:
+  - msw@3.0.2

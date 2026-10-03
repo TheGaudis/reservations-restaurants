@@ -37,23 +37,23 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 
 ## 📁 Contenu du dépôt
 
-| Fichier | Rôle |
-| --- | --- |
-| `index.html` | La page : structure HTML, adresse du script (`APPS_SCRIPT_URL`) et chargement des fichiers ci-dessous. |
-| `design-system.css` | Jetons de la charte (couleurs, tailles, rayons, animations) et composants communs. |
-| `app.css` | Styles propres à la page. |
-| `js/donnees.js` | État de la page, copie locale, échanges avec Apps Script, places restantes, heures d'Aristide. |
-| `js/outils.js` | Dates, messages, montants, suppression en deux clics, erreurs des champs. |
-| `js/impression.js` | Documents imprimés (`PRINT_TOKENS`, `PRINT_CSS`) et résumés du lendemain. |
-| `js/interface.js` | Éléments communs : récapitulatif, icônes, boutons segmentés, apparitions. |
-| `js/collegue.js` | Mode collègue : connexion, déconnexion automatique, paramètres, jours, plats, modifications. |
-| `js/reservation.js` | Réservation par le public et formulaires. |
-| `js/calendrier.js` | Calendriers et fiches du jour. |
-| `js/main.js` | Affichage de la page, démarrage et actualisation automatique. |
-| `Code.gs` | API JSON Google Apps Script (`doGet` pour lire l'état, `doPost` pour les actions). |
-| `charte-graphique.pdf` | Charte graphique : couleurs, contrastes, composants et règles d'usage. |
-| `logo.png` | Logo du lycée, affiché dans ce README. |
-| `README.md` | Ce document. |
+| Fichier                | Rôle                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| `index.html`           | La page : structure HTML, adresse du script (`APPS_SCRIPT_URL`) et chargement des fichiers ci-dessous. |
+| `design-system.css`    | Jetons de la charte (couleurs, tailles, rayons, animations) et composants communs.                     |
+| `app.css`              | Styles propres à la page.                                                                              |
+| `js/donnees.js`        | État de la page, copie locale, échanges avec Apps Script, places restantes, heures d'Aristide.         |
+| `js/outils.js`         | Dates, messages, montants, suppression en deux clics, erreurs des champs.                              |
+| `js/impression.js`     | Documents imprimés (`PRINT_TOKENS`, `PRINT_CSS`) et résumés du lendemain.                              |
+| `js/interface.js`      | Éléments communs : récapitulatif, icônes, boutons segmentés, apparitions.                              |
+| `js/collegue.js`       | Mode collègue : connexion, déconnexion automatique, paramètres, jours, plats, modifications.           |
+| `js/reservation.js`    | Réservation par le public et formulaires.                                                              |
+| `js/calendrier.js`     | Calendriers et fiches du jour.                                                                         |
+| `js/main.js`           | Affichage de la page, démarrage et actualisation automatique.                                          |
+| `Code.gs`              | API JSON Google Apps Script (`doGet` pour lire l'état, `doPost` pour les actions).                     |
+| `charte-graphique.pdf` | Charte graphique : couleurs, contrastes, composants et règles d'usage.                                 |
+| `logo.png`             | Logo du lycée, affiché dans ce README.                                                                 |
+| `README.md`            | Ce document.                                                                                           |
 
 ## 🚀 Installation
 
@@ -63,8 +63,8 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 2. Ouvrir **Extensions > Apps Script** et coller le contenu de `Code.gs`.
 3. 🔑 Définir le mot de passe du mode collègue, **sans l'écrire dans `Code.gs`** (ce fichier est public) : **Paramètres du projet** (roue dentée) > **Propriétés du script** > **Ajouter une propriété**, nom `ADMIN_PASSWORD`, valeur = un mot de passe propre à l'établissement. Sans cette propriété, la connexion au mode collègue est refusée.
 4. **Déployer > Nouveau déploiement**, type **Application Web** :
-   - Exécuter en tant que : *moi* ;
-   - Accès : *tout le monde*.
+   - Exécuter en tant que : _moi_ ;
+   - Accès : _tout le monde_.
 5. Copier l'URL du déploiement (elle se termine par `/exec`).
 
 Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_Items`, `R2_Bookings`) et leurs colonnes manquantes sont créés automatiquement à la première écriture (premier jour ouvert, premier paramètre enregistré…).
@@ -109,28 +109,28 @@ Les couleurs reprennent les trois teintes du logo : vert lime, bleu et magenta. 
 
 **Identité**
 
-| | Jeton | Code | Usage |
-| --- | --- | --- | --- |
-| ![](https://placehold.co/20x20/A9C23F/A9C23F.png) | `--ab-green` | `#A9C23F` | Aplats, bandeau et filets du restaurant 1. Jamais pour du texte. |
-| ![](https://placehold.co/20x20/4E6614/4E6614.png) | `--ab-green-ink` | `#4E6614` | Texte et boutons du restaurant 1. |
-| ![](https://placehold.co/20x20/3B4F0D/3B4F0D.png) | `--ab-green-deep` | `#3B4F0D` | Survol et titres du restaurant 1. |
-| ![](https://placehold.co/20x20/1F4E9E/1F4E9E.png) | `--ab-blue` | `#1F4E9E` | Action principale, focus, chiffres clés. |
-| ![](https://placehold.co/20x20/173D7D/173D7D.png) | `--ab-blue-ink` | `#173D7D` | Survol du bleu, titres et totaux. |
-| ![](https://placehold.co/20x20/A3237F/A3237F.png) | `--ab-magenta` | `#A3237F` | Accent du restaurant 2 (boutons, titres). |
-| ![](https://placehold.co/20x20/86196A/86196A.png) | `--ab-magenta-ink` | `#86196A` | Survol et titres du restaurant 2. |
-| ![](https://placehold.co/20x20/8C8C8C/8C8C8C.png) | `--ab-grey` | `#8C8C8C` | Repère « aujourd'hui », pastilles. Jamais pour du texte. |
+|                                                   | Jeton              | Code      | Usage                                                            |
+| ------------------------------------------------- | ------------------ | --------- | ---------------------------------------------------------------- |
+| ![](https://placehold.co/20x20/A9C23F/A9C23F.png) | `--ab-green`       | `#A9C23F` | Aplats, bandeau et filets du restaurant 1. Jamais pour du texte. |
+| ![](https://placehold.co/20x20/4E6614/4E6614.png) | `--ab-green-ink`   | `#4E6614` | Texte et boutons du restaurant 1.                                |
+| ![](https://placehold.co/20x20/3B4F0D/3B4F0D.png) | `--ab-green-deep`  | `#3B4F0D` | Survol et titres du restaurant 1.                                |
+| ![](https://placehold.co/20x20/1F4E9E/1F4E9E.png) | `--ab-blue`        | `#1F4E9E` | Action principale, focus, chiffres clés.                         |
+| ![](https://placehold.co/20x20/173D7D/173D7D.png) | `--ab-blue-ink`    | `#173D7D` | Survol du bleu, titres et totaux.                                |
+| ![](https://placehold.co/20x20/A3237F/A3237F.png) | `--ab-magenta`     | `#A3237F` | Accent du restaurant 2 (boutons, titres).                        |
+| ![](https://placehold.co/20x20/86196A/86196A.png) | `--ab-magenta-ink` | `#86196A` | Survol et titres du restaurant 2.                                |
+| ![](https://placehold.co/20x20/8C8C8C/8C8C8C.png) | `--ab-grey`        | `#8C8C8C` | Repère « aujourd'hui », pastilles. Jamais pour du texte.         |
 
 **Fonds, texte et états**
 
-| | Jeton | Code | Usage |
-| --- | --- | --- | --- |
-| ![](https://placehold.co/20x20/F3F4F0/F3F4F0.png) | `--bg` | `#F3F4F0` | Fond de page « papier ». |
-| ![](https://placehold.co/20x20/FFFFFF/FFFFFF.png) | `--surface` | `#FFFFFF` | Cartes, panneaux, champs. |
-| ![](https://placehold.co/20x20/1F2328/1F2328.png) | `--text` | `#1F2328` | Texte principal. |
-| ![](https://placehold.co/20x20/646A70/646A70.png) | `--text-muted` | `#646A70` | Descriptions, libellés, notes. |
-| ![](https://placehold.co/20x20/4E7A12/4E7A12.png) | `--success` | `#4E7A12` | Places disponibles, confirmation. |
-| ![](https://placehold.co/20x20/9A600A/9A600A.png) | `--warning` | `#9A600A` | Bientôt complet, avertissements. |
-| ![](https://placehold.co/20x20/B7372F/B7372F.png) | `--danger` | `#B7372F` | Complet, erreurs, suppression. |
+|                                                   | Jeton          | Code      | Usage                             |
+| ------------------------------------------------- | -------------- | --------- | --------------------------------- |
+| ![](https://placehold.co/20x20/F3F4F0/F3F4F0.png) | `--bg`         | `#F3F4F0` | Fond de page « papier ».          |
+| ![](https://placehold.co/20x20/FFFFFF/FFFFFF.png) | `--surface`    | `#FFFFFF` | Cartes, panneaux, champs.         |
+| ![](https://placehold.co/20x20/1F2328/1F2328.png) | `--text`       | `#1F2328` | Texte principal.                  |
+| ![](https://placehold.co/20x20/646A70/646A70.png) | `--text-muted` | `#646A70` | Descriptions, libellés, notes.    |
+| ![](https://placehold.co/20x20/4E7A12/4E7A12.png) | `--success`    | `#4E7A12` | Places disponibles, confirmation. |
+| ![](https://placehold.co/20x20/9A600A/9A600A.png) | `--warning`    | `#9A600A` | Bientôt complet, avertissements.  |
+| ![](https://placehold.co/20x20/B7372F/B7372F.png) | `--danger`     | `#B7372F` | Complet, erreurs, suppression.    |
 
 ### 📐 Règles principales
 
