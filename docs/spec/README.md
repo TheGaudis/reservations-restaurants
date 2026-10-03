@@ -1,5 +1,7 @@
 # Spécification fonctionnelle de l'application actuelle
 
+> Plan de migration du frontend vers React, qui s'appuie sur cette spec : [`docs/migration/PLAN.md`](../migration/PLAN.md).
+
 Spécification de référence du site de réservation des restaurants pédagogiques du Lycée professionnel Aristide Briand, écrite à partir du code (`index.html`, `js/*.js`, `app.css`, `design-system.css`, `Code.gs`) avant la migration du frontend vers React. Le backend Apps Script n'est **pas** migré : la spec décrit ce que la version React doit reproduire et ce qu'elle doit savoir attendre du script.
 
 État du code décrit : branche principale au 3 octobre 2026 (ressources en `?v=21`).
