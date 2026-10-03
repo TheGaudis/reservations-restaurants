@@ -24,8 +24,12 @@ const MINUS = "−";
 const PLUS = "+";
 // 04 § 5.2-5.3: an empty counter shows « 0 » in grey.
 const PLACEHOLDER = "0";
-// Whole numbers only (E-19): a typed fraction is rounded when the field loses focus.
-const WHOLE_NUMBER: Intl.NumberFormatOptions = { maximumFractionDigits: 0, useGrouping: false };
+// Whole numbers only (E-19); a typed fraction loses its decimals, as `parseInt` did (04 § 5.2: 2,7 → 2).
+const WHOLE_NUMBER: Intl.NumberFormatOptions = {
+  maximumFractionDigits: 0,
+  roundingMode: "trunc",
+  useGrouping: false,
+};
 
 /** A press on +, or ↑ / Page ↑ in the input. */
 function isStepUp(details: BaseNumberField.Root.ChangeEventDetails) {
