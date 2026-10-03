@@ -10,6 +10,8 @@
     "!src/domain/**!", // retirer en P6 (b) : domain/ (P2 (a)) attend ses importeurs de production (api/, features/)
     // retirer en P4 (c) au plus tard : api/ (P2 (b1)) attend ses importeurs de production (queries/, mutations/)
     "!src/api/{errors,hedged-read,request-id,schemas,signals,staff-schemas,state,transport}.ts!",
+    "!src/background/**!", // retirer en P5 (a), qui appelle startBackgroundTasks depuis getRouter()
+    "!src/intl/{dates,amounts}.ts!", // retirer en P4 (b), dont les calendriers et les fiches les importent
     "e2e/**/*.ts",
     "scripts/*.ts",
     ".storybook/*.{ts,tsx}"
@@ -19,8 +21,6 @@
   "ignoreDependencies": [
     // Lues par url() dans src/styles/base.css, que knip n'analyse pas
     "@fontsource-variable/outfit",
-    "@fontsource-variable/work-sans",
-    // Temporaire : paquets installés en P0 (a), importés par une phase suivante
-    "zustand" // retirer en P2 (c)
+    "@fontsource-variable/work-sans"
   ]
 }
