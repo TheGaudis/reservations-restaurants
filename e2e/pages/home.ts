@@ -61,7 +61,11 @@ export async function toastKind(page: Page): Promise<"success" | "error"> {
   const isError =
     currentTarget() === "legacy"
       ? await toast(page).evaluate((element) => element.classList.contains("error"))
-      : (await toast(page).getByRole("dialog").last().getAttribute("data-type")) === "error";
+      : // Newest toast first; an error toast is an `alertdialog` hidden from the accessibility tree (Base UI).
+        (await toast(page)
+          .locator('[role="dialog"], [role="alertdialog"]')
+          .first()
+          .getAttribute("data-type")) === "error";
   return isError ? "error" : "success";
 }
 
