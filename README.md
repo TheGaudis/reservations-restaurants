@@ -5,9 +5,11 @@
 Site de réservation des deux restaurants pédagogiques du lycée professionnel Aristide Briand :
 
 - 🟢 **Restaurant 1** (couleur verte) : réservation de couverts sur un jour de service, avec une capacité et un menu.
-- 🟣 **Restaurant 2** (couleur magenta) : réservation de plats en portions limitées, sur place ou à emporter. Les commandes en ligne ferment à 10 h le jour même : le menu et les stocks restent affichés, et le site invite à venir commander sur place à partir de 12 h (heures réglables par `R2_CUTOFF_HOUR` et `R2_ONSITE_HOUR` dans `js/donnees.js`).
+- 🟣 **Restaurant 2** (couleur magenta) : réservation de plats en portions limitées, sur place ou à emporter. Les commandes en ligne ferment à 10 h le jour même : le menu et les stocks restent affichés, et le site invite à venir commander sur place à partir de 12 h (heures réglables par `R2_CUTOFF_HOUR` et `R2_ONSITE_HOUR` dans `legacy/js/donnees.js`).
 
 Le site est une page statique unique, sans outil de compilation : du HTML, du CSS et quelques fichiers JavaScript chargés tels quels. Les données sont stockées dans une feuille Google Sheets, lue et modifiée par un script Google Apps Script qui sert d'API.
+
+> 🚧 **Migration en cours.** Sur la branche `claude/frontend-react-migration-lw5zfz`, le site est réécrit en React (plan : [`docs/migration/PLAN.md`](docs/migration/PLAN.md)). L'ancien site décrit dans ce document est rangé dans `legacy/` ; GitHub Pages continue de le servir depuis `main` jusqu'à la bascule. Pour travailler sur le nouveau site, voir [Développement](#-développement-nouveau-site-react).
 
 ## ✨ Fonctionnalités
 
@@ -37,23 +39,33 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 
 ## 📁 Contenu du dépôt
 
-| Fichier                | Rôle                                                                                                   |
-| ---------------------- | ------------------------------------------------------------------------------------------------------ |
-| `index.html`           | La page : structure HTML, adresse du script (`APPS_SCRIPT_URL`) et chargement des fichiers ci-dessous. |
-| `design-system.css`    | Jetons de la charte (couleurs, tailles, rayons, animations) et composants communs.                     |
-| `app.css`              | Styles propres à la page.                                                                              |
-| `js/donnees.js`        | État de la page, copie locale, échanges avec Apps Script, places restantes, heures d'Aristide.         |
-| `js/outils.js`         | Dates, messages, montants, suppression en deux clics, erreurs des champs.                              |
-| `js/impression.js`     | Documents imprimés (`PRINT_TOKENS`, `PRINT_CSS`) et résumés du lendemain.                              |
-| `js/interface.js`      | Éléments communs : récapitulatif, icônes, boutons segmentés, apparitions.                              |
-| `js/collegue.js`       | Mode collègue : connexion, déconnexion automatique, paramètres, jours, plats, modifications.           |
-| `js/reservation.js`    | Réservation par le public et formulaires.                                                              |
-| `js/calendrier.js`     | Calendriers et fiches du jour.                                                                         |
-| `js/main.js`           | Affichage de la page, démarrage et actualisation automatique.                                          |
-| `Code.gs`              | API JSON Google Apps Script (`doGet` pour lire l'état, `doPost` pour les actions).                     |
-| `charte-graphique.pdf` | Charte graphique : couleurs, contrastes, composants et règles d'usage.                                 |
-| `logo.png`             | Logo du lycée, affiché dans ce README.                                                                 |
-| `README.md`            | Ce document.                                                                                           |
+| Fichier ou dossier                  | Rôle                                                                                                           |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `legacy/index.html`                 | Ancien site : structure HTML, adresse du script (`APPS_SCRIPT_URL`) et chargement des fichiers ci-dessous.     |
+| `legacy/design-system.css`          | Jetons de la charte (couleurs, tailles, rayons, animations) et composants communs.                             |
+| `legacy/app.css`                    | Styles propres à la page.                                                                                      |
+| `legacy/js/donnees.js`              | État de la page, copie locale, échanges avec Apps Script, places restantes, heures d'Aristide.                 |
+| `legacy/js/outils.js`               | Dates, messages, montants, suppression en deux clics, erreurs des champs.                                      |
+| `legacy/js/impression.js`           | Documents imprimés (`PRINT_TOKENS`, `PRINT_CSS`) et résumés du lendemain.                                      |
+| `legacy/js/interface.js`            | Éléments communs : récapitulatif, icônes, boutons segmentés, apparitions.                                      |
+| `legacy/js/collegue.js`             | Mode collègue : connexion, déconnexion automatique, paramètres, jours, plats, modifications.                   |
+| `legacy/js/reservation.js`          | Réservation par le public et formulaires.                                                                      |
+| `legacy/js/calendrier.js`           | Calendriers et fiches du jour.                                                                                 |
+| `legacy/js/main.js`                 | Affichage de la page, démarrage et actualisation automatique.                                                  |
+| `Code.gs`                           | API JSON Google Apps Script (`doGet` pour lire l'état, `doPost` pour les actions), inchangée par la migration. |
+| `src/`                              | Nouveau site React : routes, composants, styles, textes (`src/intl/`), faux script de test (`src/mocks/`).     |
+| `translations/fr.json`              | Textes du nouveau site, extraits du code par `pnpm i18n:extract`.                                              |
+| `public/`                           | Fichiers copiés tels quels dans le build (`mockServiceWorker.js` du faux script, retiré du build final).       |
+| `e2e/`                              | Tests Playwright de bout en bout (nouveau site et ancien site).                                                |
+| `scripts/`                          | Finition du build, émulateur GitHub Pages (`pnpm serve`), budget de poids.                                     |
+| `.github/`                          | Intégration continue (`workflows/ci.yml`) et mises à jour des dépendances (`dependabot.yml`).                  |
+| `package.json`, `*.config.ts`, `.*` | Dépendances, scripts et réglages des outils (Vite, Vitest, Playwright, TypeScript, oxlint, oxfmt, knip).       |
+| `docs/spec/`                        | Spécification de l'ancien site : comportements et textes exacts, référence de la migration.                    |
+| `docs/migration/`                   | Plan de migration, matrice de parité, messages de lancement et journaux des sessions.                          |
+| `CLAUDE.md`                         | Règles du projet pour les agents de code.                                                                      |
+| `charte-graphique.pdf`              | Charte graphique : couleurs, contrastes, composants et règles d'usage.                                         |
+| `logo.png`                          | Logo du lycée, affiché dans ce README.                                                                         |
+| `README.md`                         | Ce document.                                                                                                   |
 
 ## 🚀 Installation
 
@@ -87,15 +99,70 @@ Les onglets de la feuille (`Config`, `R1_Days`, `R1_Bookings`, `R2_Days`, `R2_It
 
 ### 2. 🔌 Brancher la page
 
-Dans `index.html`, tout en haut du fichier (premier `<script>` du `<head>`), remplacer la valeur de `APPS_SCRIPT_URL` par l'URL copiée à l'étape précédente. Sans URL valide, la page affiche un bandeau « Configuration manquante ».
+Dans `legacy/index.html`, tout en haut du fichier (premier `<script>` du `<head>`), remplacer la valeur de `APPS_SCRIPT_URL` par l'URL copiée à l'étape précédente. Sans URL valide, la page affiche un bandeau « Configuration manquante ».
 
 ### 3. 🌐 Héberger
 
-N'importe quel hébergement de fichiers statiques convient (GitHub Pages, Netlify…) : il suffit de publier `index.html`, `design-system.css`, `app.css` et le dossier `js/` en gardant cette organisation. La page doit être servie par un serveur web : ouverte d'un double-clic (`file://`), elle ne peut pas lire les données.
+N'importe quel hébergement de fichiers statiques convient (GitHub Pages, Netlify…) : il suffit de publier `index.html`, `design-system.css`, `app.css` et le dossier `js/` du dossier `legacy/` en gardant cette organisation. La page doit être servie par un serveur web : ouverte d'un double-clic (`file://`), elle ne peut pas lire les données.
 
-🔄 Après chaque mise en ligne, augmenter ensemble tous les numéros `?v=` des fichiers CSS et JavaScript dans `index.html` (même numéro partout) : les navigateurs téléchargent alors la nouvelle version complète, sans mélanger anciens et nouveaux fichiers.
+🔄 Après chaque mise en ligne, augmenter ensemble tous les numéros `?v=` des fichiers CSS et JavaScript dans `legacy/index.html` (même numéro partout) : les navigateurs téléchargent alors la nouvelle version complète, sans mélanger anciens et nouveaux fichiers.
 
-🧩 Les fichiers `js/*.js` sont des scripts classiques (pas des modules) : ils partagent les mêmes variables et fonctions, et doivent rester chargés dans l'ordre indiqué dans `index.html`, `js/main.js` en dernier.
+🧩 Les fichiers `legacy/js/*.js` sont des scripts classiques (pas des modules) : ils partagent les mêmes variables et fonctions, et doivent rester chargés dans l'ordre indiqué dans `legacy/index.html`, `js/main.js` en dernier.
+
+## 🧑‍💻 Développement (nouveau site React)
+
+Le nouveau site est une application React construite par Vite (TanStack Start en mode SPA) et publiée en fichiers statiques sur GitHub Pages. Il parle au même script Apps Script, sans le modifier.
+
+### Prérequis
+
+- Node.js 22.18 ou plus récent ; la CI utilise la version de `.node-version` (22.22.2).
+- pnpm 12.8.1 : `corepack enable` (la version est lue dans `package.json`), ou `npm install -g pnpm@12.8.1`.
+- Chromium pour les tests navigateur et Playwright : `pnpm exec playwright install chromium`, une fois par poste.
+
+### Installer
+
+```sh
+pnpm install
+```
+
+pnpm installe les versions exactes de `pnpm-lock.yaml` et branche les hooks git (lefthook) : avant chaque commit, oxlint et oxfmt corrigent les fichiers indexés ; avant chaque push, `pnpm check:fast` doit passer.
+
+### Lancer le site en développement
+
+```sh
+pnpm dev
+```
+
+Le site s'ouvre sur http://localhost:5173/reservations-restaurants/ avec un **faux script** (msw, réglé par `.env.development`) : aucune requête ne part vers Google, aucune réservation réelle n'est créée.
+
+Le responsable du script peut essayer le site sur les vraies données : copier `.env.example` en `.env.real.local` (fichier ignoré par git), y mettre l'URL `/exec` du script, puis lancer `pnpm dev:real`. Chaque essai écrit alors dans la vraie feuille et envoie de vrais e-mails.
+
+### Voir le site comme GitHub Pages le sert
+
+```sh
+pnpm build
+pnpm serve
+```
+
+`pnpm serve` sert `dist/client` sur http://127.0.0.1:4311/reservations-restaurants/ comme le fait GitHub Pages : types MIME, `404.html` pour un lien profond comme `/collegue`. N'utilisez pas `vite preview` : avec TanStack Start, il fait du rendu côté serveur et ne montre pas ce que Pages publie. Le build lit l'adresse du script dans la variable `VITE_APPS_SCRIPT_URL` (`VITE_APPS_SCRIPT_URL=https://script.google.com/macros/s/…/exec pnpm build`) ; sans elle, le build réussit quand même et le site affiche le bandeau « Configuration manquante ».
+
+### Vérifier
+
+| Commande                          | Quand, et ce qu'elle fait                                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm check:fast`                 | Avant chaque commit : extraction des textes, format, lint, types, tests Node.                                              |
+| `pnpm check`                      | Avant une pull request : la même chose, plus les tests dans Chromium et knip (code et dépendances inutilisés).             |
+| `pnpm build:e2e`, `pnpm test:e2e` | Tests Playwright sur un build branché sur le faux script ; `pnpm test:e2e --project=react-only` pour le nouveau code seul. |
+| `pnpm test:e2e:legacy`            | Suite de régression sur l'ancien site (`legacy/`).                                                                         |
+| `pnpm budget`                     | Après `pnpm build` : poids chargé par un visiteur, 200 kB de JavaScript et 25 kB de CSS (gzip) au plus.                    |
+| `pnpm lint:fix`                   | Corrige ce que oxlint et oxfmt savent corriger.                                                                            |
+| `pnpm i18n:extract`               | Met à jour `translations/fr.json` après un ajout ou un changement de texte.                                                |
+
+### Intégration continue
+
+`.github/workflows/ci.yml` vérifie chaque push sur `main` et sur la branche de migration, et chaque pull request : jobs `check` (textes, format, lint, types, tests Node, knip), `browser` (tests dans Chromium) et `e2e` (Playwright, build de production, budget). Le job `e2e` publie deux artefacts sur la page du run : `playwright-report` et `dist-client`, le site construit avec la variable de dépôt `VITE_APPS_SCRIPT_URL`. Pour essayer `dist-client` sur un poste : décompresser l'archive dans `dist/client/`, puis `pnpm serve`.
+
+Rien n'est déployé avant la bascule : le job `deploy` ne tourne que sur un push vers `main`, et GitHub Pages sert l'ancien site d'ici là. Une fois la migration fusionnée dans `main`, Dependabot (`.github/dependabot.yml`) proposera les mises à jour une semaine après leur publication, regroupées par famille de paquets.
 
 ## 🎨 Charte graphique
 
@@ -105,7 +172,7 @@ Le logo s'affiche en haut à gauche de l'en-tête, en 96 px de haut (64 px sur m
 
 ### 🌈 Couleurs
 
-Les couleurs reprennent les trois teintes du logo : vert lime, bleu et magenta. Elles sont définies dans `design-system.css`.
+Les couleurs reprennent les trois teintes du logo : vert lime, bleu et magenta. Elles sont définies dans `legacy/design-system.css` (`src/styles/tokens.css` pour le nouveau site).
 
 **Identité**
 
@@ -134,7 +201,7 @@ Les couleurs reprennent les trois teintes du logo : vert lime, bleu et magenta. 
 
 ### 📐 Règles principales
 
-Toute l'interface s'appuie sur `design-system.css` et suit les bonnes pratiques Material 3 :
+Toute l'interface s'appuie sur `legacy/design-system.css` et suit les bonnes pratiques Material 3 :
 
 - Aucune couleur, taille ou rayon en dur : toujours une variable `var(--…)`.
 - Bleu `--accent` pour l'action principale ; `.accent-green` et `.accent-magenta` sur un conteneur pour la couleur de chaque restaurant.
@@ -145,4 +212,4 @@ Toute l'interface s'appuie sur `design-system.css` et suit les bonnes pratiques 
 
 📄 Le détail figure dans [charte-graphique.pdf](charte-graphique.pdf).
 
-🖨️ Les documents imprimés s'ouvrent dans une fenêtre sans feuille de styles : les jetons nécessaires y sont recopiés au moment d'imprimer à partir de la liste `PRINT_TOKENS` de `js/impression.js`. Tout nouveau jeton utilisé dans `PRINT_CSS` doit être ajouté à cette liste.
+🖨️ Les documents imprimés s'ouvrent dans une fenêtre sans feuille de styles : les jetons nécessaires y sont recopiés au moment d'imprimer à partir de la liste `PRINT_TOKENS` de `legacy/js/impression.js`. Tout nouveau jeton utilisé dans `PRINT_CSS` doit être ajouté à cette liste.
