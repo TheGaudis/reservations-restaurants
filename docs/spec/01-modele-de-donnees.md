@@ -73,7 +73,7 @@ Lignes clé/valeur, exposées à plat à la racine de l'état (public et complet
 | `ID` | string | UUID (`Utilities.getUuid()`) | oui | C |
 | `Date` | string | `YYYY-MM-DD` du jour réservé | oui | C (P : agrégé) |
 | `Nom` | string | « Nom et prénom » | oui côté client, **non vérifié côté serveur** | C |
-| `Contact` | string | adresse e-mail (formulaire public : obligatoire et vérifiée côté client ; ajout collègue : facultative ; modification collègue : « Téléphone ou email ») | voir ci-contre | C |
+| `Contact` | string | adresse e-mail (formulaire public : obligatoire et vérifiée côté client ; ajout collègue : facultative, vérifiée si saisie ; modification collègue : champ « Téléphone ou email », obligatoire mais sans contrôle de format) | voir ci-contre | C |
 | `Classe` | string | « Classe ou service » (ex. `TS2`, `vie scolaire`) | oui côté client | C |
 | `Qte` | number | entier ≥ 1 = `NbEleve + NbProf + NbExt` (calculé par le serveur) | oui | C (P : agrégé) |
 | `Timestamp` | string | date d'enregistrement, **renvoyée en `yyyy-MM-dd`** | oui | C |
@@ -121,7 +121,7 @@ Unicité : lors de `addDayR2` sur un jour déjà ouvert, un plat dont le nom (co
 | `ItemID` | string | `ID` du plat | oui | C (P : agrégé) |
 | `Date` | string | `YYYY-MM-DD` (fourni par le client, **non vérifié** contre la date du plat) | oui | C |
 | `Nom` | string | nom et prénom | oui côté client | C |
-| `Contact` | string | e-mail (public : obligatoire ; collègue : facultatif) | — | C |
+| `Contact` | string | e-mail (public : obligatoire ; ajout collègue : facultatif ; modification collègue : « Téléphone ou email », obligatoire, format libre) | — | C |
 | `Classe` | string | classe ou service | oui côté client | C |
 | `Qte` | number | entier ≥ 1, portions **accordées** (éventuellement réduites au stock restant) | oui | C (P : agrégé) |
 | `Mode` | string | `'emporter'` ou `'surplace'` (non vérifié côté serveur) | oui | C |
@@ -214,7 +214,7 @@ remainingItem(item) = Number(item.Stock) − Σ Number(b.Qte) pour b ∈ r2Booki
 - `r2OrdersClosed(iso) = iso < todayISO() || (iso === todayISO() && new Date().getHours() >= 10)` — heure locale de l'appareil.
 - Message : `r2ClosedMsg()` = `Commandes en ligne clôturées à 10h. Venez au restaurant {state.name2} à partir de 12h pour commander sur place.`
 - Effets : voir `04` § 5.6. Le menu, les prix et les stocks restent affichés.
-- Mode collègue : pas de cut-off (« À Aristide, l'ajout reste possible après 10 h »).
+- Mode collègue : pas de cut-off (commentaire du code : « Pas d'heure limite à Aristide : un collègue peut enregistrer une commande prise sur place. ») ; le message de clôture n'est pas affiché en mode collègue.
 - **Non vérifié côté serveur** (`addBookingR2Multi` accepte toute date et toute heure).
 - R1 n'a **aucun** cut-off horaire : seul un jour passé (`iso < todayISO()`) masque « Réserver ».
 
