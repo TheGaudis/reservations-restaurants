@@ -23,6 +23,14 @@
     "defaultMessage": "champ numérique",
     "description": "D-17, R-16 — aria-roledescription du champ numérique (remplace « Number field » de Base UI)"
   },
+  "ui.passwordField.hide": {
+    "defaultMessage": "Masquer le mot de passe",
+    "description": "06 § 1.2 — bouton œil quand le mot de passe est affiché"
+  },
+  "ui.passwordField.show": {
+    "defaultMessage": "Afficher le mot de passe",
+    "description": "06 § 1.2 — bouton œil quand le mot de passe est masqué"
+  },
   "ui.spinner.label": {
     "defaultMessage": "Chargement en cours",
     "description": "08 § 4.15 — nom accessible de l'indicateur de chargement"

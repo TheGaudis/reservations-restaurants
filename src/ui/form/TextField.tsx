@@ -8,7 +8,7 @@ import { useFieldMessages } from "@/ui/form/use-field-messages";
 import styles from "@/ui/form/Field.module.css";
 
 /** Attributes of the `<input>` a form may set; value, events, validity and native constraints belong to the field. */
-type InputProps = Omit<
+export type InputProps = Omit<
   Field.Control.Props,
   | "name"
   | "value"
