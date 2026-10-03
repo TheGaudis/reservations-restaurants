@@ -127,6 +127,22 @@
     "defaultMessage": "Le mot de passe du mode collègue a changé. Reconnectez-vous.",
     "description": "06 § 1.7 — toast d'erreur quand le script refuse le mot de passe pendant une session"
   },
+  "ui.calendar.nextMonth": {
+    "defaultMessage": "Mois suivant",
+    "description": "05 § 2.3, 06 § 3.2 — aria-label du bouton › en vue mois et du sélecteur de date"
+  },
+  "ui.calendar.nextWeek": {
+    "defaultMessage": "Semaine suivante",
+    "description": "05 § 2.3 — aria-label du bouton › en vue semaine"
+  },
+  "ui.calendar.previousMonth": {
+    "defaultMessage": "Mois précédent",
+    "description": "05 § 2.3, 06 § 3.2 — aria-label du bouton ‹ en vue mois et du sélecteur de date"
+  },
+  "ui.calendar.previousWeek": {
+    "defaultMessage": "Semaine précédente",
+    "description": "05 § 2.3 — aria-label du bouton ‹ en vue semaine"
+  },
   "ui.confirm.armedAnnouncement": {
     "defaultMessage": "Cliquez de nouveau pour confirmer.",
     "description": "PLAN annexe F, a-19 — annonce masquée quand un bouton de suppression s'arme"
