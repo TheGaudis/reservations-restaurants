@@ -321,6 +321,13 @@
       }
     },
     {
+      // Hiérarchie d'erreurs du client du script (PLAN § 3.1, § 3.9) : BusinessError, sa sous-classe
+      // PasswordRejectedError et ServiceError, testées par instanceof. Deux classes `class B extends A {}`
+      // dans un fichier suffisent à déclencher la règle (journal p2b1).
+      "files": ["src/api/errors.ts"],
+      "rules": { "max-classes-per-file": "off" }
+    },
+    {
       // Faux script pour les tests de api/ : setupServer de msw/node (PLAN P0)
       "files": ["src/mocks/node.ts"],
       "rules": { "import/no-nodejs-modules": "off" }
