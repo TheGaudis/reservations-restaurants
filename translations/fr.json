@@ -3,6 +3,22 @@
     "defaultMessage": "Annuler",
     "description": "00 § 2.3 — bouton de fermeture d'un formulaire"
   },
+  "common.calendar.week.sameMonth": {
+    "defaultMessage": "{startDay} – {endDayMonth} {endYear}",
+    "description": "05 § 2.3 — libellé d'une semaine dans un seul mois (« 5 – 11 oct. 2026 »)"
+  },
+  "common.calendar.week.twoMonths": {
+    "defaultMessage": "{startDayMonth} – {endDayMonth} {endYear}",
+    "description": "05 § 2.3, a-23, E-06 — libellé d'une semaine à cheval sur deux mois (« 28 sept. – 4 oct. 2026 »)"
+  },
+  "common.calendar.week.twoYears": {
+    "defaultMessage": "{startDayMonth} {startYear} – {endDayMonth} {endYear}",
+    "description": "05 § 2.3, a-23, PLAN § 3.7 — libellé d'une semaine à cheval sur deux années (« 29 déc. 2025 – 4 janv. 2026 »)"
+  },
+  "common.date.long": {
+    "defaultMessage": "{weekday} {day, selectordinal, one {#er} other {#}} {month} {year}",
+    "description": "04 § 8, D-03 — date longue avec « 1er » comme les e-mails du script (« jeudi 1er octobre 2026 ») ; majuscule initiale par CSS"
+  },
   "common.document.description": {
     "defaultMessage": "Réservation des repas aux restaurants pédagogiques du Lycée professionnel Aristide Briand.",
     "description": "03 § 2.1 — meta description"
