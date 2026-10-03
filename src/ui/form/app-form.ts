@@ -5,6 +5,7 @@ import { fieldContext, formContext } from "@/ui/form/form-context";
 import { NumberField } from "@/ui/form/NumberField";
 import { PasswordField } from "@/ui/form/PasswordField";
 import { PriceField } from "@/ui/form/PriceField";
+import { SegmentedRadio } from "@/ui/form/SegmentedRadio";
 import { SubmitButton } from "@/ui/form/SubmitButton";
 import { TextField } from "@/ui/form/TextField";
 
@@ -29,7 +30,14 @@ import { TextField } from "@/ui/form/TextField";
 const { useAppForm: useBaseAppForm } = createFormHook({
   fieldContext,
   formContext,
-  fieldComponents: { TextField, PasswordField, NumberField, PriceField, CheckboxField },
+  fieldComponents: {
+    TextField,
+    PasswordField,
+    NumberField,
+    PriceField,
+    CheckboxField,
+    SegmentedRadio,
+  },
   formComponents: { SubmitButton },
 });
 
