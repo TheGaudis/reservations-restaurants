@@ -1,0 +1,45 @@
+{
+  "r1Days": [
+    { "Date": "2026-10-05", "Capacite": 20, "Menu": "…", "Theme": "", "OuvertPar": "M. Dupont" }
+  ],
+  "r1Bookings": [
+    {
+      "ID": "c0a8…",
+      "Date": "2026-10-05",
+      "Nom": "Cyrille Ungerer",
+      "Contact": "c.ungerer@exemple.fr",
+      "Classe": "TS2",
+      "Qte": 3,
+      "Timestamp": "2026-10-01",
+      "Observation": "",
+      "NbEleve": 2,
+      "NbProf": 1,
+      "NbExt": 0,
+      "PrixTotal": 16
+    }
+  ],
+  "r2Days": [{ "Date": "2026-10-06", "Note": "", "Theme": "", "OuvertPar": "" }],
+  "r2Items": [{ "ID": "3f1c…", "Date": "2026-10-06", "Nom": "Lasagnes", "Stock": 15, "Prix": 4.5 }],
+  "r2Bookings": [
+    {
+      "ID": "77aa…",
+      "ItemID": "3f1c…",
+      "Date": "2026-10-06",
+      "Nom": "Ariele Gsell",
+      "Contact": "a.gsell@exemple.fr",
+      "Classe": "Vie scolaire",
+      "Qte": 2,
+      "Mode": "surplace",
+      "Timestamp": "2026-10-02",
+      "Observation": ""
+    }
+  ],
+  "name1": "…",
+  "name2": "…",
+  "desc1": "…",
+  "desc2": "…",
+  "contactAnnulation": "…",
+  "priceEleve": "4.95",
+  "priceProf": "6.10",
+  "priceExterieur": "9.90"
+}

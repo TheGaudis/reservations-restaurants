@@ -1,0 +1,28 @@
+{
+  "savedAt": 1759480000000,
+  "etag": "Xq3v0Gk1bWq9u2yYc5n3tA",
+  "config": {
+    "name1": "Restaurant Pédagogique",
+    "name2": "Aristide",
+    "desc1": "…",
+    "desc2": "…",
+    "contactAnnulation": "l'établissement",
+    "priceEleve": "4.95",
+    "priceProf": "6.10",
+    "priceExterieur": "9.90"
+  },
+  "r1Used": { "2026-10-05": 15 },
+  "r2Used": { "3f1c2a9e-…": 3 },
+  "r1Days": [{ "Date": "2026-10-05", "Capacite": 20, "Theme": "Automne", "Menu": "…" }],
+  "r2Days": [{ "Date": "2026-10-06", "Theme": "", "Note": "" }],
+  "r2Items": [
+    {
+      "ID": "8b7d0c11-…",
+      "Date": "2026-10-06",
+      "Nom": "Bowl",
+      "Stock": 10,
+      "Prix": "",
+      "Ticket": true
+    }
+  ]
+}

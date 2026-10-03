@@ -1,0 +1,12 @@
+{
+  "action": "addBookingR1",
+  "date": "2026-10-05",
+  "nom": "Cyrille Ungerer",
+  "contact": "c.ungerer@exemple.fr",
+  "classe": "TS2",
+  "nbEleve": 2,
+  "nbProf": 1,
+  "nbExt": 0,
+  "observation": "Table partagée",
+  "requestId": "1b4e28ba-2fa1-11d2-883f-0016d3cca427"
+}
