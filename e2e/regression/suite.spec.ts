@@ -172,7 +172,17 @@ test("pageObjectSignatures", { tag: ["@framework"] }, () => {
     "staffDish",
     "staffPanel",
   ]);
-  expect(exported(print)).toStrictEqual(["printedDocument", "stubPrint"]);
+  expect(exported(print)).toStrictEqual([
+    "closePrintedDocument",
+    "printedDocument",
+    "printedInfo",
+    "printedRow",
+    "stubPrint",
+    "tomorrowBlock",
+    "tomorrowPanel",
+    "tomorrowPrintButton",
+    "tomorrowSummary",
+  ]);
   expect(exported(storage)).toStrictEqual(["readLocalCache", "seedLocalCache", "seedStoredTexts"]);
   expect(exported(targetModule)).toStrictEqual(["currentTarget", "notWritten", "target"]);
   expect(target({ project: { name: "legacy" } } as TestInfo)).toBe("legacy");
