@@ -859,7 +859,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-02 | Toasts | plusieurs toasts qui se chevauchent, erreurs annoncées en `polite` | un seul toast (le nouveau remplace l'ancien), erreurs en annonce prioritaire | a-8 | REG-27 |
 | E-03 | Touche Entrée dans les formulaires | sans effet (pas de `<form>`, `04` § 10) | soumet le formulaire (`<form noValidate>`) | accessibilité, comportement natif | REG-15 |
 | E-04 | Voile de chargement plein écran (G-06) | connexion et suppressions | bouton occupé (`aria-busy`, « … en cours »), page non bloquée ; G-06 disparaît | simplicité, pas de perte de focus | REG-27, REG-35 |
-| E-05 | Calendrier | `role="group"` + boutons `aria-pressed` | `role="grid"`, `gridcell` `aria-selected`, boutons | lecteurs d'écran en mode navigation | REG-09 |
+| E-05 | Calendrier et sélecteur de date C-05 | `role="group"` + boutons `aria-pressed` (aussi dans le sélecteur de `06` § 3.2) | `role="grid"`, `gridcell` `aria-selected`, boutons | lecteurs d'écran en mode navigation | REG-09, REG-33 |
 | E-06 | Libellé de semaine à cheval | « 28 – 4 oct. 2026 » | « 28 sept. – 4 oct. 2026 » | a-23 | REG-09 |
 | E-07 | Page ↑ / ↓ en fin de mois | débordement (`setMonth`) | borné au dernier jour du mois | a-23 | REG-11 |
 | E-08 | Actualisation | suspendue pendant une saisie ou un formulaire ouvert | continue (saisies, focus et `requestId` conservés) | a-4 | REG-08, REG-29 |
@@ -907,6 +907,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-50 | Mode de service (public R2) et mode d'une réservation R2 (collègue) | boutons `aria-pressed` dans un `role="group"` (public) ; `<select>` (collègue) | vrai groupe radio (`RadioGroup` de Base UI, `SegmentedRadio`), une seule option un jour au ticket | accessibilité, § 3.5 ; relevé par P3 (b) | REG-22 |
 | E-51 | Bouton de suppression armé pendant une actualisation | recréé désarmé par le rendu complet | reste armé jusqu'à la fin de ses 4 s (React garde le composant) | architecture ; relevé par P3 (a) | n/a |
 | E-52 | Copie locale sans `config` | gardée (les tarifs et noms prennent leurs valeurs par défaut) | ignorée par le schéma `LocalCacheV1` | aucune copie écrite par `saveCache` n'est dans ce cas ; relevé par P2 (b2) | n/a |
+| E-53 | Sélecteur de date C-05 | inséré dans le panneau « Ouvrir un jour », pousse le formulaire vers le bas | s'ouvre en popover (Base UI `Popover`) au-dessus du formulaire ; Échap, clic extérieur et retour du focus gérés | § 3.5 ; relevé par P3 (c) | n/a |
 
 ### 4.3 Traitement des points a-*
 
@@ -951,8 +952,8 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | --- | --- | --- | --- | --- | --- |
 | P0 | squelette, outillage (dont react-intl et l'extraction en CI), fichiers actuels déplacés dans `legacy/`, coquille, vérification d'hydratation sur le vrai projet, CI sans déploiement | 3 | 3 | non ((a) → (b) → (c)) | terminé le 3 oct. : (a) `c336b2e`, (b) `8c18127`, (c) `42c89f2` ; CI à confirmer sur GitHub |
 | P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | en cours : (a1) `d56570a`, (a2) `00564a4`, (b) `2f8304a` terminés le 3 oct. |
-| P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | en cours : (a) `7aa65f1` terminé le 3 oct. |
-| P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | en cours : (0) `554fad8` terminé le 3 oct. |
+| P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | terminé le 3 oct. : (a) `7aa65f1`, (b1) `e3acf36`, (c) `ef81bc7`, (b2) `3298501` |
+| P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | terminé le 3 oct. : (0) `554fad8`, (a) `366502a`, (b) `ad7fa45`, (c) `ff8e301` |
 | P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | à faire |
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | à faire |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | à faire |
