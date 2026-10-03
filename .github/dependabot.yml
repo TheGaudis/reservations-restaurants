@@ -1,0 +1,45 @@
+# GitHub reads this file from the default branch only: it takes effect once the integration branch is merged into main (P8).
+# cooldown: a version is proposed 7 days after its release at the earliest (supply chain, PLAN § 2).
+# Groups keep together the packages that must move in step (exact versions, PLAN § 2 and R-14).
+version: 2
+updates:
+  - package-ecosystem: npm # also covers pnpm-lock.yaml
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
+    groups:
+      tanstack:
+        patterns: ["@tanstack/*"]
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "oxc-transform-react"
+          - "vitest"
+          - "@vitest/*"
+          - "vitest-browser-react"
+      react:
+        patterns: ["react", "react-dom"]
+      types:
+        patterns: ["@types/*"]
+      storybook:
+        patterns: ["storybook", "@storybook/*", "msw-storybook-addon"]
+      formatjs:
+        patterns: ["@formatjs/*", "react-intl", "eslint-plugin-formatjs"]
+      oxc:
+        patterns: ["oxlint", "oxlint-tsgolint", "oxfmt"]
+      playwright:
+        patterns: ["playwright", "@playwright/*", "@axe-core/playwright"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
