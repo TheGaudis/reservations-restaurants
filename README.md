@@ -151,12 +151,13 @@ pnpm serve
 | Commande                          | Quand, et ce qu'elle fait                                                                                                  |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm check:fast`                 | Avant chaque commit : extraction des textes, format, lint, types, tests Node.                                              |
-| `pnpm check`                      | Avant une pull request : la même chose, plus les tests dans Chromium et knip (code et dépendances inutilisés).             |
+| `pnpm check`                      | Avant une pull request : la même chose, plus les tests dans Chromium (composants, stories) et knip.                        |
 | `pnpm build:e2e`, `pnpm test:e2e` | Tests Playwright sur un build branché sur le faux script ; `pnpm test:e2e --project=react-only` pour le nouveau code seul. |
 | `pnpm test:e2e:legacy`            | Suite de régression sur l'ancien site (`legacy/`).                                                                         |
 | `pnpm budget`                     | Après `pnpm build` : poids chargé par un visiteur, 200 kB de JavaScript et 25 kB de CSS (gzip) au plus.                    |
 | `pnpm lint:fix`                   | Corrige ce que oxlint et oxfmt savent corriger.                                                                            |
 | `pnpm i18n:extract`               | Met à jour `translations/fr.json` après un ajout ou un changement de texte.                                                |
+| `pnpm storybook`                  | Catalogue des composants (port 6006) sur le faux script ; `pnpm build-storybook` le construit dans `storybook-static/`.    |
 
 ### Intégration continue
 
