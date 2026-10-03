@@ -23,7 +23,7 @@ export interface Settings {
   priceExternal: number;
 }
 
-/** Key of a setting, translated to the script's key by the API boundary. @public */
+/** Key of a setting, translated to the script's key by the API boundary. */
 export type SettingKey = keyof Settings;
 
 /** R1 service day (01 § 2.2). */
@@ -202,7 +202,6 @@ export interface OrderR2Input {
 
 /**
  * `addDayR1` (02 § 4.7, 06 § 4.1).
- * @public
  */
 export interface OpenDayR1Input {
   date: IsoDate;
@@ -214,7 +213,6 @@ export interface OpenDayR1Input {
 
 /**
  * `editDayR1` (02 § 4.7, 06 § 5.1).
- * @public
  */
 export interface EditDayR1Input {
   date: IsoDate;
@@ -225,7 +223,6 @@ export interface EditDayR1Input {
 
 /**
  * Dish typed by a colleague (06 § 4.2, § 6.1): the voucher mark and `price: ""` are added at the API boundary.
- * @public
  */
 export interface DishInput {
   name: string;
@@ -236,7 +233,6 @@ export interface DishInput {
 
 /**
  * `addDayR2` (02 § 4.7, 06 § 4.2).
- * @public
  */
 export interface OpenDayR2Input {
   date: IsoDate;
@@ -248,7 +244,6 @@ export interface OpenDayR2Input {
 
 /**
  * `addItemR2` (06 § 6.2).
- * @public
  */
 export interface AddDishInput extends DishInput {
   date: IsoDate;
@@ -256,7 +251,6 @@ export interface AddDishInput extends DishInput {
 
 /**
  * `editItemR2` (06 § 6.3).
- * @public
  */
 export interface EditDishInput extends DishInput {
   dishId: string;
@@ -289,7 +283,6 @@ export interface EditBookingR2Input {
 
 /**
  * `setConfigField` (02 § 4.7): one request per changed setting, value as typed.
- * @public
  */
 export interface SettingInput {
   key: SettingKey;
