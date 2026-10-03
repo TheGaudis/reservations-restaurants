@@ -55,6 +55,34 @@
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
   },
+  "public.calendar.day.almostFull": {
+    "defaultMessage": "bientôt complet",
+    "description": "05 § 2.4 — état d'un jour dans l'aria-label d'une case du calendrier (CAL_STATUS_WORD)"
+  },
+  "public.calendar.day.available": {
+    "defaultMessage": "places disponibles",
+    "description": "05 § 2.4 — état d'un jour dans l'aria-label d'une case du calendrier (CAL_STATUS_WORD)"
+  },
+  "public.calendar.day.full": {
+    "defaultMessage": "complet",
+    "description": "05 § 2.4 — état d'un jour dans l'aria-label d'une case du calendrier (CAL_STATUS_WORD)"
+  },
+  "public.calendar.day.noService": {
+    "defaultMessage": "aucun service",
+    "description": "05 § 2.4, § 2.5 — jour sans service dans l'aria-label d'une case du calendrier"
+  },
+  "public.calendar.day.part": {
+    "defaultMessage": "{text}, {part}",
+    "description": "05 § 2.5 — une partie de l'aria-label d'une case ajoutée après une virgule (« {date}, {état}[, passé] »)"
+  },
+  "public.calendar.day.past": {
+    "defaultMessage": "passé",
+    "description": "05 § 2.5 — suffixe de l'aria-label d'un jour passé"
+  },
+  "public.calendar.day.r2Closed": {
+    "defaultMessage": "commandes closes",
+    "description": "annexe F, a-23, E-43 — suffixe de l'aria-label d'un jour R2 clos à 10 h"
+  },
   "public.dayCard.status.almostFull": {
     "defaultMessage": "Bientôt complet",
     "description": "D-02 — mot d'état à côté de la jauge, état orange"
