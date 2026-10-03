@@ -16,7 +16,6 @@
     "@fontsource-variable/outfit",
     "@fontsource-variable/work-sans",
     // Temporaire : paquets installés en P0 (a), importés par une phase suivante
-    "@msw/playwright", // retirer en P1 (a1)
     "zustand" // retirer en P2 (c)
   ]
 }
