@@ -328,8 +328,14 @@
       "rules": { "max-classes-per-file": "off" }
     },
     {
-      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33)
-      "files": ["src/test/setup-node.ts", "src/test/network-isolation.test.ts"],
+      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33) ; tests dorés qui exécutent legacy/js/
+      // dans node:vm et test de la frontière de l'API qui lit src/ par node:fs (PLAN P2)
+      "files": [
+        "src/test/setup-node.ts",
+        "src/test/network-isolation.test.ts",
+        "src/test/legacy-scripts.ts",
+        "src/test/api-boundary.test.ts"
+      ],
       "rules": { "import/no-nodejs-modules": "off" }
     },
     {
