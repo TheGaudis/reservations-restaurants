@@ -953,7 +953,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | Phase | Contenu | j-p | Sessions | Parallélisable | Statut |
 | --- | --- | --- | --- | --- | --- |
 | P0 | squelette, outillage (dont react-intl et l'extraction en CI), fichiers actuels déplacés dans `legacy/`, coquille, vérification d'hydratation sur le vrai projet, CI sans déploiement | 3 | 3 | non ((a) → (b) → (c)) | terminé le 3 oct. : (a) `c336b2e`, (b) `8c18127`, (c) `42c89f2` ; CI à confirmer sur GitHub |
-| P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | en cours : (a1) `d56570a`, (a2) `00564a4`, (b) `2f8304a` terminés le 3 oct. |
+| P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | terminé le 3 oct. : (a1) `d56570a`, (a2) `00564a4`, (b) `2f8304a`, (c) `51e414a`, (d) `48d61c7` ; suite `legacy` complète verte |
 | P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | terminé le 3 oct. : (a) `7aa65f1`, (b1) `e3acf36`, (c) `ef81bc7`, (b2) `3298501` |
 | P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | terminé le 3 oct. : (0) `554fad8`, (a) `366502a`, (b) `ad7fa45`, (c) `ff8e301` |
 | P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | à faire |
