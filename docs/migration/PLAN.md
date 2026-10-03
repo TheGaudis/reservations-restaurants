@@ -19,10 +19,11 @@ Conventions de ce document : « j-p » = jour-personne ; « session » = une ses
 4. **Comment.** Réécriture complète sur la branche d'intégration. Pendant la préproduction, le site actuel (déplacé dans `legacy/`) reste publié à la racine et le nouveau site est publié sous `/reservations-restaurants/v2/`. Bascule en une fois, avec un tag `v1-final` pour revenir en arrière.
 5. **État.** L'URL porte l'état d'affichage (jours, vues, formulaire ouvert, panneaux collègue) ; TanStack Query porte les données du script ; un store Zustand en mémoire porte la session collègue ; TanStack Form porte les saisies. Objectif : 0 à 2 `useEffect` dans toute l'appli.
 6. **Performance perçue conservée.** Lecture anticipée dans la coquille HTML, premier rendu synchrone depuis la copie locale `reservations-cache-v1` (même clé, même format), etag, lecture doublée à 6 s, un seul nouvel essai à 1,5 s.
-7. **Qualité.** TypeScript 7 strict, oxlint type-aware pédantique, oxfmt, knip, Vitest + msw, Playwright + axe en CI ; parité prouvée par des tables de cas tirées de la spec et des parcours E2E contre un Apps Script simulé.
-8. **Effort.** Environ **28,5 j-p** (34 avec 20 % de marge), soit **23 sessions d'agent** réparties en 8 phases (P0 à P7), plus 1 à 2 semaines calendaires de test par les collègues.
-9. **Risques principaux.** (1) Hydratation de la coquille Start alors que le premier rendu sort de la copie locale : décision « Start ou Router seul » à la fin de P0. (2) Budget JS initial (200 kB gzip) serré : formulaires publics et mode collègue chargés à la demande. (3) Outils récents ou expérimentaux (React Compiler en Rust, jsPlugins d'oxlint, oxfmt 0.x) : un plan B pour chacun. (4) Lenteur et pages d'erreur d'Apps Script. (5) Bascule Pages : source « GitHub Actions », Jekyll, cache de 10 min, `localStorage` partagé entre l'ancien et le nouveau site.
-10. **À valider par vous.** 26 décisions produit (§ 4.1), chacune avec une valeur par défaut que le plan applique sauf avis contraire, et la liste des écarts de parité assumés (§ 4.2).
+7. **Textes et formats.** Tous les textes passent par react-intl (FormatJS) en français seul : pluriels ICU, montants et dates `Intl`, extraction `translations/fr.json` vérifiée en CI.
+8. **Qualité.** TypeScript 7 strict, oxlint type-aware pédantique, oxfmt, knip, Vitest + msw, Playwright + axe en CI ; parité prouvée par des tables de cas tirées de la spec et des parcours E2E contre un Apps Script simulé.
+9. **Effort.** Environ **29 j-p** (35 avec 20 % de marge), soit **23 sessions d'agent** réparties en 8 phases (P0 à P7), plus 1 à 2 semaines calendaires de test par les collègues.
+10. **Risques principaux.** (1) Hydratation de la coquille Start alors que le premier rendu sort de la copie locale : décision « Start ou Router seul » à la fin de P0. (2) Budget JS initial (200 kB gzip) serré : formulaires publics et mode collègue chargés à la demande. (3) Outils récents ou expérimentaux (React Compiler en Rust, jsPlugins d'oxlint, oxfmt 0.x) : un plan B pour chacun. (4) Lenteur et pages d'erreur d'Apps Script. (5) Bascule Pages : source « GitHub Actions », Jekyll, cache de 10 min, `localStorage` partagé entre l'ancien et le nouveau site.
+11. **À valider par vous.** 27 décisions produit (§ 4.1), chacune avec une valeur par défaut que le plan applique sauf avis contraire, et la liste des écarts de parité assumés (§ 4.2).
 
 ---
 
@@ -60,7 +61,7 @@ Conventions de ce document : « j-p » = jour-personne ; « session » = une ses
 | # | Critère | Mesure | Seuil | Vérifié en |
 | --- | --- | --- | --- | --- |
 | S1 | Parité fonctionnelle | Chaque écran et état de `09` (G-01 à G-08, P-01 à P-17, L-01, C-01 à C-30, I-01 à I-04) couvert par au moins un test d'intégration ou E2E ; matrice de parité remplie (P6) | 100 % des lignes de `09`, écarts listés au § 4.2 seulement | P6 |
-| S2 | Textes exacts | Tests qui comparent les chaînes de `04` § 9, `06`, `07`, `00` § 2.3 et `03` § 3.1, espaces insécables comprises | 0 écart non listé | P3 à P5 |
+| S2 | Textes exacts | Tests qui comparent les chaînes rendues (via l'instance `intl`) à celles de `04` § 9, `06`, `07`, `00` § 2.3 et `03` § 3.1, espaces insécables comprises ; `translations/fr.json` relu contre la spec | 0 écart non listé | P3 à P5 |
 | S3 | Budget JS initial (visiteur public, `/`) | `scripts/check-budget.mjs` : somme gzip du point d'entrée, du chunk de la route `/` et de leurs imports statiques (manifeste Vite) | ≤ 200 kB gzip ; CSS ≤ 25 kB gzip | CI dès P0 |
 | S4 | Premier rendu depuis la copie locale | E2E : `localStorage` prérempli, réponse du script retenue 5 s → calendriers et fiches visibles avant la réponse, sans squelette | aucun squelette visible, aucune erreur console | P3, P6 |
 | S5 | Accessibilité | `@axe-core/playwright` sur chaque état listé en P6 | 0 violation (aucune liste d'exceptions) | P6 |
@@ -94,6 +95,10 @@ Versions relevées le 3 octobre 2026 dans les rapports (colonne « Source ») ; 
 | `oxlint` + `oxlint-tsgolint` | 1.86.0 + 7.0.2003 (à monter ensemble) | Lint pédantique, règles typées, `typeCheck`, règles React Compiler natives | toolchain § 2-3 |
 | `@tanstack/eslint-plugin-query`, `@tanstack/eslint-plugin-router` | 5.104.1, 1.162.0 | Règles TanStack chargées par `jsPlugins` (**alpha**) | toolchain § 1 |
 | `oxfmt` | 0.71.0 | Formatage (tri des imports, `package.json`) | toolchain § 4 |
+| `react-intl` | 12.1.3 | Tous les textes de l'interface (`FormattedMessage`, `useIntl`, `createIntl`), pluriels et ordinaux ICU, montants et dates ; langue unique `fr-FR` (arbitrage 11) | element-admin (`src/intl.tsx`, react-intl 12.0.1) ; § 3.10 |
+| `@formatjs/unplugin` | 1.2.12 | Plugin Vite : messages précompilés en AST (`ast: true`), donc pas d'analyseur ICU dans le bundle de production | element-admin (`vite.config.ts`) ; README du paquet |
+| `@formatjs/cli` | 6.16.32 | `formatjs extract` → `translations/fr.json` (versionné, contrôlé en CI) | element-admin (`i18n:extract`) |
+| `eslint-plugin-formatjs` | 8.1.0 | Règles FormatJS chargées par `jsPlugins` d'oxlint (déjà en production chez element-admin, 8.0.1) | element-admin (`.oxlintrc.json`) |
 | `knip` | 6.39.0 | Code et dépendances morts (deux passes) | toolchain § 6 |
 | `lefthook` | 2.1.16 | Hooks git (pre-commit, pre-push) | toolchain § 6 |
 | `vitest` | 5.0.3 | Tests unitaires et d'intégration | toolchain § 6 |
@@ -115,7 +120,8 @@ Exclus volontairement : Tailwind, ESLint, Prettier, zod, date-fns, Temporal et s
 | --- | --- | --- | --- |
 | TanStack Start en mode SPA (hydratation de la coquille) | stable mais issues ouvertes #8473, #6455 (erreur React #418) | erreur #418 ou flash visible du squelette quand la copie locale existe (spike P0) | **Router seul** comme element-admin : `index.html` écrit à la main (script anticipé avant la CSS), `src/main.tsx` avec `createRoot` (pas d'hydratation), `@tanstack/router-plugin` (`autoCodeSplitting`), `<title>` React 19 ; le reste du code (routes, Query, UI) ne change pas |
 | React Compiler Rust (`react({ compiler: true })`) | marqué « experimental » | erreur de build, comportement différent en prod | `compiler: { compilationMode: "annotation" }`, ou voie Babel `@rolldown/plugin-babel` + `reactCompilerPreset()`, ou désactivation (le code reste correct, seulement moins mémoïsé ; les règles de lint du compilateur restent actives dans oxlint) |
-| `jsPlugins` d'oxlint (règles TanStack) | alpha, hors semver | plantage ou faux positifs après une mise à jour | retirer `jsPlugins` (perte des règles `@tanstack/*` seulement) ; les règles typées des plugins sont déjà inactives |
+| `jsPlugins` d'oxlint (règles TanStack et FormatJS) | alpha, hors semver | plantage ou faux positifs après une mise à jour | retirer le plugin en cause (perte de ses règles seulement) ; `formatjs extract --throws` en CI garde le contrôle des messages ; les règles typées des plugins sont déjà inactives |
+| `@formatjs/unplugin` (`ast: true`) | 1.x, récent (oxc-parser) | message mal transformé, espaces modifiées | garder l'analyseur ICU (sans l'alias `no-parser`, environ +7 kB gzip) ou précompiler avec `formatjs compile --ast` et charger `translations/compiled/fr.json` comme element-admin |
 | `oxfmt` 0.x | bêta | régression de formatage | Prettier 3.8 avec la même config (oxfmt est compatible) |
 | `options.typeCheck` d'oxlint | récent | divergence avec `tsc` | `tsc --noEmit` reste en CI de toute façon |
 | `@msw/playwright` 0.x avec msw 3 | compatibilité non vérifiée | échec d'installation ou d'interception | `page.route('https://script.google.com/**')` natif de Playwright avec le même faux script |
@@ -138,10 +144,10 @@ reservations-restaurants/
 ├── .oxlintrc.json .oxfmtrc.json                      repris de recherche/toolchain-files, alias @/ (§ 5, P0)
 ├── .vscode/                    extensions et réglages recommandés (oxc, TypeScript 7)
 ├── lefthook.yml                pre-commit : oxlint --fix puis oxfmt sur les fichiers indexés ; pre-push : pnpm check
-├── package.json                scripts (dev, build, typecheck, lint, format, test, test:e2e, knip, check), knip, packageManager
+├── package.json                scripts (dev, build, typecheck, lint, format, test, test:e2e, knip, i18n:extract, check), knip, packageManager
 ├── pnpm-workspace.yaml         politique de sécurité de la chaîne d'approvisionnement
 ├── tsconfig.json               strict TS 7 (types: ["vite/client"], noUncheckedIndexedAccess, exactOptionalPropertyTypes…)
-├── vite.config.ts              Start SPA, base via BASE_PATH, React Compiler (§ 3.11)
+├── vite.config.ts              Start SPA, base via BASE_PATH, React Compiler, FormatJS (§ 3.11)
 ├── vitest.config.ts            jsdom, sans le plugin Start, alias @/
 ├── playwright.config.ts        Chromium, fr-FR, Europe/Paris, serveur statique scripts/serve-pages.mjs
 ├── CLAUDE.md                   règles du projet pour les agents (ébauche : annexe C)
@@ -150,6 +156,7 @@ reservations-restaurants/
 ├── charte-graphique.pdf logo.png                     inchangés (logo.png sert au README)
 ├── docs/spec/                  spécification de l'appli actuelle (référence fonctionnelle)
 ├── docs/migration/             ce plan, les rapports de recherche, la matrice de parité (P6)
+├── translations/fr.json        messages extraits par `formatjs extract` (id → defaultMessage + description) ; versionné, contrôlé en CI, non chargé à l'exécution
 ├── legacy/                     PRÉPRODUCTION SEULEMENT : index.html, app.css, design-system.css, js/ (git mv, inchangés) ; supprimé en P7
 ├── public/                     fichiers copiés tels quels (logo de l'en-tête si non inliné, CNAME éventuel)
 ├── scripts/
@@ -177,16 +184,22 @@ reservations-restaurants/
     │   ├── types.ts            IsoDate, Restaurant ('r1' | 'r2'), types déduits des schémas
     │   ├── dates.ts            arithmétique ISO en UTC, lundi, cases semaine/mois, keyTargetIso, libellés de période
     │   ├── paris.ts            parisDate(ms), parisHour(ms) (repris d'AppResaAristide convex/model/dates.ts)
-    │   ├── format.ts           formatDate, formatEuro (␣€), plural, dash, ticketsText, pourcentage de jauge
+    │   ├── jauge.ts            pourcentage de jauge (gaugeStyle) ; aucun formatage de texte dans domaine/
     │   ├── tickets.ts          TICKET_MARK, TICKET_RE, plainName, withTicketMark, flagTicket, dayHasTicket, serviceMode
     │   ├── places.ts           index de l'état (WeakMap), remainingR1, remainingItem, itemsR2, capacityClass, dayStatusR1/R2
-    │   ├── prix.ts             priceR1 (r1Total), r2Amounts, orderAmounts (un ticket), amountsText, itemPriceText, itemAmountText
+    │   ├── prix.ts             priceR1 (r1Total), r2Amounts, orderAmounts (un ticket) : des nombres, le texte est fait par intl/
     │   ├── cloture.ts          r2OrdersClosed(iso, maintenant), estPasse(iso, aujourdhui)
     │   ├── navigation.ts       transformations pures des search params : choisirJour, changerPeriode, allerAujourdhui, partiePublique
     │   ├── validation.ts       validateurs (repris d'AppResaAristide src/lib/validators.ts) et règles des formulaires
     │   ├── reservations.ts     construction des corps d'action, récapitulatifs R1/R2, lecture de _bookingResult et _emailStatus
-    │   ├── impression.ts       regroupement R2 par client, tris, totaux imprimés (un ticket par commande)
-    │   └── textes.ts           catalogue des textes réutilisés ou testés (fonctions typées), copiés de la spec
+    │   └── impression.ts       regroupement R2 par client, tris, totaux imprimés (un ticket par commande)
+    ├── intl/                   textes et formats (react-intl, fr-FR seul) : § 3.10
+    │   ├── intl.ts             instance unique createIntl (locale et defaultLocale fr-FR, formats, defaultRichTextElements, onError) ; sert au provider ET hors composants
+    │   ├── formats.ts          formats nommés : number.euro, date.jourSemaine, date.mois, date.annee, date.jourMois, date.moisAnnee, date.imprimeLe
+    │   ├── messages-communs.ts defineMessages des textes partagés (Annuler, Fermer, Réserver, Enregistrer, Confirmer ?, message de clôture R2…)
+    │   ├── dates.ts            formatDateLongue (« jeudi 1er octobre 2026 »), libellés de période du calendrier
+    │   ├── montants.ts         textes de montants (euros + tickets, « hors plats sans prix indiqué »), prix d'un plat
+    │   └── types.d.ts          augmentation FormatjsIntl : ids typés d'après translations/fr.json, formats typés
     ├── api/                    sans React ni Query ; testable seul
     │   ├── erreurs.ts          ErreurMetier, MotDePasseRefuse, ErreurService, messageErreur()
     │   ├── schemas.ts          schémas valibot : EtatPublic, EtatComplet, ReponseLecture, réponses d'écriture, CopieLocaleV1
@@ -195,7 +208,8 @@ reservations-restaurants/
     │   ├── lecture-doublee.ts  lectureDoublee() : seconde lecture à 6 s, la première réponse gagne, la perdante est annulée
     │   ├── lecture-anticipee.ts texte du script inline et prendreLectureAnticipee(since)
     │   ├── etat.ts             lireEtatPublic({ since, signal }), lireEtatComplet(motDePasse, signal)
-    │   └── actions.ts          une fonction typée par action POST de 02 § 4 (jamais addBookingR2 ni checkPassword)
+    │   ├── actions.ts          une fonction typée par action POST de 02 § 4 (jamais addBookingR2 ni checkPassword)
+    │   └── identifiants.ts     nouvelIdentifiant() : requestId (crypto.randomUUID, repli de 02 § 5.3)
     ├── queries/
     │   ├── client.ts           creerQueryClient() : défauts, QueryCache/MutationCache onError (mot de passe changé)
     │   ├── etat.ts             etatKeys, etatPublicOptions (queryFn etag), etatCollegueOptions(id)
@@ -225,17 +239,17 @@ reservations-restaurants/
     │   ├── tokens.css          § 1-2 de design-system.css : jetons :root, thèmes .accent-green / .accent-magenta (+ [data-accent])
     │   ├── base.css            § 3 et 5 : base, :focus-visible, keyframes partagées, prefers-reduced-motion, cibles tactiles
     │   └── print.css           @media print, page nommée « liste » (A4 paysage), masquage de l'appli
-    ├── test/                   setup (msw/node, jsdom), render.tsx (renderWithClient, rendreRoute), fabriques d'états, fixtures
+    ├── test/                   setup (msw/node, jsdom), render.tsx (renderWithProviders : QueryClient + RawIntlProvider ; rendreRoute), fabriques d'états, fixtures
     └── vite-env.d.ts           ImportMetaEnv : VITE_APPS_SCRIPT_URL
 ```
 
-Règles de dépendance (vérifiées par `import/no-cycle` et en revue) : `domaine` n'importe rien d'autre ; `api` n'importe que `domaine` et `config` ; `queries`, `mutations`, `session`, `background` n'importent ni `features` ni `ui` ; `ui` n'importe ni `api` ni `queries` ; `features` assemble ; `routes` déclarent et délèguent. Le code du mode collègue n'est importé que depuis `routes/collegue.tsx` (découpage automatique), les formulaires publics et l'impression par `lazy()` / `import()` explicites.
+Règles de dépendance (vérifiées par `import/no-cycle` et en revue) : `domaine` n'importe rien d'autre ; `intl` n'importe que `domaine` ; `api` n'importe que `domaine` et `config` ; `queries`, `mutations`, `session`, `background` n'importent ni `features` ni `ui` ; `ui` n'importe ni `api` ni `queries` ; `features` assemble ; `routes` déclarent et délèguent. Le code du mode collègue n'est importé que depuis `routes/collegue.tsx` (découpage automatique), les formulaires publics et l'impression par `lazy()` / `import()` explicites.
 
 ### 3.2 Routes et search params
 
 | Route | Fichier | Rôle |
 | --- | --- | --- |
-| racine | `routes/__root.tsx` | Document HTML (`shellComponent`), `head()`, `<ScriptOnce>`, `<Toaster/>`. Neutre vis-à-vis de l'URL (pas de lien actif, pas de titre selon la route). Aucun loader : il s'exécuterait au build. |
+| racine | `routes/__root.tsx` | Document HTML (`shellComponent`), `head()`, `<ScriptOnce>`, `<Toaster/>` (le `RawIntlProvider` est posé par le `Wrap` du routeur). Neutre vis-à-vis de l'URL (pas de lien actif, pas de titre selon la route). Aucun loader : il s'exécuterait au build. |
 | `/` | `routes/index.tsx` | Page publique (G-01 à G-07, P-01 à P-17, L-01). |
 | `/collegue` | `routes/collegue.tsx` | Même page en mode collègue (G-08, C-01 à C-30, I-01 à I-04). `beforeLoad` : sans mot de passe en mémoire, `redirect({ to: '/', search: { ...partiePublique(search), connexion: true, retour: location.href } })`. |
 | `/index.html` | `routes/index[.]html.tsx` | `redirect({ to: '/', replace: true })`. |
@@ -258,7 +272,7 @@ Les deux pages partagent `features/page/Page.tsx` ; la route fournit les blocs p
 | `parametres` | `/collegue` | `v.fallback(v.optional(v.boolean(), false), false)` | `false` | `false` | résumé « Paramètres » | C-02 |
 | `editJour` | `/collegue` | `v.fallback(v.optional(v.picklist(['r1', 'r2'])), undefined)` (`'r2'` seulement si D-09) | absent | `undefined` | « Modifier ce jour » | jour = `r1` ou `r2` de l'URL (C-13) |
 | `editResa` | `/collegue` | `v.fallback(v.optional(v.pipe(v.string(), v.regex(/^r[12]:[\w-]{1,64}$/))), undefined)` | absent | `undefined` | « Modifier » d'une ligne | `{restaurant}:{ID}` ; ignoré si la réservation n'existe plus (C-11, C-24) |
-| `ajout` | `/collegue` | `v.fallback(v.optional(v.pipe(v.string(), v.regex(/^(r1|r2:[\w-]{1,64})$/))), undefined)` | absent | `undefined` | « + Ajouter une personne » | `requestId` créé au montage du formulaire (C-12, C-23) |
+| `ajout` | `/collegue` | `v.fallback(v.optional(v.pipe(v.string(), v.regex(/^(r1\|r2:[\w-]{1,64})$/))), undefined)` | absent | `undefined` | « + Ajouter une personne » | `requestId` créé au montage du formulaire (C-12, C-23) |
 | `ajoutPlat` | `/collegue` | `v.fallback(v.optional(v.boolean(), false), false)` | `false` | `false` | « + Ajouter un plat à ce jour » | jour = `r2` (C-21) |
 | `editPlat` | `/collegue` | `v.fallback(v.optional(v.pipe(v.string(), v.regex(/^[\w-]{1,64}$/))), undefined)` | absent | `undefined` | « Modifier ce plat » | C-22 |
 
@@ -456,7 +470,7 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 | Dialogues (aucun aujourd'hui, `09` § 6) | `ui/overlay/Dialog.tsx`, `AlertDialog.tsx` | `Dialog`, `AlertDialog` | **à créer seulement si une décision les utilise** (knip signale un composant inutilisé) |
 | `printDoc`, `printTable`, `openPrint` (`07`) | `ui/print/impression.ts`, `ZoneImpression.tsx`, `PrintLayout.tsx`, `PrintTable.tsx` | — | § 3.8 |
 
-**Calendrier maison** (`ui/calendar/CalendarGrid.tsx`) : `role="grid"` étiqueté par le libellé de période (`aria-live="polite"`), lignes `role="row"`, en-têtes `L M M J V S D` (`aria-hidden` ou `<abbr>`), cellules `role="gridcell"` avec `aria-selected`, chacune contenant un `<button>` (pas un `<Link>` : le routeur poserait `aria-current="page"` et écraserait `aria-current="date"`). Un seul `tabIndex=0` : le jour sélectionné s'il est affiché, sinon la première case (`05` § 2.6). `aria-label` exact de `05` § 2.5. Clavier exactement selon `05` § 3.2 (← → ±1 j, ↑ ↓ ±7 j, Début / Fin = lundi / dimanche, Page ↑ / ↓ = même jour du mois voisin **borné au dernier jour du mois**, a-23), la vue suit la sélection sans glissement ; Entrée / Espace = clic natif. Focus sans effet : le gestionnaire `onKeyDown` focalise la case cible si elle est déjà dans le DOM puis navigue (`replace`) ; si la période change, la nouvelle case sélectionnée reprend le focus par une ref callback « si le focus est tombé sur `body` » (`reprendreFocusSiOrphelin`). Vue semaine = une ligne, vue mois = 42 cases.
+**Calendrier maison** (`ui/calendar/CalendarGrid.tsx`) : `role="grid"` étiqueté par le libellé de période (`aria-live="polite"`), lignes `role="row"`, en-têtes `L M M J V S D` (`aria-hidden` ou `<abbr>`), cellules `role="gridcell"` avec `aria-selected`, chacune contenant un `<button>` (pas un `<Link>` : le routeur poserait `aria-current="page"` et écraserait `aria-current="date"`). Un seul `tabIndex=0` : le jour sélectionné s'il est affiché, sinon la première case (`05` § 2.6). `aria-label` de `05` § 2.5 (date longue désormais avec « 1er », D-03), construit par `intl.formatMessage`. Clavier exactement selon `05` § 3.2 (← → ±1 j, ↑ ↓ ±7 j, Début / Fin = lundi / dimanche, Page ↑ / ↓ = même jour du mois voisin **borné au dernier jour du mois**, a-23), la vue suit la sélection sans glissement ; Entrée / Espace = clic natif. Focus sans effet : le gestionnaire `onKeyDown` focalise la case cible si elle est déjà dans le DOM puis navigue (`replace`) ; si la période change, la nouvelle case sélectionnée reprend le focus par une ref callback « si le focus est tombé sur `body` » (`reprendreFocusSiOrphelin`). Vue semaine = une ligne, vue mois = 42 cases.
 
 ### 3.6 Styles
 
@@ -472,7 +486,7 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 
 - Les jours métier sont des chaînes `IsoDate` (`YYYY-MM-DD`), comparées par ordre lexicographique, échangées avec le script et mises dans l'URL. Jamais `new Date('2026-10-05')` (UTC implicite) ni `toISOString()` sur une heure locale.
 - Arithmétique en UTC (`Date.UTC`, `setUTCDate`) : `ajouterJours`, `lundiDe`, `casesSemaine`, `casesMois` (42 cases, lundi en premier), `ajouterMoisBorne`, `keyTargetIso`. Reprendre `src/lib/dates.ts` d'AppResaAristide (dont `formatWeekLabel` et un `addMonths` sans débordement), en l'adaptant aux libellés de `05` § 2.3 et à la correction a-23 (« 28 sept. – 4 oct. 2026 », année du lundi affichée si elle diffère).
-- Affichage : formateurs `Intl.DateTimeFormat('fr-FR', …)` créés une fois au niveau module, avec `timeZone: 'UTC'` sur `Date.UTC(…)` : `jeudi 1 octobre 2026` (pas de « 1er »), majuscule initiale par CSS `::first-letter` comme aujourd'hui.
+- Affichage : par l'instance `intl` (§ 3.10), formats nommés avec `timeZone: 'UTC'` appliqués à `Date.UTC(…)` ; date longue **avec l'ordinal** : `jeudi 1er octobre 2026` (D-03, arbitrage 11 : comme les e-mails du script) ; majuscule initiale par CSS `::first-letter` comme aujourd'hui.
 - « Maintenant » : `parisDate(ms)` et `parisHour(ms)` (`Intl` avec `timeZone: 'Europe/Paris'`, repris d'AppResaAristide). `r2OrdersClosed(iso, maintenant) = iso < parisDate(maintenant) || (iso === parisDate(maintenant) && parisHour(maintenant) >= 10)` ; `estPasse(iso, aujourdhui) = iso < aujourdhui` ; « demain » = `ajouterJours(parisDate(maintenant), 1)`.
 - Pas de Temporal (absent de Safari stable), pas de polyfill, pas de date-fns. Tests sous `TZ=Europe/Paris` et `TZ=America/New_York`, et autour des changements d'heure (29 mars et 25 octobre 2026).
 
@@ -502,18 +516,51 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 
 Plus de voile bloquant plein écran (G-06) : connexion et suppressions utilisent un bouton occupé (§ 4.2).
 
-### 3.10 Textes
+### 3.10 Textes et formats (react-intl / FormatJS)
 
-- **La spec fait foi** : tout texte visible est copié mot pour mot de `docs/spec/` (entre guillemets de code ou « »), ponctuation et espaces compris. Ne jamais reprendre un texte d'AppResaAristide sans le vérifier dans la spec (elle part d'une version ancienne, au tutoiement).
-- Les textes **réutilisés ou testés** vivent dans `src/domaine/textes.ts`, sous forme de constantes et de fonctions pures typées (`clotureR2(name2)`, `placesMaxR1(n)`, `totalR1(nb, prix)`, messages de champ, toasts, encadré d'échec, récapitulatif, titres d'impression). Les autres libellés restent dans les composants.
-- Espaces insécables écrites ` ` dans le source (jamais le caractère invisible) : `formatEuro` (`12,50␣€`), `dash` (`␣— `). Les séparateurs ` — ` des lignes de réservation et du récapitulatif gardent des espaces normales (`spec/README.md` § 4.1).
-- Messages du script (« couvert(s) », etc.) affichés tels quels.
-- Les tests comparent les chaînes exactes ; un écart volontaire doit figurer au § 4.
+Arbitrage 11 : **tous** les textes de l'interface passent par react-intl, même sans localisation, pour une vraie gestion des pluriels, des montants et des dates. Dispositif repris d'element-admin (react-intl 12, `@formatjs/cli`, `@formatjs/unplugin`, `eslint-plugin-formatjs` via `jsPlugins`), simplifié pour une langue unique.
+
+**Principes**
+- Langue unique `fr-FR` (`locale` et `defaultLocale`). Les `defaultMessage` sont écrits **en français dans le code**, recopiés mot pour mot de la spec (guillemets de code ou « »), ponctuation et espaces comprises ; aucun fichier de traduction n'est chargé à l'exécution (react-intl ne signale pas de traduction manquante quand la langue est la langue par défaut). La spec fait foi : ne jamais reprendre un texte d'AppResaAristide (version ancienne, tutoiement) sans le vérifier.
+- **Ids explicites et stables, par domaine** : `{zone}.{écran ou composant}.{élément}`, en camelCase, par exemple `public.r1.formulaire.nom.libelle`, `public.r2.cloture`, `public.toast.reservationConfirmee`, `collegue.parametres.enregistrer`, `chargement.echec.horsLigne`, `impression.r1.titreDocument`, `commun.action.annuler`. Un id ne change pas quand le texte change.
+- **`description` obligatoire** et littérale, qui cite la source dans la spec (`"04 § 9 — toast de succès d'une réservation"`) : traçabilité et relecture.
+- Où vivent les messages : dans le fichier qui les utilise (`<FormattedMessage id defaultMessage description />` ou `defineMessages` en tête de module) ; les textes partagés par plusieurs fichiers dans `intl/messages-communs.ts`. **Le catalogue `textes.ts` centralisé n'existe plus.**
+- Pluriels et ordinaux en ICU : `{n, plural, one {# couvert} other {# couverts}}` (en français, 0 et 1 sont au singulier, comme `plural()` de `00` § 3 : `0 couvert`, `1 couvert`, `2 couverts`) ; `{n, plural, one {# ticket restaurant} other {# tickets restaurant}}` ; date longue `{jourSemaine} {jour, selectordinal, one {#er} other {#}} {mois} {annee}` (`intl/dates.ts`, parties fournies par `intl.formatDate` avec `timeZone: 'UTC'`) → `jeudi 1er octobre 2026`, `samedi 3 octobre 2026`.
+- Valeurs insérées en placeholders nommés (`{name2}`, `{contact}`, `{rem}`) ; textes du script (`{ error }`) affichés tels quels, jamais passés dans `defaultMessage`.
+- Mise en forme riche par balises déclarées une fois dans `defaultRichTextElements` (`<b>`, `<i>`) ; pas de `<br>` dans un message : deux messages ou deux paragraphes (encadré d'échec de `03` § 3.1).
+- Espaces insécables écrites `\u00A0` dans le littéral (jamais le caractère invisible) : séparateur `␣— ` devant un prix (`dash` de `00` § 3), etc. ; les séparateurs ` — ` des lignes de réservation et du récapitulatif gardent des espaces normales (`spec/README.md` § 4.1). `preserveWhitespace: true` dans le plugin et `--preserve-whitespace` à l'extraction, sinon FormatJS normalise les espaces.
+
+**Formats partagés** (`intl/formats.ts`, passés à `createIntl({ formats })` et typés par `FormatjsIntl.Formats`) :
+
+| Nom | Définition | Usage |
+| --- | --- | --- |
+| `number.euro` | `{ style: 'currency', currency: 'EUR' }` | tous les montants : `<FormattedNumber value={x} format="euro" />` ou `intl.formatNumber(x, { format: 'euro' })` → `12,50␣€`, `4,95␣€`, `0,00␣€` (mesuré sous Node 22 / ICU 77 : U+00A0 avant €, U+202F comme séparateur de milliers au-delà de 999 €) |
+| `date.jourSemaine`, `date.mois`, `date.annee` | `{ weekday: 'long' }`, `{ month: 'long' }`, `{ year: 'numeric' }`, `timeZone: 'UTC'` | parties de la date longue (avec ordinal) |
+| `date.jourMois` | `{ day: 'numeric', month: 'short', timeZone: 'UTC' }` | libellé de semaine (« 28 sept. – 4 oct. 2026 ») |
+| `date.moisAnnee` | `{ month: 'long', year: 'numeric', timeZone: 'UTC' }` | libellé de mois, sélecteur de date (« Octobre 2026 », majuscule par CSS) |
+| `date.imprimeLe` | `{ day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' }` | « Imprimé le 3 octobre 2026 » (`07` § 2.2) |
+
+**Instance unique et usage hors composants** : `intl/intl.ts` exporte `intl = createIntl({ locale: 'fr-FR', defaultLocale: 'fr-FR', formats, defaultRichTextElements, onError }, createIntlCache())`. Le routeur pose `<RawIntlProvider value={intl}>` dans son `Wrap` (avec le `QueryClientProvider`) ; les composants utilisent `<FormattedMessage>`, `<FormattedNumber>` ou `useIntl()`. Hors React, le même objet sert aux toasts des mutations et des tâches de fond (déconnexion, 10 h), à `document.title` de l'impression et aux `aria-label` construits dans des fonctions. Un texte qui va dans un **attribut** (`aria-label`, `title`, `placeholder`, `alt`) passe par `intl.formatMessage(...)`, jamais par `<FormattedMessage>`.
+
+**Extraction et contrôle** :
+- `pnpm i18n:extract` = `formatjs extract 'src/**/*.{ts,tsx}' --throws --preserve-whitespace --out-file translations/fr.json && oxfmt translations/fr.json` (format par défaut : `id → { defaultMessage, description }`). `--throws` échoue sur un message invalide ou un même id avec deux textes différents.
+- CI : `pnpm i18n:extract` puis `git diff --exit-code translations/fr.json` (le fichier versionné doit être à jour) ; `pnpm check` commence par l'extraction (comme element-admin).
+- Ids typés : `intl/types.d.ts` déclare `FormatjsIntl.Message['ids']` = `keyof typeof import('../../translations/fr.json')` (motif d'element-admin) : un id inconnu est une erreur `tsc`.
+- `translations/fr.json` sert aussi de **relecture des textes** contre la spec (P6) ; une localisation future ajouterait `formatjs compile --ast` et un chargement par langue comme element-admin.
+
+**Build** : `@formatjs/unplugin/vite` avec `{ ast: true, preserveWhitespace: true }` précompile chaque `defaultMessage` en AST ; en production, l'alias `@formatjs/icu-messageformat-parser` → `@formatjs/icu-messageformat-parser/no-parser.js` retire l'analyseur ICU (§ 3.11). Poids mesuré (esbuild + gzip, React exclu, `IntlProvider`, `FormattedMessage`, `FormattedNumber`, `FormattedDate`, `useIntl`, `createIntl`) : **14,8 kB gzip avec l'analyseur, 7,6 kB sans** ; s'y ajoutent les messages en AST, répartis dans les chunks qui les utilisent (quelques kB). Aucun polyfill `Intl` nécessaire sur les navigateurs ciblés.
+
+**Lint** (`eslint-plugin-formatjs` par `jsPlugins`) : `enforce-default-message: literal`, `enforce-description: literal`, `enforce-placeholders`, `enforce-plural-rules: { one: true, other: true }`, `no-multiple-whitespaces`, `no-multiple-plurals`, `no-offset`, `prefer-pound-in-plural`, `no-missing-icu-plural-one-placeholders`, `no-complex-selectors`, `no-useless-message`, `no-literal-string-in-jsx` (y compris les props `label`, `placeholder`, `title`, `aria-label`, `alt`), `no-emoji` (le « ⚠ » du bandeau, seul symbole admis par la charte, est une icône SVG ou une exception commentée). **Non repris d'element-admin** : `blocklist-elements: ['selectordinal']` (il nous faut l'ordinal « 1er ») et `enforce-id` par empreinte (nos ids sont explicites).
+
+**Tests** : `renderWithProviders` enveloppe `QueryClientProvider` + `RawIntlProvider value={intl}` ; les fonctions de `intl/` se testent avec la même instance ; les attentes comparent les chaînes exactes de la spec (avec `\u00A0` explicite). `vitest.config.ts` charge aussi `@formatjs/unplugin` (même transformation qu'en production).
+
+**Pièges** : ids en double (même id, deux textes) → `--throws` ; apostrophe ICU (`'` suivie de `{` ou `}` ouvre une citation : écrire `''` dans ce cas) ; `{` et `}` littéraux à échapper ; HTML dans un message → balises déclarées seulement ; `<FormattedMessage>` dans un attribut (rend un objet, pas une chaîne) ; espaces normalisées si `preserveWhitespace` est oublié ; U+202F produite par `Intl` au-delà de 999 € (et, selon les moteurs, éventuellement devant €) : comparer en tests sous Node, vérifier une fois dans Chromium et WebKit (P6), ne jamais coder l'espace en dur autour d'un montant formaté ; `#` d'un pluriel formaté selon la locale.
 
 ### 3.11 Configuration de build et routeur
 
 ```ts
 // vite.config.ts
+import formatjs from "@formatjs/unplugin/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -521,15 +568,22 @@ import { defineConfig } from "vite";
 // Site de projet GitHub Pages. Préproduction : BASE_PATH=/reservations-restaurants/v2/ ; domaine propre : BASE_PATH=/
 const base = process.env["BASE_PATH"] ?? "/reservations-restaurants/";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base, // Start en déduit le basepath du routeur : ne jamais écrire /reservations-restaurants en dur
-  resolve: { tsconfigPaths: true }, // alias @/* du tsconfig
+  resolve: {
+    tsconfigPaths: true, // alias @/* du tsconfig
+    // Messages précompilés en AST par @formatjs/unplugin : l'analyseur ICU est inutile en production (-7 kB gzip)
+    alias: mode === "production"
+      ? { "@formatjs/icu-messageformat-parser": "@formatjs/icu-messageformat-parser/no-parser.js" }
+      : {},
+  },
   build: { manifest: true, sourcemap: true }, // manifeste lu par scripts/check-budget.mjs
   plugins: [
     tanstackStart({ spa: { enabled: true, prerender: { outputPath: "/index.html" } } }),
     react({ compiler: true }), // après tanstackStart() ; exige oxc-transform-react@~0.145.0 (expérimental)
+    formatjs({ ast: true, preserveWhitespace: true }), // defaultMessage gardés (langue unique), compilés en AST
   ],
-});
+}));
 ```
 
 ```tsx
@@ -549,7 +603,11 @@ export function getRouter() {
     scrollRestoration: true,
     defaultPendingComponent: Squelette,
     defaultErrorComponent: ErreurChargement,
-    Wrap: ({ children }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>,
+    Wrap: ({ children }) => (
+      <QueryClientProvider client={queryClient}>
+        <RawIntlProvider value={intl}>{children}</RawIntlProvider>
+      </QueryClientProvider>
+    ),
   });
   if (navigateur) {
     useSessionStore.subscribe(
@@ -578,7 +636,7 @@ Les textes marqués « *texte proposé* » n'existent pas dans l'appli actuelle 
 | --- | --- | --- | --- | --- |
 | D-01 | c-1 | Easter egg (5 clics sur le logo → vidéo YouTube) | **Retiré** (site d'établissement scolaire). | P3 |
 | D-02 | c-2, `08` PA 1, AppResaAristide | Mot d'état avec la couleur, explication quand « Réserver » est absent | Mot visible à côté de la jauge pour les états orange et rouge : `Bientôt complet`, `Complet` ; plat épuisé dans la liste de la fiche : `Épuisé` (mot déjà utilisé dans le formulaire). Phrase sous la fiche quand « Réserver » manque : R1 complet `Complet.` (AppResaAristide) ; R2 tous les plats épuisés *texte proposé* `Tous les plats sont épuisés.` Jour passé : pas de phrase (fiche pâlie, « passé » dans l'`aria-label`). | P3 |
-| D-03 | c-3 | Textes incohérents | `(hors plats sans prix indiqué)` partout (total en direct, récapitulatif, résumé du lendemain) ; plus de texte initial `Total : 0,00 €` (le total exact est rendu d'emblée) ; pastille R1 inchangée (`{rem} / {Capacite} couverts`) ; dates sans « 1er » à l'écran (inchangé) ; messages du script inchangés. | P3, P5 |
+| D-03 | c-3 | Textes incohérents | `(hors plats sans prix indiqué)` partout (total en direct, récapitulatif, résumé du lendemain) ; plus de texte initial `Total : 0,00 €` (le total exact est rendu d'emblée) ; pastille R1 inchangée (`{rem} / {Capacite} couverts`) ; dates **avec « 1er »** à l'écran comme dans les e-mails (`jeudi 1er octobre 2026`, ordinal ICU, arbitrage 11) ; pluriels par ICU ; messages du script inchangés. | P1, P3, P5 |
 | D-04 | c-4 | Contact à la modification d'une réservation | Libellé `Adresse email (optionnel)` comme à l'ajout ; facultatif ; format vérifié seulement si la valeur a été modifiée et n'est pas vide (un ancien contact téléphonique reste enregistrable tel quel). | P4 |
 | D-05 | c-5, a-25 | Bandeau « Configuration manquante » | Vouvoiement, affiché à tous quand l'URL du script manque ou est invalide : *texte proposé* `⚠ Configuration manquante : l'adresse du service de réservation n'est pas renseignée. Prévenez l'établissement.` Détail technique (variable `VITE_APPS_SCRIPT_URL`) dans la console et le README. | P3 |
 | D-06 | c-6 | Libellé de charte « Revenir en mode client » | Aucun bouton ajouté ; signaler à l'auteur de la charte que le retour se fait par le segment « Client ». | — |
@@ -627,7 +685,9 @@ Les textes marqués « *texte proposé* » n'existent pas dans l'appli actuelle 
 | Copie locale | écrite aussi depuis l'état complet (sans etag) | écrite seulement depuis l'état public avec etag | a-22 |
 | `reservations-textes` | lue et écrite | lue en secours, jamais écrite | `03` § 1.2 |
 | Saisie des compteurs | `parseInt` (2,7 → 2, texte → 0) | entiers seulement (champ numérique, valeur bornée) | NumberField |
-| Montants | `formatEuro` avec U+00A0, sans séparateur de milliers | **identique** (fonction maison, pas `Intl.NumberFormat` qui ajouterait U+202F au-delà de 999 €) | parité stricte |
+| Montants | `formatEuro` maison : U+00A0 avant €, sans séparateur de milliers | `FormattedNumber` au format `euro` : identique jusqu'à 999,99 € (U+00A0 mesuré sous Node 22) ; U+202F comme séparateur de milliers au-delà | arbitrage 11 |
+| Dates longues à l'écran | `jeudi 1 octobre 2026` (sans « 1er ») | `jeudi 1er octobre 2026` (comme les e-mails du script) | arbitrage 11, c-3 |
+| Textes | chaînes dans le JavaScript | messages ICU react-intl (mêmes textes), extraits dans `translations/fr.json` | arbitrage 11 |
 | État de l'interface | perdu au rechargement | dans l'URL (jours, vues, formulaire ouvert, panneaux collègue) | `09` § 1 |
 | Panneaux collègue après déconnexion | réapparaissent à la connexion suivante | fermés | a-13, a-14 |
 | Ressources | `?v=21` | noms hachés par Vite | — |
@@ -673,7 +733,7 @@ P0 squelette ─┬─> P1 domaine, API, données ─┬─> P3 parcours public 
 
 | Phase | Contenu | j-p | Sessions | Parallélisable | Statut |
 | --- | --- | --- | --- | --- | --- |
-| P0 | squelette, outillage, CI, Pages en Actions, `legacy/` publié, coquille sous `/v2/`, spike d'hydratation | 2 | 2 | non | à faire |
+| P0 | squelette, outillage (dont react-intl et l'extraction en CI), Pages en Actions, `legacy/` publié, coquille sous `/v2/`, spike d'hydratation | 2,5 | 2 | non | à faire |
 | P1 | domaine pur, client API, schémas, copie locale, session, horloge, tests de caractérisation | 4 | 3 | avec P2 | à faire |
 | P2 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) | 4 | 3 | avec P1 | à faire |
 | P3 | parcours public complet | 5 | 4 | sous-parties (a)-(d) en partie | à faire |
@@ -681,7 +741,7 @@ P0 squelette ─┬─> P1 domaine, API, données ─┬─> P3 parcours public 
 | P5 | impression et panneau « Demain » | 2,5 | 2 | avec la fin de P4 | à faire |
 | P6 | parité, accessibilité, budget, préproduction et test par les collègues | 4 (+ 1 à 2 semaines calendaires) | 3 | non | à faire |
 | P7 | bascule et nettoyage | 1 | 1 | non | à faire |
-| **Total** | | **28,5** (34 avec 20 % de marge) | **23** | | |
+| **Total** | | **29** (35 avec 20 % de marge) | **23** | | |
 
 La colonne « Statut » est tenue à jour par chaque session (à faire / en cours / terminé + date et commit).
 
@@ -698,32 +758,33 @@ La colonne « Statut » est tenue à jour par chaque session (à faire / en cour
 - **Livrables** :
   - `git mv index.html app.css design-system.css js legacy/` (historique conservé ; `logo.png`, `charte-graphique.pdf`, `Code.gs` restent à la racine) ;
   - configurations reprises de `docs/migration/recherche/toolchain-files/`, adaptées : alias `@/*` partout (`tsconfig.json`, règle `import/no-relative-parent-imports`), `BASE_PATH` par défaut `/reservations-restaurants/`, `.node-version` ≥ 22.22.2, `jsdom` 30, `.gitignore` complété (`playwright-report`, `test-results`, `.tanstack`), `.npmrc` (`save-exact=true`), `pnpm-workspace.yaml` (repris d'element-admin § 1.7 et d'AppResaAristide), `knip` en deux passes (`knip && knip --production`, entrée `e2e/**/*.spec.ts`, ignorer `src/routeTree.gen.ts`), script `typecheck` = `tsc` ;
+  - **react-intl** (§ 3.10) : `src/intl/{intl,formats,messages-communs,types.d}.ts`, `RawIntlProvider` dans le `Wrap`, `@formatjs/unplugin` dans `vite.config.ts` et `vitest.config.ts`, script `i18n:extract`, `translations/fr.json` initial, règles `formatjs/*` et `jsPlugins: ["eslint-plugin-formatjs"]` dans `.oxlintrc.json` (liste du § 3.10), `pnpm check` qui commence par l'extraction ;
   - `vite.config.ts` (§ 3.11), `vitest.config.ts` (sans le plugin Start), `playwright.config.ts` (Chromium, `locale: 'fr-FR'`, `timezoneId: 'Europe/Paris'`, serveur `scripts/serve-pages.mjs`) ;
   - `scripts/post-build.mjs`, `scripts/serve-pages.mjs` (émulateur, base paramétrable), `scripts/assembler-pages.mjs`, `scripts/check-budget.mjs` ;
-  - `.github/workflows/ci.yml` : `format:check` → `oxlint -f github` → `tsc` → `vitest run` → `knip` → build (`BASE_PATH=/reservations-restaurants/v2/`, `VITE_APPS_SCRIPT_URL` depuis une variable du dépôt) → budget → E2E (Playwright Chromium) → assemblage (legacy à la racine, `dist/client` dans `v2/`, `404.html` de v2 à la racine) → `upload-pages-artifact` → `deploy-pages` (branche d'intégration seulement) ; actions épinglées par SHA (relever les SHA avec `git ls-remote` ; connu : `actions/checkout` v7.0.1 = `3d3c42e5aac5ba805825da76410c181273ba90b1`), `permissions` minimales, `persist-credentials: false`, `concurrency` ; `dependabot.yml` ;
+  - `.github/workflows/ci.yml` : `i18n:extract` + `git diff --exit-code translations/fr.json` → `format:check` → `oxlint -f github` → `tsc` → `vitest run` → `knip` → build (`BASE_PATH=/reservations-restaurants/v2/`, `VITE_APPS_SCRIPT_URL` depuis une variable du dépôt) → budget → E2E (Playwright Chromium) → assemblage (legacy à la racine, `dist/client` dans `v2/`, `404.html` de v2 à la racine) → `upload-pages-artifact` → `deploy-pages` (branche d'intégration seulement) ; actions épinglées par SHA (relever les SHA avec `git ls-remote` ; connu : `actions/checkout` v7.0.1 = `3d3c42e5aac5ba805825da76410c181273ba90b1`), `permissions` minimales, `persist-credentials: false`, `concurrency` ; `dependabot.yml` ;
   - `src/router.tsx`, `src/routes/__root.tsx` (shell, `head()`, `<ScriptOnce>` réel ou provisoire), `src/routes/index.tsx` (squelette), `src/routes/$.tsx`, `src/routes/index[.]html.tsx`, `src/styles/{tokens,base,print}.css` (découpage de `legacy/design-system.css`), polices auto-hébergées (D-23) ;
   - `CLAUDE.md` (annexe C), section « Développement » du `README.md`.
 - **Actions humaines (propriétaire du dépôt)** : Settings → Pages → Source « GitHub Actions » ; Settings → Environments → `github-pages` → autoriser la branche d'intégration ; variable de dépôt `VITE_APPS_SCRIPT_URL` (valeur actuelle de `APPS_SCRIPT_URL`, `00` § 2.1).
 - **Dépendances** : aucune.
 - **Critères d'acceptation** :
-  - `pnpm check`, `pnpm build` et la CI sont verts ; `dist/client/` contient `index.html`, `404.html` et des assets préfixés par la base ;
+  - `pnpm check`, `pnpm build` et la CI sont verts (dont un message de la coquille extrait dans `translations/fr.json` et un id inconnu refusé par `tsc`) ; `dist/client/` contient `index.html`, `404.html` et des assets préfixés par la base ;
   - servi par l'émulateur : `/reservations-restaurants/` affiche l'ancien site **à l'octet près** (fichiers identiques à `legacy/`) ; `/reservations-restaurants/v2/` affiche la coquille ; `/reservations-restaurants/v2/collegue` (lien profond) sert le `404.html` et l'appli démarre ; `/reservations-restaurants/v2/index.html` redirige vers `/v2/` ;
   - après le premier déploiement réel : mêmes vérifications sur `https://thegaudis.github.io/reservations-restaurants/` (l'ancien site fonctionne, réservations comprises) ;
   - **spike d'hydratation** (R-01) : une route d'essai pose une copie locale factice par `setQueryData` dans `getRouter()` et rend un contenu synchrone ; un test Playwright relève les erreurs console (#418) et filme le premier rendu. Décision écrite dans ce plan (§ 2.1) : Start conservé (éventuellement avec un `src/client.tsx` personnalisé qui passe `onRecoverableError` à `hydrateRoot`) ou repli « Router seul » ;
   - budget mesuré sur la coquille vide et noté.
 - **Tests attendus** : un test Vitest de rendu de route (routeur en mémoire) ; un test Playwright « smoke » (racine legacy, `/v2/`, lien profond, absence d'erreur console).
 - **Délégable à un agent** : oui (2 sessions : outillage + CI ; Pages + spike). Consignes : partir des fichiers de `recherche/toolchain-files/` sans les réécrire ; ne pas écrire de code applicatif au-delà de la coquille ; ne rien changer au contenu de `legacy/` ; préparer les actions humaines sous forme de liste dans la PR.
-- **Estimation** : 2 j-p, 2 sessions.
+- **Estimation** : 2,5 j-p, 2 sessions.
 - **Risques propres** : règles d'environnement Pages (déploiement refusé depuis la branche), bascule de la source Pages (le mode « branche » s'arrête : vérifier immédiatement que l'ancien site est servi), `oxc-transform-react` à garder en `~0.145.0`, `@msw/playwright` et msw 3, Chromium indisponible en local (E2E en CI seulement).
 
 ### P1 — Domaine pur, client API, schémas, copie locale, session
 
 - **Objectif** : toute la logique sans interface, prouvée par des tables de cas tirées de la spec.
-- **Livrables** : `src/domaine/*` ; `src/api/*` ; `src/queries/{client,etat,copie-locale,purge}.ts` ; `src/session/session.ts` ; `src/background/{demarrer,inactivite,horloge}.ts` ; `src/test/fixtures/` (JSON des exemples de `02` § 3.2, § 4.3, § 4.4, § 4.5, et de `03` § 1.1) ; tests co-localisés. Reprendre d'AppResaAristide `src/lib/validators.ts`, `money.ts` (`formatEuro` avec ` `), `dates.ts`, `today.ts` (principe), `convex/model/dates.ts` (`parisDate`, `parisHour`), `convex/model/pricing.ts` (`r1Total`), avec leurs tests.
+- **Livrables** : `src/domaine/*` ; `src/intl/{dates,montants}.ts` et leurs tests ; `src/api/*` ; `src/queries/{client,etat,copie-locale,purge}.ts` ; `src/session/session.ts` ; `src/background/{demarrer,inactivite,horloge}.ts` ; `src/test/fixtures/` (JSON des exemples de `02` § 3.2, § 4.3, § 4.4, § 4.5, et de `03` § 1.1) ; tests co-localisés. Reprendre d'AppResaAristide `src/lib/validators.ts`, `money.ts` (`formatEuro` avec `\u00A0`), `dates.ts`, `today.ts` (principe), `convex/model/dates.ts` (`parisDate`, `parisHour`), `convex/model/pricing.ts` (`r1Total`), avec leurs tests.
 - **Dépendances** : P0.
 - **Critères d'acceptation** (chaque ligne = au moins une table `it.each`) :
-  - `00` § 3 : `formatDate` (`2026-10-01` → `jeudi 1 octobre 2026`), `formatEuro` (`12.5` → `12,50 €`, `'4.95'`), `plural` (0, 1, 2), `dash`, `ticketsText`, `emailError` (trois cas, messages exacts) ;
-  - `01` § 3.1 à § 3.8 : places restantes (y compris négatives), seuils `capacityClass` (capacité 20 : 20 à 10 `cap-ok`, 9 à 1 `cap-low`, ≤ 0 `cap-full`), statut R2 agrégé et `null` sans plat, `priceR1`, `r2Amounts`, `orderAmounts` (un ticket), `amountsText`, `itemPriceText` (prix 0 non affiché), codage du ticket (idempotent), `serviceMode`, `r2OrdersClosed` à 9 h 59 / 10 h 00 heure de Paris, en hiver et en été, sous `TZ=America/New_York`, jour passé ;
+  - `00` § 3 et `04` § 8, rendus par l'instance `intl` : `formatDateLongue` (`2026-10-01` → `jeudi 1er octobre 2026`, `2026-10-03` → `samedi 3 octobre 2026`), montant au format `euro` (`12.5` → `12,50\u00A0€`, `'4.95'` → `4,95\u00A0€`, `0` → `0,00\u00A0€`), pluriels ICU (0, 1, 2 couverts ; 1 et 2 tickets restaurant), séparateur `\u00A0— ` devant un prix, textes de montants R2, `emailError` (trois cas, messages exacts) ;
+  - `01` § 3.1 à § 3.8 : places restantes (y compris négatives), seuils `capacityClass` (capacité 20 : 20 à 10 `cap-ok`, 9 à 1 `cap-low`, ≤ 0 `cap-full`), statut R2 agrégé et `null` sans plat, `priceR1`, `r2Amounts`, `orderAmounts` (un ticket), textes de montants et prix d'un plat de `intl/montants.ts` (prix 0 non affiché), codage du ticket (idempotent), `serviceMode`, `r2OrdersClosed` à 9 h 59 / 10 h 00 heure de Paris, en hiver et en été, sous `TZ=America/New_York`, jour passé ;
   - `04` § 5.2 et § 5.3 : totaux en direct (`3 couverts · Total : 16,00␣€`, les quatre exemples R2) ; § 7 : lignes et totaux du récapitulatif ; § 8 : formats ;
   - `05` § 2.1, § 2.3, § 3.2 : cases semaine et mois (lundi, 42 cases), libellés (avec la correction a-23), `keyTargetIso` pour chaque touche (Page ↑ / ↓ borné) ;
   - `02` § 1.5 (faux minuteurs) : seconde lecture à 6 000 ms et pas avant, la première réponse gagne, la perdante est annulée, échec seulement si toutes échouent, nouvel essai unique à 1 500 ms, pas de nouvel essai pour `{ error }` ni hors ligne, délai de 30 s par essai ; lecture anticipée consommée une fois et seulement si `since` est identique, doublage au temps restant ;
@@ -733,9 +794,9 @@ La colonne « Statut » est tenue à jour par chaque session (à faire / en cour
   - session : ouverture, fermeture, `fin` ; inactivité de 10 min (activité qui repousse, `visibilitychange`), purge vérifiée sur un `QueryClient` réel (§ 3.3.4) ; horloge : tic à 10 h 00 et à minuit heure de Paris ;
   - couverture de `src/domaine/` ≥ 95 % des lignes.
 - **Tests attendus** : unitaires Vitest (environnement `node` pour `domaine` et `api`), faux minuteurs, `fetch` simulé par `vi.stubGlobal` ; facultatif : tests « dorés » qui exécutent les fonctions de `legacy/js/outils.js` et `donnees.js` dans un `vm` jsdom sur les mêmes tables, avec la liste des écarts attendus (heure de Paris, a-23).
-- **Délégable à un agent** : oui, 3 sessions dont 2 parallélisables : (a) `domaine/` ; (b) `api/` + `queries/` + copie locale ; (c) session + tâches de fond. Consignes : aucune dépendance à React dans `domaine` et `api` ; chaque règle cite sa section de spec en commentaire ; textes dans `domaine/textes.ts`.
+- **Délégable à un agent** : oui, 3 sessions dont 2 parallélisables : (a) `domaine/` ; (b) `api/` + `queries/` + copie locale ; (c) session + tâches de fond. Consignes : aucune dépendance à React dans `domaine` et `api` ; chaque règle cite sa section de spec en commentaire ; `domaine/` ne produit aucun texte (nombres et structures) ; les textes et formats passent par `src/intl/` (§ 3.10).
 - **Estimation** : 4 j-p, 3 sessions.
-- **Risques propres** : `Intl` différent entre Node et navigateurs (comparer avec ` ` explicite, ICU complet de Node 22), transformations non idempotentes du schéma, `AbortSignal.any` absent de vieux Safari (repli `relier()`).
+- **Risques propres** : `Intl` différent entre Node et navigateurs (comparer avec `\u00A0` explicite, ICU complet de Node 22 ; U+202F des grands montants), ordinal `selectordinal` mal écrit (tester le 1er de chaque mois), transformations non idempotentes du schéma, `AbortSignal.any` absent de vieux Safari (repli `relier()`).
 
 ### P2 — Composants `ui/`
 
@@ -751,7 +812,7 @@ La colonne « Statut » est tenue à jour par chaque session (à faire / en cour
   - `Toaster` : un seul toast (a-8), 3,5 s, types succès / neutre / erreur, erreurs prioritaires ;
   - date picker : `06` § 3.2 et § 3.3 (flèches = focus seulement, jours passés `aria-disabled`, « déjà ouvert », Échap, clic extérieur, retour du focus).
 - **Tests attendus** : Testing Library + user-event pour chaque composant (rôles, noms accessibles, clavier, états `data-*`) ; table de toutes les touches du calendrier ; faux minuteurs pour `ConfirmButton`.
-- **Délégable à un agent** : oui, 3 sessions : (a) boutons, retours (toasts, alertes, jauge, squelette), bascules, icônes ; (b) formulaires pré-liés ; (c) calendrier et sélecteur de date. Consignes : aucun import de `api/`, `queries/` ni de données métier ; tout libellé fourni par props ; Base UI enveloppé une seule fois ; consulter `recherche/ui-forms.md` § 2-4 et § 11.
+- **Délégable à un agent** : oui, 3 sessions : (a) boutons, retours (toasts, alertes, jauge, squelette), bascules, icônes ; (b) formulaires pré-liés ; (c) calendrier et sélecteur de date. Consignes : aucun import de `api/`, `queries/` ni de données métier ; libellés métier fournis par props (déjà formatés par `intl`) ; textes génériques propres à `ui/` (« Confirmer ? », « Notifications », « champ numérique », boutons −/+) en messages react-intl `ui.*` ; Base UI enveloppé une seule fois ; consulter `recherche/ui-forms.md` § 2-4 et § 11.
 - **Estimation** : 4 j-p, 3 sessions.
 - **Risques propres** : libellés anglais de Base UI oubliés, `Field.Error` non annoncé (focus + `aria-describedby`), désélection du `ToggleGroup`, accent perdu dans les portails, `useStore` de TanStack Form déprécié (utiliser `useSelector` ou `form.Subscribe`).
 
@@ -772,7 +833,7 @@ La colonne « Statut » est tenue à jour par chaque session (à faire / en cour
   - écrans `09` G-01 à G-05, G-07, P-01 à P-17 ;
   - budget S3 respecté ; 0 à 2 effets (S6).
 - **Tests attendus** : intégration Testing Library + msw 3 (`setupServer`, `onUnhandledFrame: 'error'`) par état d'écran ; routes en mémoire (`createMemoryHistory`) pour les search params (fallbacks, `?connexion=1`, `reserver` sur un jour non réservable) ; un E2E « réserver R1 » et « commander R2 avant et après 10 h » (`page.clock`).
-- **Délégable à un agent** : oui, 4 sessions : (a) page, en-tête, états de chargement, actualisation, lecture anticipée ; (b) calendriers câblés et fiches ; (c) formulaire R1, envoi et récapitulatif ; (d) formulaire R2. (b) après (a) ; (c) et (d) en parallèle après (b). Consignes : chaque texte vérifié dans `04` § 9 ; données lues par `useEtat(select)` dans les feuilles, pas de props sur cinq niveaux ; état du formulaire uniquement dans TanStack Form ; `requestId` par `useState(() => nouvelIdentifiant())` dans le composant monté avec `key={`${restaurant}:${date}`}`.
+- **Délégable à un agent** : oui, 4 sessions : (a) page, en-tête, états de chargement, actualisation, lecture anticipée ; (b) calendriers câblés et fiches ; (c) formulaire R1, envoi et récapitulatif ; (d) formulaire R2. (b) après (a) ; (c) et (d) en parallèle après (b). Consignes : chaque texte est un message react-intl à id explicite (`public.…`) dont le `defaultMessage` est recopié de `04` § 9 et la `description` cite la section ; données lues par `useEtat(select)` dans les feuilles, pas de props sur cinq niveaux ; état du formulaire uniquement dans TanStack Form ; `requestId` par `useState(() => nouvelIdentifiant())` dans le composant monté avec `key={`${restaurant}:${date}`}`.
 - **Estimation** : 5 j-p, 4 sessions.
 - **Risques propres** : budget JS (R-15), hydratation selon la décision P0, `?reserver=1`, `handleSubmit` qui relance l'erreur, `defaultValues` lues au montage seulement (clé par jour).
 
@@ -832,3 +893,243 @@ La colonne « Statut » est tenue à jour par chaque session (à faire / en cour
 - **Délégable à un agent** : partiellement : code, workflow et README oui (1 session) ; réglages Pages, fusion dans `main` et communication non.
 - **Estimation** : 1 j-p, 1 session.
 - **Risques propres** : cache de 10 min de Pages (anciens onglets), chunk introuvable dans un onglet resté ouvert, oubli d'un réglage (environnement, variable de dépôt).
+
+---
+
+## 6. Risques et pièges
+
+### 6.1 Points où les rapports de recherche s'écartent des arbitrages
+
+Les arbitrages de ce plan s'appliquent ; ces écarts sont signalés pour qu'aucune session ne reprenne par erreur la proposition d'un rapport.
+
+| Rapport | Proposition du rapport | Arbitrage retenu |
+| --- | --- | --- |
+| `tanstack-start.md` § 4 | routes par restaurant (`/r1/$jour`, `/collegue/r1/$jour`), `?mois=` | page unique à deux colonnes, paramètres `r1`, `r2`, `r1vue`… (§ 3.2) |
+| `tanstack-start.md` § 4, `react-architecture.md` § 2, `element-admin-reference.md` § 11.5 | copie locale lue dans un effet, un composant client ou un persisteur expérimental ; lecture anticipée jugée inutile | restauration **synchrone** avant le routeur et `<ScriptOnce>` conservé ; risque d'hydratation traité par le spike de P0 (R-01) |
+| `tanstack-query.md` § 3.2 | nouveau format `{ v, savedAt, data }` et nouvelle clé `-v2` | même clé et même format `reservations-cache-v1` (invariant 2, compatibilité avec l'ancien site pendant la préproduction) |
+| `tanstack-query.md` § 8 | store de session en module simple (`useSyncExternalStore`) | Zustand 5 avec `subscribeWithSelector`, sans `persist` |
+| `tanstack-query.md` § 2.4 | `staleTime: 30_000` | `180_000` (rattrapage au retour sans lectures en rafale, § 3.3) |
+| `react-architecture.md` § 5 | Zod 4 classique | Valibot (poids, déjà choisi par element-admin) |
+| `react-architecture.md` § 2 (i) et § 8 | impression dans une fenêtre ouverte au clic | impression dans le même document (§ 3.8) |
+| `react-architecture.md` § 2 (d) | modification d'une réservation en état local | paramètre d'URL `editResa` (schéma de `09` § 1) |
+| `react-architecture.md` § 7 | l'ancien `formatEuro` mettrait une espace normale ; textes inline et `textes.ts` par fonctionnalité | l'ancien code met bien U+00A0 (vérifié à l'octet, `spec/README.md` § 4.1) ; arbitrage 11 : `FormattedNumber` (`Intl`, U+00A0 avant €, U+202F au-delà de 999 €) et tous les textes en messages react-intl |
+| `element-admin-reference.md` § 10 | react-intl, formatjs et Localazy « à écarter » (pas de localisation) | arbitrage 11 : react-intl / FormatJS **repris** pour les pluriels, montants et dates, langue unique, sans Localazy |
+| element-admin (clone) | ids générés par empreinte (`enforce-id`), `selectordinal` interdit, traductions compilées chargées à l'exécution, extraction au format Crowdin | ids explicites par domaine, `selectordinal` autorisé (« 1er »), `defaultMessage` compilés en AST par le plugin (aucun fichier chargé), format d'extraction par défaut |
+| `element-admin-reference.md` § 1.1 et § 10 | pas de `tsc` séparé (`typeCheck` d'oxlint suffit) | `tsc` **aussi** en CI (angles morts croisés mesurés dans `toolchain.md` § 2) |
+| `element-admin-reference.md` § 11.5 | déconnexion propagée aux autres onglets, horloge en heure locale (`setHours`) | pas de propagation (D-26) ; horloge en heure de Paris |
+| `element-admin-reference.md` § 8 | E2E servi par `vite preview` | serveur statique `scripts/serve-pages.mjs` (`vite preview` fait du SSR avec Start) |
+| `toolchain.md` § 5, `toolchain-files/` | alias `#/*` | alias `@/*` (element-admin, AppResaAristide ; motif interne par défaut d'oxfmt) |
+| `ui-forms.md` § 3.2 | `useLayoutEffect` pour le focus du calendrier | focus dans le gestionnaire clavier + ref callback (0 effet) |
+| `ui-forms.md` § 2.8 et § 6 | `AlertDialog` pour « Supprimer ce jour » | suppression en deux clics (`ConfirmButton`), note détaillée (D-21) |
+| `appresaaristide-reference.md` § 5 | espace collègue à onglets, calendrier unique, « Ouvrir ce jour » dans la carte (sans sélecteur de date) | page et sélecteur de date conservés (pas de refonte) |
+| `toolchain.md` § 5 | `exactOptionalPropertyTypes: true` (AppResaAristide et element-admin le désactivent) | `true` au départ ; passer à `false` seulement si les types de Base UI ou TanStack Form l'imposent, décision notée dans `CLAUDE.md` |
+
+### 6.2 Risques consolidés et parades
+
+| # | Risque ou piège | Parade | Phase |
+| --- | --- | --- | --- |
+| R-01 | **Hydratation de la coquille Start** : la coquille prérendue montre le squelette, alors que le premier rendu client sort de la copie locale ; React lève l'erreur #418 (issues #8473, #6455), jette le HTML et refait le rendu (flash possible). | Spike de P0 dans un vrai navigateur (CI). Racine neutre (aucun lien actif, rien qui dépende de l'URL), route `$.tsx`. Si l'erreur est seulement journalisée sans flash visible : `src/client.tsx` avec `onRecoverableError` filtré. Sinon : **repli Router seul** (§ 2.1), sans hydratation (`createRoot`). | P0 |
+| R-02 | Le `loader`, le `beforeLoad` et le code de niveau module de la racine, de `router.tsx` et de leurs imports s'exécutent **au build** dans Node : `localStorage` fait échouer le prérendu ; une donnée chargée là serait figée dans la coquille. | Garde `typeof window` dans `getRouter()` ; aucun loader à la racine ; garde de session sur `/collegue` seulement ; aucun appel au script pendant le build. | P0 |
+| R-03 | `vite preview` d'un projet Start fait du **vrai SSR** : il ne reflète pas Pages. | `scripts/serve-pages.mjs` pour la prévisualisation et l'E2E ; consigne dans `CLAUDE.md`. | P0 |
+| R-04 | En mode « branche », **Jekyll** ignore les fichiers commençant par `_` (chunks `_app-xxxx.js`) ; `upload-pages-artifact` v4+ exclut les fichiers cachés. | Source Pages « GitHub Actions » (pas de Jekyll) ; `.nojekyll` inoffensif en plus ; aucun fichier caché nécessaire dans l'artefact. | P0 |
+| R-05 | Pages sert tout avec `Cache-Control: max-age=600`, non réglable : un `index.html` ancien peut rester 10 min. | Assets hachés ; prévoir 15 min dans la checklist ; pas de service worker. | P7 |
+| R-06 | Après un déploiement, un onglet ouvert demande un chunk disparu (il reçoit le HTML de la 404). | Rechargement automatique unique du routeur (`lazyRouteComponent`) et écouteur `vite:preloadError` (garde en `sessionStorage`) pour les `import()` manuels. | P3 |
+| R-07 | **CORS d'Apps Script** : tout en-tête non simple déclenche un pré-vol `OPTIONS` que le script ne gère pas. | `GET` sans en-tête ; `POST` en `Content-Type: text/plain;charset=utf-8` ; jamais `application/json`, `redirect: 'manual'` ni `mode: 'no-cors'` ; test unitaire sur les en-têtes envoyés. | P1 |
+| R-08 | Le script répond `302` (le navigateur suit en `GET`) ; un déploiement réglé sur « compte Google » redirige vers une page de connexion (erreur CORS permanente). | `redirect: 'follow'` (défaut) ; `preconnect` vers `script.googleusercontent.com` ; README : déploiement « Tout le monde ». | P1, P7 |
+| R-09 | Pages d'erreur HTML de Google : sans CORS → `TypeError` (indiscernable d'une coupure) ; avec CORS → `SyntaxError` au `json()`. | Les deux deviennent `ErreurService` ; message selon `navigator.onLine` ; nouvel essai pour les lectures seulement. | P1 |
+| R-10 | Lenteur du script (démarrage à froid parfois > 10 s), pas d'heure serveur. | Lecture anticipée, copie locale, lecture doublée, délai de 30 s par lecture ; heure de Paris côté client ; D-15 pour les écritures. | P1, P3 |
+| R-11 | Interrompre un `POST` n'annule pas l'écriture ; un rejeu automatique créerait des doublons. | Mutations `retry: false`, `networkMode: 'always'`, aucun délai d'expiration ; `requestId` conservé pour le nouvel essai manuel. | P1, P3 |
+| R-12 | React 19 et le routeur remontent la CSS (`precedence`) **avant** le script inline : la lecture anticipée attend la CSS (inverse de l'ordre actuel). Un `preconnect` sans `crossorigin` ouvre une connexion inutile pour un `fetch` CORS. | Accepté (CSS hachée en cache aux visites suivantes, lecture toujours partie avant le bundle) ; `crossOrigin: 'anonymous'` ; option mesurée seulement si besoin : `<link rel="preload" as="fetch">` (sans `since`). Avec le repli Router seul, le script repasse avant la CSS dans `index.html`. | P3 |
+| R-13 | **Sans `.gitignore`, oxlint et tsgolint analysent `node_modules`** (processus tué après 60 s dans l'essai). | `.gitignore` livré dès le premier commit de P0 ; `ignorePatterns` en plus. | P0 |
+| R-14 | Règles `jsPlugins` qui exigent les types **silencieusement inactives** (`@tanstack/query/no-void-query-fn`) ; `plugins` remplace la liste par défaut ; `react/rules-of-hooks` est en `pedantic` ; `no-unnecessary-condition` et `prefer-optional-chain` en `nursery`. | Config de `toolchain-files/` telle quelle (déjà réglée) ; monter `oxlint` et `oxlint-tsgolint` ensemble ; `typescript/no-deprecated` en erreur (attrape `ensureQueryData`, `FormEvent`) ; règles `formatjs/*` non typées, donc actives (prouvé en production chez element-admin). | P0 |
+| R-15 | **Budget JS** : estimation du chemin public autour de 200 kB gzip (React, Router, Start, Query, Form, Base UI, react-intl 7,6 kB sans analyseur ICU) ; une page unique n'est pas découpée par route ; `validateSearch` reste dans le chunk d'entrée. | Mesure en CI dès P0 (S3) ; formulaires publics, mode collègue et impression chargés à la demande ; valibot (pas zod) ; imports Base UI par composant ; alias `no-parser` de FormatJS en production ; si dépassement : `rollup-plugin-visualizer`, report du `NumberField` ou du `Collapsible` hors du chemin initial. | P0, P3 |
+| R-16 | **Base UI** : libellés anglais codés en dur (`Increase`, `Decrease`, `Number field`), portails qui perdent l'accent, `Field.Error` non annoncé, `ToggleGroup` qui se désélectionne, `NumberField` qui renvoie `null` et refuse les `datalist`, `Form` de Base UI qui ignore le prop `invalid`, portails sous iOS. | Enveloppes uniques de `ui/` (libellés français, `className` d'accent sur les portails, focus sur le premier champ invalide, valeur vide ignorée, `null` → 0, `PriceField` texte) ; pas de `Form` Base UI ; `isolation: isolate`, `body { position: relative }`, champs ≥ 16 px. | P2 |
+| R-17 | **TanStack Form** : `handleSubmit` relance l'erreur d'`onSubmit` ; erreurs Standard Schema = objets ; `defaultValues` lues au montage seulement ; envoi arrêté avant la validation des champs non touchés ; erreur croisée affichée au 2e envoi seulement ; `useStore` déprécié ; `children=` en prop. | `try/catch` dans `onSubmit` ; `errorText()` ; formulaire monté avec une `key` (jour, ouverture) ; `canSubmitWhenInvalid: true` et `form.validate('change')` avant `handleSubmit()` (AppResaAristide) ; `useSelector` ou `form.Subscribe` avec sélecteur ; enfant en JSX. | P2, P3 |
+| R-18 | **TanStack Query** : un minuteur par observateur (`refetchInterval` partagé = lectures en double) ; `retry` dans `queryOptions` passe avant les défauts de test ; `queryClient.query()` force `retry: false` si `retry` n'est pas défini ; `ensureQueryData`, `prefetchQuery`, `fetchQuery` dépréciés ; `queryFn` qui renvoie `undefined` ; `select` qui renvoie des `Map` ; secret dans une clé ; variables de mutations (noms) gardées 5 min ; mutations mises en pause hors ligne. | `<ActualisationAuto/>` unique ; `retry` dans les défauts du client ; `query()` dans les loaders ; `no-deprecated` ; relecture sans `since` dans le cas limite ; résultats en objets et tableaux, index en `WeakMap` ; `id` de session dans la clé ; `getMutationCache().clear()` à la déconnexion ; `networkMode: 'always'`. | P1 |
+| R-19 | **Search params** : `?reserver=1` ou `?connexion=1` sont des nombres (format « JSON d'abord ») ; « aujourd'hui » comme valeur par défaut rendrait `validateSearch` impur ; `location.pathname` est sans basepath ; un `<Link>` actif reçoit `aria-current="page"`. | Liens écrits avec `search={{ … }}` et `v.fallback` ; « aujourd'hui » résolu dans le composant ; jamais de base en dur (`Link`, `to`, `import.meta.env.BASE_URL`) ; cases du calendrier en `<button>`. | P3 |
+| R-20 | **Dates et formats** : `Intl.NumberFormat` met U+202F et U+00A0 ; Temporal absent de Safari stable ; `new Date('YYYY-MM-DD')` est en UTC ; changements d'heure ; ICU variable selon les moteurs. | format `euro` partagé, jamais d'espace codée en dur autour d'un montant ; chaînes ISO + arithmétique UTC ; `parisDate` / `parisHour` ; tests autour des changements d'heure et sous deux fuseaux ; comparaisons avec `\u00A0` explicite. | P1 |
+| R-21 | **`localStorage` partagé** entre l'ancien site (racine) et `/v2/` pendant la préproduction (même origine `thegaudis.github.io`) ; l'ancien site écrit des copies sans etag après une session collègue. | Format v1 écrit à l'identique (test doré avec `loadCache`) ; lecture tolérante (etag facultatif) ; aucune nouvelle clé ; `reservations-textes` jamais écrite par le nouveau site. | P1, P6 |
+| R-22 | Navigateurs anciens (tablettes, vieux iPad) : `AbortSignal.any` / `timeout` (Safari 17.4), `crypto.randomUUID` (Safari 15.4), `:has()` (Safari 15.4) ; cible de build Vite par défaut `safari16.4`. | `relier()` et `delai()` maison ; `nouvelIdentifiant()` avec repli de `02` § 5.3 ; inventaire des appareils de l'établissement en P6 ; `build.target` abaissé si nécessaire. | P1, P6 |
+| R-23 | React Compiler Rust expérimental ; `oxc-transform-react` 0.152 incompatible avec plugin-react 6.1. | Épingler `~0.145.0` ; plan B du § 2.1 ; les règles du compilateur (oxlint) restent actives dans tous les cas. | P0 |
+| R-24 | TypeScript 7 : `baseUrl` supprimé, `types` vaut `[]` par défaut, pas d'API JS ; `@types/react` 19.3 déprécie `FormEvent`. | `paths` sans `baseUrl`, `types: ["vite/client"]` ; `SubmitEvent` / `ChangeEvent` ; `@typescript/typescript6` seulement pour un outil qui l'exigerait. | P0 |
+| R-25 | Zustand : store singleton abonné plusieurs fois (tests, HMR) ; composant abonné au store entier ; `set` à chaque `pointermove`. | `demarrerTachesDeFond` idempotent (arrête l'instance précédente) et désabonnement gardé ; sélecteur obligatoire (revue) ; activité notée dans une variable de module. | P1 |
+| R-26 | Minuteurs ralentis ou gelés (onglet caché, veille, retour par le cache de navigation) : déconnexion tardive, cut-off ou minuit manqués. | Comparaison d'horodatages + revérification sur `visibilitychange` et `pageshow` ; horloge recalculée au retour. | P1 |
+| R-27 | Impression : boîtes de marge `@page` seulement dans Chromium 131+, `@page` global, polices pas encore chargées, Safari iOS. | Page nommée `liste` ; attente de `document.fonts.ready` ≤ 2 s ; essai sur les postes du lycée (P6) ; « Page x / y » absent hors Chromium, accepté. | P5 |
+| R-28 | Outils de test : Chromium non téléchargeable en local (E2E en CI seulement) ; MSW 3 ne modifie plus `setTimeout` (avancer les faux minuteurs) ; `@msw/playwright` 0.x avec msw 3 ; Vitest ne doit pas charger le plugin Start ; `routeTree.gen.ts` absent fait échouer `tsc`. | Job E2E en CI ; faux minuteurs avancés explicitement ; repli `page.route` ; `vitest.config.ts` séparé ; `routeTree.gen.ts` commité et contrôlé (`git diff --exit-code` après build). | P0, P6 |
+| R-29 | Pages : l'environnement `github-pages` peut refuser un déploiement depuis la branche d'intégration ; passer la source en « GitHub Actions » arrête le déploiement par branche de `main`. | Actions humaines de P0 faites ensemble et vérifiées aussitôt ; `main` gelé pour l'ancien site pendant la migration (correctif urgent : appliqué dans `legacy/` et sur `main`). | P0 |
+| R-30 | La préproduction écrit dans la **vraie** feuille et envoie de vrais e-mails. | Le dire aux collègues ; utiliser des jours de test supprimés ensuite, ou des réservations réelles assumées. | P6 |
+| R-31 | Code collègue ou formulaires chargés à la demande : bref écran d'attente à la première ouverture. | Préchargement au survol, au focus et pendant l'inactivité du navigateur ; `pendingComponent` discret. | P3, P4 |
+| R-32 | **react-intl / FormatJS** : ids en double, apostrophes et accolades ICU, `<FormattedMessage>` dans un attribut, HTML dans un message, espaces normalisées (dont U+00A0) si `preserveWhitespace` manque, `translations/fr.json` pas à jour, « ⚠ » refusé par `no-emoji`. | `formatjs extract --throws` + `git diff --exit-code` en CI ; ids typés (`FormatjsIntl`) ; `intl.formatMessage` pour les attributs ; balises de `defaultRichTextElements` seulement ; `preserveWhitespace: true` partout ; tests de chaînes exactes ; icône SVG pour « ⚠ » (§ 3.10). | P0, P1 |
+
+---
+
+## 7. Checklist de bascule GitHub Pages
+
+Reprise et complétée de `recherche/react-architecture.md` § 10. À cocher dans la PR de bascule.
+
+**Avant (fin de P6)**
+- [ ] Accord écrit des collègues sur la préproduction (S9) ; matrice de parité complète ; S1 à S8 verts.
+- [ ] Source Pages déjà sur « GitHub Actions » depuis P0 ; l'environnement `github-pages` autorise `main`.
+- [ ] Variable de dépôt `VITE_APPS_SCRIPT_URL` = URL `/exec` du déploiement actuel (même déploiement, déploiement « Tout le monde ») ; bandeau D-05 absent en préproduction.
+- [ ] Pas de `CNAME` (site de projet) : `BASE_PATH=/reservations-restaurants/` ; si un domaine arrive, `public/CNAME` et `BASE_PATH=/`.
+- [ ] Tag `v1-final` posé sur le dernier commit de la branche d'intégration qui publie encore `legacy/` à la racine ; procédure de retour arrière écrite dans le README et répétée à blanc.
+- [ ] Prévenir les collègues (date, « même usage, nouveau rendu », session collègue toujours perdue au rechargement).
+
+**Bascule**
+- [ ] Fusion dans `main` du commit de bascule : workflow sans assemblage, artefact = `dist/client` (`index.html` + `404.html` + `assets/`), `legacy/` et `scripts/assembler-pages.mjs` supprimés.
+- [ ] Déploiement vert ; `https://thegaudis.github.io/reservations-restaurants/` sert le nouveau site après au plus 10 min de cache (`max-age=600`) ; `…/index.html` redirige vers `/` ; un lien profond (`…/collegue`) sert `404.html` puis l'appli.
+- [ ] `localStorage` : une copie `reservations-cache-v1` écrite par l'ancien site est relue au premier affichage (affichage immédiat pour les visiteurs habituels) ; `reservations-textes` lue en secours seulement.
+- [ ] Aucun service worker n'existait : rien à désinscrire ; n'en ajouter aucun.
+- [ ] E2E de production en lecture seule vert (`e2e/smoke-production.spec.ts`).
+- [ ] Vérification manuelle : une vraie réservation R1 et une commande R2 (puis suppression par un collègue), connexion collègue, impression.
+
+**Après**
+- [ ] README à jour (installation : `pnpm install`, `pnpm build`, workflow Pages ; section Apps Script inchangée ; retour arrière).
+- [ ] `CLAUDE.md` à jour ; ce plan marqué « terminé » ; `docs/spec/` conservée comme référence.
+- [ ] Un mois après : retirer la lecture de secours de `reservations-textes` et supprimer cette clé au démarrage (dans `queries/copie-locale.ts`, pas dans un effet).
+- [ ] Transmettre l'annexe B au responsable du script.
+
+**Retour arrière (moins de 15 min, cache compris)** : `git revert` du commit de bascule sur `main` (ou relancer le workflow sur `v1-final` en autorisant ce tag dans l'environnement `github-pages`) ; l'ancien site est republié à la racine ; la copie locale reste compatible (même format) ; aucune action côté script.
+
+---
+
+## 8. Annexes
+
+### Annexe A — Correspondance fichiers actuels → modules cibles
+
+| Actuel | Fonctions principales (`00` § 4) | Modules cibles |
+| --- | --- | --- |
+| `index.html` (script du `<head>`) | `APPS_SCRIPT_URL`, `CACHE_KEY`, `CACHE_MAX_AGE`, `earlySince`, `stateUrl`, `earlyGet` | `config.ts` (`VITE_APPS_SCRIPT_URL`), `domaine/constantes.ts`, `api/lecture-anticipee.ts`, `routes/__root.tsx` (`<ScriptOnce>`, `head()`, `preconnect`) |
+| `index.html` (corps) | en-tête, colonnes, pied, `#toast`, `#loader`, squelettes | `features/page/*`, `ui/feedback/*` ; le voile disparaît (§ 4.2) |
+| `js/donnees.js` | `state`, `saveCache` / `loadCache`, `renderTexts` / `saveTexts` | cache Query `['etat', …]`, `queries/copie-locale.ts`, `features/page/EnTete.tsx` |
+| | `hedgedRead`, `apiGet`, `postJson`, `apiPost`, `fetchAdminState`, `adminSessionExpired`, `writeSeq`, `adoptBookingState` | `api/transport.ts`, `api/lecture-doublee.ts`, `api/etat.ts`, `api/actions.ts`, `queries/etat.ts`, `queries/client.ts` (`onError`), `mutations/*` (`cancelQueries` + `setQueryData`) |
+| | `withTicketFlags`, `plainName`, `withTicketMark`, `isTicket`, `flagTicket` | `api/schemas.ts` (transformation idempotente), `domaine/tickets.ts` |
+| | `remainingR1`, `remainingItem`, `itemsR2`, `idx`, `capacityClass`, `dayStatusR1/R2`, `sumBy` | `domaine/places.ts` |
+| | `r2Amounts`, `amountsText`, `itemAmountText`, `itemPriceText`, `ticketsText` | `domaine/prix.ts` (nombres) + `intl/montants.ts` (textes) |
+| | `dayHasTicket`, `serviceMode`, `r2OrdersClosed`, `r2ClosedMsg`, `R2_CUTOFF_HOUR` | `domaine/tickets.ts`, `domaine/cloture.ts`, `intl/messages-communs.ts` (message de clôture) |
+| | `loadAll`, `showLoadError`, `retryLoad`, `setBusy` / `clearBusy`, `showLoader` / `hideLoader` | `routes/*` (`loader`, `errorComponent`), `features/page/EncadreEchec.tsx`, `ui/form/SubmitButton.tsx`, `ui/button/*` (`aria-busy`) |
+| `js/outils.js` | `toISO`, `todayISO`, `addDaysISO`, `mondayOf`, `calState` | `domaine/dates.ts`, `domaine/paris.ts`, `background/horloge.ts`, URL (`r1`, `r2`, `r1vue`…) |
+| | `formatDate`, `formatEuro`, `plural`, `dash`, `gaugeStyle` | `intl/dates.ts`, format `euro`, pluriels ICU, messages (`intl/`), `domaine/jauge.ts` |
+| | `showToast` | `ui/feedback/toast.ts` |
+| | `confirmClick`, `disarm` | `ui/button/ConfirmButton.tsx` |
+| | `checkFields`, `fieldError`, `blockError`, `markInvalid`, `linkLabels`, `focusFirstError`, `emailError`, `contactFieldHtml` | `ui/form/*` (Base UI `Field` + TanStack Form), `domaine/validation.ts` |
+| `js/calendrier.js` | `buildWeekCells`, `buildMonthCells`, `weekLabel`, `monthLabel`, `keyTargetIso`, `calKey` | `domaine/dates.ts`, `intl/dates.ts`, `ui/calendar/CalendarGrid.tsx` |
+| | `navCal`, `setCalMode`, `jumpToday`, `selectDate`, `pickDate`, `calTransition` | `domaine/navigation.ts`, `features/calendrier/CalendrierRestaurant.tsx`, option `viewTransition` du routeur |
+| | `renderDetailR1`, `renderDetailR2`, `emptyDayCardHtml`, `menuBlockHtml`, `menuListHtml`, `bookingLine` | `features/r1/FicheR1.tsx`, `features/r2/FicheR2.tsx`, `features/r2/LignePlat.tsx`, `features/collegue/LigneReservation.tsx` |
+| `js/reservation.js` | `openBookingR1`, `openBookingR2Day`, `closeBooking`, `bookingFormHtml`, `bookingFormMultiHtml`, `countsFieldsetR1Html`, `updateR1PriceLive`, `updateR2PriceLive`, `setServiceMode`, `setMultiQty` | `features/r1/FormulaireR1.tsx`, `features/r1/CompteursR1.tsx`, `features/r2/FormulaireR2.tsx` (totaux par `form.Subscribe`) |
+| | `submitBookingR1`, `submitBookingR2Multi`, `handleDuplicate`, `emailWarning`, `newRequestId`, `orderAmounts`, `priceR1` | `mutations/reservations.ts`, `domaine/reservations.ts`, `domaine/prix.ts`, `api/identifiants.ts` |
+| | `editBookingFormR1Html`, `editBookingFormR2Html`, `readEditIdentity`, `editIdentityRules` | `features/collegue/ModifierReservationR1/R2.tsx`, `features/reservation/ChampsIdentite.tsx` |
+| `js/collegue.js` | `renderModeBox`, `chooseMode`, `tryLogin`, `togglePwdVisibility`, `logoutAdmin`, `armInactivityTimer` | `features/page/SelecteurMode.tsx`, `mutations/collegue.ts` (`useConnexion`), `session/session.ts`, `background/inactivite.ts`, `queries/purge.ts` |
+| | `renderDashboard`, `renderSettings`, `saveSettings` | `features/collegue/PanneauDemain.tsx`, `features/collegue/Parametres.tsx` |
+| | `dateFieldHtml`, `datePickerHtml`, `dpKey`, `renderAdminFormR1/R2`, `addDayR1/R2`, `draftItems`, `syncTicketPrice` | `features/collegue/SelecteurDate.tsx` (`ui/calendar/DatePickerPopover.tsx`), `features/collegue/OuvrirJourR1/R2.tsx` (tableau de TanStack Form) |
+| | `openEditDayR1`, `submitEditDayR1`, `adminDelete`, `deleteDay…`, `deleteBooking…`, `deleteItemR2`, `itemFormHtml`, `submitAddItemR2`, `submitEditItemR2`, `openAddBooking`, `submitAddBookingR1/R2`, `afterAddBooking`, `editMaxR1` | `features/collegue/*`, `mutations/collegue.ts`, `mutations/reservations.ts` |
+| `js/impression.js` | `printDoc`, `printTable`, `printTotal`, `openPrint`, `PRINT_TOKENS`, `PRINT_CSS`, `printDayR1/R2`, `printTomorrowSummaryR1/R2`, `showTomorrowSummary`, `getTomorrowISO` | `ui/print/*`, `styles/print.css`, `features/impression/*`, `domaine/impression.ts`, `features/collegue/PanneauDemain.tsx` ; `PRINT_TOKENS` supprimé |
+| `js/interface.js` | `confirmationHtml`, `closeConfirmation`, `ICONS`, `segGroup`, `renderPriceSuggestions`, `enterOnce`, `leaveThen`, `cardEnter`, `popSeg` | `features/reservation/Recapitulatif.tsx`, `ui/icons.tsx`, `ui/toggle/ViewToggle.tsx`, `features/collegue/SuggestionsPrix.tsx` ; animations par CSS (`data-starting-style`, `key`) |
+| `js/main.js` | `render`, `renderAll`, `captureUi`, `restoreUi`, `PARTS`, `resetFields`, `autoRefresh`, `scheduleR2Cutoff`, easter egg | supprimés (React) ; `<ActualisationAuto/>` ; `background/horloge.ts` ; easter egg retiré (D-01) ; démarrage dans `router.tsx` |
+| `design-system.css` | jetons, thèmes, composants | `styles/tokens.css`, `styles/base.css`, CSS Modules de `ui/` |
+| `app.css` | mise en page, calendrier, fiches, formulaires | CSS Modules de `features/` et `ui/calendar/` |
+| `Code.gs` | backend | **inchangé** |
+
+### Annexe B — À signaler au responsable de `Code.gs`
+
+Aucune de ces évolutions n'est nécessaire à la migration : le nouveau frontend contourne chaque limite côté client. Elles renforceraient la sécurité ou la cohérence.
+
+| # | Constat | Contournement côté client | Évolution suggérée du script |
+| --- | --- | --- | --- |
+| b-1 | Réservations publiques sans authentification ; seuls quantités et places sont contrôlées (ni cut-off, ni jour passé, ni mode « sur place », ni appartenance des plats à la date, ni nom, classe ou e-mail). | Tous les contrôles dans les formulaires. | Revérifier sous verrou le cut-off de 10 h et le jour passé (fuseau du script), le mode « sur place » les jours de ticket, l'appartenance des plats à la date, la présence du nom, de la classe et d'un e-mail valide. |
+| b-2 | Aucune heure serveur exposée. | Heure de Paris côté client (D-12). | Renvoyer `serverTime` (ou la date du jour) dans l'état public. |
+| b-3 | Supprimer un plat laisse ses réservations orphelines, sans e-mail ; supprimer un jour n'avertit personne. | Note détaillée avant suppression, orphelines filtrées (D-21). | Supprimer ou archiver les réservations du plat ; envoyer les e-mails d'annulation lors des suppressions de jour et de plat. |
+| b-4 | Restants négatifs possibles (`addDayR1` écrase la capacité ; `addItemR2` / `editItemR2` ne contrôlent pas le stock). | Contrôles avant envoi (D-19). | Refuser une capacité ou un stock inférieur au déjà réservé, comme `editDayR1`. |
+| b-5 | Ticket codé dans le nom du plat ; les e-mails comptent un plat au ticket comme « sans prix » et ignorent « un ticket par commande ». | Codage conservé à l'identique. | Colonne `Ticket` dans `R2_Items` ; totaux des e-mails alignés sur la règle « un ticket par commande ». |
+| b-6 | Aucune limitation des essais de mot de passe. | Délai progressif dissuasif (D-25). | Compteur d'échecs dans `CacheService` et attente croissante côté script. |
+| b-7 | État complet renvoyé à chaque lecture collègue (sans etag) ; ajout manuel = deux allers-retours. | Accepté (actualisation toutes les 3 min seulement). | Etag pour `getAdminState` ; état complet renvoyé par `addBookingR1` / `addBookingR2Multi` quand un mot de passe valide est fourni. |
+| b-8 | Prix `0` enregistré comme « sans prix » (`price \|\| ''`). | Prix 0 refusé (D-22). | Distinguer `0` et vide. |
+| b-9 | Regex e-mail plus permissive que celle du client ; `Timestamp` tronqué à la date ; noms par défaut `Restaurant 1/2` différents de ceux du client. | Défauts client alignés sur la configuration réelle. | Même regex ; heure de réservation transmise ; défauts serveur `Restaurant Pédagogique` / `Aristide`. |
+| b-10 | `editBookingR1` ignore `qte` / `prixTotal` ; `setConfigField` sans liste blanche ; `editDayR1` sur une date absente réussit sans effet ; repli `checkPassword` (ancien script). | Champs ignorés non envoyés ; repli `checkPassword` non repris. | Liste blanche des clés ; erreur « Ce jour n'existe plus. » dans `editDayR1` ; retirer `checkPassword` et `addBookingR2` (obsolète). |
+| b-11 | Rappels envoyés par ligne (une commande de 3 plats = 3 e-mails) ; modification manuelle dans Sheets visible vers 6 h si faite le soir. | — | Regrouper les rappels par contact et par jour ; documenter `viderCache()` pour les gestionnaires. |
+| b-12 | Pas de « Modifier ce jour » pour R2, mais `addDayR2` avec `items: []` met à jour note, thème et « ouvert par ». | Formulaire « Modifier ce jour » R2 sur `addDayR2` (D-09). | Action `editDayR2` explicite. |
+| — | Les dates des e-mails ont « 1er », désormais aussi à l'écran (arbitrage 11). | — | Aucune (cohérent). |
+
+### Annexe C — Ébauche du `CLAUDE.md` du futur projet
+
+````markdown
+# Réservations — restaurants pédagogiques (frontend React)
+
+Site de réservation des deux restaurants pédagogiques du lycée Aristide Briand. Frontend React 19 + TanStack
+Start (mode SPA) publié sur GitHub Pages ; backend Google Apps Script (`Code.gs`) et Google Sheets.
+
+## Références
+- Comportements et textes : `docs/spec/` (fait foi). Renvois « 04 § 5.2 ». Points a-*/b-*/c-* : `docs/spec/README.md` § 3.
+- Architecture et décisions : `docs/migration/PLAN.md` (§ 3 architecture, § 4 décisions produit, § 6 pièges).
+- Justifications techniques : `docs/migration/recherche/`.
+
+## Commandes
+- `pnpm dev` : serveur de développement. **Ne pas utiliser `pnpm preview`** (SSR, ne reflète pas Pages) :
+  `pnpm build && node scripts/serve-pages.mjs`.
+- `pnpm check` : i18n:extract, format:check, lint (oxlint type-aware), typecheck (`tsc`), tests, knip. Obligatoire avant commit.
+- `pnpm test` / `pnpm test:e2e` (Playwright, en CI seulement si Chromium n'est pas installable).
+- `pnpm lint:fix` = `oxlint --fix && oxfmt`.
+
+## Règles absolues
+- Ne jamais modifier `Code.gs`. Le contrat d'API est `docs/spec/02-contrat-api.md`.
+- Aucune donnée personnelle dans le navigateur hors session collègue : mot de passe et état complet en mémoire
+  seulement ; jamais dans l'URL, `localStorage`, `sessionStorage`, une clé de requête ou un log.
+- Copie locale : clé `reservations-cache-v1`, format de `03` § 1.1, écrite seulement depuis l'état public avec etag.
+- Écritures jamais doublées, rejouées ni interrompues ; `requestId` créé au montage du formulaire.
+- POST en `Content-Type: text/plain;charset=utf-8`, aucun autre en-tête (pas de pré-vol CORS).
+- Heure de référence : Europe/Paris (`domaine/paris.ts`) ; jours métier = chaînes ISO ; jamais `new Date()` au rendu.
+
+## Où vit l'état
+- URL (search params validés par valibot + `v.fallback`) : ce que l'on voit (jours, vues, formulaire ouvert, panneaux).
+- TanStack Query : ce que dit le script (`['etat','public']`, `['etat','collegue', id]`).
+- Zustand (`session/`, `background/horloge.ts`) : session collègue et heure ; lire avec un sélecteur.
+- TanStack Form : les saisies (aucun `useState` pour une valeur de formulaire).
+- `useState` local : l'éphémère seulement (récapitulatif, bouton armé).
+- Le reste se calcule au rendu (fonctions pures de `domaine/`).
+
+## React
+- Pas de `useEffect` sans système extérieur à synchroniser (0 à 2 dans toute l'appli, chacun commenté).
+- Pas de `useMemo` / `useCallback` / `memo` par réflexe (React Compiler). Pas de `forwardRef`.
+- Timers et écouteurs globaux dans `background/`, au niveau module, jamais dans un composant.
+- Navigation par `<Link>` ; `navigate` seulement dans un gestionnaire (clavier, `onSuccess` passé à `mutate`).
+- Composants de route < 40 lignes ; un composant > 150 lignes se découpe.
+- Mutations : mise à jour du cache dans `useMutation({ onSuccess })` (`cancelQueries` puis `setQueryData`),
+  toast et fermeture dans `mutate(…, { onSuccess })`.
+
+## Textes et formats (react-intl, fr-FR seul)
+- Aucun texte en dur dans le JSX ni dans un attribut : `<FormattedMessage>` / `intl.formatMessage` avec un id explicite
+  par domaine (`public.r1.formulaire.nom.libelle`), un `defaultMessage` recopié **mot pour mot** de `docs/spec/`
+  et une `description` qui cite la section (« 04 § 9 — … »).
+- Pluriels et ordinaux en ICU (`{n, plural, one {# couvert} other {# couverts}}`, « 1er » par `selectordinal`).
+- Montants : format `euro` ; dates : `intl/dates.ts`. Jamais d'espace codée en dur autour d'un montant formaté.
+- Espace insécable écrite `\u00A0` dans les littéraux ; `preserveWhitespace` activé.
+- Attributs (`aria-label`, `title`, `placeholder`) : `intl.formatMessage`. Hors composants : l'instance `intl` de `intl/intl.ts`.
+- Après avoir ajouté ou modifié un message : `pnpm i18n:extract` et commiter `translations/fr.json`.
+- Messages du script (`{ error }`) affichés tels quels.
+
+## Conventions de code
+- Termes métier en français (`couverts`, `placesRestantes`, `collegue`), vocabulaire technique en anglais
+  (`useXxx`, `Props`, `queryKey`) ; champs de l'API tels quels (`Date`, `Capacite`, `Qte`, `ItemID`).
+- Exports nommés ; pas de barrels ; alias `@/` ; co-location `X.tsx` / `X.module.css` / `X.test.tsx`.
+- `domaine/` et `api/` sans React ; `ui/` sans métier ; Base UI importé seulement dans `ui/`.
+- Styles : CSS Modules + jetons (`var(--…)`) ; variantes en `data-*` ; aucune couleur, taille ou rayon en dur.
+- Tests avec le code : tables de cas tirées de la spec ; msw pour l'API ; un `QueryClient` neuf par test.
+- Commentaires : les contraintes et leur source (« 04 § 5.3 »), jamais l'historique.
+````
+
+### Annexe D — Rapports de recherche
+
+Voir [`recherche/README.md`](recherche/README.md) (une ligne par rapport, ce qui a été testé ou non). Ordre de lecture conseillé selon la phase :
+
+| Phase | À lire |
+| --- | --- |
+| P0 | `toolchain.md` (§ 2-6, pièges), `toolchain-files/`, `tanstack-start.md` (§ 2-3, pièges), `element-admin-reference.md` (§ 1, § 11.7) |
+| P1 | `tanstack-query.md` (§ 3-8, § 10-13), `react-architecture.md` (§ 3, § 5, § 7), `appresaaristide-reference.md` (§ 2.1, § 6) |
+| P2 | `ui-forms.md` (§ 1-7, § 9-11), `appresaaristide-reference.md` (§ 2.2-2.4) |
+| P3 | `tanstack-start.md` (§ 4), `react-architecture.md` (§ 2), `ui-forms.md` (§ 5) |
+| P4 | `react-architecture.md` (§ 3), `element-admin-reference.md` (§ 2, § 11.4-11.5), `tanstack-query.md` (§ 8) |
+| P5 | `ui-forms.md` (§ 8), `react-architecture.md` (§ 2 (i)) — en gardant l'arbitrage « même document » |
+| P6 | `element-admin-reference.md` (§ 8), `react-architecture.md` (§ 8) |
+| P7 | `react-architecture.md` (§ 10), § 7 de ce plan |
+
+Les rapports reflètent l'état du 3 octobre 2026 ; leurs propositions contraires aux arbitrages sont listées au § 6.1.
