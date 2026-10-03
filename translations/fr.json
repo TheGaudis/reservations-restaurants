@@ -1,0 +1,6 @@
+{
+  "common.action.cancel": {
+    "defaultMessage": "Annuler",
+    "description": "00 § 2.3 — bouton de fermeture d'un formulaire"
+  }
+}
