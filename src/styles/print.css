@@ -1,0 +1,15 @@
+/* Printing in the same document (PLAN § 3.8): a printed document renders into .print-root,
+   hidden on screen; when printing, everything else is hidden. */
+.print-root {
+  display: none;
+}
+
+@media print {
+  body:has(> .print-root) > :not(.print-root) {
+    display: none;
+  }
+
+  .print-root {
+    display: block;
+  }
+}
