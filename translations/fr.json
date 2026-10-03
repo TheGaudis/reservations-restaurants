@@ -151,6 +151,22 @@
     "defaultMessage": "Confirmer ?",
     "description": "00 § 2.1, 06 § 5.2 — libellé d'un bouton de suppression armé"
   },
+  "ui.datePicker.dialog": {
+    "defaultMessage": "Choisir la date",
+    "description": "06 § 3.2 — aria-label du calendrier déplié du sélecteur de date"
+  },
+  "ui.datePicker.marked": {
+    "defaultMessage": "déjà ouvert",
+    "description": "06 § 3.2 — légende de la pastille et suffixe de l'aria-label d'un jour déjà ouvert"
+  },
+  "ui.datePicker.part": {
+    "defaultMessage": "{text}, {part}",
+    "description": "06 § 3.2 — une partie de l'aria-label d'un jour ajoutée après une virgule"
+  },
+  "ui.datePicker.past": {
+    "defaultMessage": "passé",
+    "description": "06 § 3.2 — suffixe de l'aria-label d'un jour passé du sélecteur de date"
+  },
   "ui.numberField.roleDescription": {
     "defaultMessage": "champ numérique",
     "description": "D-17, R-16 — aria-roledescription du champ numérique (remplace « Number field » de Base UI)"
