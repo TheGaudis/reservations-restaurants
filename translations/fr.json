@@ -22,5 +22,9 @@
   "ui.spinner.label": {
     "defaultMessage": "Chargement en cours",
     "description": "08 § 4.15 — nom accessible de l'indicateur de chargement"
+  },
+  "ui.submitButton.pending": {
+    "defaultMessage": "Envoi en cours…",
+    "description": "04 § 6.1 — libellé du bouton d'envoi pendant l'envoi"
   }
 }

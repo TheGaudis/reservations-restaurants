@@ -1,0 +1,114 @@
+/* Fields of the forms: .field, label, input, .field-help, .field-error of legacy/design-system.css (08 § 4.6). */
+.field {
+  margin-bottom: var(--space-3);
+}
+
+.label {
+  display: block;
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+/* The --outline contour (3.3:1) shows the limit of an empty field. */
+.control {
+  width: 100%;
+  min-height: var(--control-height);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  color: var(--text);
+  background: var(--surface);
+  border: var(--border-width) solid var(--outline);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.control::placeholder {
+  color: var(--text-subtle);
+}
+
+@media (hover: hover) {
+  .control:hover {
+    border-color: var(--text-muted);
+  }
+}
+
+/* Material 3 focus: the contour thickens to 2 px, with a soft halo. */
+.control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 var(--border-width) var(--accent),
+    0 0 0 var(--space-1) var(--accent-soft);
+}
+
+/* Disabled field (price of a dish paid by a meal voucher, 06 § 4.3). */
+.control:disabled {
+  background: var(--surface-alt);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* The error replaces the help (Material 3). */
+.help {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.field[data-invalid] .help {
+  display: none;
+}
+
+/* The error colour wins over the focus colour. */
+.field[data-invalid] .control {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 var(--field-error-halo) var(--danger-soft);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--danger);
+  animation: rise var(--dur) var(--ease) both;
+}
+
+/* Round « ! » mark before the message. */
+.mark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-error-mark);
+  height: var(--field-error-mark);
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  color: var(--text-on-accent);
+  font-size: var(--fs-error-mark);
+  font-weight: var(--fw-bold);
+}
+
+/* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
+  }
+}
+
+/* 47.5em = 760 px, the breakpoint of base.css (media queries ignore custom properties). */
+@media (pointer: coarse), (max-width: 47.5em) {
+  .control {
+    font-size: var(--fs-field-touch);
+  }
+}
