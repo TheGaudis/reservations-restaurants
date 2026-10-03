@@ -47,8 +47,7 @@ describe("Alert", () => {
     const { screen } = await renderWithProviders(
       <Alert variant="banner">Configuration manquante.</Alert>,
     );
-    const text = screen.getByText("Configuration manquante.").element();
-    const banner = text.parentElement ?? document.body;
+    const banner = screen.getByText("Configuration manquante.").element();
     expect(getComputedStyle(banner).backgroundColor).toBe("rgb(183, 55, 47)");
     expect(getComputedStyle(banner).color).toBe("rgb(255, 255, 255)");
     expect(banner.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");

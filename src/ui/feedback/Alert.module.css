@@ -65,10 +65,6 @@
 }
 
 .banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
   margin: 0;
   padding: var(--space-2) var(--space-4);
   font-size: var(--fs-sm);
@@ -77,10 +73,11 @@
   background: var(--alert-color);
 }
 
-/* « ⚠ » drawn as an icon (PLAN annexe F), at the size of the text. */
+/* « ⚠ » drawn as an icon (PLAN annexe F), in the line of the text like the legacy character. */
 .banner svg {
-  display: block;
-  flex: 0 0 auto;
+  display: inline-block;
   width: var(--space-4);
   height: var(--space-4);
+  margin-right: var(--space-2);
+  vertical-align: text-bottom;
 }

@@ -35,10 +35,10 @@ export function Alert({ variant = "box", tone = "danger", live, action, children
   }
   if (variant === "banner") {
     return (
-      <div className={styles["banner"]} role={live}>
+      <p className={styles["banner"]} role={live}>
         <WarningIcon />
-        <span>{children}</span>
-      </div>
+        {children}
+      </p>
     );
   }
   return (

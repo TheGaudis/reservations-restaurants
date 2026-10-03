@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { userEvent } from "vitest/browser";
+import { cdp, userEvent } from "vitest/browser";
 
 import { renderWithProviders } from "@/test/render";
 import { Button } from "@/ui/button/Button";
@@ -58,6 +58,26 @@ describe("Button", () => {
     expect(styleOf(primary).backgroundColor).toBe("rgb(78, 102, 20)");
     expect(styleOf(primary).color).toBe("rgb(255, 255, 255)");
     expect(styleOf(primary).userSelect).toBe("none");
+  });
+
+  it("grows to 44 px on a touch screen; a small one keeps 36 px and a 48 px target (08 § 4.2)", async () => {
+    await cdp().send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+    try {
+      const { screen } = await renderWithProviders(
+        <>
+          <Button variant="primary">Réserver</Button>
+          <Button size="small">Modifier</Button>
+        </>,
+      );
+      const button = screen.getByRole("button", { name: "Réserver" }).element();
+      const small = screen.getByRole("button", { name: "Modifier" }).element();
+      expect(button.getBoundingClientRect().height).toBe(44);
+      expect(small.getBoundingClientRect().height).toBe(36);
+      const target = getComputedStyle(small, "::after");
+      expect([target.top, target.bottom]).toStrictEqual(["-6px", "-6px"]);
+    } finally {
+      await cdp().send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    }
   });
 
   it("shows the keyboard focus ring: 3 px of the accent, 2 px away (08 § 3)", async () => {

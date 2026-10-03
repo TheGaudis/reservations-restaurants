@@ -5,7 +5,7 @@ import { FormattedMessage } from "react-intl";
 import styles from "@/ui/button/Button.module.css";
 
 /** `.btn`, `.primary`, `.ghost`, `.danger` of 08 § 4.2: one primary button per zone (08 § 8). */
-export type ButtonVariant = "neutral" | "primary" | "ghost" | "danger";
+type ButtonVariant = "neutral" | "primary" | "ghost" | "danger";
 
 /** `small`: 32 px, secondary actions of the staff lists; a main action and its « Annuler » keep the default (08 § 4.2). */
 export type ButtonSize = "default" | "small";

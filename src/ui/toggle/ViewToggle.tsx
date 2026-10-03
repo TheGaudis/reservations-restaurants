@@ -7,7 +7,7 @@ import { CheckIcon } from "@/ui/icons";
 
 import styles from "@/ui/toggle/ViewToggle.module.css";
 
-export interface ViewToggleItem<V extends string> {
+interface ViewToggleItem<V extends string> {
   value: V;
   label: ReactNode;
   /** « Collègue » opens the login panel: it names that panel and says whether it is open (06 § 1.1). */
