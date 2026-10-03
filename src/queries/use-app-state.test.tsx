@@ -1,43 +1,24 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { Suspense } from "react";
 import type { ReactNode } from "react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { renderHook } from "vitest-browser-react";
 
 import { createQueryClient } from "@/queries/client";
 import { publicStateOptions, stateKeys } from "@/queries/state";
 import { APP_START, useAppState, useIsFromCache } from "@/queries/use-app-state";
-import type { AppState, StaffSessionSource } from "@/queries/use-app-state";
+import type { AppState } from "@/queries/use-app-state";
+import { useSessionStore } from "@/session/session";
 import { bookingR1, fullState, publicState, SETTINGS } from "@/test/domain-states";
 import { TestProviders } from "@/test/providers";
 
 // State shown by the page (PLAN § 3.3.1, step 5; § 3.3.4, step 3), on a real QueryClient and the fake script.
 
-/** Store with the shape of the session store (PLAN § 3.4): `open` raises the session number. */
-function sessionStore() {
-  let state: { password: string | null; id: number } = { password: null, id: 0 };
-  const listeners = new Set<() => void>();
-  const set = (next: typeof state) => {
-    state = next;
-    for (const listener of listeners) listener();
-  };
-  const store: StaffSessionSource & { open: (password: string) => void; close: () => void } = {
-    getState: () => state,
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    open: (password) => {
-      set({ password, id: state.id + 1 });
-    },
-    close: () => {
-      set({ password: null, id: state.id });
-    },
-  };
-  return store;
-}
+const initialSession = useSessionStore.getState();
+
+beforeEach(() => {
+  useSessionStore.setState(initialSession, true);
+});
 
 function wrapperOf(queryClient: QueryClient) {
   return ({ children }: { children: ReactNode }) => (
@@ -53,12 +34,11 @@ const isFull = (state: AppState) => "r1Bookings" in state;
 describe("useAppState (PLAN § 3.3)", () => {
   it("shows the public state outside a staff session", async () => {
     const queryClient = createQueryClient();
-    const session = sessionStore();
     queryClient.setQueryData(
       publicStateOptions.queryKey,
       publicState({ settings: { ...SETTINGS, name1: "Public" } }),
     );
-    const { result } = await renderHook(() => useAppState(session, shownName), {
+    const { result } = await renderHook(() => useAppState(shownName), {
       wrapper: wrapperOf(queryClient),
     });
     expect(result.current).toBe("Public");
@@ -66,9 +46,8 @@ describe("useAppState (PLAN § 3.3)", () => {
 
   it("switches to the full state when the session opens, and back to the public state when it closes", async () => {
     const queryClient = createQueryClient();
-    const session = sessionStore();
     queryClient.setQueryData(publicStateOptions.queryKey, publicState());
-    const { result, act } = await renderHook(() => useAppState(session, isFull), {
+    const { result, act } = await renderHook(() => useAppState(isFull), {
       wrapper: wrapperOf(queryClient),
     });
     expect(result.current).toBe(false);
@@ -78,11 +57,11 @@ describe("useAppState (PLAN § 3.3)", () => {
       fullState({ r1Bookings: [bookingR1("r1b", "2026-10-06")] }),
     );
     await act(() => {
-      session.open("secret");
+      useSessionStore.getState().open("secret");
     });
     expect(result.current).toBe(true);
     await act(() => {
-      session.close();
+      useSessionStore.getState().close("logout");
     });
     expect(result.current).toBe(false);
   });

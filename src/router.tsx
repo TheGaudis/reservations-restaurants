@@ -10,7 +10,12 @@ import { routeTree } from "@/routeTree.gen";
 import { useSessionStore } from "@/session/session";
 
 export function getRouter() {
-  const queryClient = createQueryClient();
+  // The script refused the password of the open session: it changed (06 § 1.7, PLAN § 3.3.4).
+  const queryClient = createQueryClient({
+    onPasswordRejected: () => {
+      useSessionStore.getState().close("password-changed");
+    },
+  });
   // getRouter() also runs in Node when the shell is prerendered (R-02).
   if (typeof window !== "undefined") {
     restoreLocalCache(queryClient, Date.now()); // synchronous, before the router (PLAN § 3.3.1)

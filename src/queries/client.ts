@@ -7,8 +7,8 @@ import { READ_RETRY_DELAY_MS, REFRESH_INTERVAL_MS } from "@/domain/constants";
 interface QueryClientOptions {
   /**
    * Called when the script refuses the password of a read or a write (02 § 2, 06 § 1.7): `getRouter()` closes the
-   * staff session with `password-changed` (PLAN § 3.3). A refused login also lands here; closing a session that
-   * is not open does nothing.
+   * staff session with `password-changed` (PLAN § 3.3). A refused login also lands here, while no session is open:
+   * `close` then does nothing.
    */
   onPasswordRejected?: () => void;
 }
