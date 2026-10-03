@@ -8,9 +8,14 @@ import { defineConfig } from "vitest/config";
 const executablePath = process.env["PLAYWRIGHT_CHROMIUM_EXECUTABLE"]; // cloud sessions: /opt/pw-browsers/chromium
 
 // One fresh object per project: Vitest must not share a browser config between projects.
-const browser = () => ({
+// Port of the browser-mode server: parallel runs (other worktrees) set VITEST_BROWSER_PORT, and strictPort makes a
+// collision fail instead of loading another checkout's files.
+const browserPort = Number(process.env["VITEST_BROWSER_PORT"] ?? "63315");
+
+const browser = (portOffset: number) => ({
   enabled: true,
   headless: true,
+  api: { port: browserPort + portOffset, strictPort: true },
   provider: playwright({
     contextOptions: { locale: "fr-FR", timezoneId: "Europe/Paris" },
     ...(executablePath === undefined ? {} : { launchOptions: { executablePath } }),
@@ -78,7 +83,7 @@ export default defineConfig({
           name: "browser",
           include: ["src/**/*.test.tsx", `${BROWSER_DIRS}/*.test.ts`],
           setupFiles: ["src/test/setup-browser.ts"],
-          browser: browser(),
+          browser: browser(0),
         },
       },
       // storybookTest replaces test.include with the stories of .storybook/main.ts: a project of its own, without
@@ -86,7 +91,7 @@ export default defineConfig({
       {
         extends: true,
         plugins: [storybookTest({ configDir: ".storybook" })],
-        test: { name: "storybook", browser: browser() },
+        test: { name: "storybook", browser: browser(1) },
       },
     ],
   },
