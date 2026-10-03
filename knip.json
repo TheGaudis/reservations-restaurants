@@ -16,6 +16,9 @@
     "@fontsource-variable/outfit",
     "@fontsource-variable/work-sans",
     // Temporaire : paquets installés en P0 (a), importés par une phase suivante
-    "zustand" // retirer en P2 (c)
+    "zustand", // retirer en P2 (c)
+    // Temporaire : paquets installés en P3 (0), importés par une session suivante
+    "@base-ui/react", // retirer en P3 (a)
+    "@tanstack/react-form" // retirer en P3 (b)
   ]
 }
