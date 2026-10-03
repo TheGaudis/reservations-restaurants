@@ -62,8 +62,17 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   shellComponent: RootDocument,
-  component: Outlet,
+  component: AppRoot,
 });
+
+// Stacking context of the app: Base UI portals, appended to <body>, stay above it (PLAN § 3.6).
+function AppRoot() {
+  return (
+    <div className="app-root">
+      <Outlet />
+    </div>
+  );
+}
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
