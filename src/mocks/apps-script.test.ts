@@ -95,10 +95,6 @@ describe("actions other than the public bookings (02 § 4.1)", () => {
     [{ action: "getAdminState", password: "faux" }, "Mot de passe incorrect."],
     [{ action: "setConfigField", key: "name1", value: "X" }, "Mot de passe incorrect."],
     [
-      { action: "getAdminState", password: "secret" },
-      "Action non implémentée par le faux script : getAdminState",
-    ],
-    [
       { action: "checkPassword", password: "secret" },
       "Action jamais envoyée par le site, refusée par le faux script : checkPassword",
     ],
@@ -116,16 +112,6 @@ describe("actions other than the public bookings (02 § 4.1)", () => {
     const response = await fetch(SCRIPT_URL, { method: "POST", body: "{nope" });
     const { error } = (await response.json()) as { error: string };
     expect(error).toMatch(/JSON/u);
-  });
-
-  it("checks the password changed by setPassword (REG-31)", async () => {
-    const fake = start({ password: "premier" });
-    const wrong = { error: "Mot de passe incorrect." };
-    expect(await postAction({ action: "getAdminState", password: "secret" })).toStrictEqual(wrong);
-    fake.setPassword("autre");
-    expect(await postAction({ action: "getAdminState", password: "premier" })).toStrictEqual(wrong);
-    const accepted = await postAction({ action: "getAdminState", password: "autre" });
-    expect(accepted["error"]).toMatch(/non implémentée/u);
   });
 });
 

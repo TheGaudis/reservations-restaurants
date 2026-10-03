@@ -1,48 +1,59 @@
 import type { FakeDb, Script } from "@/mocks/fake-db";
 import { addBookingR1, addBookingR2Multi } from "@/mocks/public-actions";
-import { isEmail, isRecord, publicContent } from "@/mocks/sheet";
-import type { Body } from "@/mocks/sheet";
+import { cell, fullState, isEmail, isRecord, publicContent } from "@/mocks/sheet";
+import type { Body, Write } from "@/mocks/sheet";
+import { R1_WRITES } from "@/mocks/staff-r1";
+import { R2_WRITES } from "@/mocks/staff-r2";
 
 type Action = (script: Script, body: Body) => object;
 
-// Actions of 02 § 4.7 and getAdminState: password first, as every one of them in Code.gs.
-const STAFF_ACTIONS = [
-  "getAdminState",
-  "addDayR1",
-  "editDayR1",
-  "deleteDayR1",
-  "deleteBookingR1",
-  "editBookingR1",
-  "addDayR2",
-  "addItemR2",
-  "editItemR2",
-  "deleteItemR2",
-  "deleteDayR2",
-  "deleteBookingR2",
-  "editBookingR2",
-  "setConfigField",
-];
-// Known to Code.gs, never sent by the site (02 § 4.2, § 4.6).
-const UNUSED_ACTIONS = ["checkPassword", "addBookingR2"];
+export const LOCK_BUSY = "Le serveur est très sollicité : réessayez dans quelques secondes.";
 
-const ACTIONS = new Map<string, Action>([
-  ["addBookingR1", addBookingR1],
-  ["addBookingR2Multi", addBookingR2Multi],
-  ...STAFF_ACTIONS.map((name): [string, Action] => [
-    name,
-    (script, body) => {
-      if (!script.checkPassword(body["password"])) {
-        throw new Error("Mot de passe incorrect.");
-      }
-      throw new Error(`Action non implémentée par le faux script : ${name}`);
-    },
-  ]),
-  ...UNUSED_ACTIONS.map((name): [string, Action] => [
+// 02 § 1.7: every other action, unknown ones included, waits for the script lock.
+const WITHOUT_LOCK = new Set(["checkPassword", "getAdminState"]);
+
+/** Code.gs `setConfigValue`: any key, no allow-list (b-10); `""` brings back the script's default (b-9). */
+const setConfigField: Write = (script, body) => {
+  const { db } = script;
+  const key = String(body["key"]);
+  // A new row stores the key as a cell: undefined or null becomes an empty key.
+  const row = Object.hasOwn(db.config, key) ? key : String(cell(body["key"]));
+  db.config[row] = cell(body["value"]);
+};
+
+const WRITES: Record<string, Write> = { ...R1_WRITES, ...R2_WRITES, setConfigField };
+
+// 02 § 4.1: the password first, as in every protected function of Code.gs, then the full state.
+function protectedAction(write?: Write): Action {
+  return (script, body) => {
+    if (!script.checkPassword(body["password"])) {
+      throw new Error("Mot de passe incorrect.");
+    }
+    write?.(script, body);
+    return fullState(script.db);
+  };
+}
+
+// Known to Code.gs, never sent by the site (02 § 4.2, § 4.6).
+function refused(name: string): [string, Action] {
+  return [
     name,
     () => {
       throw new Error(`Action jamais envoyée par le site, refusée par le faux script : ${name}`);
     },
+  ];
+}
+
+const ACTIONS = new Map<string, Action>([
+  ["addBookingR1", addBookingR1],
+  ["addBookingR2Multi", addBookingR2Multi],
+  ["getAdminState", protectedAction()],
+  ...Object.entries(WRITES).map(([name, write]): [string, Action] => [
+    name,
+    protectedAction(write),
   ]),
+  refused("checkPassword"),
+  refused("addBookingR2"),
 ]);
 
 function nextEtag(etag: string): string {
@@ -110,6 +121,9 @@ export function doPost(script: Script, text: string): object {
       throw new TypeError("Cannot read properties of null (reading 'action')");
     }
     const name = isRecord(body) ? body["action"] : undefined;
+    if (script.db.lockBusy === true && !WITHOUT_LOCK.has(String(name))) {
+      throw new Error(LOCK_BUSY);
+    }
     const action = typeof name === "string" ? ACTIONS.get(name) : undefined;
     if (action === undefined || !isRecord(body)) {
       throw new Error(`Action inconnue: ${String(name)}`);

@@ -3,18 +3,17 @@ import type { HttpHandler } from "msw";
 
 import type { FakeDb } from "@/mocks/fake-db";
 import { createSeed, SEED_PASSWORD } from "@/mocks/fixtures/seed";
-import { createScript, doGet, doPost } from "@/mocks/script";
+import { createScript, doGet, doPost, LOCK_BUSY } from "@/mocks/script";
 
 /**
  * Fake Apps Script shared by Vitest, Storybook, `pnpm dev` and the E2E suite (PLAN § 3.1, P1): one instance per
- * test or story. Semantics of Code.gs (`script.ts`, `public-actions.ts`), tables with the script's field names
- * (`fake-db.ts`). Isomorphic: neither DOM nor `node:*`.
+ * test or story. Semantics of Code.gs (`script.ts`, `public-actions.ts`, `staff-r1.ts`, `staff-r2.ts`), tables with
+ * the script's field names (`fake-db.ts`). Isomorphic: neither DOM nor `node:*`.
  */
 
 /** Every deployment id, the real one written in `legacy/index.html` included (R-33). */
 export const APPS_SCRIPT_URL_PATTERN = "https://script.google.com/macros/s/:deploymentId/exec";
 
-const LOCK_BUSY = "Le serveur est très sollicité : réessayez dans quelques secondes.";
 const GOOGLE_ERROR_PAGE = "Sorry, unable to open the file at this time.";
 // 02 § 1.2: Apps Script answers with open CORS.
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };

@@ -1,8 +1,11 @@
-import type { Cell, FakeDb } from "@/mocks/fake-db";
+import type { Cell, FakeDb, Script } from "@/mocks/fake-db";
 
-// Helpers of Code.gs (`cell`, `toCount`, `isEmail`, `sumQte`, `getConfig`, `buildPublicState`), same rules.
+// Helpers of Code.gs (`cell`, `toCount`, `isEmail`, `sumQte`, `getConfig`, `getState`, `buildPublicState`), same rules.
 
 export type Body = Record<string, unknown>;
+
+/** A protected action of 02 § 4.7 once the password is checked: it changes the tables and answers nothing. */
+export type Write = (script: Script, body: Body) => void;
 
 export function isRecord(value: unknown): value is Body {
   return typeof value === "object" && value !== null;
@@ -19,7 +22,12 @@ export function cell(value: unknown): Cell {
   return JSON.stringify(value);
 }
 
-/** `value || ''` of Code.gs (Observation, Prix). */
+/** Key match of Code.gs `updateRowByKey` and `removeRowsByValue`: both cells read as strings. */
+export function sameCell(cellValue: Cell, value: unknown): boolean {
+  return String(cellValue) === String(value);
+}
+
+/** `value || ''` of Code.gs (Observation, Prix, Theme, OuvertPar). */
 export function orEmpty(value: unknown): Cell {
   const present = Boolean(value);
   return present ? cell(value) : "";
@@ -82,6 +90,18 @@ export function readConfig(db: FakeDb) {
     priceProf: configValue(db, "priceProf", "6.10"),
     priceExterieur: configValue(db, "priceExterieur", "9.90"),
   };
+}
+
+/** Code.gs `getState`: every row with every column, personal data included, and no etag (02 § 4.3). */
+export function fullState(db: FakeDb): object {
+  return structuredClone({
+    r1Days: db.r1Days,
+    r1Bookings: db.r1Bookings,
+    r2Days: db.r2Days,
+    r2Items: db.r2Items,
+    r2Bookings: db.r2Bookings,
+    ...readConfig(db),
+  });
 }
 
 /** Public state without its etag: no personal data, bookings summed per date (R1) and per dish (R2). */

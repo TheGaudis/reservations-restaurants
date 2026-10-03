@@ -36,3 +36,16 @@ export async function postAction(body: unknown): Promise<Record<string, unknown>
   });
   return (await response.json()) as Record<string, unknown>;
 }
+
+/** Protected action with the seed's password (`SEED_PASSWORD`). */
+export async function postStaff(body: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return postAction({ password: "secret", ...body });
+}
+
+/** Rows of one table of a response (`r1Days`, `r2Items`…). */
+export function rowsOf(
+  state: Record<string, unknown>,
+  table: string,
+): Array<Record<string, unknown>> {
+  return state[table] as Array<Record<string, unknown>>;
+}

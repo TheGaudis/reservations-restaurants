@@ -72,6 +72,11 @@ export interface FakeDb {
   requestIds: string[];
   /** Reason returned by MailApp for every confirmation e-mail while set (`_emailStatus`, 02 § 4.4). */
   mailError: string | null;
+  /**
+   * Script lock held by another execution while true: every POST action except `getAdminState` and
+   * `checkPassword` answers the lock error at once, before any other check (02 § 1.7; Code.gs waits 20 s).
+   */
+  lockBusy?: boolean;
 }
 
 /** `_emailStatus` once the queued e-mails are sent (02 § 4.4). */
