@@ -79,7 +79,7 @@ Phases de sortie : `@p4` = REG-01 à REG-26 et REG-43 ; `@p5` = REG-27 à REG-38
 | REG-19 | `duplicateAfterLostResponse` | P-06, invariant 3 | `@changed:E-10` `@changed:E-33` `@p4` | Le faux script enregistre puis coupe la connexion (`failNext('network')` après écriture) ; message brut (`legacy`) ou D-14 (`react`) ; nouvel essai → `_duplicate` : toast neutre seul (`legacy`), toast et récapitulatif « Réservation déjà enregistrée » (`react`) ; une seule ligne dans `fakeScript.db` | `TEST_NOW` |
 | REG-20 | `slowWriteNeverReplayed` | P-05, invariant 2 | `@changed:E-10` `@p4` | POST retenu 25 s (`hold()`) : `react` affiche le message de D-15 à 20 s ; **un seul POST** reçu dans les deux cas ; la réponse finit par afficher le récapitulatif | `install` + `runFor('00:25')` |
 | REG-21 | `r2DayCardStates` | P-10, P-11, P-12, P-16, P-17 | `@changed:E-27` `@p4` | Lignes de plat « Lasagnes␣— 4,50␣€ », « Bowl␣— prix d'un ticket restaurant », « Salade » ; pastilles « 4 / 10 » ; jours 10, 11, 01 ; `react` : « Épuisé », « Tous les plats sont épuisés. » | `TEST_NOW` |
-| REG-22 | `r2OrderFormVoucherDay` | P-13 | `@changed:E-34` `@changed:E-41` `@p4` | Jour 05 : liste repliée (`inert`), focus sur la 1re quantité, « Sur place » seul et aide ; les 4 totaux de `04` § 5.3 ; « Choisissez au moins un plat. » seule (focus inchangé sur `legacy`, sur la 1re quantité avec `aria-describedby` sur `react`) ; « Annuler » → liste redéployée, focus sur « Réserver ». Variante jour 13 : « À emporter » par défaut | `TEST_NOW` |
+| REG-22 | `r2OrderFormVoucherDay` | P-13 | `@changed:E-34` `@changed:E-41` `@changed:E-50` `@p4` | Jour 05 : liste repliée (`inert`), focus sur la 1re quantité, « Sur place » seul et aide ; les 4 totaux de `04` § 5.3 ; « Choisissez au moins un plat. » seule (focus inchangé sur `legacy`, sur la 1re quantité avec `aria-describedby` sur `react`) ; « Annuler » → liste redéployée, focus sur « Réserver ». Variante jour 13 : « À emporter » par défaut | `TEST_NOW` |
 | REG-23 | `r2OrderAdjustedAndEmail` | P-14, invariant 5 | `@changed:E-14` `@changed:E-28` `@p4` | 3 Lasagnes (2 accordées) + 3 Bowl + 1 Wrap, e-mail en échec ; corps `mode: 'surplace'` ; récapitulatif « × 2 », total « 9,00␣€ + 1 ticket restaurant » ; 1 ou 2 avertissements ; « (hors plats sans prix) » ou « (hors plats sans prix indiqué) » avec la Salade | `TEST_NOW` |
 | REG-24 | `r2ConfirmedEmpty` | P-13 | `@changed:E-11` `@p4` | `_bookingResult.confirmed = []` : formulaire fermé et saisies perdues (`legacy`) ou conservées et état relu (`react`) ; toast rouge exact | `TEST_NOW` |
 | REG-25 | `r2CutoffAt10` | P-13, P-15, invariant 4 | `@changed:E-09` `@p4` | Formulaire du 05 ouvert à 09:59:30 ; `runFor` jusqu'à 10:00:01 : fermeture silencieuse (`legacy`) ou avec le toast neutre (`react`) ; note de clôture exacte ; plus de « Réserver ». Assertion commune (cut-off à l'envoi) : `setSystemTime(10:00:01)` sans déclencher les minuteurs, puis clic → toast neutre, aucun POST | 2026-10-05 09:59:30 (`install`) |
@@ -123,7 +123,7 @@ Pour revenir sous 40 scénarios, on peut fusionner REG-03 dans REG-02, REG-06 da
 | E-13 | REG-17 | E-30 | REG-39 | E-47 | REG-02 |
 | E-14 | REG-23 | E-31 | REG-13 | E-48 | REG-35 |
 | E-15 | REG-40 | E-32 | REG-13 | E-49 | n/a |
-| E-16 | REG-41, REG-42 | E-33 | REG-19 | | |
+| E-16 | REG-41, REG-42 | E-33 | REG-19 | E-50 | REG-22 |
 | E-17 | REG-29 | E-34 | REG-15, REG-22 | | |
 
 ## 5. Matrice par identifiant de `09`
@@ -153,7 +153,7 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 | P-10 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` sans service | — |
 | P-11 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` sans plat | — |
 | P-12 | REG-21, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories `DayCardR2`, `DishRow` | E-01 |
-| P-13 | REG-22, REG-24, REG-25, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories et tests de `OrderFormR2` | E-09, E-11, E-34, E-41 |
+| P-13 | REG-22, REG-24, REG-25, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories et tests de `OrderFormR2` | E-09, E-11, E-34, E-41, E-50 |
 | P-14 | REG-23 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories de `BookingSummary` R2 | E-14, E-28 |
 | P-15 | REG-12, REG-25, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | à faire | tests de `background/clock.ts` | E-01, E-09, E-43 |
 | P-16 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` épuisé | E-27 |

@@ -159,12 +159,17 @@ test.describe("r2OrderFormVoucherDay (REG-22)", () => {
 
   test(
     "r2OrderFormVoucherDay (REG-22) — a day without voucher",
-    { tag: ["@changed:E-34", "@changed:E-41", "@P-13", "@p4"] },
+    { tag: ["@changed:E-34", "@changed:E-41", "@changed:E-50", "@P-13", "@p4"] },
     async ({ page }) => {
+      const react = target(test.info()) === "react";
       await gotoHome(page);
       await showPeriod(page, "r2", "next");
       await selectDay(page, "r2", "2026-10-13");
       await openOrderR2(page);
+      // E-50: a radio group on React, toggle buttons on the old site.
+      await expect(
+        orderR2Form(page).getByRole(react ? "radio" : "button", { name: "Sur place", exact: true }),
+      ).toHaveCount(1);
       await expect(selectedServiceMode(page)).toHaveAccessibleName("À emporter");
       await expect(serviceModeOption(page, "dineIn")).toBeVisible();
       await expect(orderR2Form(page).getByText(VOUCHER_HELP)).toHaveCount(0);
