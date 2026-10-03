@@ -7,6 +7,7 @@ import { intl } from "@/intl/intl";
 import { createQueryClient } from "@/queries/client";
 import { restoreLocalCache } from "@/queries/local-cache";
 import { routeTree } from "@/routeTree.gen";
+import { useSessionStore } from "@/session/session";
 
 export function getRouter() {
   const queryClient = createQueryClient();
@@ -16,7 +17,7 @@ export function getRouter() {
   }
   return createRouter({
     routeTree,
-    context: { queryClient },
+    context: { queryClient, session: useSessionStore },
     defaultPreloadStaleTime: 0, // Query owns freshness
     defaultStructuralSharing: true,
     scrollRestoration: true,

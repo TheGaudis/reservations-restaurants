@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from "vitest";
 
 import { stateKeys } from "@/queries/state";
 import { getRouter } from "@/router";
+import { useSessionStore } from "@/session/session";
 
 // getRouter() runs in Node when the shell is prerendered (R-02). The local copy below is valid: only the
 // typeof window guard keeps it out of the query cache, the try/catch of the storage read does not.
@@ -36,4 +37,8 @@ it("restores the local copy when window exists", () => {
 
 it("keeps the default pendingMinMs of the router (PLAN arbitrage 16)", () => {
   expect(getRouter().options.defaultPendingMinMs).toBe(500);
+});
+
+it("puts the staff session store in the router context (PLAN § 3.4)", () => {
+  expect(getRouter().options.context.session).toBe(useSessionStore);
 });

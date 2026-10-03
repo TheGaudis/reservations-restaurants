@@ -13,6 +13,7 @@ import { defineMessages } from "react-intl";
 
 import { earlyFetchScript } from "@/api/early-fetch";
 import { intl } from "@/intl/intl";
+import type { SessionStore } from "@/session/session";
 
 import baseCss from "@/styles/base.css?url";
 import printCss from "@/styles/print.css?url";
@@ -20,6 +21,8 @@ import tokensCss from "@/styles/tokens.css?url";
 
 interface RouterContext {
   queryClient: QueryClient;
+  /** Staff session store (PLAN § 3.4): the /collegue guard reads it, tests pass a fresh one. */
+  session: SessionStore;
 }
 
 const messages = defineMessages({
