@@ -314,7 +314,10 @@
       "files": ["e2e/**"],
       "rules": {
         "react/rules-of-hooks": "off",
-        "import/no-nodejs-modules": "off"
+        "import/no-nodejs-modules": "off",
+        // Les gestes d'un parcours se suivent : `for (const key of keys) await page.keyboard.press(key)`
+        // ne peut pas devenir un `Promise.all` sans mélanger les touches (P1 (b))
+        "no-await-in-loop": "off"
       }
     },
     {
