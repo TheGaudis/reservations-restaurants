@@ -59,6 +59,10 @@
     "defaultMessage": "{seats, plural, one {# couvert} other {# couverts}} · Total : {total}",
     "description": "04 § 5.2 — total en direct du formulaire R1 (« 3 couverts · Total : 16,00 € »)"
   },
+  "public.r2.cutoff": {
+    "defaultMessage": "Commandes en ligne clôturées à 10h. Venez au restaurant {name2} à partir de 12h pour commander sur place.",
+    "description": "04 § 5.3, § 9, 01 § 3.7 — clôture des commandes R2 à 10 h (toast neutre, note de la fiche)"
+  },
   "public.r2.form.total": {
     "defaultMessage": "Total : {amounts}",
     "description": "04 § 5.3 — total en direct du formulaire R2 (« Total : 9,00 € + 1 ticket restaurant »)"
