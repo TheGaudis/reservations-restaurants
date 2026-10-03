@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
+import { IconButton } from "@/ui/button/IconButton";
 import { FieldMessages } from "@/ui/form/FieldMessages";
 import { useFieldContext } from "@/ui/form/form-context";
 import type { InputProps } from "@/ui/form/TextField";
@@ -70,16 +71,14 @@ export function PasswordField({
           onBlur={field.handleBlur}
           aria-describedby={fieldMessages.describedBy}
         />
-        <button
-          type="button"
-          className={passwordStyles["toggle"]}
+        <IconButton
           aria-label={intl.formatMessage(shown ? messages.hide : messages.show)}
           onClick={() => {
             setShown(!shown);
           }}
         >
           {shown ? <VisibilityOffIcon /> : <VisibilityIcon />}
-        </button>
+        </IconButton>
       </div>
       <FieldMessages messages={fieldMessages} description={description} />
     </Field.Root>

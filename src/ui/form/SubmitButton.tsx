@@ -1,12 +1,8 @@
-import { Button } from "@base-ui/react/button";
 import { useSelector } from "@tanstack/react-form";
-import { useId } from "react";
 import type { ReactNode } from "react";
-import { FormattedMessage } from "react-intl";
 
+import { Button } from "@/ui/button/Button";
 import { useFormContext } from "@/ui/form/form-context";
-
-import styles from "@/ui/form/SubmitButton.module.css";
 
 export interface SubmitButtonProps {
   /** « Confirmer la réservation », « Ouvrir ce jour »… */
@@ -23,27 +19,9 @@ export interface SubmitButtonProps {
 export function SubmitButton({ children, pendingLabel }: SubmitButtonProps) {
   const form = useFormContext();
   const isSubmitting = useSelector(form.store, (state) => state.isSubmitting);
-  const labelId = useId();
   return (
-    <Button
-      type="submit"
-      className={styles["button"]}
-      disabled={isSubmitting}
-      focusableWhenDisabled
-      aria-busy={isSubmitting || undefined}
-      aria-labelledby={labelId}
-    >
-      <span id={labelId}>
-        {isSubmitting
-          ? (pendingLabel ?? (
-              <FormattedMessage
-                id="ui.submitButton.pending"
-                defaultMessage="Envoi en cours…"
-                description="04 § 6.1 — libellé du bouton d'envoi pendant l'envoi"
-              />
-            ))
-          : children}
-      </span>
+    <Button type="submit" variant="primary" busy={isSubmitting} busyLabel={pendingLabel}>
+      {children}
     </Button>
   );
 }

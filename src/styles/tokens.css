@@ -137,6 +137,13 @@
   --fs-error-mark: 0.66rem; /* « ! » inside that mark */
   --fs-field-touch: 16px; /* fields on a touch screen: iOS zooms into a smaller one (08 § 4.6) */
   --qty-input-width: calc(var(--space-10) + var(--space-8)); /* .qty-input, legacy/app.css */
+  --icon-size-stroke: 20px; /* stroke icon (print, settings) in an icon button (08 § 4.4) */
+  --check-size-small: 16px; /* check of a selected compact segment (08 § 4.5) */
+  --capacity-pill-min-width: 76px; /* .capacity-pill (08 § 4.8) */
+  --skeleton-line: 14px; /* .sk-line (08 § 4.16) */
+  --skeleton-card: 120px; /* .sk-card (08 § 4.16) */
+  --dur-toast-enter: 0.3s; /* entry of a toast (08 § 1.7, § 4.14) */
+  --dur-shimmer: 1.3s; /* loop of the skeleton gradient (08 § 1.7, § 4.16) */
 }
 
 /* Restaurant accents, set on a container (docs/spec/08 § 2); blue keeps the :root values. */

@@ -1,0 +1,83 @@
+/* .icon-btn and .icon-btn.tonal of legacy/design-system.css (08 § 4.3, § 4.4): 40 px round button, 48 px touch
+   target, Material 3 state layer. */
+.button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  margin: 0;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color var(--dur) var(--ease-standard),
+    background-color var(--dur) var(--ease-standard);
+}
+
+.button[data-tone="tonal"] {
+  color: var(--accent-ink);
+  background: var(--accent-container);
+}
+
+/* State layer: the text colour at 8 % on hover, 12 % on keyboard focus and press. */
+.button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--dur-fast) linear;
+}
+
+.button::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--space-1));
+  border-radius: var(--radius-full);
+}
+
+.button svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform var(--dur) var(--ease-standard);
+}
+
+/* Stroke icons of the legacy ICONS object (print, settings) are drawn smaller (08 § 4.4). */
+.button svg[fill="none"] {
+  width: var(--icon-size-stroke);
+  height: var(--icon-size-stroke);
+}
+
+@media (hover: hover) {
+  .button:hover:not([data-disabled]) {
+    color: var(--accent-ink);
+  }
+
+  .button:hover:not([data-disabled])::before {
+    opacity: var(--state-hover);
+  }
+}
+
+.button:is(:focus-visible, :active):not([data-disabled])::before {
+  opacity: var(--state-press);
+}
+
+.button:active:not([data-disabled]) svg {
+  transform: scale(0.88);
+}
+
+.button[data-disabled] {
+  opacity: 0.38;
+  cursor: default;
+}
