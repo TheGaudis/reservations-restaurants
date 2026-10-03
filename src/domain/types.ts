@@ -1,6 +1,6 @@
 // Domain model, written by hand: the single source of truth of the data shapes (PLAN § 3.3.6).
 // api/schemas.ts validates the script's responses and translates them into these types; the script's
-// field names (Date, Capacite, Qte, Nom…) never appear outside the API boundary.
+// field names never appear outside the API boundary.
 
 /** Business day, `YYYY-MM-DD`, compared as a string; "today" is the Paris date (PLAN § 3.7, D-12). */
 export type IsoDate = string;
@@ -8,7 +8,7 @@ export type IsoDate = string;
 /** R1: table service booked by seats; R2: dishes ordered by portions (00 § 1). */
 export type Restaurant = "r1" | "r2";
 
-/** R2 only; `'surplace'` / `'emporter'` for the script (01 § 3.6). */
+/** R2 only; the API boundary translates the script's values (01 § 3.6). */
 export type ServiceMode = "dineIn" | "takeaway";
 
 /** `Config` sheet (01 § 2.1); prices in euros, parsed from strings such as `'4.95'`. */
@@ -23,6 +23,7 @@ export interface Settings {
   priceExternal: number;
 }
 
+/** Key of a setting, translated to the script's key by the API boundary. @public */
 export type SettingKey = keyof Settings;
 
 /** R1 service day (01 § 2.2). */
@@ -199,7 +200,10 @@ export interface OrderR2Input {
   requestId: string;
 }
 
-/** `addDayR1` (02 § 4.7, 06 § 4.1). */
+/**
+ * `addDayR1` (02 § 4.7, 06 § 4.1).
+ * @public
+ */
 export interface OpenDayR1Input {
   date: IsoDate;
   capacity: number;
@@ -208,7 +212,10 @@ export interface OpenDayR1Input {
   openedBy: string;
 }
 
-/** `editDayR1` (02 § 4.7, 06 § 5.1). */
+/**
+ * `editDayR1` (02 § 4.7, 06 § 5.1).
+ * @public
+ */
 export interface EditDayR1Input {
   date: IsoDate;
   capacity: number;
@@ -216,7 +223,10 @@ export interface EditDayR1Input {
   theme: string;
 }
 
-/** Dish typed by a colleague (06 § 4.2, § 6.1): the voucher mark and `price: ""` are added at the API boundary. */
+/**
+ * Dish typed by a colleague (06 § 4.2, § 6.1): the voucher mark and `price: ""` are added at the API boundary.
+ * @public
+ */
 export interface DishInput {
   name: string;
   stock: number;
@@ -224,7 +234,10 @@ export interface DishInput {
   voucher: boolean;
 }
 
-/** `addDayR2` (02 § 4.7, 06 § 4.2). */
+/**
+ * `addDayR2` (02 § 4.7, 06 § 4.2).
+ * @public
+ */
 export interface OpenDayR2Input {
   date: IsoDate;
   note: string;
@@ -233,12 +246,18 @@ export interface OpenDayR2Input {
   dishes: DishInput[];
 }
 
-/** `addItemR2` (06 § 6.2). */
+/**
+ * `addItemR2` (06 § 6.2).
+ * @public
+ */
 export interface AddDishInput extends DishInput {
   date: IsoDate;
 }
 
-/** `editItemR2` (06 § 6.3). */
+/**
+ * `editItemR2` (06 § 6.3).
+ * @public
+ */
 export interface EditDishInput extends DishInput {
   dishId: string;
 }
@@ -268,7 +287,10 @@ export interface EditBookingR2Input {
   observation: string;
 }
 
-/** `setConfigField` (02 § 4.7): one request per changed setting, value as typed. */
+/**
+ * `setConfigField` (02 § 4.7): one request per changed setting, value as typed.
+ * @public
+ */
 export interface SettingInput {
   key: SettingKey;
   value: string;
