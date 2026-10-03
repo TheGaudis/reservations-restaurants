@@ -1,0 +1,158 @@
+/* .seg-group / .seg-btn / .seg-check of legacy/design-system.css (08 § 4.5): exclusive choice between views, state
+   from Base UI's data-pressed. --segment-min-width: set by the parent (« Client / Collègue » of the header). */
+.group {
+  display: inline-flex;
+  background: var(--surface);
+  border: var(--border-width) solid var(--outline);
+  border-radius: var(--radius-full);
+}
+
+.group[data-full-width] {
+  display: flex;
+}
+
+.segment {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--segment-min-width, 0);
+  min-height: var(--control-height);
+  margin: 0;
+  padding: 0 var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--dur) var(--ease-standard),
+    color var(--dur) var(--ease-standard);
+}
+
+.segment + .segment {
+  border-left: var(--border-width) solid var(--outline);
+}
+
+.segment:first-child {
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+}
+
+.segment:last-child {
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+}
+
+.segment:only-child {
+  border-radius: var(--radius-full);
+}
+
+/* Material 3 state layer (08 § 4.3). */
+.segment::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--dur-fast) linear;
+}
+
+@media (hover: hover) {
+  .segment:hover::before {
+    opacity: var(--state-hover);
+  }
+}
+
+.segment:is(:focus-visible, :active)::before {
+  opacity: var(--state-press);
+}
+
+/* 48 px touch target. */
+.segment::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--space-1)) 0;
+}
+
+/* The focus ring stays above the next segment. */
+.segment:focus-visible {
+  z-index: 1;
+}
+
+.segment[data-pressed] {
+  color: var(--accent-ink);
+  font-weight: var(--fw-semibold);
+  background: var(--accent-container);
+}
+
+/* .seg-pop: the segment just chosen bounces once; a plain new render does not animate (08 § 4.5). */
+.segment[data-pressed][data-pop] {
+  animation: segment-select var(--dur-slow) var(--ease-enter);
+}
+
+/* The check opens in width, the label slides, then the check grows. */
+.check {
+  display: inline-flex;
+  overflow: hidden;
+  width: 0;
+  margin-right: 0;
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    width var(--dur) var(--ease-exit),
+    margin-right var(--dur) var(--ease-exit),
+    opacity var(--dur-fast) linear,
+    transform var(--dur) var(--ease-exit);
+}
+
+.check svg {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--check-size);
+  height: var(--check-size);
+}
+
+.segment[data-pressed] .check {
+  width: var(--check-size);
+  margin-right: var(--space-2);
+  opacity: 1;
+  transform: none;
+  transition:
+    width var(--dur-slow) var(--ease-enter),
+    margin-right var(--dur-slow) var(--ease-enter),
+    opacity var(--dur) linear,
+    transform var(--dur-slow) var(--ease-enter);
+}
+
+/* Compact variant (M3 density -2): 32 px, touch target kept at 48 px (08 § 4.5). */
+.group[data-size="small"] .segment {
+  min-height: var(--space-8);
+  padding: 0 var(--space-3);
+  font-size: var(--fs-xs);
+}
+
+.group[data-size="small"] .segment::after {
+  inset: calc(-1 * var(--space-2)) 0;
+}
+
+.group[data-size="small"] .check svg {
+  width: var(--check-size-small);
+  height: var(--check-size-small);
+}
+
+.group[data-size="small"] .segment[data-pressed] .check {
+  width: var(--check-size-small);
+}
+
+@keyframes segment-select {
+  from {
+    transform: scale(0.96);
+  }
+}
