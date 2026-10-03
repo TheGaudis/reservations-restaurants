@@ -1,6 +1,7 @@
 import { createFormHook, revalidateLogic } from "@tanstack/react-form";
 
 import { fieldContext, formContext } from "@/ui/form/form-context";
+import { NumberField } from "@/ui/form/NumberField";
 import { SubmitButton } from "@/ui/form/SubmitButton";
 import { TextField } from "@/ui/form/TextField";
 
@@ -25,7 +26,7 @@ import { TextField } from "@/ui/form/TextField";
 const { useAppForm: useBaseAppForm } = createFormHook({
   fieldContext,
   formContext,
-  fieldComponents: { TextField },
+  fieldComponents: { TextField, NumberField },
   formComponents: { SubmitButton },
 });
 

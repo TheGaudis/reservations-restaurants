@@ -19,6 +19,10 @@
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
   },
+  "ui.numberField.roleDescription": {
+    "defaultMessage": "champ numérique",
+    "description": "D-17, R-16 — aria-roledescription du champ numérique (remplace « Number field » de Base UI)"
+  },
   "ui.spinner.label": {
     "defaultMessage": "Chargement en cours",
     "description": "08 § 4.15 — nom accessible de l'indicateur de chargement"
