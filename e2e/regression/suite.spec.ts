@@ -16,6 +16,8 @@ import * as login from "../pages/login";
 import * as orderR2 from "../pages/order-r2";
 import * as print from "../pages/print";
 import * as staff from "../pages/staff";
+import * as storage from "../pages/storage";
+import * as targetModule from "../pages/target";
 import { target } from "../pages/target";
 
 // Checks of the suite itself (PLAN P1): network isolation, `@changed` tags, page object signatures.
@@ -101,18 +103,25 @@ test("changedTagsMatchPlanGaps", { tag: ["@framework"] }, () => {
 test("pageObjectSignatures", { tag: ["@framework"] }, () => {
   const exported = (module: object) => Object.keys(module).toSorted();
   expect(exported(home)).toStrictEqual([
+    "BLOCKED_FONT_PRELOAD",
+    "column",
     "columnTitle",
     "gotoHome",
     "loadError",
+    "logo",
+    "retryButton",
     "retryLoad",
     "toast",
+    "toastKind",
   ]);
   expect(exported(calendar)).toStrictEqual([
     "calendarDays",
     "dayButton",
     "goToToday",
+    "longDate",
     "periodLabel",
     "selectDay",
+    "selectedDay",
     "setView",
     "showPeriod",
   ]);
@@ -124,7 +133,9 @@ test("pageObjectSignatures", { tag: ["@framework"] }, () => {
     "seatsPill",
   ]);
   expect(exported(bookingR1)).toStrictEqual([
+    "bookingR1Field",
     "bookingR1Form",
+    "bookingR1Total",
     "cancelBookingR1",
     "fillBookingR1",
     "openBookingR1",
@@ -135,6 +146,10 @@ test("pageObjectSignatures", { tag: ["@framework"] }, () => {
     "fillOrderR2",
     "openOrderR2",
     "orderR2Form",
+    "orderR2Total",
+    "quantityField",
+    "selectedServiceMode",
+    "serviceModeOption",
     "submitOrderR2",
   ]);
   expect(exported(login)).toStrictEqual(["login", "logout", "openLogin", "passwordField"]);
@@ -147,6 +162,8 @@ test("pageObjectSignatures", { tag: ["@framework"] }, () => {
     "staffPanel",
   ]);
   expect(exported(print)).toStrictEqual(["printedDocument", "stubPrint"]);
+  expect(exported(storage)).toStrictEqual(["readLocalCache", "seedLocalCache", "seedStoredTexts"]);
+  expect(exported(targetModule)).toStrictEqual(["currentTarget", "notWritten", "target"]);
   expect(target({ project: { name: "legacy" } } as TestInfo)).toBe("legacy");
   expect(target({ project: { name: "react" } } as TestInfo)).toBe("react");
 });
