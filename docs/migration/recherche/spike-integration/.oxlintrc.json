@@ -1,0 +1,377 @@
+{
+  // Oxlint 1.86 + oxlint-tsgolint 7.0.x (TypeScript 7). Commentaires autorisés (JSONC).
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+
+  // ---------------------------------------------------------------------------
+  // Options globales (uniquement dans la config racine)
+  // ---------------------------------------------------------------------------
+  "options": {
+    // Règles typescript/* "type-aware" via tsgolint (équivalent de --type-aware).
+    "typeAware": true,
+    // Diagnostics du compilateur TS 7 dans la même passe (équivalent de --type-check).
+    // Expérimental : on garde AUSSI `tsc --noEmit` en CI (voir scripts).
+    "typeCheck": true,
+    // Toute directive `oxlint-disable` inutile est une erreur.
+    "reportUnusedDisableDirectives": "error",
+    // Un warning = échec (pas de "warnings qui s'accumulent").
+    "denyWarnings": true
+  },
+
+  // ATTENTION : `plugins` REMPLACE la liste par défaut (eslint, typescript, unicorn, oxc).
+  // react      = eslint-plugin-react + react-hooks (+ règles React Compiler natives) + react-refresh
+  // react-perf : volontairement ABSENT (jsx-no-new-function-as-prop & co. sont du bruit avec le React Compiler)
+  // vitest     : activé seulement dans l'override des tests
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "react", "jsx-a11y", "import", "promise"],
+
+  // Plugins ESLint chargés par l'API JS d'oxlint (alpha) : règles TanStack Query / Router
+  "jsPlugins": [
+    "@tanstack/eslint-plugin-query",
+    "@tanstack/eslint-plugin-router",
+    "eslint-plugin-formatjs"
+  ],
+
+  "env": { "browser": true, "es2024": true },
+
+  // ---------------------------------------------------------------------------
+  // Catégories : on part de "tout en erreur" puis on retire ce qui est contre-productif
+  // ---------------------------------------------------------------------------
+  "categories": {
+    "correctness": "error", // code faux ou inutile
+    "suspicious": "error", // code très probablement faux
+    "pedantic": "error", // strict, quelques faux positifs (rules-of-hooks est ICI !)
+    "perf": "error",
+    "style": "error", // idiomes : beaucoup de règles contradictoires -> désactivées plus bas
+    "restriction": "off", // interdictions "à la carte" : activées une par une plus bas
+    "nursery": "off" // instable : on n'active que des règles choisies
+  },
+
+  "settings": {
+    "react": {
+      "version": "19.3",
+      "linkComponents": [{ "name": "Link", "linkAttribute": "to" }]
+    },
+    // NE PAS mapper TanStack <Link> sur "a" dans settings["jsx-a11y"].components :
+    // anchor-is-valid exige alors `href` (faux positif, Link utilise `to`).
+    "jsx-a11y": {}
+  },
+
+  "rules": {
+    // ======================= React / hooks / React Compiler =======================
+    "react/rules-of-hooks": "error", // déjà via pedantic, explicité car vital
+    "react/exhaustive-deps": "error",
+    // Règles "React Compiler" natives (≡ eslint-plugin-react-hooks v7) : correctness = déjà ON.
+    // set-state-in-effect, set-state-in-render, purity, refs, immutability, static-components,
+    // globals, use-memo, void-use-memo, preserve-manual-memoization, incompatible-library, error-boundaries
+    "react/no-deriving-state-in-effects": "error", // perf (≡ "You might not need an effect")
+    // Doublons "compiler" (suspicious) de rules-of-hooks / exhaustive-deps : on garde les classiques
+    "react/hooks": "off",
+    "react/exhaustive-effect-dependencies": "off",
+    "react/memo-dependencies": "off",
+    "react/unsupported-syntax": "error", // restriction : syntaxe qui empêche le compilateur
+    "react/react-in-jsx-scope": "off", // obsolète avec le runtime JSX automatique
+    "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
+    "react/only-export-components": ["error", { "allowExportNames": ["Route"] }], // react-refresh + TanStack
+    "react/function-component-definition": [
+      "error",
+      { "namedComponents": "function-declaration", "unnamedComponents": "arrow-function" }
+    ],
+    "react/button-has-type": "error",
+    "react/no-danger": "error",
+    "react/no-unknown-property": "error",
+    "react/prefer-function-component": "error",
+    "react/no-clone-element": "error",
+    "react/no-react-children": "error",
+    "react/jsx-max-depth": "off", // défaut (2) absurde
+    "react/jsx-props-no-spreading": "off", // les wrappers de composants en ont besoin
+    "react/jsx-handler-names": "off", // incompatible avec les handlers inline idiomatiques
+    "react/no-multi-comp": "off",
+
+    // ======================= TypeScript (non type-aware) ==========================
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-import-type-side-effects": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-dynamic-delete": "error",
+    "typescript/no-invalid-void-type": "error",
+    "typescript/no-non-null-asserted-nullish-coalescing": "error",
+    "typescript/consistent-type-imports": ["error", { "fixStyle": "separate-type-imports" }],
+    "typescript/consistent-type-definitions": ["error", "interface"],
+    "typescript/array-type": ["error", { "default": "array-simple" }],
+    "typescript/explicit-function-return-type": "off", // l'inférence suffit (composants, hooks)
+    "typescript/explicit-module-boundary-types": "off",
+
+    // ======================= TypeScript type-aware (tsgolint) =====================
+    // correctness (déjà ON) : no-floating-promises, await-thenable, no-misused-spread,
+    // restrict-template-expressions, unbound-method, no-base-to-string, require-array-sort-compare...
+    // pedantic (déjà ON) : no-misused-promises, no-unsafe-*, strict-boolean-expressions,
+    // switch-exhaustiveness-check, prefer-nullish-coalescing, no-deprecated, only-throw-error,
+    // return-await, require-await, strict-void-return, no-confusing-void-expression...
+    "typescript/switch-exhaustiveness-check": [
+      "error",
+      { "allowDefaultCaseForExhaustiveSwitch": false, "requireDefaultForNonUnion": true }
+    ],
+    // Explicite (déjà dans pedantic) : TanStack Query 5.102 a déprécié ensureQueryData/prefetchQuery/
+    // fetchQuery au profit de queryClient.query() -> erreur garantie (testé)
+    "typescript/no-deprecated": "error",
+    "typescript/no-confusing-void-expression": ["error", { "ignoreArrowShorthand": true }], // onClick={() => setX(1)}
+    "typescript/prefer-readonly-parameter-types": "off", // inutilisable avec ReactNode / events DOM
+    "typescript/no-unnecessary-condition": "error", // nursery, activée explicitement
+    "typescript/prefer-optional-chain": "error", // nursery, activée explicitement
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    "typescript/promise-function-async": "error",
+    "typescript/non-nullable-type-assertion-style": "off", // contredit no-non-null-assertion
+    // faux positif sur un switch exhaustif sans `return` final ; noImplicitReturns (tsc) couvre déjà
+    "typescript/consistent-return": "off",
+    // TanStack Router : `throw redirect(...)` / `throw notFound()`
+    "typescript/only-throw-error": [
+      "error",
+      {
+        "allow": [
+          {
+            "from": "package",
+            "package": "@tanstack/router-core",
+            "name": ["Redirect", "NotFoundError"]
+          }
+        ]
+      }
+    ],
+
+    // ======================= ESLint core ==========================================
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-alert": "error",
+    "no-param-reassign": ["error", { "props": true }],
+    "no-var": "error",
+    "no-void": ["error", { "allowAsStatement": true }], // `void promise;` reste permis (ignoreVoid)
+    "no-empty": "error",
+    "no-empty-function": "error",
+    "no-sequences": "error",
+    "no-bitwise": "error",
+    "no-restricted-globals": ["error", "event", "name", "length"],
+    "eqeqeq": ["error", "always"],
+    // compatible avec `import type { X }` séparé (consistent-type-specifier-style: prefer-top-level)
+    "no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }],
+    "max-lines-per-function": [
+      "error",
+      { "max": 80, "skipBlankLines": true, "skipComments": true }
+    ],
+    "max-params": ["error", { "max": 4 }],
+    "no-warning-comments": "warn",
+    "no-inline-comments": "off",
+    "func-style": "off",
+    "func-names": "off",
+    "capitalized-comments": "off",
+    "id-length": "off",
+    "init-declarations": "off",
+    "max-statements": "off",
+    "no-magic-numbers": "off",
+    "no-ternary": "off", // les ternaires sont idiomatiques en JSX
+    "no-continue": "off",
+    "one-var": "off",
+    "prefer-destructuring": "off",
+    "prefer-named-capture-group": "off",
+    "sort-imports": "off", // délégué à oxfmt (sortImports)
+    "sort-keys": "off",
+    "new-cap": "off", // faux positifs : createFileRoute("/")({...})
+    // doublons eslint/unicorn ou eslint/typescript : on garde une seule version
+    "no-negated-condition": "off", // -> unicorn/no-negated-condition
+    "no-lonely-if": "off", // -> unicorn/no-lonely-if
+    "require-await": "off", // -> typescript/require-await (type-aware)
+    "prefer-promise-reject-errors": "off", // -> typescript/prefer-promise-reject-errors
+    "no-nested-ternary": "error", // la variante unicorn est désactivée (conflit formateur)
+    "no-redeclare": "off", // `export const Dish = v.pipe(...)` + `export type Dish = v.InferOutput<typeof Dish>` (tsc vérifie)
+    "curly": ["error", "multi-line"], // `if (x) return y;` permis sur une ligne
+    // champs du script (02 § 5.4) et lecture anticipée
+    "no-underscore-dangle": [
+      "error",
+      { "allow": ["_duplicate", "_emailStatus", "_bookingResult", "__EARLY_FETCH__"] }
+    ],
+
+    // ======================= Unicorn ==============================================
+    "unicorn/no-null": "off", // React (return null), DOM et API JSON utilisent null
+    "unicorn/filename-case": [
+      "error",
+      { "cases": { "kebabCase": true, "pascalCase": true, "camelCase": true } }
+    ],
+    "unicorn/prefer-ternary": ["error", "only-single-line"],
+    "unicorn/no-useless-undefined": ["error", { "checkArguments": false }], // useState<T | undefined>(undefined)
+    "unicorn/prefer-global-this": "off", // window.* est plus lisible en code navigateur
+    "unicorn/number-literal-case": "off", // conflit formateur (cf. eslint-config-prettier)
+    "unicorn/empty-brace-spaces": "off", // idem
+    "unicorn/no-nested-ternary": "off", // idem
+    "unicorn/no-array-for-each": "error",
+    "unicorn/no-array-reduce": ["error", { "allowSimpleOperations": true }],
+    "unicorn/no-document-cookie": "error",
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/prefer-number-properties": "error",
+    "unicorn/prefer-modern-math-apis": "error",
+    "unicorn/no-abusive-eslint-disable": "error",
+    "unicorn/no-anonymous-default-export": "error",
+    "unicorn/no-length-as-slice-end": "error",
+    "unicorn/no-magic-array-flat-depth": "error",
+    "unicorn/prefer-module": "error",
+    "unicorn/text-encoding-identifier-case": ["error", { "withDash": true }], // "utf-8" (HTML, fetch)
+    "unicorn/max-nested-calls": "off", // schémas valibot : v.fallback(v.optional(v.picklist([...])))
+
+    // ======================= Import ===============================================
+    "import/no-cycle": "error",
+    "import/no-default-export": "error", // TanStack Router : `export const Route` (nommé) -> OK
+    "import/no-relative-parent-imports": "error", // force l'alias `@/` au lieu de ../../
+    "import/no-commonjs": "error",
+    "import/no-amd": "error",
+    "import/no-dynamic-require": "error",
+    "import/no-webpack-loader-syntax": "error",
+    "import/no-nodejs-modules": "error", // code navigateur (désactivé pour les configs)
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }],
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+    "import/no-named-export": "off", // contradictoire avec no-default-export
+    "import/prefer-default-export": "off", // idem
+    "import/exports-last": "off", // `export const Route` est en tête de fichier
+    "import/group-exports": "off",
+    "import/no-namespace": "off",
+    "import/max-dependencies": "off",
+
+    // ======================= TanStack (jsPlugins) =================================
+    "@tanstack/query/exhaustive-deps": "error",
+    "@tanstack/query/no-rest-destructuring": "error",
+    "@tanstack/query/stable-query-client": "error",
+    "@tanstack/query/no-unstable-deps": "error",
+    // pas de "no-void-query-fn" : règle type-aware, les jsPlugins n'ont pas accès aux types (no-op silencieux)
+    "@tanstack/query/infinite-query-property-order": "error",
+    "@tanstack/query/mutation-property-order": "error",
+    "@tanstack/query/prefer-query-options": "error",
+    "@tanstack/router/create-route-property-order": "error",
+    "@tanstack/router/route-param-names": "error",
+
+    // ======================= FormatJS (jsPlugins, PLAN § 3.10) ====================
+    "formatjs/enforce-default-message": ["error", "literal"],
+    "formatjs/enforce-description": ["error", "literal"],
+    "formatjs/enforce-placeholders": "error",
+    "formatjs/enforce-plural-rules": ["error", { "one": true, "other": true }],
+    "formatjs/no-multiple-whitespaces": "error",
+    "formatjs/no-multiple-plurals": "error",
+    "formatjs/no-offset": "error",
+    "formatjs/prefer-pound-in-plural": "error",
+    "formatjs/no-missing-icu-plural-one-placeholders": "error",
+    "formatjs/no-complex-selectors": "error",
+    "formatjs/no-useless-message": "error",
+    "formatjs/no-literal-string-in-jsx": [
+      "error",
+      { "props": { "include": [["*", "{label,placeholder,title,aria-label,alt}"]] } }
+    ],
+    "formatjs/no-emoji": "error",
+
+    // ======================= Promise / a11y / oxc =================================
+    "promise/avoid-new": "off",
+    "promise/prefer-await-to-callbacks": "off",
+    "promise/spec-only": "error",
+    "jsx-a11y/anchor-ambiguous-text": "error",
+    "oxc/no-barrel-file": "error",
+    "oxc/no-const-enum": "error",
+    "oxc/bad-bitwise-operator": "error"
+  },
+
+  "overrides": [
+    {
+      // Routes TanStack (file-based routing) : noms imposés (__root.tsx, $id.tsx, posts.index.tsx)
+      "files": ["src/routes/**"],
+      "rules": {
+        "unicorn/filename-case": "off",
+        // Le fichier n'exporte que `Route` ; le code-splitting automatique de TanStack Router
+        // isole `component` dans un module virtuel -> le HMR fonctionne quand même.
+        "react/only-export-components": "off"
+      }
+    },
+    {
+      // Fichiers de config outillage (Node, export default exigé)
+      "files": ["*.config.{ts,mts,js,mjs}", "scripts/**"],
+      "env": { "node": true },
+      "rules": {
+        "import/no-default-export": "off",
+        "import/no-nodejs-modules": "off",
+        "react/only-export-components": "off"
+      }
+    },
+    {
+      // Storybook (CSF Next) : `export default definePreview(...)` / `defineMain(...)` ; args en texte libre
+      "files": [".storybook/**", "**/*.stories.tsx"],
+      "rules": {
+        "import/no-default-export": "off",
+        "react/only-export-components": "off",
+        "import/no-relative-parent-imports": "off", // import preview from "../../.storybook/preview"
+        "formatjs/no-literal-string-in-jsx": "off",
+        "typescript/no-unsafe-type-assertion": "off"
+      }
+    },
+    {
+      "files": ["scripts/**"],
+      "rules": { "no-console": "off" }
+    },
+    {
+      "files": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "src/test/**", "e2e/**"],
+      "plugins": [
+        "eslint",
+        "typescript",
+        "unicorn",
+        "oxc",
+        "react",
+        "jsx-a11y",
+        "import",
+        "promise",
+        "vitest"
+      ],
+      "rules": {
+        "max-lines-per-function": "off",
+        "unicorn/consistent-function-scoping": "off",
+        "typescript/no-unsafe-type-assertion": "off",
+        "formatjs/no-literal-string-in-jsx": "off",
+        "oxc/no-map-spread": "off",
+        "typescript/strict-void-return": "off", // vi.fn() passé comme callback `void`
+        "import/no-relative-parent-imports": "off", // e2e : import { test } from "../fixtures"
+        "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "vitest-browser-react"] }],
+        "vitest/no-focused-tests": "error",
+        "vitest/no-disabled-tests": "error",
+        "vitest/expect-expect": "error",
+        "vitest/no-identical-title": "error",
+        "vitest/valid-title": "error",
+        "vitest/prefer-to-be": "error",
+        "vitest/prefer-strict-equal": "error",
+        "vitest/consistent-test-it": ["error", { "fn": "it" }],
+        // règles style vitest mutuellement contradictoires ou trop bavardes
+        "vitest/no-hooks": "off",
+        "vitest/prefer-expect-assertions": "off",
+        "vitest/require-hook": "off",
+        "vitest/max-expects": "off",
+        "vitest/prefer-importing-vitest-globals": "off",
+        "vitest/no-importing-vitest-globals": "off",
+        "vitest/require-top-level-describe": "off",
+        "vitest/prefer-describe-function-title": "off",
+        "vitest/prefer-lowercase-title": "off",
+        "vitest/prefer-to-be-truthy": "off",
+        "vitest/prefer-to-be-falsy": "off",
+        "vitest/prefer-called-once": "off",
+        "vitest/padding-around-test-blocks": "off",
+        "vitest/padding-around-after-all-blocks": "off",
+        "vitest/no-large-snapshots": "off"
+      }
+    }
+  ],
+
+  "ignorePatterns": [
+    "tools/**",
+    "out/**",
+    "router-only/**",
+    "vite.router.config.ts",
+    "dist-router*/**",
+    "dist/**",
+    ".output/**",
+    "coverage/**",
+    "**/*.gen.ts",
+    "public/**",
+    "legacy/**",
+    "storybook-static/**",
+    "test-results/**",
+    "playwright-report/**"
+  ]
+}
