@@ -27,7 +27,7 @@ import { TextField } from "@/ui/form/TextField";
  * the form follows new `defaultValues` (data refreshed every 3 min); after that it keeps what was typed. A form that
  * must start again (another day, another opening) is mounted with a `key`.
  */
-const { useAppForm: useBaseAppForm } = createFormHook({
+const { useAppForm: useBaseAppForm, withFieldGroup } = createFormHook({
   fieldContext,
   formContext,
   fieldComponents: {
@@ -46,3 +46,6 @@ const validationLogic = revalidateLogic({ mode: "submit", modeAfterSubmission: "
 /** `useForm` of TanStack Form with the app's fields and validation behaviour (see above). */
 export const useAppForm: typeof useBaseAppForm = (options) =>
   useBaseAppForm({ validationLogic, canSubmitWhenInvalid: true, ...options });
+
+/** Group of fields shared by several forms (`IdentityFields`: name, class, contact, observation). */
+export { withFieldGroup };
