@@ -1,6 +1,6 @@
 # Journal de la session P3 (c) — Calendrier et sélecteur de date
 
-*3 octobre 2026. Branche locale `claude/p3c-calendrier`, partie de la pointe de l'intégration (P0, P1 (a1), (a2), (b), P2 (a), (b1), (c), P3 (0), (b)), puis rebasée en cours de session sur `366502a` (P3 (a) intégrée, `VITEST_BROWSER_PORT`). P2 (b2) tournait en parallèle.*
+*3 octobre 2026. Branche locale `claude/p3c-calendrier`, partie de la pointe de l'intégration (P0, P1 (a1), (a2), (b), P2 (a), (b1), (c), P3 (0), (b)), puis rebasée sur `366502a` (P3 (a), `VITEST_BROWSER_PORT`) et sur `d03b52e` (P2 (b2) ; conflit d'`.oxlintrc.json` résolu en gardant les deux overrides). P2 (b2) tournait en parallèle jusqu'à son intégration.*
 
 ## Fait
 
@@ -14,7 +14,7 @@
 
 ## Preuves
 
-- `pnpm check` : 109 fichiers, 1 589 tests, knip propre dans les deux modes.
+- `pnpm check` après le second rebase : 118 fichiers, 1 853 tests, knip propre dans les deux modes.
 - `pnpm vitest run --project browser --project storybook src/ui/calendar` : 5 fichiers, 71 tests (61 navigateur, 10 stories avec axe).
 - Table des touches de 05 § 3.2 au clavier réel (`userEvent.keyboard`), 21 lignes en vue semaine et mois, dont 31 janvier + Page ↓ → 28 février 2027, 29 février 2028, 31 mars − 1 mois → 28 février (E-07) ; sélection, libellé de période, focus et unique `tabIndex=0` vérifiés après chaque touche ; enchaînement de REG-11 rejoué.
 - Violation volontaire (`aria-label` retiré des jours) : le projet `storybook` échoue, « Buttons must have discernible text (button-name) » ; remis, 10 stories vertes.
@@ -44,7 +44,7 @@
 - **06 § 3.2 « version dépliée sous le champ »** : le popover Base UI flotte sous le champ (`Positioner`, côté bas, aligné au début) et recouvre la suite du formulaire au lieu de la pousser. Même ouverture, mêmes touches.
 - **CLAUDE.md (« Navigation par `<Link search>` ») contre PLAN § 3.2 (‹ › en `replace`)** : `IconButton` ne rend pas de lien ; P4 (b) navigue dans le gestionnaire de clic. Autre option : `render` sur `IconButton` (P3 (a)).
 - **05 § 2.2-2.3** : la grille ne porte plus « Jours de la semaine — flèches pour changer de jour » ; le PLAN § 3.5 la nomme par le libellé de période (E-05).
-- **Lancement « Ne touche pas : domain/, intl/dates.ts »** : `intl/calendar.ts` est un fichier nouveau ; `knip.json` reçoit `calendar` dans la ligne de `dates` et `amounts` (commit séparé `1f4fd1b`).
+- **Lancement « Ne touche pas : domain/, intl/dates.ts »** : `intl/calendar.ts` est un fichier nouveau ; `knip.json` reçoit `calendar` dans la ligne de `dates` et `amounts` (commit séparé `cb369a2`).
 
 ## Versions
 
@@ -52,7 +52,7 @@ Aucune version changée, aucun paquet ajouté.
 
 ## Overrides oxlint
 
-- `src/ui/calendar/*.tsx` : `jsx-a11y/no-noninteractive-element-to-interactive-role` avec `{ "table": ["grid"], "td": ["gridcell"] }`, options de la configuration recommandée d'eslint-plugin-jsx-a11y (commit `efde0ce`). Exemple minimal : `<table role="grid" aria-label={label}><tbody><tr><td aria-selected="false"><button …/></td></tr></tbody></table>` est refusé sans l'override ; avec lui, il passe et `<ul role="grid" />` reste refusé (vérifié).
+- `src/ui/calendar/*.tsx` : `jsx-a11y/no-noninteractive-element-to-interactive-role` avec `{ "table": ["grid"], "td": ["gridcell"] }`, options de la configuration recommandée d'eslint-plugin-jsx-a11y (commit `862f979`). Exemple minimal : `<table role="grid" aria-label={label}><tbody><tr><td aria-selected="false"><button …/></td></tr></tbody></table>` est refusé sans l'override ; avec lui, il passe et `<ul role="grid" />` reste refusé (vérifié).
 - Corrections du code sans override : `max-lines-per-function` (composants `DaySquare`, `WeekdayHeader`, `MonthPanel`), `no-nested-ternary`, `strict-boolean-expressions`, `curly`, `prefer-query-selector` (`CSS.escape` de l'id), `no-object-type-as-default-prop`, `max-params` (lignes de table en objets), `prefer-dom-node-dataset`, `max-lines` (tests du clavier dans leur fichier).
 
 ## Reste à faire
@@ -67,7 +67,7 @@ Aucune version changée, aucun paquet ajouté.
 Titre : « P3 (c) : calendrier maison et sélecteur de date (`CalendarGrid`, `CalendarHeader`, `DatePickerPopover`) ».
 
 - Composants sans métier : cases, sélection, état et libellés fournis par l'appelant ; `calendarDayLabel` (`intl/calendar.ts`) construit les libellés de 05 § 2.5.
-- Fichiers partagés modifiés : `.oxlintrc.json` (override de la grille, `efde0ce`), `knip.json` (une ligne, `1f4fd1b`).
+- Fichiers partagés modifiés : `.oxlintrc.json` (override de la grille, `862f979`), `knip.json` (une ligne, `cb369a2`).
 - Nouveau fichier de test commun : `src/test/calendar-demo.tsx`.
 - Décisions à valider : sélecteur en grille (E-05 à étendre), ‹ › en gestionnaire de clic.
 - Aucune action humaine.
