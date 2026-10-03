@@ -6,7 +6,7 @@ Références : [`PLAN.md`](PLAN.md) § 1.5 (S1), § 4.2 (écarts `E-xx`), P1 ; [
 
 ## 1. Conventions
 
-- **Fichiers** : `e2e/regression/{loading,loading-reads,calendar,public-r1,public-r1-send,public-r2,public-r2-cutoff,staff,print,misc}.spec.ts` (répartition au § 3), aides communes des scénarios publics dans `e2e/regression/helpers.ts`. Deux fichiers hors scénarios : `smoke.spec.ts` (G-04 affiché depuis le faux script) et `suite.spec.ts` (étiquette `@framework` : isolation réseau, étiquettes `@changed`, signatures des page objects).
+- **Fichiers** : `e2e/regression/{loading,loading-reads,calendar,public-r1,public-r1-send,public-r2,public-r2-cutoff,staff,print,print-tomorrow,invariants,misc}.spec.ts` (répartition au § 3), aides communes des scénarios publics dans `e2e/regression/helpers.ts`, connexion des scénarios d'impression dans `e2e/regression/print-helpers.ts`. Deux fichiers hors scénarios : `smoke.spec.ts` (G-04 affiché depuis le faux script) et `suite.spec.ts` (étiquette `@framework` : isolation réseau, étiquettes `@changed`, signatures des page objects).
 - **Étiquettes Playwright** : `test("…", { tag: [...] }, …)` avec
   - `@parity` (comportement identique attendu sur `legacy` et `react`) ou `@changed:E-xx` (écart du PLAN § 4.2 : l'assertion a une variante `legacy` et une variante `react`, choisie par `target(testInfo)`, c'est-à-dire par le nom du projet Playwright) ; un scénario peut porter plusieurs `@changed:E-xx` et garder des assertions communes ;
   - l'identifiant d'écran de `09` (`@G-01`, `@P-05`…), un par ligne de `09` citée, pour le filtre `--grep` de la CI ; `09` § 7 s'écrit `@09-7` ;
@@ -52,7 +52,7 @@ Le 2026-10-07 (J+2) n'a aucun jour, ni R1 ni R2 (variante « demain sans jour »
 
 ## 3. Scénarios REG-01 à REG-43
 
-Fichiers : `loading.spec.ts` REG-01, REG-02, REG-04, REG-05, REG-07 ; `loading-reads.spec.ts` (horloge de la page en pause) REG-03, REG-06, REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-15 ; `public-r1-send.spec.ts` REG-16 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-24 ; `public-r2-cutoff.spec.ts` REG-25, REG-26 ; `staff-access.spec.ts`, `staff-session.spec.ts`, `staff-settings.spec.ts`, `staff-open-day.spec.ts`, `staff-open-day-r2.spec.ts`, `staff-r1.spec.ts`, `staff-r1-add.spec.ts`, `staff-r2.spec.ts` REG-27 à REG-38 (aides dans `staff-helpers.ts`) ; `print.spec.ts` REG-39 à REG-42 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
+Fichiers : `loading.spec.ts` REG-01, REG-02, REG-04, REG-05, REG-07 ; `loading-reads.spec.ts` (horloge de la page en pause) REG-03, REG-06, REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-15 ; `public-r1-send.spec.ts` REG-16 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-24 ; `public-r2-cutoff.spec.ts` REG-25, REG-26 ; `staff-access.spec.ts`, `staff-session.spec.ts`, `staff-settings.spec.ts`, `staff-open-day.spec.ts`, `staff-open-day-r2.spec.ts`, `staff-r1.spec.ts`, `staff-r1-add.spec.ts`, `staff-r2.spec.ts` REG-27 à REG-38 (aides dans `staff-helpers.ts`) ; `print.spec.ts` REG-40, REG-41 ; `print-tomorrow.spec.ts` REG-39, REG-42 ; `invariants.spec.ts` (horloge de la page en pause) variantes de minuit de REG-25 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
 
 Phases de sortie : `@p4` = REG-01 à REG-26 et REG-43 ; `@p5` = REG-27 à REG-38 ; `@p6` = REG-39 à REG-42. Sessions de P1 : (b) REG-01 à REG-26 et REG-43 ; (c) REG-27 à REG-38 ; (d) REG-39 à REG-42 et les variantes « invariants » (REG-02, REG-03, REG-25, REG-29).
 
@@ -191,15 +191,15 @@ Fichiers (P1 (c)) : `staff-access.spec.ts` REG-27, REG-28 ; `staff-session.spec.
 
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
-| C-01 | REG-39 | `@changed` | à faire | à faire | stories de `TomorrowPanel` | E-30 |
-| C-03 | REG-39 | `@changed` | à faire | à faire | — (fusionné dans C-01) | E-30, E-44 |
-| I-00 | REG-40 (variante `@legacy-only`) | `@changed` | à faire | sans objet | — (disparu) | E-15 |
-| I-01 | REG-40 | `@changed` | à faire | à faire | rendu de `ListDocumentR1` ; `e2e/print-pdf.spec.ts` | E-15, E-20 |
-| I-02 | REG-41 | `@changed` | à faire | à faire | rendu de `ListDocumentR2` | E-16 |
-| I-03 | REG-42 | `@changed` | à faire | à faire | rendu de `TomorrowDocumentR1` | E-44 |
-| I-04 | REG-42 | `@changed` | à faire | à faire | rendu de `TomorrowDocumentR2` | E-16, E-44 |
-| invariant 1 | REG-29, REG-30 | — | à faire | à faire | test S8 | E-17 |
-| invariant 2 | REG-02, REG-03, REG-20 | — | à faire | à faire | tests de `api/hedged-read.ts`, `early-fetch.ts` | E-45, E-47 |
-| invariant 3 | REG-08, REG-18, REG-19, REG-36 | — | à faire | à faire | tests de `mutations/bookings.ts` | — |
-| invariant 4 | REG-25, REG-26, REG-38 | — | à faire | à faire | tests de `domain/cutoff.ts` | E-01, E-09 |
-| invariant 5 | REG-22, REG-23, REG-38, REG-41 | — | à faire | à faire | tests de `domain/pricing.ts`, `domain/print.ts` | E-16, E-36 |
+| C-01 | REG-39 | `@changed` | vert (P1 (d), 3 oct.) | à faire | stories de `TomorrowPanel` | E-30 |
+| C-03 | REG-39 | `@changed` | vert (P1 (d), 3 oct.) | à faire | — (fusionné dans C-01) | E-30, E-44 |
+| I-00 | REG-40 (variante `@legacy-only`) | `@changed` | vert (P1 (d), 3 oct.) | sans objet | — (disparu) | E-15 |
+| I-01 | REG-40 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `ListDocumentR1` ; `e2e/print-pdf.spec.ts` | E-15, E-20 |
+| I-02 | REG-41 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `ListDocumentR2` | E-16 |
+| I-03 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `TomorrowDocumentR1` | E-44 |
+| I-04 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `TomorrowDocumentR2` | E-16, E-44 |
+| invariant 1 | REG-29, REG-30 | — | P1 (c) | à faire | test S8 | E-17 |
+| invariant 2 | REG-02, REG-03, REG-20 | — | vert (P1 (b), 3 oct.) | à faire | tests de `api/hedged-read.ts`, `early-fetch.ts` | E-45, E-47 |
+| invariant 3 | REG-08, REG-18, REG-19, REG-36 | — | vert (P1 (b), 3 oct.) ; REG-36 : P1 (c) | à faire | tests de `mutations/bookings.ts` | — |
+| invariant 4 | REG-25 (minuit compris), REG-26, REG-38 | — | vert (P1 (b) ; minuit : P1 (d), 3 oct.) ; REG-38 : P1 (c) | à faire | tests de `domain/cutoff.ts` et de `background/clock.ts` (10 h, minuit) | E-01, E-09 |
+| invariant 5 | REG-22, REG-23, REG-38, REG-39, REG-41, REG-42 | — | vert (P1 (b), P1 (d), 3 oct.) ; REG-38 : P1 (c) | à faire | tests de `domain/pricing.ts`, `domain/print.ts` | E-16, E-36 |
