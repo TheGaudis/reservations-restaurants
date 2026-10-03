@@ -8,6 +8,8 @@
     "!src/intl/common-messages.ts!", // retirer en P4 (a), qui l'importe dans la page
     "!src/ui/**!", // retirer quand chaque composant de ui/ a un importeur de production (P7 (a) au plus tard)
     "!src/domain/**!", // retirer en P6 (b) : domain/ (P2 (a)) attend ses importeurs de production (api/, features/)
+    // retirer en P4 (c) au plus tard : api/ (P2 (b1)) attend ses importeurs de production (queries/, mutations/)
+    "!src/api/{errors,hedged-read,request-id,schemas,signals,staff-schemas,state,transport}.ts!",
     "e2e/**/*.ts",
     "scripts/*.ts",
     ".storybook/*.{ts,tsx}"

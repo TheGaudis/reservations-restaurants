@@ -33,6 +33,7 @@ export const earlyFetchScript =
 /**
  * The early fetch, once: the first call takes it whatever its `since`, and returns it only when it was sent with
  * the same `since` (`apiGet`, 02 § 1.5, 03 § 2.4); otherwise the read starts anew.
+ * @public
  */
 export function takeEarlyFetch(since: string): EarlyFetch | null {
   const early = globalThis.__EARLY_FETCH__;
