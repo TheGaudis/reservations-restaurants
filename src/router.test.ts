@@ -1,38 +1,42 @@
 import { afterEach, expect, it, vi } from "vitest";
 
-import { stateKeys } from "@/queries/state";
+import { toLocalCacheV1 } from "@/queries/local-cache";
+import { publicStateOptions } from "@/queries/state";
 import { getRouter } from "@/router";
 import { useSessionStore } from "@/session/session";
+import { publicState } from "@/test/domain-states";
 
 // getRouter() runs in Node when the shell is prerendered (R-02). The local copy below is valid: only the
 // typeof window guard keeps it out of the query cache, the try/catch of the storage read does not.
-function stubLocalCopy(): void {
-  const copy = JSON.stringify({
-    savedAt: Date.now(),
-    etag: "ETAG",
-    config: { name1: "Restaurant", name2: "Aristide" },
-  });
-  vi.stubGlobal("localStorage", { getItem: () => copy });
+const COPY = publicState({ etag: "ETAG" });
+
+function stubStorage() {
+  const json = JSON.stringify(toLocalCacheV1(COPY, Date.now()));
+  const setItem = vi.fn<(key: string, value: string) => void>();
+  vi.stubGlobal("localStorage", { getItem: () => json, setItem });
+  return setItem;
 }
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it("does not read the local copy without window", () => {
-  stubLocalCopy();
-  const router = getRouter();
-  expect(router.options.context.queryClient.getQueryData(stateKeys.public())).toBeUndefined();
+it("neither reads nor writes the local copy without window", () => {
+  const setItem = stubStorage();
+  const { queryClient } = getRouter().options.context;
+  expect(queryClient.getQueryData(publicStateOptions.queryKey)).toBeUndefined();
+  queryClient.setQueryData(publicStateOptions.queryKey, publicState({ etag: "NEW" }));
+  expect(setItem).not.toHaveBeenCalled();
 });
 
-it("restores the local copy when window exists", () => {
-  stubLocalCopy();
+it("restores the local copy, then writes each new public state, when window exists", () => {
+  const setItem = stubStorage();
   vi.stubGlobal("window", globalThis);
-  const router = getRouter();
-  expect(router.options.context.queryClient.getQueryData(stateKeys.public())).toStrictEqual({
-    etag: "ETAG",
-    settings: { name1: "Restaurant", name2: "Aristide" },
-  });
+  const { queryClient } = getRouter().options.context;
+  expect(queryClient.getQueryData(publicStateOptions.queryKey)).toStrictEqual(COPY);
+  expect(setItem).not.toHaveBeenCalled();
+  queryClient.setQueryData(publicStateOptions.queryKey, publicState({ etag: "NEW" }));
+  expect(setItem).toHaveBeenCalledOnce();
 });
 
 it("keeps the default pendingMinMs of the router (PLAN arbitrage 16)", () => {

@@ -1,5 +1,7 @@
 import { afterEach, expect, it } from "vitest";
 
+import { toLocalCacheV1 } from "@/queries/local-cache";
+import { publicState, SETTINGS } from "@/test/domain-states";
 import { renderRoute } from "@/test/render";
 
 afterEach(() => {
@@ -7,14 +9,10 @@ afterEach(() => {
 });
 
 it("renders the restaurant names of the local copy on / (PLAN § 3.3.1)", async () => {
-  localStorage.setItem(
-    "reservations-cache-v1",
-    JSON.stringify({
-      savedAt: Date.now(),
-      etag: "ETAG",
-      config: { name1: "Restaurant de la copie", name2: "Aristide de la copie" },
-    }),
-  );
+  const copy = publicState({
+    settings: { ...SETTINGS, name1: "Restaurant de la copie", name2: "Aristide de la copie" },
+  });
+  localStorage.setItem("reservations-cache-v1", JSON.stringify(toLocalCacheV1(copy, Date.now())));
   const { screen } = await renderRoute("/");
   await expect
     .element(screen.getByRole("heading", { name: "Restaurant de la copie" }))

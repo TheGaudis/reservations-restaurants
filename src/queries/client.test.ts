@@ -1,8 +1,12 @@
+import { MutationObserver, onlineManager } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { BusinessError, ServiceError } from "@/api/errors";
+import { addBookingR1, deleteDayR1 } from "@/api/actions";
+import { BusinessError, PasswordRejectedError, ServiceError } from "@/api/errors";
 import { fetchPublicState } from "@/api/state";
 import { createQueryClient } from "@/queries/client";
+import { staffStateOptions } from "@/queries/state";
 import { fakeScriptPerTest } from "@/test/fake-script-server";
 
 // Single retry of the reads after 1.5 s (02 § 1.5, PLAN § 3.3), with the client defaults, a real QueryClient and
@@ -107,5 +111,88 @@ describe("retry of the reads (02 § 1.5)", () => {
     expect(outcome.error).toBeInstanceOf(ServiceError);
     await vi.advanceTimersByTimeAsync(10_000);
     expect(fakeScript.requests).toHaveLength(1);
+  });
+});
+
+describe("writes are never replayed (02 § 1.5, R-11)", () => {
+  const input = {
+    date: "2026-10-06",
+    name: "Inès Roux",
+    contact: "",
+    className: "",
+    students: 1,
+    staffMembers: 0,
+    externals: 0,
+    observation: "",
+    requestId: "r",
+  };
+
+  function bookingObserver(queryClient: QueryClient) {
+    return new MutationObserver(queryClient, {
+      mutationKey: ["write", "booking", "r1"],
+      mutationFn: async (variables: typeof input) => addBookingR1(variables),
+    });
+  }
+
+  it("sends one POST when the answer is lost", async () => {
+    const fakeScript = start();
+    const rowsBefore = fakeScript.db.r1Bookings.length;
+    fakeScript.failNext("network");
+    const observer = bookingObserver(createQueryClient());
+    await expect(observer.mutate(input)).rejects.toBeInstanceOf(ServiceError);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(fakeScript.requests).toHaveLength(1);
+    // The script wrote the booking before the answer was lost: a replay would have written it twice.
+    expect(fakeScript.db.r1Bookings).toHaveLength(rowsBefore + 1);
+  });
+
+  it("sends at once offline instead of pausing (networkMode 'always')", async () => {
+    const fakeScript = start();
+    onlineManager.setOnline(false);
+    try {
+      const observer = bookingObserver(createQueryClient());
+      await observer.mutate(input);
+      expect(fakeScript.requests).toHaveLength(1);
+    } finally {
+      onlineManager.setOnline(true);
+    }
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(fakeScript.requests).toHaveLength(1);
+  });
+});
+
+describe("password changed during a staff session (02 § 2, 06 § 1.7)", () => {
+  it.each([
+    [
+      "a read",
+      async (queryClient: QueryClient) => queryClient.query(staffStateOptions(1, "ancien")),
+    ],
+    [
+      "a write",
+      async (queryClient: QueryClient) =>
+        new MutationObserver(queryClient, {
+          mutationFn: async () => deleteDayR1("ancien", "2026-10-09"),
+        }).mutate(),
+    ],
+  ])("calls onPasswordRejected after %s", async (_label, call) => {
+    start();
+    const onPasswordRejected = vi.fn<() => void>();
+    const queryClient = createQueryClient({ onPasswordRejected });
+    await expect(call(queryClient)).rejects.toBeInstanceOf(PasswordRejectedError);
+    expect(onPasswordRejected).toHaveBeenCalledOnce();
+  });
+
+  it("does not call it for another error of the script", async () => {
+    const fakeScript = start();
+    fakeScript.failNext(
+      "error",
+      "Le serveur est très sollicité : réessayez dans quelques secondes.",
+    );
+    const onPasswordRejected = vi.fn<() => void>();
+    const queryClient = createQueryClient({ onPasswordRejected });
+    await expect(queryClient.query(staffStateOptions(1, "secret"))).rejects.toBeInstanceOf(
+      BusinessError,
+    );
+    expect(onPasswordRejected).not.toHaveBeenCalled();
   });
 });

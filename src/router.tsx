@@ -5,7 +5,7 @@ import { RawIntlProvider } from "react-intl";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { intl } from "@/intl/intl";
 import { createQueryClient } from "@/queries/client";
-import { restoreLocalCache } from "@/queries/local-cache";
+import { persistLocalCache, restoreLocalCache } from "@/queries/local-cache";
 import { routeTree } from "@/routeTree.gen";
 import { useSessionStore } from "@/session/session";
 
@@ -14,6 +14,7 @@ export function getRouter() {
   // getRouter() also runs in Node when the shell is prerendered (R-02).
   if (typeof window !== "undefined") {
     restoreLocalCache(queryClient, Date.now()); // synchronous, before the router (PLAN § 3.3.1)
+    persistLocalCache(queryClient); // after the restore, which must write nothing (03 § 1.1)
   }
   return createRouter({
     routeTree,
