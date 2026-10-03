@@ -1,6 +1,6 @@
 # Journal de la session P3 (b) — Formulaires pré-liés
 
-*3 octobre 2026. Branche locale `claude/p3b-champs-formulaires`, partie de la pointe de l'intégration (`554fad8` : P0, P1 (a1), P1 (a2), P3 (0) intégrées). P2 (a) et P1 (b) tournaient dans d'autres worktrees ; P3 (a) n'avait pas démarré.*
+*3 octobre 2026. Branche locale `claude/p3b-champs-formulaires`, partie de la pointe de l'intégration (`554fad8` : P0, P1 (a1), P1 (a2), P3 (0) intégrées), puis rebasée sans conflit sur `60e5c23` (P2 (a) et P1 (b) intégrées). P3 (a) n'avait pas démarré.*
 
 ## Fait
 
@@ -18,10 +18,10 @@
 
 ## Preuves
 
-- `pnpm check` : 36 fichiers, 278 tests (stories comprises), knip propre dans les deux modes.
+- `pnpm check` après le rebase : 62 fichiers, 1020 tests (stories comprises), knip propre dans les deux modes.
 - `pnpm test:browser src/ui/form` : 9 fichiers, 44 tests ; `pnpm test --project=storybook src/ui/form` : 23 stories, axe vert sur chacune.
 - `grep -rn "@base-ui" src --include=*.tsx | grep -v src/ui` : vide. `grep -rnE "#[0-9a-fA-F]{3,6}|[0-9]+px" src/ui/form --include=*.module.css` : vide. Aucun `useEffect`, `useLayoutEffect`, `useMemo` ni `useCallback` dans `src/ui/form`.
-- `pnpm build:e2e`, `git diff --exit-code src/routeTree.gen.ts translations/fr.json` : vide ; `pnpm test:e2e --project=react-only` : 5 réussis (aucun scénario de régression ne vise encore les formulaires `react`).
+- Après le rebase : `pnpm build:e2e`, `git diff --exit-code src/routeTree.gen.ts translations/fr.json` : vide ; `pnpm test:e2e --project=react-only` : 5 réussis (aucun scénario de régression ne vise encore les formulaires `react`).
 - `pnpm build-storybook` : vert.
 - Garde du second envoi : sans la ligne `if (form.state.isSubmitting) return;` de `Form.tsx`, le test « sends once » échoue (2 envois au lieu de 1) ; remise, il passe.
 - Storybook lancé sur le port 6060, captures Chromium de huit stories (erreurs, segments, prix au ticket, bouton occupé…) : rendu conforme à 08 § 4.5-4.6 ; serveur arrêté.
@@ -64,7 +64,7 @@ Relevés par le test « renders the attributes listed for E-19 » de `NumberFiel
 ## Contradictions et remarques
 
 - **R-17, « `defaultValues` lues au montage seulement »** : inexact. Tant qu'aucun champ n'a été modifié, TanStack Form suit les nouvelles `defaultValues` (test « follows new defaultValues while untouched »). Après une saisie, il garde ce qui a été tapé ; une nouvelle `key` le remet à zéro. Conséquence pour P5 : un formulaire de modification ouvert suit l'actualisation jusqu'à la première frappe.
-- **« Mode de service » : changement de sémantique sans écart E-xx.** L'ancien site rend `role="group"` + boutons `aria-pressed` (04 § 5.3, § 10) ; `SegmentedRadio` (PLAN § 3.5) rend `role="radiogroup"` + `role="radio"`, un seul arrêt de Tab et les flèches pour changer. Proposition : un écart « E-50 Mode de service en groupe radio » (même raison que E-05), avec la variante `react` du page object `order-r2.ts` (`serviceMode`).
+- **« Mode de service » : changement de sémantique sans écart E-xx.** L'ancien site rend `role="group"` + boutons `aria-pressed` (04 § 5.3, § 10) ; `SegmentedRadio` (PLAN § 3.5) rend `role="radiogroup"` + `role="radio"`, un seul arrêt de Tab et les flèches pour changer. Le page object `order-r2.ts` de P1 (b) cherche déjà des `radio` côté `react` (`serviceModeOption`, `selectedServiceMode`), mais le § 4.2 ne liste pas l'écart. Proposition : « E-50 Mode de service en groupe radio » (même raison que E-05). Les noms que ces page objects cherchent sont bien ceux des champs : `getByLabel("Quantité : {Nom}")` trouve le libellé masqué du `NumberField`, `SUBMIT_NAMES` couvre « Envoi en cours… ».
 - **Rôle des compteurs** : `spinbutton` → `textbox` (tableau E-19). Les page objects `react` (P4) chercheront les compteurs par leur nom, pas par le rôle `spinbutton`.
 - **Base UI 1.8.0, `RadioGroup` dans un `Field`** : les `<input type="radio">` cachés de chaque option reçoivent le même `id` (celui du contrôle du champ). Ils sont `aria-hidden` et axe ne signale rien ; défaut de Base UI noté pour une prochaine mise à jour.
 - `ui-forms.md` § 2.4 range `onBlur` et le libellé dans `PortionStepper` ; le lancement demande des −/+ « en français » sans id `ui.*` : les libellés des boutons viennent de la fiche (D-17 les donne par restaurant : `public.r1.form.counter.*`, `public.r2.form.quantity.*`), sans valeur par défaut anglaise possible (props obligatoires).
