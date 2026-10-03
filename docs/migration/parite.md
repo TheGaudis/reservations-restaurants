@@ -162,28 +162,30 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 
 ### 5.2 Collègue (P1 (c), puis P5)
 
+Fichiers (P1 (c)) : `staff-access.spec.ts` REG-27, REG-28 ; `staff-session.spec.ts` REG-29 à REG-31 ; `staff-settings.spec.ts` REG-32 ; `staff-open-day.spec.ts` REG-33 ; `staff-open-day-r2.spec.ts` REG-34 ; `staff-r1.spec.ts` REG-35 ; `staff-r1-add.spec.ts` REG-36 ; `staff-r2.spec.ts` REG-37, REG-38 ; aides communes dans `staff-helpers.ts` (connexion avec le mot de passe du jeu de base, voile, corps par action, absence de noms). Chaque scénario est découpé en tests au même préfixe ; un test porte `@parity` quand toutes ses assertions sont communes. Côté `legacy`, deux pertes de focus relevées sous le voile (focus sur `body` après la connexion et après une suppression) sont rangées sous E-04 ; « Annuler » d'une modification laisse aussi le focus sur `body` (`03` § 5.4), d'où E-48.
+
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
-| G-06 | REG-27, REG-35 | `@changed` | à faire | à faire | — (disparu) | E-04 |
-| G-08 | REG-27, REG-28 | `@changed` | à faire | à faire | test de la garde de `/collegue` | E-23 |
-| L-01 | REG-27 | `@changed` | à faire | à faire | stories et tests de `ModeSwitch` | E-02, E-04 |
-| C-02 | REG-32, REG-29 | `@changed` | à faire | à faire | stories de `SettingsPanel` | E-37, E-40 |
-| C-04 | REG-33, REG-30 | `@parity` + `@changed` | à faire | à faire | stories de `OpenDayFormR1` | E-36 |
-| C-05 | REG-33, REG-29 | `@parity` | à faire | à faire | stories et tests de `DatePickerPopover` | — |
-| C-06 | REG-34 | `@changed` | à faire | à faire | stories de `OpenDayFormR2` | E-36, E-39 |
-| C-10 | REG-35, REG-33 | `@parity` + `@changed` | à faire | à faire | stories de la fiche R1 collègue | E-38, E-48 |
-| C-10b | REG-35 | `@parity` | à faire | à faire | story de la fiche R1 collègue sans service | — |
-| C-11 | REG-35 | `@parity` + `@changed` | à faire | à faire | stories de `EditBookingFormR1` | E-48 |
-| C-12 | REG-36, REG-30 | `@parity` | à faire | à faire | stories de `AddBookingFormR1` | — |
-| C-13 | REG-35 | `@parity` | à faire | à faire | stories de `EditDayFormR1` | — |
-| C-14 | REG-35, REG-37 | `@changed` | à faire | à faire | stories et tests de `ConfirmButton` | E-04, E-38 |
-| C-20 | REG-37 | `@changed` | à faire | à faire | stories de la fiche R2 collègue | — |
-| C-21 | REG-37 | `@changed` | à faire | à faire | stories de `DishForm` (ajout) | E-36 |
-| C-22 | REG-37 | `@changed` | à faire | à faire | stories de `DishForm` (modification) | E-36 |
-| C-23 | REG-38 | `@parity` + `@changed` | à faire | à faire | stories de `AddBookingFormR2` | E-36 |
-| C-24 | REG-38 | `@parity` + `@changed` | à faire | à faire | stories de `EditBookingFormR2` | E-36 |
-| C-30 | REG-29, REG-30, REG-31 | `@parity` + `@changed` | à faire | à faire | test S8 (dont déconnexion pendant une écriture) | E-17, E-24 |
-| `09` § 6 | REG-27 (L-01), REG-33 (C-05), REG-35 (C-14) | — | à faire | à faire | — | — |
+| G-06 | REG-27, REG-35 | `@changed` | vert (P1 (c), 3 oct.) | à faire | — (disparu) | E-04 |
+| G-08 | REG-27, REG-28 | `@changed` | vert (P1 (c), 3 oct.) | à faire | test de la garde de `/collegue` | E-23 |
+| L-01 | REG-27 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `ModeSwitch` | E-02, E-04 |
+| C-02 | REG-32, REG-29 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `SettingsPanel` | E-18, E-37, E-40 |
+| C-04 | REG-33, REG-30 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `OpenDayFormR1` | E-36 |
+| C-05 | REG-33, REG-29 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `DatePickerPopover` | E-05 |
+| C-06 | REG-34 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `OpenDayFormR2` | E-36, E-39 |
+| C-10 | REG-35, REG-33 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de la fiche R1 collègue | E-36, E-38 |
+| C-10b | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire | story de la fiche R1 collègue sans service | — |
+| C-11 | REG-35 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `EditBookingFormR1` | E-48 |
+| C-12 | REG-36, REG-30 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `AddBookingFormR1` | — |
+| C-13 | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `EditDayFormR1` | — |
+| C-14 | REG-35, REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `ConfirmButton` | E-04, E-38 |
+| C-20 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de la fiche R2 collègue | — |
+| C-21 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `DishForm` (ajout) | — |
+| C-22 | REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `DishForm` (modification) | E-36, E-38 |
+| C-23 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `AddBookingFormR2` | E-36 |
+| C-24 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `EditBookingFormR2` | E-36 |
+| C-30 | REG-29, REG-30, REG-31 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | test S8 (dont déconnexion pendant une écriture) | E-08, E-17, E-24 |
+| `09` § 6 | REG-27 (L-01), REG-33 (C-05), REG-35 (C-14) | — | vert (P1 (c), 3 oct.) | à faire | — | — |
 
 ### 5.3 Impression et invariants (P1 (d), puis P6)
 
