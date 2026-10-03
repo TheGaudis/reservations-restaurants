@@ -1,4 +1,5 @@
 import formatjs from "@formatjs/unplugin/vite";
+import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
@@ -24,7 +25,29 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [react(), formatjs({ ast: true, preserveWhitespace: true })],
   // Prebundled up front: a cold Vite cache otherwise reloads the browser page in the middle of a run.
-  optimizeDeps: { include: ["react-intl", "@tanstack/react-query", "valibot", "msw/browser"] },
+  // Base UI: the components wrapped in ui/ (PLAN § 3.5).
+  optimizeDeps: {
+    include: [
+      "react-intl",
+      "@tanstack/react-query",
+      "@tanstack/react-form",
+      "valibot",
+      "msw/browser",
+      "@base-ui/react/button",
+      "@base-ui/react/checkbox",
+      "@base-ui/react/collapsible",
+      "@base-ui/react/field",
+      "@base-ui/react/fieldset",
+      "@base-ui/react/input",
+      "@base-ui/react/number-field",
+      "@base-ui/react/popover",
+      "@base-ui/react/radio",
+      "@base-ui/react/radio-group",
+      "@base-ui/react/toast",
+      "@base-ui/react/toggle",
+      "@base-ui/react/toggle-group",
+    ],
+  },
   test: {
     restoreMocks: true,
     projects: [
@@ -55,6 +78,13 @@ export default defineConfig({
           setupFiles: ["src/test/setup-browser.ts"],
           browser: browser(),
         },
+      },
+      // storybookTest replaces test.include with the stories of .storybook/main.ts: a project of its own, without
+      // setupFiles (msw runs through msw-storybook-addon in .storybook/preview.tsx).
+      {
+        extends: true,
+        plugins: [storybookTest({ configDir: ".storybook" })],
+        test: { name: "storybook", browser: browser() },
       },
     ],
   },
