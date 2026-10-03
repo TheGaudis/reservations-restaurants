@@ -6,7 +6,7 @@ Références : [`PLAN.md`](PLAN.md) § 1.5 (S1), § 4.2 (écarts `E-xx`), P1 ; [
 
 ## 1. Conventions
 
-- **Fichiers** : `e2e/regression/{loading,calendar,public-r1,public-r2,staff,print,misc}.spec.ts` (répartition au § 3). Deux fichiers hors scénarios : `smoke.spec.ts` (G-04 affiché depuis le faux script) et `suite.spec.ts` (étiquette `@framework` : isolation réseau, étiquettes `@changed`, signatures des page objects).
+- **Fichiers** : `e2e/regression/{loading,loading-reads,calendar,public-r1,public-r1-send,public-r2,public-r2-cutoff,staff,print,misc}.spec.ts` (répartition au § 3), aides communes des scénarios publics dans `e2e/regression/helpers.ts`. Deux fichiers hors scénarios : `smoke.spec.ts` (G-04 affiché depuis le faux script) et `suite.spec.ts` (étiquette `@framework` : isolation réseau, étiquettes `@changed`, signatures des page objects).
 - **Étiquettes Playwright** : `test("…", { tag: [...] }, …)` avec
   - `@parity` (comportement identique attendu sur `legacy` et `react`) ou `@changed:E-xx` (écart du PLAN § 4.2 : l'assertion a une variante `legacy` et une variante `react`, choisie par `target(testInfo)`, c'est-à-dire par le nom du projet Playwright) ; un scénario peut porter plusieurs `@changed:E-xx` et garder des assertions communes ;
   - l'identifiant d'écran de `09` (`@G-01`, `@P-05`…), un par ligne de `09` citée, pour le filtre `--grep` de la CI ; `09` § 7 s'écrit `@09-7` ;
@@ -16,7 +16,7 @@ Références : [`PLAN.md`](PLAN.md) § 1.5 (S1), § 4.2 (écarts `E-xx`), P1 ; [
 - `changedTagsMatchPlanGaps` (`suite.spec.ts`) compare l'ensemble des étiquettes `@changed:E-xx` de `e2e/regression/` (scénarios écrits ou encore déclarés en `test.fixme`) aux lignes du PLAN § 4.2 dont la colonne « Scénario » n'est pas « n/a » : ni plus, ni moins. Liste attendue (45) : E-01 à E-21, E-23, E-24, E-27 à E-48 ; hors suite : E-22, E-25, E-26, E-49.
 - **Horloge** : `TEST_NOW` de `src/test/clock.ts` = `2026-10-05T07:30:00.000Z`, **lundi 5 octobre 2026, 9 h 30 à Paris** (`timezoneId: 'Europe/Paris'`), `TODAY = '2026-10-05'`. La fixture `pageClock` pose `page.clock.setFixedTime(fixedTime)` avant le test (date figée, minuteurs réels ; `fixedTime` vaut `TEST_NOW`, `test.use({ fixedTime: Date.parse('2026-09-30T07:00:00Z') })` pour une autre heure). Pour 10 h, minuit, l'inactivité et la lecture doublée : `test.use({ fixedTime: null })`, puis `page.clock.install({ time })` avant `goto`, puis `runFor` / `fastForward` ; `setSystemTime` pour avancer l'heure sans déclencher les minuteurs. Jamais d'horloge réelle.
 - **Faux script** : une instance de `createFakeAppsScript({ seed, password })` par test (`src/mocks/apps-script.ts`), exposée aux tests par la fixture `fakeScript` (`test.use({ fakeScriptOptions: { seed } })` pour un autre jeu) ; `fakeScript.db` (tables du script, modifiables en cours de test pour jouer un autre visiteur : l'etag suit le contenu) ; `fakeScript.requests` (méthode, URL, en-têtes, corps brut et `json`) ; `hold()` retient la **prochaine** requête jusqu'à l'appel de la fonction rendue (traitée à ce moment) ; `failNext(kind, message?)` fait échouer la **prochaine** requête (appels cumulés, un par requête) : `html` = page d'erreur de Google en statut 500, rien n'est traité ; `network` = requête traitée puis connexion coupée (réponse perdue de REG-19) ; `error` = `{ error: message }` sans traitement, message du verrou par défaut ; `setPassword(p)` ; `db.mailError` = raison d'échec de MailApp pour les e-mails de confirmation. ; `db.lockBusy = true` = verrou pris : toute action POST sauf `getAdminState` et `checkPassword` répond aussitôt le message du verrou (P1 (a2)). Isolation réseau en premier (`e2e/fixtures.ts`, fixtures `isolation` : `allowed` et `blocked`) ; une requête vers le script que le faux script n'a pas traitée fait échouer le test.
-- **Console stricte** : fixture `consoleLog` ; toute erreur ou tout avertissement de la console, et toute exception de la page, fait échouer le test, sauf les « Failed to load resource » d'une adresse externe (isolation, échecs demandés au faux script) et le statut 404 d'un lien profond. Une erreur provoquée par le scénario s'accepte par `consoleLog.allow(/motif/u)`.
+- **Console stricte** : fixture `consoleLog` ; toute erreur ou tout avertissement de la console, et toute exception de la page, fait échouer le test, sauf les « Failed to load resource » d'une adresse externe (isolation, échecs demandés au faux script) et le statut 404 d'un lien profond. Une erreur provoquée par le scénario s'accepte par `consoleLog.allow(/motif/u)`. Sur `legacy`, Chromium avertit quand la feuille Google Fonts préchargée n'arrive pas (isolation) dès qu'un test dure plus de quelques secondes : les scénarios publics l'acceptent par `consoleLog.allow(BLOCKED_FONT_PRELOAD)` (`e2e/pages/home.ts`, P1 (b)).
 - **Copie locale** : semée par `addInitScript` (format v1 exact de `03` § 1.1) ; `storageState` neuf par test.
 
 ## 2. Jeu de base `src/mocks/fixtures/seed.ts`
@@ -52,7 +52,7 @@ Le 2026-10-07 (J+2) n'a aucun jour, ni R1 ni R2 (variante « demain sans jour »
 
 ## 3. Scénarios REG-01 à REG-43
 
-Fichiers : `loading.spec.ts` REG-01 à REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-26 ; `staff.spec.ts` REG-27 à REG-38 ; `print.spec.ts` REG-39 à REG-42 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
+Fichiers : `loading.spec.ts` REG-01, REG-02, REG-04, REG-05, REG-07 ; `loading-reads.spec.ts` (horloge de la page en pause) REG-03, REG-06, REG-08 ; `calendar.spec.ts` REG-09 à REG-12 ; `public-r1.spec.ts` REG-13 à REG-15 ; `public-r1-send.spec.ts` REG-16 à REG-20 ; `public-r2.spec.ts` REG-21 à REG-24 ; `public-r2-cutoff.spec.ts` REG-25, REG-26 ; `staff.spec.ts` REG-27 à REG-38 ; `print.spec.ts` REG-39 à REG-42 ; `misc.spec.ts` REG-43. Chacun y est déclaré en `test.fixme` avec ses étiquettes (P1 (a1)) ; la session qui l'écrit remplace `test.fixme` par `test`.
 
 Phases de sortie : `@p4` = REG-01 à REG-26 et REG-43 ; `@p5` = REG-27 à REG-38 ; `@p6` = REG-39 à REG-42. Sessions de P1 : (b) REG-01 à REG-26 et REG-43 ; (c) REG-27 à REG-38 ; (d) REG-39 à REG-42 et les variantes « invariants » (REG-02, REG-03, REG-25, REG-29).
 
@@ -134,31 +134,31 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
-| G-01 | REG-01, REG-03 | `@parity` | à faire | à faire | story `PageSkeleton` | E-45 |
-| G-02 | REG-02, REG-05, REG-27 | `@changed` | à faire | à faire | test de `useIsFromCache` | E-47 |
-| G-03 | REG-04, REG-05, REG-06 | `@parity` | à faire | à faire | stories `LoadErrorBox` (en ligne, hors ligne, copie) | E-42 |
-| G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | à faire (smoke vert, P1 (a1), 3 oct.) | à faire | stories de `Page` | E-08 |
-| G-05 | REG-07 | `@legacy-only` | à faire | sans objet | story et test Vitest de `ConfigBanner` | E-29 |
-| G-07 | REG-27, REG-17 | `@changed` | à faire | à faire | stories et tests de `Toaster` | E-02 |
-| P-01 | REG-09, REG-11, REG-12 | `@changed` | à faire | à faire | table des touches de `CalendarGrid` | E-05, E-07, E-21 |
-| P-01b | REG-09 | `@changed` | à faire | à faire | story « semaine » | E-06 |
-| P-02 | REG-10, REG-11 | `@changed` | à faire | à faire | story « mois » | E-23 |
-| P-02b | REG-10, REG-12 | `@changed` | à faire | à faire | story « mois », jour hors période | E-43 |
-| P-03 | REG-14 | `@changed` | à faire | à faire | story `DayCardR1` sans service | — |
-| P-04 | REG-14 | `@changed` | à faire | à faire | stories `DayCardR1`, `CapacityPill` | E-27 |
-| P-05 | REG-15 à REG-20, REG-08, REG-13 | `@changed` | à faire | à faire | stories et tests de `BookingFormR1` | E-03, E-19, E-34, E-35, E-46 |
-| P-06 | REG-13, REG-17, REG-19 | `@changed` | à faire | à faire | stories de `BookingSummary` | E-12, E-32, E-33 |
-| P-07 | REG-14 | `@changed` | à faire | à faire | story `DayCardR1` complet | E-27 |
-| P-08 | REG-14 | `@changed` | à faire | à faire | story `DayCardR1` passé | — |
-| P-10 | REG-21 | `@changed` | à faire | à faire | story `DayCardR2` sans service | — |
-| P-11 | REG-21 | `@changed` | à faire | à faire | story `DayCardR2` sans plat | — |
-| P-12 | REG-21, REG-26 | `@changed` | à faire | à faire | stories `DayCardR2`, `DishRow` | E-01 |
-| P-13 | REG-22, REG-24, REG-25, REG-13 | `@changed` | à faire | à faire | stories et tests de `OrderFormR2` | E-09, E-11, E-34, E-41 |
-| P-14 | REG-23 | `@changed` | à faire | à faire | stories de `BookingSummary` R2 | E-14, E-28 |
-| P-15 | REG-12, REG-25, REG-26 | `@changed` | à faire | à faire | tests de `background/clock.ts` | E-01, E-09, E-43 |
-| P-16 | REG-21 | `@changed` | à faire | à faire | story `DayCardR2` épuisé | E-27 |
-| P-17 | REG-21 | `@changed` | à faire | à faire | story `DayCardR2` passé | — |
-| `09` § 7 | REG-43 | `@parity` | à faire | à faire | — | — |
+| G-01 | REG-01, REG-03 | `@parity` | vert (P1 (b), 3 oct.) | à faire | story `PageSkeleton` | E-45 |
+| G-02 | REG-02, REG-05, REG-27 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | à faire | test de `useIsFromCache` | E-47 |
+| G-03 | REG-04, REG-05, REG-06 | `@parity` | vert (P1 (b), 3 oct.) | à faire | stories `LoadErrorBox` (en ligne, hors ligne, copie) | E-42 |
+| G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | vert (P1 (b), 3 oct.) | à faire | stories de `Page` | E-08 |
+| G-05 | REG-07 | `@legacy-only` | vert (P1 (b), 3 oct.) | sans objet | story et test Vitest de `ConfigBanner` | E-29 |
+| G-07 | REG-27, REG-17 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | à faire | stories et tests de `Toaster` | E-02 |
+| P-01 | REG-09, REG-11, REG-12 | `@changed` | vert (P1 (b), 3 oct.) | à faire | table des touches de `CalendarGrid` | E-05, E-07, E-21 |
+| P-01b | REG-09 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story « semaine » | E-06 |
+| P-02 | REG-10, REG-11 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story « mois » | E-23 |
+| P-02b | REG-10, REG-12 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story « mois », jour hors période | E-43 |
+| P-03 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR1` sans service | — |
+| P-04 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories `DayCardR1`, `CapacityPill` | E-27 |
+| P-05 | REG-15 à REG-20, REG-08, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories et tests de `BookingFormR1` | E-03, E-19, E-34, E-35, E-46 |
+| P-06 | REG-13, REG-17, REG-19 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories de `BookingSummary` | E-12, E-32, E-33 |
+| P-07 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR1` complet | E-27 |
+| P-08 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR1` passé | — |
+| P-10 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` sans service | — |
+| P-11 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` sans plat | — |
+| P-12 | REG-21, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories `DayCardR2`, `DishRow` | E-01 |
+| P-13 | REG-22, REG-24, REG-25, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories et tests de `OrderFormR2` | E-09, E-11, E-34, E-41 |
+| P-14 | REG-23 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories de `BookingSummary` R2 | E-14, E-28 |
+| P-15 | REG-12, REG-25, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | à faire | tests de `background/clock.ts` | E-01, E-09, E-43 |
+| P-16 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` épuisé | E-27 |
+| P-17 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` passé | — |
+| `09` § 7 | REG-43 | `@parity` | vert (P1 (b), 3 oct.) | à faire | — | — |
 
 ### 5.2 Collègue (P1 (c), puis P5)
 
