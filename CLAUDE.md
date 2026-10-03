@@ -16,14 +16,20 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Commandes
 
+- `pnpm install` : dépendances (pnpm 12, Node ≥ 22.18) et hooks git (`lefthook install`).
 - `pnpm dev` : serveur de développement sur le **faux script** (msw, `.env.development`). `pnpm dev:real` (vrai script,
   `.env.real.local`, bandeau « Données réelles ») est réservé au responsable, jamais lancé par un agent.
 - `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert (port 4311). Jamais `vite preview` (il fait du SSR).
-- `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node`.
-- `pnpm check` (avant une PR) : idem + tests navigateur, stories et knip. Puis `pnpm build:e2e` et les E2E de ton périmètre.
-- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (après `pnpm build:e2e`), `pnpm test:e2e:legacy`,
-  `pnpm storybook`, `pnpm budget`.
-- `pnpm lint:fix` = `oxlint --fix && oxfmt` ; `pnpm i18n:extract` après tout ajout ou changement de message.
+- `pnpm check:fast` (avant chaque commit, et hook pre-push) : extraction i18n, format, lint, `tsc`, tests `node` et `node-ny`.
+- `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et knip. Puis `pnpm build:e2e`,
+  `git diff --exit-code src/routeTree.gen.ts translations/fr.json` et les E2E de ton périmètre.
+- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`), `pnpm test:e2e:legacy`,
+  `pnpm storybook` (dès P3), `pnpm budget` (après `pnpm build`). Un projet Playwright s'écrit avec `=` :
+  `pnpm test:e2e --project=react-only e2e/smoke.spec.ts`. Deux sessions en parallèle : `E2E_REACT_PORT` et `E2E_LEGACY_PORT`.
+- oxlint et oxfmt passent par les scripts (`pnpm lint`, `pnpm format`, `pnpm lint:fix`), qui ajoutent `--disable-nested-config` :
+  sans lui, les deux outils lisent la configuration du projet d'essai de `docs/migration/recherche/`.
+- `pnpm i18n:extract` après tout ajout ou changement de message.
+- CI (`.github/workflows/ci.yml`) : jobs `check`, `browser`, `e2e` sur chaque PR ; `deploy` sur un push vers `main` seulement.
 
 ## Environnement
 
@@ -47,8 +53,9 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Écritures jamais doublées, rejouées ni interrompues ; `requestId` créé au montage du formulaire, gardé pour un nouvel essai.
 - POST en `Content-Type: text/plain;charset=utf-8`, aucun autre en-tête ; GET sans en-tête.
 - Heure de référence : Europe/Paris (`domain/paris.ts`) ; jours métier = chaînes ISO ; jamais `new Date()` ni `Date.now()` au rendu.
-- Hydratation (arbitrage 16) : `pendingMinMs` garde sa valeur par défaut (squelette ≤ 600 ms) ; jamais `pendingMinMs: 0` seul,
-  jamais de `onRecoverableError` pour masquer l'erreur #418.
+- Hydratation (arbitrage 16) : `pendingMinMs` garde sa valeur par défaut, sauf sur une route dont le composant rend exactement
+  `PageSkeleton` tant que `useHydrated()` (`features/page/use-hydrated.ts`) vaut `false` (route `/`, essai validé en P0 (b)) ;
+  jamais `pendingMinMs: 0` sans cette barrière, jamais de `onRecoverableError` pour masquer l'erreur #418.
 
 ## Où vit l'état
 
@@ -60,7 +67,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## React
 
-- 0 à 2 `useEffect` dans toute l'appli, chacun commenté (système extérieur à synchroniser).
+- 0 à 2 `useEffect` dans toute l'appli, chacun commenté sur la ligne au-dessus (système extérieur à synchroniser ; vérifié en CI).
 - Pas de `useMemo`, `useCallback`, `memo` par réflexe (React Compiler) ; pas de `forwardRef`.
 - Minuteurs et écouteurs globaux (horloge, inactivité, actualisation) dans `background/`, au niveau module. Minuteur local d'un
   composant (`ConfirmButton`, signal de lenteur D-15) : armé dans un gestionnaire, gardé dans une `ref`, nettoyé par la fonction
@@ -107,6 +114,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
   `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, hydratation, impression PDF,
   accessibilité) ; projet `production` en lecture seule (P8).
 - Pas de `test.skip`, pas de `retries` local pour masquer un test instable : le noter au journal.
+- Un test rangé dans `src/routes/` porte le préfixe `-` (`-routes.test.tsx`) : sinon le générateur le lit comme une route.
 
 ## Lint et types
 
