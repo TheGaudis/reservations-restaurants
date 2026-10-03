@@ -3,6 +3,26 @@
     "defaultMessage": "Annuler",
     "description": "00 § 2.3 — bouton de fermeture d'un formulaire"
   },
+  "common.amount.euroAndVouchers": {
+    "defaultMessage": "{euros} + {vouchers}",
+    "description": "01 § 3.5, 04 § 8 (amountsText) — montant en euros et tickets restaurant (« 9,00 € + 1 ticket restaurant »)"
+  },
+  "common.amount.seats": {
+    "defaultMessage": "{count, plural, one {# couvert} other {# couverts}}",
+    "description": "00 § 3 (plural), 04 § 8 — nombre de couverts : 0 et 1 au singulier"
+  },
+  "common.amount.voucherPrice": {
+    "defaultMessage": "prix d'un ticket restaurant",
+    "description": "00 § 2.3, 01 § 3.5 (itemPriceText) — prix affiché d'un plat au ticket restaurant"
+  },
+  "common.amount.vouchers": {
+    "defaultMessage": "{count, plural, one {# ticket restaurant} other {# tickets restaurant}}",
+    "description": "04 § 8 (ticketsText) — nombre de tickets restaurant"
+  },
+  "common.amount.withPrice": {
+    "defaultMessage": "{label} — {price}",
+    "description": "00 § 3 (dash), 04 § 8 — séparateur insécable entre un libellé et son prix (« Lasagnes — 4,50 € »)"
+  },
   "common.calendar.week.sameMonth": {
     "defaultMessage": "{startDay} – {endDayMonth} {endYear}",
     "description": "05 § 2.3 — libellé d'une semaine dans un seul mois (« 5 – 11 oct. 2026 »)"
@@ -34,6 +54,26 @@
   "common.notFound.title": {
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
+  },
+  "public.r1.form.total": {
+    "defaultMessage": "{seats, plural, one {# couvert} other {# couverts}} · Total : {total}",
+    "description": "04 § 5.2 — total en direct du formulaire R1 (« 3 couverts · Total : 16,00 € »)"
+  },
+  "public.r2.form.total": {
+    "defaultMessage": "Total : {amounts}",
+    "description": "04 § 5.3 — total en direct du formulaire R2 (« Total : 9,00 € + 1 ticket restaurant »)"
+  },
+  "public.r2.form.totalWithGap": {
+    "defaultMessage": "Total (hors plats sans prix indiqué) : {amounts}",
+    "description": "04 § 5.3, D-03 — total en direct du formulaire R2 avec un plat sans prix"
+  },
+  "public.summary.r1.total": {
+    "defaultMessage": "{seats} — {total}",
+    "description": "04 § 7 — total du récapitulatif R1 (« 3 couverts — 16,00 € », espaces normales)"
+  },
+  "public.summary.r2.totalWithGap": {
+    "defaultMessage": "{amounts} (hors plats sans prix indiqué)",
+    "description": "04 § 7, D-03, E-28 — total du récapitulatif R2 avec un plat sans prix"
   },
   "ui.numberField.roleDescription": {
     "defaultMessage": "champ numérique",
