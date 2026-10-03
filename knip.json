@@ -6,6 +6,7 @@
     "!src/mocks/**!",
     "!src/test/**!",
     "!src/intl/common-messages.ts!", // retirer en P4 (a), qui l'importe dans la page
+    "!src/ui/**!", // retirer quand chaque composant de ui/ a un importeur de production (P7 (a) au plus tard)
     "e2e/**/*.ts",
     "scripts/*.ts",
     ".storybook/*.{ts,tsx}"

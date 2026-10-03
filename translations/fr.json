@@ -18,5 +18,9 @@
   "common.notFound.title": {
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
+  },
+  "ui.spinner.label": {
+    "defaultMessage": "Chargement en cours",
+    "description": "08 § 4.15 — nom accessible de l'indicateur de chargement"
   }
 }
