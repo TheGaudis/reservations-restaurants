@@ -66,23 +66,34 @@ describe("ViewToggle", () => {
     await expect.element(week).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("is reached with Tab; the arrows move between views, Enter and Space choose", async () => {
+  it("puts each view in the Tab order, as the legacy segGroup; Enter and Space choose (08 § 6.3)", async () => {
     const onChange = vi.fn();
     const { screen } = await renderWithProviders(<CalendarView onChange={onChange} />);
     const week = screen.getByRole("button", { name: "Semaine" });
     const month = screen.getByRole("button", { name: "Mois" });
     await userEvent.tab();
     await expect.element(week).toHaveFocus();
-    await userEvent.keyboard("{ArrowRight}");
+    await userEvent.tab();
     await expect.element(month).toHaveFocus();
-    expect(onChange).not.toHaveBeenCalled();
     await userEvent.keyboard("{Enter}");
     await expect.element(month).toHaveAttribute("aria-pressed", "true");
-    await userEvent.keyboard("{ArrowLeft}");
+    await userEvent.tab({ shift: true });
     await expect.element(week).toHaveFocus();
     await userEvent.keyboard(" ");
     await expect.element(week).toHaveAttribute("aria-pressed", "true");
     expect(onChange.mock.calls).toStrictEqual([["month"], ["week"]]);
+  });
+
+  it("leaves the arrow keys alone: no roving focus", async () => {
+    const { screen } = await renderWithProviders(<CalendarView />);
+    const week = screen.getByRole("button", { name: "Semaine" });
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowRight}");
+    await expect.element(week).toHaveFocus();
+    await expect.element(week).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", { name: "Mois" }).element().getAttribute("tabindex"),
+    ).not.toBe("-1");
   });
 
   it("passes aria-controls and aria-expanded of « Collègue » (06 § 1.1)", async () => {

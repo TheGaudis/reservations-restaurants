@@ -2,6 +2,9 @@
    from Base UI's data-pressed. --segment-min-width: set by the parent (« Client / Collègue » of the header). */
 .group {
   display: inline-flex;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
   background: var(--surface);
   border: var(--border-width) solid var(--outline);
   border-radius: var(--radius-full);

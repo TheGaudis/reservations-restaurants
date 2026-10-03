@@ -1,5 +1,4 @@
 import { Toggle } from "@base-ui/react/toggle";
-import { ToggleGroup } from "@base-ui/react/toggle-group";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
@@ -32,7 +31,7 @@ export interface ViewToggleProps<V extends string> {
 
 /**
  * Choice between views, drawn as Material 3 segmented buttons (08 § 4.5, § 6.3): toggle buttons with `aria-pressed`
- * in a named group. Tab reaches the group, the arrow keys move between its buttons, Enter or Space chooses.
+ * in a named group. Each segment is a stop of the Tab key, as in the legacy `segGroup`; Enter or Space chooses.
  */
 export function ViewToggle<V extends string>({
   "aria-label": ariaLabel,
@@ -46,16 +45,9 @@ export function ViewToggle<V extends string>({
   // Segment chosen by this user: it bounces once (`seg-pop` of 08 § 4.5).
   const [popped, setPopped] = useState<V | null>(null);
   return (
-    <ToggleGroup
+    // A <fieldset> is a group (role "group"), named by aria-label like the legacy segGroup.
+    <fieldset
       aria-label={ariaLabel}
-      value={[value]}
-      onValueChange={(pressed) => {
-        // A second click on the pressed segment empties the group (R-16): the view stays.
-        const item = items.find((candidate) => candidate.value === pressed[0]);
-        if (item === undefined) return;
-        setPopped(item.value);
-        onValueChange(item.value);
-      }}
       data-size={size}
       data-full-width={fullWidth || undefined}
       className={className === undefined ? styles["group"] : `${styles["group"]} ${className}`}
@@ -63,7 +55,13 @@ export function ViewToggle<V extends string>({
       {items.map((item) => (
         <Toggle
           key={item.value}
-          value={item.value}
+          pressed={item.value === value}
+          onPressedChange={(pressed) => {
+            // A second click on the pressed segment would release it (R-16): the view stays.
+            if (!pressed) return;
+            setPopped(item.value);
+            onValueChange(item.value);
+          }}
           aria-controls={item["aria-controls"]}
           aria-expanded={item["aria-expanded"]}
           data-pop={popped === item.value || undefined}
@@ -75,6 +73,6 @@ export function ViewToggle<V extends string>({
           <span>{item.label}</span>
         </Toggle>
       ))}
-    </ToggleGroup>
+    </fieldset>
   );
 }
