@@ -93,6 +93,14 @@ describe("useAppState (PLAN § 3.3)", () => {
 });
 
 describe("useIsFromCache (G-02)", () => {
+  it("is false before any data, without suspending nor reading (header of the skeleton)", async () => {
+    const { result } = await renderHook(() => useIsFromCache(), {
+      wrapper: wrapperOf(createQueryClient()),
+    });
+    expect(result.current).toBe(false);
+    expect(fakeScript().requests).toStrictEqual([]);
+  });
+
   it("is true for a restored copy, false once a read of the script succeeds", async () => {
     const queryClient = restoredCopy();
     const { result } = await renderHook(() => useIsFromCache(), {
@@ -100,7 +108,7 @@ describe("useIsFromCache (G-02)", () => {
     });
     expect(result.current).toBe(true);
     // AutoRefresh reads the script (here, by hand): the fake script answers with the seed.
-    await queryClient.refetchQueries({ queryKey: publicStateOptions.queryKey });
+    await read(queryClient);
     await expect.poll(() => result.current).toBe(false);
     expect(queryClient.getQueryData(publicStateOptions.queryKey)?.etag).toBe("E1");
   });

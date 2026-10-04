@@ -67,13 +67,16 @@ export function useLoadedAppState<T>(select: (state: AppState) => T): T | undefi
 
 /**
  * The public state shown comes from the local copy and no read has succeeded yet (G-02): « Réserver » stays
- * active, the staff login is refused (PLAN § 3.3.1, step 5).
- * @public read by the mode switch from P5 (a)
+ * active, the staff login is refused (PLAN § 3.3.1, step 5). False before any data. Never suspends, never reads
+ * the script: the mode switch of the header renders it with or without data.
  */
 export function useIsFromCache(): boolean {
-  return (
-    useSuspenseQuery({ ...publicStateOptions, refetchOnMount: false }).dataUpdatedAt < APP_START
-  );
+  const { data, dataUpdatedAt } = useQuery({
+    ...publicStateOptions,
+    enabled: false,
+    select: () => true,
+  });
+  return data === true && dataUpdatedAt < APP_START;
 }
 
 /** Reads of the public state during this page load, for the load error box (G-03, 03 § 3). */

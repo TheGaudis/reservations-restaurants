@@ -28,10 +28,10 @@ async function depsAt(url: string) {
   const router = getRouter();
   stopBackgroundTasks(); // this test drives its own task, with doubles
   router.update({ ...router.options, history: createMemoryHistory({ initialEntries: [url] }) });
-  await router.load();
   const { queryClient } = router.options.context;
   queryClient.setQueryData(stateKeys.public(), { settings: { name2: "Aristide" } });
   queryClient.setQueryData(STAFF_KEY, { r1Bookings: [{ name: "Cyrille Ungerer" }] });
+  await router.load();
   const deps: BackgroundDeps = {
     queryClient,
     router,
@@ -65,6 +65,8 @@ describe("afterLogout (PLAN § 3.3.4)", () => {
   });
 
   it("leaves /collegue for / with the calendars only (step 6, a-13, a-14)", async () => {
+    // The guard of /collegue lets in an open session only.
+    useSessionStore.getState().open("secret");
     const { deps, router } = await depsAt(
       "/collegue?r1=2026-10-07&r1vue=mois&r2periode=2026-11-02&parametres=true&editResa=r1%3AB1&ouvrir=r2",
     );

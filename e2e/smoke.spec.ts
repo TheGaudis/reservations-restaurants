@@ -17,12 +17,18 @@ test("root serves the prerendered shell", async ({ page }) => {
   ]);
 });
 
-test("deep link /collegue gets 404.html and the app starts", async ({ page }) => {
-  const response = await page.goto("./collegue");
+test("deep link /collegue gets 404.html, then the login panel of the guard", async ({ page }) => {
+  const response = await page.goto("./collegue?r1=2026-10-06");
   expect(response?.status()).toBe(404);
-  await expect(page.getByRole("heading", { level: 1, name: "Page introuvable" })).toBeVisible();
-  await page.getByRole("link", { name: "Revenir à l'accueil" }).click();
-  await expect(page).toHaveURL(/\/reservations-restaurants\/$/u);
+  // No staff session in memory: the guard opens the login on / and keeps the URL to come back to (PLAN § 3.2).
+  await expect(page.getByLabel("Mot de passe collègue", { exact: true })).toBeVisible();
+  const url = new URL(page.url());
+  expect(url.pathname).toBe("/reservations-restaurants/");
+  expect(Object.fromEntries(url.searchParams)).toStrictEqual({
+    r1: "2026-10-06",
+    connexion: "true",
+    retour: "/collegue?r1=2026-10-06",
+  });
 });
 
 test("/index.html redirects to the root", async ({ page }) => {

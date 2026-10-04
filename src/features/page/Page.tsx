@@ -60,8 +60,9 @@ export function Page({ modeSwitch, panels, r1, r2 }: PageProps) {
       <PageLayout
         texts={texts}
         busy={!loaded && !failed}
-        modeSwitch={modeSwitch}
-        panels={panels}
+        // Not in the prerendered skeleton: rendered once React hydrated (client-only barrier).
+        modeSwitch={hydrated ? modeSwitch : undefined}
+        panels={loaded ? panels : undefined}
         alert={failed ? <LoadErrorBox fromCache={fromCache} onRetry={retry} /> : null}
         r1={loaded ? columnContent(r1) : <ColumnSkeleton still={failed} />}
         r2={loaded ? columnContent(r2) : <ColumnSkeleton still={failed} />}

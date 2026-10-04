@@ -1,0 +1,29 @@
+/* .empty, .day-meta, .item-actions of legacy/app.css (05 § 4.3, § 5.1, § 6.3). */
+.empty {
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+}
+
+.meta {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.dishes {
+  min-width: 0;
+}
+
+.dishActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* No action of the dish to show (slots still empty, or none applies). */
+.dishActions:empty {
+  display: none;
+}

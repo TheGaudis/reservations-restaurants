@@ -167,6 +167,7 @@
   --slash-skew: -22deg;
   --mark-radius: 2px; /* .slash-mark, .brand-signature strokes */
   --mode-switch-segment-width: 108px; /* .mode-switch .seg-btn (08 § 4.5): ModeSwitch sets --segment-min-width to it */
+  --login-field-width: 170px; /* .admin-login input (06 § 1.1): password field of the login panel */
 }
 
 /* Restaurant accents, set on a container (docs/spec/08 § 2); blue keeps the :root values. */

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as CollegueRouteImport } from './routes/collegue'
 import { Route as IndexDothtmlRouteImport } from './routes/index[.]html'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CollegueRoute = CollegueRouteImport.update({
+  id: '/collegue',
+  path: '/collegue',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexDothtmlRoute = IndexDothtmlRouteImport.update({
   id: '/index.html',
   path: '/index.html',
@@ -32,30 +38,34 @@ const IndexDothtmlRoute = IndexDothtmlRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/collegue': typeof CollegueRoute
   '/index.html': typeof IndexDothtmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/collegue': typeof CollegueRoute
   '/index.html': typeof IndexDothtmlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/collegue': typeof CollegueRoute
   '/index.html': typeof IndexDothtmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$' | '/index.html'
+  fullPaths: '/' | '/$' | '/collegue' | '/index.html'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$' | '/index.html'
-  id: '__root__' | '/' | '/$' | '/index.html'
+  to: '/' | '/$' | '/collegue' | '/index.html'
+  id: '__root__' | '/' | '/$' | '/collegue' | '/index.html'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  CollegueRoute: typeof CollegueRoute
   IndexDothtmlRoute: typeof IndexDothtmlRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/collegue': {
+      id: '/collegue'
+      path: '/collegue'
+      fullPath: '/collegue'
+      preLoaderRoute: typeof CollegueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/index.html': {
       id: '/index.html'
       path: '/index.html'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  CollegueRoute: CollegueRoute,
   IndexDothtmlRoute: IndexDothtmlRoute,
 }
 export const routeTree = rootRouteImport

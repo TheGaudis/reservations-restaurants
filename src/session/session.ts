@@ -4,7 +4,6 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 /**
  * Why a staff session ended (06 § 1.5): « Client » button, 10 minutes of inactivity, password changed.
- * @public `background/logout.ts` reads it; it enters the production graph with P5 (a).
  */
 export type SessionEnd = "logout" | "inactivity" | "password-changed";
 

@@ -1,0 +1,95 @@
+/* .mode-switch and .admin-login of legacy/app.css (06 § 1.1, 08 § 4.5, § 7.4). */
+.box {
+  text-align: right;
+}
+
+/* 108 px segments (08 § 4.5). */
+.switch {
+  --segment-min-width: var(--mode-switch-segment-width);
+}
+
+/* The panel unfolds under the switch: grid rows 0fr → 1fr, entry that slows down, exit that speeds up (06 § 1.1). */
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  opacity: 0;
+  transform: translateY(calc(-1 * var(--space-1)));
+  transition:
+    grid-template-rows var(--dur) var(--ease-exit),
+    margin-top var(--dur) var(--ease-exit),
+    opacity var(--dur-fast) linear,
+    transform var(--dur) var(--ease-exit);
+}
+
+.panel[data-open] {
+  grid-template-rows: 1fr;
+  margin-top: var(--space-2);
+  opacity: 1;
+  transform: none;
+  transition:
+    grid-template-rows var(--dur-slow) var(--ease-enter),
+    margin-top var(--dur-slow) var(--ease-enter),
+    opacity var(--dur) linear,
+    transform var(--dur-slow) var(--ease-enter);
+}
+
+.login {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Once unfolded, the focus rings are no longer clipped. */
+.panel[data-open] .login {
+  animation: unclip 0s var(--dur-slow) forwards;
+}
+
+/* The field of `PasswordField` sits on the row of « Valider », without its bottom margin. */
+.login > :first-child {
+  margin-bottom: 0;
+}
+
+.login input {
+  width: var(--login-field-width);
+}
+
+@keyframes unclip {
+  to {
+    overflow: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel[data-open] .login {
+    overflow: visible;
+  }
+}
+
+/* Under 640 px the header stacks: switch and field take the whole width (06 § 1.1, 08 § 7.4). */
+@media (max-width: 640px) {
+  .box {
+    text-align: left;
+  }
+
+  .box .switch {
+    display: flex;
+  }
+
+  .login {
+    justify-content: flex-start;
+  }
+
+  .login > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .login input {
+    width: 100%;
+  }
+}
