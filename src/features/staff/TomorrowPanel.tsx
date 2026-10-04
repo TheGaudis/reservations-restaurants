@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { portionsBookedForDay, seatsBooked } from "@/domain/capacity";
@@ -14,14 +14,6 @@ import styles from "@/features/staff/TomorrowPanel.module.css";
 // Slot `tomorrow` of `StaffPage` (journal p5a): panel « Demain ({date}) », first of the staff mode, which merges the
 // old « Demain » and « Résumé pour demain » panels (06 § 2.1, 07 § 5, D-07, E-30, C-01, C-03). The totals row is here;
 // the blocks per restaurant and their print buttons are in `TomorrowBlocks`.
-
-const messages = defineMessages<{ title: { date: string } }>({
-  title: {
-    id: "staff.tomorrow.title",
-    defaultMessage: "Demain ({date})",
-    description: "06 § 2.1, D-07 — titre du panneau du lendemain ; date longue",
-  },
-});
 
 /** Seats and portions booked for `tomorrow`; bookings of a deleted dish are left out (D-07, b-3, E-30). */
 function totalsOf(state: FullState, tomorrow: IsoDate) {
@@ -38,7 +30,6 @@ function totalsOf(state: FullState, tomorrow: IsoDate) {
  * restaurant 1 and the portions booked in restaurant 2, numbers in bold (06 § 2.1). A region named by its title.
  */
 export function TomorrowPanel() {
-  const intl = useIntl();
   const titleId = useId();
   const tomorrow = addDays(useToday(), 1);
   const { name1, name2, seats, portions } = useStaffState((state) => totalsOf(state, tomorrow));
@@ -46,7 +37,12 @@ export function TomorrowPanel() {
     <section className={styles["panel"]} aria-labelledby={titleId}>
       {/* h2 right under the page's h1, before the column titles (axe `heading-order`, PLAN § 1.5, S5). */}
       <h2 id={titleId} className={styles["title"]}>
-        {intl.formatMessage(messages.title, { date: formatLongDate(tomorrow) })}
+        <FormattedMessage
+          id="staff.tomorrow.title"
+          defaultMessage="Demain ({date})"
+          description="06 § 2.1, D-07 — titre du panneau du lendemain ; date longue"
+          values={{ date: formatLongDate(tomorrow) }}
+        />
       </h2>
       <div className={styles["totals"]}>
         <p className={styles["total"]}>

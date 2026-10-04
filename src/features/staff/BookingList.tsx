@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { isPast } from "@/domain/cutoff";
@@ -24,14 +24,6 @@ import { useDeleteBooking } from "@/mutations/staff/bookings";
 import { showStaffError } from "@/mutations/staff/write";
 
 import styles from "@/features/staff/BookingList.module.css";
-
-const messages = defineMessages({
-  empty: {
-    id: "staff.bookingList.empty",
-    defaultMessage: "Aucune réservation.",
-    description: "05 § 4.6 — liste des réservations vide (fiche R1, plat R2)",
-  },
-});
 
 /** Deletion of a booking from its list, which stays in the page when its last row leaves (06 § 5.2). */
 function useDeleteFromList(restaurant: Restaurant) {
@@ -58,12 +50,17 @@ interface ListFrameProps {
 
 /** `.bookings-list` (05 § 4.6): the rows in the order of the sheet, never sorted (D-08 not retained), or « Aucune réservation. ». */
 function ListFrame({ iso, count, children }: ListFrameProps) {
-  const intl = useIntl();
   const past = isPast(iso, useToday());
   return (
     <div className={styles["list"]} data-past={past || undefined}>
       {count === 0 ? (
-        <p className={styles["empty"]}>{intl.formatMessage(messages.empty)}</p>
+        <p className={styles["empty"]}>
+          <FormattedMessage
+            id="staff.bookingList.empty"
+            defaultMessage="Aucune réservation."
+            description="05 § 4.6 — liste des réservations vide (fiche R1, plat R2)"
+          />
+        </p>
       ) : (
         children
       )}

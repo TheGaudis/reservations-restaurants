@@ -1,6 +1,6 @@
 import { useIsMutating } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { capacityClass, findDay, remainingSeats } from "@/domain/capacity";
@@ -21,25 +21,12 @@ import { bookingKeys } from "@/mutations/booking-keys";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 const messages = defineMessages<{
-  seats: { remaining: string; capacity: string };
   menu: Record<string, never>;
-  fullNote: Record<string, never>;
 }>({
-  seats: {
-    id: "public.r1.dayCard.seats",
-    defaultMessage: "{remaining} / {capacity} couverts",
-    description:
-      "05 § 4.5, 04 § 4.2 — jauge de la fiche R1 (« 12 / 20 couverts », toujours au pluriel ; restant négatif possible)",
-  },
   menu: {
     id: "public.r1.dayCard.menu",
     defaultMessage: "Menu du jour",
     description: "05 § 4.4, 04 § 4.2 — surtitre du bloc menu de la fiche R1",
-  },
-  fullNote: {
-    id: "public.r1.dayCard.fullNote",
-    defaultMessage: "Complet.",
-    description: "annexe F, D-02 — phrase sous la fiche R1 complète, à la place de « Réserver »",
   },
 });
 
@@ -70,10 +57,12 @@ export function DayCardR1({ form }: DayCardR1Props) {
       percent={gaugePercent(remaining, day.capacity)}
       state={capacityClass(remaining, day.capacity)}
     >
-      {intl.formatMessage(messages.seats, {
-        remaining: String(remaining),
-        capacity: String(day.capacity),
-      })}
+      <FormattedMessage
+        id="public.r1.dayCard.seats"
+        defaultMessage="{remaining} / {capacity} couverts"
+        description="05 § 4.5, 04 § 4.2 — jauge de la fiche R1 (« 12 / 20 couverts », toujours au pluriel ; restant négatif possible)"
+        values={{ remaining: String(remaining), capacity: String(day.capacity) }}
+      />
     </CapacityPill>
   );
   return (
@@ -85,7 +74,13 @@ export function DayCardR1({ form }: DayCardR1Props) {
       ) : null}
       {(!full || sending) && !past && formOpen ? form : null}
       {full && !past && !(sending && formOpen) ? (
-        <DayNote>{intl.formatMessage(messages.fullNote)}</DayNote>
+        <DayNote>
+          <FormattedMessage
+            id="public.r1.dayCard.fullNote"
+            defaultMessage="Complet."
+            description="annexe F, D-02 — phrase sous la fiche R1 complète, à la place de « Réserver »"
+          />
+        </DayNote>
       ) : null}
     </DayCard>
   );

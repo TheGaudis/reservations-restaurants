@@ -1,10 +1,10 @@
 import { useSelector } from "@tanstack/react-form";
+import { FormattedMessage } from "react-intl";
 
 import type { Restaurant } from "@/domain/types";
 import { columnFocus, useCloseBookingForm } from "@/features/booking/booking-columns";
 import { DayActions } from "@/features/calendar/DayCard";
 import { commonMessages } from "@/intl/common-messages";
-import { intl } from "@/intl/intl";
 import { Button } from "@/ui/button/Button";
 import { useFormContext } from "@/ui/form/form-context";
 import { SubmitButton } from "@/ui/form/SubmitButton";
@@ -20,7 +20,9 @@ export function BookingFormActions({ restaurant }: { restaurant: Restaurant }) {
   const close = useCloseBookingForm(restaurant);
   return (
     <DayActions>
-      <SubmitButton>{intl.formatMessage(commonMessages.confirmBooking)}</SubmitButton>
+      <SubmitButton>
+        <FormattedMessage {...commonMessages.confirmBooking} />
+      </SubmitButton>
       <Button
         variant="ghost"
         disabled={sending}
@@ -29,7 +31,7 @@ export function BookingFormActions({ restaurant }: { restaurant: Restaurant }) {
           close();
         }}
       >
-        {intl.formatMessage(commonMessages.cancel)}
+        <FormattedMessage {...commonMessages.cancel} />
       </Button>
     </DayActions>
   );

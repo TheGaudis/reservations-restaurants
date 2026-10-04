@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import type { BookingLine } from "@/features/staff/booking-line";
 import { staffCommonMessages } from "@/intl/staff-messages";
@@ -9,19 +9,8 @@ import { ConfirmButton } from "@/ui/button/ConfirmButton";
 
 import styles from "@/features/staff/BookingList.module.css";
 
-const messages = defineMessages({
-  separator: {
-    id: "staff.booking.line.separator",
-    defaultMessage: " — ",
-    description:
-      "05 § 4.6 — séparateur des parties d'une ligne de réservation, espaces normales (join(' — '))",
-  },
-});
-
 /** « **Nom** — Classe — 3 couverts — 16,00 € — contact — *observation* » (05 § 4.6). */
 function LineText({ line }: { line: BookingLine }) {
-  const intl = useIntl();
-  const separator = intl.formatMessage(messages.separator);
   const parts: Array<{ key: string; node: ReactNode }> = [];
   if (line.name !== "") {
     parts.push({ key: "name", node: <b className={styles["name"]}>{line.name}</b> });
@@ -34,7 +23,13 @@ function LineText({ line }: { line: BookingLine }) {
     <span className={styles["line"]}>
       {parts.map((part, index) => (
         <Fragment key={part.key}>
-          {index > 0 ? separator : null}
+          {index > 0 ? (
+            <FormattedMessage
+              id="staff.booking.line.separator"
+              defaultMessage=" — "
+              description="05 § 4.6 — séparateur des parties d'une ligne de réservation, espaces normales (join(' — '))"
+            />
+          ) : null}
           {part.node}
         </Fragment>
       ))}
@@ -70,7 +65,7 @@ export function BookingRow({
       <LineText line={line} />
       <span className={styles["actions"]}>
         <Button id={editButtonId} size="small" aria-expanded={expanded} onClick={onEdit}>
-          {intl.formatMessage(staffCommonMessages.edit)}
+          <FormattedMessage {...staffCommonMessages.edit} />
         </Button>
         <ConfirmButton
           size="small"
@@ -78,7 +73,7 @@ export function BookingRow({
           busy={deleting}
           onConfirm={onDelete}
         >
-          {intl.formatMessage(staffCommonMessages.delete)}
+          <FormattedMessage {...staffCommonMessages.delete} />
         </ConfirmButton>
       </span>
     </div>

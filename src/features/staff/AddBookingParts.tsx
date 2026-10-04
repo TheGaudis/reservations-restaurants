@@ -1,6 +1,7 @@
+import { FormattedMessage } from "react-intl";
+
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { addButtonId, addFormId, addFormTarget } from "@/features/staff/add-booking";
-import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
 import { requestFocus } from "@/ui/pending-focus";
@@ -33,7 +34,7 @@ export function AddPersonButton({ ajout }: AddPersonButtonProps) {
         navigate({ ...search, ajout }, { replace: false });
       }}
     >
-      {intl.formatMessage(staffCommonMessages.addPerson)}
+      <FormattedMessage {...staffCommonMessages.addPerson} />
     </Button>
   );
 }

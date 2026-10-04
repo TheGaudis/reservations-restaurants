@@ -1,6 +1,6 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useId } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import { SettingsForm } from "@/features/staff/SettingsForm";
 import { ExpandMoreIcon, SettingsIcon } from "@/ui/icons";
@@ -9,14 +9,6 @@ import styles from "@/features/staff/SettingsPanel.module.css";
 
 // Slot `settings` of `StaffPage` (journal p5a): panel « Paramètres », open while `parametres=true` (06 § 2.2, D-20,
 // C-02).
-
-const messages = defineMessages({
-  title: {
-    id: "staff.settings.title",
-    defaultMessage: "Paramètres",
-    description: "06 § 2.2 — titre du panneau dépliant des paramètres",
-  },
-});
 
 interface SettingsSearch {
   parametres?: boolean | undefined;
@@ -28,7 +20,6 @@ interface SettingsSearch {
  * the logout leaves `/collegue`, so the panel is closed at the next login (E-24).
  */
 export function SettingsPanel() {
-  const intl = useIntl();
   const bodyId = useId();
   const navigate = useNavigate();
   const search: SettingsSearch = useSearch({ strict: false });
@@ -50,7 +41,13 @@ export function SettingsPanel() {
         }}
       >
         <SettingsIcon className={styles["icon"]} />
-        <span>{intl.formatMessage(messages.title)}</span>
+        <span>
+          <FormattedMessage
+            id="staff.settings.title"
+            defaultMessage="Paramètres"
+            description="06 § 2.2 — titre du panneau dépliant des paramètres"
+          />
+        </span>
         <ExpandMoreIcon className={styles["chevron"]} />
       </button>
       {open ? (

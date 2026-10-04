@@ -1,4 +1,4 @@
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { bookingAmounts } from "@/domain/print";
@@ -19,19 +19,6 @@ import { formatLongDate } from "@/intl/dates";
 import { PrintLayout } from "@/ui/print/PrintLayout";
 import { PrintTable } from "@/ui/print/PrintTable";
 import type { PrintRow } from "@/ui/print/PrintTable";
-
-const messages = defineMessages<{ byCustomer: { count: number }; byDish: Record<string, never> }>({
-  byCustomer: {
-    id: "print.r2.list.byCustomer",
-    defaultMessage: "Par client ({count})",
-    description: "07 § 4.2 — titre du tableau des clients ; count : nombre de clients",
-  },
-  byDish: {
-    id: "print.r2.list.byDish",
-    defaultMessage: "Récapitulatif par plat",
-    description: "07 § 4.2 — titre du tableau des plats",
-  },
-});
 
 /**
  * « Plats » of a customer: one line per booking, « **{qte}×** {plat}[ — {montant}] », then its observation in bold
@@ -101,13 +88,26 @@ export function ListDocumentR2({ list, printedAt }: ListDocumentR2Props) {
       total={listTotalR2(intl, list.totals)}
       signature
     >
-      <h2>{intl.formatMessage(messages.byCustomer, { count: list.orders.length })}</h2>
+      <h2>
+        <FormattedMessage
+          id="print.r2.list.byCustomer"
+          defaultMessage="Par client ({count})"
+          description="07 § 4.2 — titre du tableau des clients ; count : nombre de clients"
+          values={{ count: list.orders.length }}
+        />
+      </h2>
       <PrintTable
         columns={customerColumns(intl)}
         rows={list.orders.map((order) => customerRow(intl, order))}
         empty={intl.formatMessage(documentMessages.noBookings)}
       />
-      <h2>{intl.formatMessage(messages.byDish)}</h2>
+      <h2>
+        <FormattedMessage
+          id="print.r2.list.byDish"
+          defaultMessage="Récapitulatif par plat"
+          description="07 § 4.2 — titre du tableau des plats"
+        />
+      </h2>
       <PrintTable
         columns={dishColumns(intl)}
         rows={list.dishes.map((total) => dishRow(intl, total))}

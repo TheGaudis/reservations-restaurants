@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
@@ -19,11 +19,6 @@ const messages = defineMessages({
     id: "staff.login.password.placeholder",
     defaultMessage: "Mot de passe",
     description: "06 § 1.1 — placeholder du champ mot de passe",
-  },
-  submit: {
-    id: "staff.login.submit",
-    defaultMessage: "Valider",
-    description: "06 § 1.1 — bouton du panneau de connexion",
   },
 });
 
@@ -62,7 +57,13 @@ export function LoginPanel({ submit, onEscape, takeFocus }: LoginPanelProps) {
           />
         )}
       </form.AppField>
-      <form.SubmitButton>{intl.formatMessage(messages.submit)}</form.SubmitButton>
+      <form.SubmitButton>
+        <FormattedMessage
+          id="staff.login.submit"
+          defaultMessage="Valider"
+          description="06 § 1.1 — bouton du panneau de connexion"
+        />
+      </form.SubmitButton>
     </Form>
   );
 }

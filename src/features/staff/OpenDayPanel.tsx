@@ -1,19 +1,11 @@
 import { useId } from "react";
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import type { Restaurant } from "@/domain/types";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 
 import styles from "@/features/staff/OpenDayPanel.module.css";
-
-const messages = defineMessages({
-  title: {
-    id: "staff.openDay.title",
-    defaultMessage: "Ouvrir un jour",
-    description: "06 § 4 — titre du panneau dépliant « + Ouvrir un jour » (R1 et R2)",
-  },
-});
 
 // The « + » turns by 45° when the panel opens (06 § 4); the button is named by the title alone.
 const PLUS = "+";
@@ -30,7 +22,6 @@ interface OpenDayPanelProps {
  * opening or closing it forgets the date chosen in the picker (`ouvrirDate`).
  */
 export function OpenDayPanel({ restaurant, children }: OpenDayPanelProps) {
-  const intl = useIntl();
   const bodyId = useId();
   const search = usePageSearch();
   const navigate = usePageNavigate();
@@ -52,7 +43,13 @@ export function OpenDayPanel({ restaurant, children }: OpenDayPanelProps) {
         <span className={styles["plus"]} aria-hidden="true">
           {PLUS}
         </span>
-        <span>{intl.formatMessage(messages.title)}</span>
+        <span>
+          <FormattedMessage
+            id="staff.openDay.title"
+            defaultMessage="Ouvrir un jour"
+            description="06 § 4 — titre du panneau dépliant « + Ouvrir un jour » (R1 et R2)"
+          />
+        </span>
       </button>
       {open ? (
         <div id={bodyId} className={styles["body"]}>

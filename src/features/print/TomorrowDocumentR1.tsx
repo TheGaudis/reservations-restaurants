@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import type { ListR1 } from "@/domain/print";
@@ -85,7 +85,9 @@ export function TomorrowDocumentR1({ list, printedAt }: TomorrowDocumentR1Props)
       }
     >
       {day === undefined ? (
-        <PrintNote>{intl.formatMessage(documentMessages.noDayTomorrow)}</PrintNote>
+        <PrintNote>
+          <FormattedMessage {...documentMessages.noDayTomorrow} />
+        </PrintNote>
       ) : (
         <PrintTable
           columns={columns(intl)}

@@ -1,4 +1,4 @@
-import { useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import { commonMessages } from "@/intl/common-messages";
 
@@ -14,10 +14,9 @@ interface SlowWriteNoticeProps {
  * when it appears.
  */
 export function SlowWriteNotice({ slow }: SlowWriteNoticeProps) {
-  const intl = useIntl();
   return (
     <output className={styles["notice"]}>
-      {slow ? intl.formatMessage(commonMessages.slowWrite) : null}
+      {slow ? <FormattedMessage {...commonMessages.slowWrite} /> : null}
     </output>
   );
 }

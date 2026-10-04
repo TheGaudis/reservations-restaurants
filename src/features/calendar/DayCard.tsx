@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import type { IsoDate, Restaurant } from "@/domain/types";
 import { commonMessages } from "@/intl/common-messages";
@@ -69,10 +69,11 @@ export function DayCard({ iso, past, gauge, children }: DayCardProps) {
 
 /** Card of a day that no colleague opened (05 § 4.3, P-03, P-10). */
 export function NoServiceCard({ iso, past }: Pick<DayCardProps, "iso" | "past">) {
-  const intl = useIntl();
   return (
     <DayCard iso={iso} past={past}>
-      <p className={styles["empty"]}>{intl.formatMessage(commonMessages.noService)}</p>
+      <p className={styles["empty"]}>
+        <FormattedMessage {...commonMessages.noService} />
+      </p>
     </DayCard>
   );
 }

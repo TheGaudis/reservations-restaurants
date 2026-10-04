@@ -1,6 +1,6 @@
 import { useSelector } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { dishDraftStatus, isR2DayOpen, openDateProblem, openDayDishes } from "@/domain/days";
@@ -199,7 +199,7 @@ function OpenDayBodyR2() {
       <DishDraftsR2 form={form} fields={DISHES} suggestions={usePriceSuggestions()} />
       <div className={styles["submit"]}>
         <form.SubmitButton pendingLabel={formatMessage(staffCommonMessages.opening)}>
-          {formatMessage(staffCommonMessages.openDaySubmit)}
+          <FormattedMessage {...staffCommonMessages.openDaySubmit} />
         </form.SubmitButton>
       </div>
       <SlowWriteNotice slow={slowWrite.slow} />
