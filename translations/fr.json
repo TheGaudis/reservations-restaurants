@@ -527,6 +527,26 @@
     "defaultMessage": "Réservation modifiée.",
     "description": "06 § 7.3, § 7.4 — toast de succès d'une modification de réservation"
   },
+  "staff.booking.line.dineIn": {
+    "defaultMessage": "sur place",
+    "description": "05 § 4.6 — mode d'une ligne de réservation R2 servie sur place (tout autre mode)"
+  },
+  "staff.booking.line.portions": {
+    "defaultMessage": "{count, plural, one {# portion} other {# portions}}",
+    "description": "05 § 4.6 — quantité d'une ligne de réservation R2 (plural(Qte, 'portion'))"
+  },
+  "staff.booking.line.separator": {
+    "defaultMessage": " — ",
+    "description": "05 § 4.6 — séparateur des parties d'une ligne de réservation, espaces normales (join(' — '))"
+  },
+  "staff.booking.line.takeaway": {
+    "defaultMessage": "à emporter",
+    "description": "05 § 4.6 — mode d'une ligne de réservation R2 commandée à emporter"
+  },
+  "staff.bookingList.empty": {
+    "defaultMessage": "Aucune réservation.",
+    "description": "05 § 4.6 — liste des réservations vide (fiche R1, plat R2)"
+  },
   "staff.day.delete": {
     "defaultMessage": "Supprimer ce jour",
     "description": "06 § 5.2 — bouton de suppression d'un jour (R1 et R2)"
@@ -566,6 +586,18 @@
   "staff.editBooking.name.label": {
     "defaultMessage": "Nom",
     "description": "06 § 7.2 — libellé du nom d'une réservation modifiée"
+  },
+  "staff.editBooking.r1.beforePrices": {
+    "defaultMessage": "Réservation enregistrée avant les tarifs : indiquez la répartition de ses {count, plural, one {# couvert} other {# couverts}}.",
+    "description": "06 § 7.3 — aide sous la légende quand aucun compteur de la réservation n'est supérieur à 0"
+  },
+  "staff.editBooking.r1.maxSeats": {
+    "defaultMessage": "{count, plural, one {# couvert} other {# couverts}} au maximum pour cette réservation (places restantes ce jour-là).",
+    "description": "06 § 7.3 — total au-delà du maximum d'une réservation R1 modifiée (editMaxR1)"
+  },
+  "staff.editBooking.r2.portions.label": {
+    "defaultMessage": "Portions",
+    "description": "06 § 7.4 — libellé des portions d'une réservation R2 modifiée"
   },
   "staff.error.serviceUnavailable": {
     "defaultMessage": "Le service ne répond pas. Réessayez dans un instant.",

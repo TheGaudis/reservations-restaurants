@@ -14,6 +14,13 @@
   color: var(--text);
 }
 
+/* .field-help under the legend (06 § 7.3). */
+.help {
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
 /* Three counters side by side, aligned at the bottom when a label wraps. */
 .row {
   display: grid;

@@ -38,12 +38,18 @@ interface SeatCountersProps {
   prices: R1Prices;
   /** Id of the message under the row, unique in the page (`useId` of the form). */
   errorId: string;
+  /**
+   * Help under the legend; empty: none. Edit of a booking made before the prices: « Réservation enregistrée avant les
+   * tarifs : indiquez la répartition de ses 4 couverts. » (06 § 7.3).
+   */
+  help?: string | undefined;
 }
 
 const seatProps: SeatCountersProps = {
   max: 0,
   prices: { priceStudent: 0, priceStaff: 0, priceExternal: 0 },
   errorId: "",
+  help: "",
 };
 
 /**
@@ -55,12 +61,13 @@ const seatProps: SeatCountersProps = {
 export const SeatCountersR1 = withFieldGroup({
   defaultValues: seatDefaults,
   props: seatProps,
-  render: ({ group, max, prices, errorId }) => (
+  render: ({ group, max, prices, errorId, help = "" }) => (
     <>
       <fieldset className={styles["group"]}>
         <legend className={styles["legend"]}>
           {intl.formatMessage(commonMessages.seatsLegend, { max })}
         </legend>
+        {help === "" ? null : <p className={styles["help"]}>{help}</p>}
         <div className={styles["row"]}>
           {COUNTERS.map((counter) => {
             const label = intl.formatMessage(counter.label);
