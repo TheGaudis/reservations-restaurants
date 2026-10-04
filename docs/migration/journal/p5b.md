@@ -100,3 +100,44 @@ Aucun.
 - § 3.5, ligne du sélecteur C-05 : « bouton nommé par le libellé « Date » (06 § 3.1), date affichée en description ».
 - Annexe E : « ligne de plat de « Ouvrir un jour » | dish draft (`DishDraft`, `DishLine`, `DishDraftsR2`) ».
 - § 4.2 : décider si « un seul panneau « Ouvrir un jour » ouvert » mérite une ligne E-xx (contradiction 1).
+
+## Après rebase (P5 (c) et P5 (d1) fusionnées)
+
+*L'orchestrateur a rebasé la branche sur `e6feb25` (P5 (d1) puis P5 (c) fusionnées) ; mes trois commits sont devenus `af00430`, `b1d55df`, `fe83026`. `pnpm i18n:extract` échouait sur `Duplicate message id: "staff.dish.error.zeroPrice"`. Décisions de l'orchestrateur : « un seul panneau Ouvrir un jour » accepté comme écart (E-57, ajouté par lui au PLAN) ; message de l'annexe F appliqué à « Modifier ce jour » accepté ; `DishDraft` / `DishLine` acceptés au glossaire. Autorisations : `intl/staff-messages.ts`, `features/calendar/DayCard.tsx` et les fichiers de P5 (c) et (d1) concernés.*
+
+### Commits
+
+4. `690dc3a` Textes : messages communs des jours et des plats, règle de prix unique (06 § 4.2, § 6.1, D-22).
+5. `02d81af` Fiches : focus sur la date après une suppression, un seul mécanisme (03 § 5.4, E-48).
+6. Cette section du journal.
+
+### Fait
+
+- `intl/staff-messages.ts` : `dishZeroPrice` (`staff.dish.error.zeroPrice`, une seule définition), `dishNamePlaceholder`, `dishStockLabel`, `dishPriceLabel`, `dishVoucherLabel`, `dishVoucherPricePlaceholder`, aux ids de P5 (c) (`staff.dishForm.*`) ; les ids doublons de « Ouvrir un jour » R2 (`staff.openDay.r2.dish.voucher`, `…price.voucher`, `…name.placeholder`, `…dishes.stockHead`, `…dishes.priceHead`) disparaissent. « 3,50 » (lignes) et « Ex. 3,50 » (formulaire) restent deux textes, comme dans `06` § 4.2 et § 6.1.
+- `domain/dishes.ts` (pur, testé par `dishes.test.ts`) : `DishDraft`, `emptyDishDraft`, `dishStock` (coupé comme `parseInt` : « 6.7 » → 6, illisible → NaN), `isDishPriceRefused` (0, négatif, illisible, plus de deux décimales ; ignoré au ticket), `dishDraftInput`, `dishDraftOf`, `priceInputText` (« 4,50 »), `priceSuggestions`. `domain/days.ts` ne garde que les règles de « Ouvrir un jour » (statut d'une ligne, date, jour R2 ouvert, réservations d'un jour) ; `dish-rules.ts` (P5 (c)) ne garde que ses messages et `bookingsOfDish` ; `price-suggestions.ts` ne garde que `usePriceSuggestions`, désormais utilisé aussi par `OpenDayFormR2`.
+- Stock des lignes de « Ouvrir un jour » lu comme le formulaire de plat : « 2.5 » donne 2 (avant : refusé par `parseCount`).
+- `DayCard` : date `tabIndex={-1}` et `data-day-date` ; `DayDetail` : `data-day-detail={restaurant}`. `features/calendar/card-date-focus.ts` : `focusCardDate(restaurant)` (`flushSync`, puis focus sur la date de la fiche du restaurant). Appelée par `DeleteDayButton`, `DeleteDishButton` (`DishForm.tsx`) et la suppression d'une réservation (`BookingList.tsx`). Retirés : `features/staff/card-date-focus.ts`, l'enveloppe `display: contents` de `DeleteDayButton`, `cardDateOf` et `focusCardDate` de `dish-focus.ts`, la recherche par texte de `BookingList.tsx` et sa ref de liste.
+
+### Preuves
+
+| Commande | Résultat |
+| --- | --- |
+| `pnpm i18n:extract` | sans erreur (plus de doublon `staff.dish.error.zeroPrice`) |
+| `pnpm check` | vert : Vitest 186 fichiers, 2 386 tests, aucun rejet non géré ; `knip` et `knip --production` sans remarque. Un passage précédent : story `ModeSwitch` `LoginPanel` rouge sous charge (déjà relevé par P5 (c)), verte 3 fois sur 3 relancée seule |
+| tests de focus après suppression | `DeleteDayButton.test.tsx` (jour R1 et R2), `DishForm.edit.test.tsx` (plat), `BookingList.test.tsx` (réservation) : verts |
+| `pnpm build:e2e && git diff --exit-code src/routeTree.gen.ts translations/fr.json` | aucune différence |
+| `pnpm test:e2e --project=react --grep "@p4\|@framework\|@L-01\|@G-08\|@C-11\|delete a booking in two clicks\|stock below the booked portions\|REG-33. — (picker\|past day\|day already)\|REG-34\|REG-35. — (edit the day\|delete a day)\|write answered after the logout"` | 57 verts sur 57 |
+| `pnpm test:e2e --project=react --grep "@p5"` | 20 verts ; 10 rouges qui attendent P5 (d2) (REG-30, REG-35 « lines and actions », REG-36, REG-37 « dish added and edited », REG-38 « person added after 10 h ») ou P5 (e) (REG-29 principal, REG-32). REG-33 « success » et REG-31 sont verts depuis P5 (d1) |
+| filtre proposé pour `E2E_REACT_GREP` (60 tests) | 58 verts ; REG-02 et REG-03 (seuils de temps de P4) rouges sous une charge de 11 à 21, verts 15 fois sur 15 relancés seuls (`--workers=1 --repeat-each=3`) |
+| `pnpm test:e2e:legacy` | 76 verts sur 76 |
+| `pnpm test:e2e --project=react-only` | 9 verts sur 9 |
+| `pnpm build && pnpm budget` (S3) | JS 178,8 kB gzip (limite 200), CSS 10,3 kB |
+
+### Filtre proposé pour `ci.yml`
+
+`E2E_REACT_GREP: "@p4|@framework|@L-01|@G-08|@C-11|@C-06|@C-13|REG-33|delete a booking in two clicks|delete a day with bookings|stock below the booked portions|booking edited|write answered after the logout|passwordChanged"` : P4, P5 (a), (b), (c), (d1). Pas de `@C-04` (REG-30, P5 (d2)) ni de `@C-14` seul (REG-37 « dish added and edited », P5 (d2)).
+
+### Reste à faire
+
+- P5 (d2), P5 (e) : les tests `@p5` encore rouges (liste ci-dessus) ; élargir ensuite `E2E_REACT_GREP` à `@p5`.
+- Les « Changements souhaités » de la première partie sont faits (`DayCard`, `intl/staff-messages.ts`, suggestions et règle de prix) ; reste `ci.yml` (orchestrateur).
