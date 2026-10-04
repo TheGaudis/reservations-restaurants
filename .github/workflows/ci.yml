@@ -110,7 +110,7 @@ jobs:
       # Regression scenarios already green on the React build (PLAN § 3.1: filtered until P7), by id or title.
       # Empty: the react project does not run. P4 (d): every scenario of P4 and the checks of the suite itself;
       # P5 (a): the login panel (REG-27, the only scenario tagged @L-01).
-      E2E_REACT_GREP: "@p4|@framework|@L-01"
+      E2E_REACT_GREP: "@p4|@framework|@L-01|@G-08|@C-11|delete a booking in two clicks"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
