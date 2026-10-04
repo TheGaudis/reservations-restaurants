@@ -219,7 +219,7 @@ reservations-restaurants/
 │                               dorés), `node-ny` (TZ America/New_York : domain/ et intl/), `browser` (Chromium : background/, ui/, features/, routes/,
 │                               mutations/ ; locale fr-FR, timezoneId Europe/Paris), `storybook` (plugin storybookTest, sans setupFiles) ;
 │                               une fabrique browser() par projet ; executablePath = $PLAYWRIGHT_CHROMIUM_EXECUTABLE s'il est défini
-├── playwright.config.ts        Chromium (même règle executablePath), fr-FR, Europe/Paris, webServer = serve:legacy (port 4310) et serve (4311),
+├── playwright.config.ts        Chromium (même règle executablePath), fr-FR, Europe/Paris, webServer = serve (4311) ; depuis P8, plus de projet `legacy` ni de `serve:legacy`,
 │                               base /reservations-restaurants/ ; projets `legacy` (e2e/regression sur legacy/), `react` (e2e/regression sur dist/client,
 │                               filtré par étiquettes jusqu'à P7), `react-only` (e2e/*.spec.ts propres au nouveau code, dès P0), `production`
 │                               (smoke-production.spec.ts sur l'URL publique, P8, lancé à la main)
@@ -350,7 +350,7 @@ reservations-restaurants/
     └── vite-env.d.ts           ImportMetaEnv : VITE_APPS_SCRIPT_URL, VITE_MOCK_API
 ```
 
-Scripts de `package.json` (pas de `preview`) : `dev` (faux script), `dev:real` (`vite dev --mode real`, URL réelle de `.env.real.local`, bandeau « Données réelles »), `build` (`vite build && node scripts/post-build.ts`), `build:e2e` (même chose en mode `test`, URL factice de `.env.test`), `serve` (`dist/client`, port 4311), `serve:legacy` (`legacy/`, port 4310), `typecheck` (`tsc`), `lint`, `lint:fix` (`oxlint --fix && oxfmt`), `format`, `format:check`, `i18n:extract` (§ 3.10), `test`, `test:node`, `test:browser`, `test:e2e` (suppose `dist/client` construit par `build:e2e`), `test:e2e:legacy`, `storybook`, `build-storybook`, `budget`, `knip` (`knip && knip --production`), `check:fast` (extraction, `format:check`, `lint`, `typecheck`, `test:node`), `check` (idem + `test` complet et `knip`), `prepare`.
+Scripts de `package.json` (pas de `preview`) : `dev` (faux script), `dev:real` (`vite dev --mode real`, URL réelle de `.env.real.local`, bandeau « Données réelles »), `build` (`vite build && node scripts/post-build.ts`), `build:e2e` (même chose en mode `test`, URL factice de `.env.test`), `serve` (`dist/client`, port 4311), (`serve:legacy`, port 4310, retiré en P8), `typecheck` (`tsc`), `lint`, `lint:fix` (`oxlint --fix && oxfmt`), `format`, `format:check`, `i18n:extract` (§ 3.10), `test`, `test:node`, `test:browser`, `test:e2e` (suppose `dist/client` construit par `build:e2e`), `test:e2e:production` (projet de fumée en lecture seule, `playwright.production.config.ts`, P8 ; `test:e2e:legacy` retiré en P8), `storybook`, `build-storybook`, `budget`, `knip` (`knip && knip --production`), `check:fast` (extraction, `format:check`, `lint`, `typecheck`, `test:node`), `check` (idem + `test` complet et `knip`), `prepare`.
 
 `knip.json` (vérifié dans les deux modes par le projet d'essai) : `{ "entry": ["scripts/*.ts"], "project": ["src/**/*.{ts,tsx}!", "!src/mocks/**!", "!src/test/**!", "e2e/**/*.ts", "scripts/*.ts", ".storybook/*.{ts,tsx}"] }` ; les plugins de knip détectent seuls Vite, Vitest, Storybook, Playwright et les routes TanStack ; aucun `ignore` pour `routeTree.gen.ts` (inutile). Liste `ignoreDependencies` temporaire, chaque entrée commentée « retirer en Px ».
 
@@ -1340,7 +1340,7 @@ Reprise et complétée de `recherche/react-architecture.md` § 10, **sans** sa p
 - [ ] Un mois après : retirer la lecture de secours de `reservations-textes` et supprimer cette clé au démarrage (dans `queries/local-cache.ts`, pas dans un effet).
 - [ ] Transmettre l'annexe B au responsable du script.
 
-**Retour arrière (moins de 15 min, cache compris)** : repasser la source Pages en mode « branche » (« Deploy from a branch », racine) sur une branche `rollback` créée depuis le tag `v1-final` (Pages ne sert pas un tag directement), ou faire `git revert -m 1` de la fusion sur `main` puis repasser la source en mode « branche » sur `main` (le revert retire aussi le workflow, qui ne déploierait plus rien) ; l'ancien site est republié à la racine ; la copie locale reste compatible (même format) ; aucune action côté script.
+**Retour arrière (moins de 15 min, cache compris)** : repasser la source Pages en mode « branche » (« Deploy from a branch », racine) sur une branche `rollback` créée depuis le tag `v1-final` (Pages ne sert pas un tag directement ; avec un tag annoté : `git push origin "v1-final^{commit}:refs/heads/rollback"`, et une règle `rollback` ajoutée à l'environnement `github-pages`, limité à `main` sinon), ou faire `git revert -m 1` de la fusion sur `main` puis repasser la source en mode « branche » sur `main` (le revert retire aussi le workflow, qui ne déploierait plus rien) ; l'ancien site est republié à la racine ; la copie locale reste compatible (même format) ; aucune action côté script.
 
 ---
 
@@ -1427,7 +1427,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert (port 4311). Jamais `vite preview` (il fait du SSR).
 - `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node`.
 - `pnpm check` (avant une PR) : idem + tests navigateur, stories et knip. Puis `pnpm build:e2e` et les E2E de ton périmètre.
-- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (après `pnpm build:e2e`), `pnpm test:e2e:legacy`,
+- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (après `pnpm build:e2e`), `pnpm test:e2e:production` (après la bascule),
   `pnpm storybook`, `pnpm budget`.
 - `pnpm lint:fix` = `oxlint --fix && oxfmt` ; `pnpm i18n:extract` après tout ajout ou changement de message.
 
