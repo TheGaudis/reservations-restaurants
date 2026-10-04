@@ -21,29 +21,34 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
   `.env.real.local`, bandeau « Données réelles ») est réservé au responsable, jamais lancé par un agent.
 - `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert (port 4311). Jamais `vite preview` (il fait du SSR).
 - `pnpm check:fast` (avant chaque commit, et hook pre-push) : extraction i18n, format, lint, `tsc`, tests `node` et `node-ny`.
-- `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et knip. Puis `pnpm build:e2e`,
+- `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories) et knip. Puis `pnpm build:e2e`,
   `git diff --exit-code src/routeTree.gen.ts translations/fr.json` et les E2E de ton périmètre.
-- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`), `pnpm test:e2e:legacy`,
-  `pnpm storybook` (dès P3), `pnpm budget` (après `pnpm build`). Un projet Playwright s'écrit avec `=` :
-  `pnpm test:e2e --project=react-only e2e/smoke.spec.ts`. Deux sessions en parallèle : `E2E_REACT_PORT` et `E2E_LEGACY_PORT`.
+- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`),
+  `pnpm storybook`, `pnpm budget` (après `pnpm build`). Un projet Playwright s'écrit avec `=` :
+  `pnpm test:e2e --project=react-only e2e/smoke.spec.ts`. Deux sessions en parallèle : `E2E_REACT_PORT`.
+- `pnpm test:e2e:production` (`playwright.production.config.ts`) lit le site publié et le vrai script : réservé au
+  responsable, après un déploiement, jamais lancé par un agent ni par la CI.
 - oxlint et oxfmt passent par les scripts (`pnpm lint`, `pnpm format`, `pnpm lint:fix`), qui ajoutent `--disable-nested-config` :
   sans lui, les deux outils lisent la configuration du projet d'essai de `docs/migration/recherche/`.
 - `pnpm i18n:extract` après tout ajout ou changement de message.
-- CI (`.github/workflows/ci.yml`) : jobs `check`, `browser`, `e2e` sur chaque PR ; `deploy` sur un push vers `main` seulement.
+- CI (`.github/workflows/ci.yml`) : jobs `check`, `browser`, `e2e` sur chaque PR ; `deploy` (GitHub Pages) sur un push vers
+  `main` ou un lancement manuel sur `main`, jamais depuis une autre branche. Retour arrière : README, « Retour à l'ancien site ».
 
 ## Environnement
 
 - Navigateurs : dans les sessions cloud, Chromium préinstallé désigné par `PLAYWRIGHT_CHROMIUM_EXECUTABLE`
   (`/opt/pw-browsers/chromium`), lu par `vitest.config.ts` et `playwright.config.ts`. Ne jamais lancer `playwright install`
   en session ; la CI l'installe elle-même.
-- Le vrai Apps Script n'est jamais appelé par un test, une story, l'E2E ni un agent. Faux script : `src/mocks/apps-script.ts`
+- Le vrai Apps Script n'est jamais appelé par un test, une story, l'E2E ni un agent (seule exception : `pnpm test:e2e:production`,
+  lancé à la main par le responsable, en lecture seule). Faux script : `src/mocks/apps-script.ts`
   (`createFakeAppsScript`, une instance par test) ; isolation réseau : `e2e/fixtures.ts` (tout ce qui n'est pas localhost
   est avorté) ; Vitest, Storybook et `build:e2e` : `.env.test` (URL factice). Ne crée jamais de `.env.real.local`.
 - Date de référence des tests : `TEST_NOW` de `src/test/clock.ts` (lundi 5 octobre 2026, 9 h 30 à Paris).
 
 ## Règles absolues
 
-- Ne jamais modifier `Code.gs`, `legacy/`, `docs/spec/`, `docs/migration/recherche/`, `.claude/`. Contrat d'API : `docs/spec/02-contrat-api.md`.
+- Ne jamais modifier `Code.gs`, `docs/spec/`, `docs/migration/recherche/`, `.claude/`. Contrat d'API : `docs/spec/02-contrat-api.md`.
+- Ancien site : tag `v1-final` ; un commentaire de provenance le cite sous la forme `v1-final:app.css` (`git show v1-final:app.css`).
 - Un comportement de l'ancien site ne change que s'il figure au PLAN § 4.2 (identifiant E-xx) avec son scénario
   `@changed:E-xx` dans `e2e/regression/`. Les assertions des scénarios ne se modifient pas pour faire passer un test.
 - Aucune donnée personnelle dans le navigateur hors session collègue : mot de passe et état complet en mémoire seulement ;
@@ -110,9 +115,10 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
   tâches de fond : Vitest Browser Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Une story CSF Next par composant
   et par état, testée avec axe (projet `storybook`).
 - Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`).
-- E2E : `e2e/regression/` (projets `legacy` et `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
-  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, hydratation, impression PDF,
-  accessibilité) ; projet `production` en lecture seule (P8).
+- E2E : `e2e/regression/` (projet `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou `@changed:E-xx`,
+  identifiant d'écran, phase ; les branches `legacy` des scénarios gardent la trace de chaque écart, colonne `legacy` de
+  `parite.md` gelée) ; projet `react-only` pour le reste (smoke, hydratation, impression PDF, accessibilité) ; projet
+  `production` en lecture seule, dans sa propre configuration.
 - Pas de `test.skip`, pas de `retries` local pour masquer un test instable : le noter au journal.
 - Un test rangé dans `src/routes/` porte le préfixe `-` (`-routes.test.tsx`) : sinon le générateur le lit comme une route.
 
@@ -125,13 +131,14 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Travail en session
 
-- Une branche courte par session (`claude/<id>-<sujet>`) depuis la branche d'intégration `claude/frontend-react-migration-lw5zfz` ;
-  une PR vers l'intégration ; jamais de push sur `main` ni sur l'intégration ; l'orchestrateur fusionne.
+- Une branche courte par session (`claude/<id>-<sujet>`) depuis `main` (depuis la branche d'intégration
+  `claude/frontend-react-migration-lw5zfz` tant qu'elle n'est pas fusionnée) ; une PR ; jamais de push sur `main` ni sur
+  l'intégration ; l'orchestrateur ou le responsable fusionne. Un push sur `main` publie le site.
 - Journal `docs/migration/journal/<id>.md` : fait, reste, décisions, contradictions plan/spec, versions, overrides.
   `PLAN.md` n'est modifié que par l'orchestrateur ou une session qui en a reçu l'autorisation.
 - Fichiers partagés dont tu n'es pas propriétaire (PLAN § 5.0) : décris le changement voulu dans le compte rendu.
 - Fichiers générés commités : `src/routeTree.gen.ts` (régénéré par `pnpm build` ou `pnpm dev`) et `translations/fr.json`
-  (`pnpm i18n:extract`). Conflit sur l'un d'eux : reprendre la version de l'intégration et régénérer.
+  (`pnpm i18n:extract`). Conflit sur l'un d'eux : reprendre la version de la branche cible et régénérer.
 - Aucun paquet ajouté sans accord ; versions exactes (`save-exact`), celles du PLAN § 2.
 - Désaccord plan / spec : textes et comportements → spec (sauf D-xx ou E-xx), architecture → plan ; sinon option la plus
   facile à défaire, notée au journal.
