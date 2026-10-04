@@ -575,6 +575,90 @@
     "defaultMessage": "Ouvert par {name}",
     "description": "05 § 5.1 (4), § 6.2 (4) — collègue qui a ouvert le jour, fiches collègue R1 et R2"
   },
+  "staff.dish.add.open": {
+    "defaultMessage": "+ Ajouter un plat à ce jour",
+    "description": "06 § 6.2 — bouton sous la liste des plats de la fiche R2 collègue"
+  },
+  "staff.dish.add.submit": {
+    "defaultMessage": "Ajouter ce plat",
+    "description": "06 § 6.2 — bouton d'envoi de l'ajout d'un plat"
+  },
+  "staff.dish.added": {
+    "defaultMessage": "Plat ajouté.",
+    "description": "06 § 6.2, 02 § 4.7 — toast de succès de l'ajout d'un plat"
+  },
+  "staff.dish.delete": {
+    "defaultMessage": "Supprimer ce plat",
+    "description": "05 § 6.3, 06 § 6.4 — bouton de suppression d'un plat (deux clics)"
+  },
+  "staff.dish.delete.confirm": {
+    "defaultMessage": "Confirmer la suppression de ce plat",
+    "description": "06 § 5.2 — aria-label et title du bouton armé d'un plat sans réservation"
+  },
+  "staff.dish.delete.confirmWithBookings": {
+    "defaultMessage": "Confirmer la suppression de ce plat ({n, plural, one {# réservation ne sera plus affichée} other {# réservations ne seront plus affichées}}, les personnes ne seront pas prévenues)",
+    "description": "PLAN annexe F, D-21 — note et aria-label du bouton armé d'un plat qui a des réservations"
+  },
+  "staff.dish.deleted": {
+    "defaultMessage": "Plat supprimé.",
+    "description": "06 § 5.2, § 6.4 — toast de succès de la suppression d'un plat"
+  },
+  "staff.dish.edit": {
+    "defaultMessage": "Modifier ce plat",
+    "description": "05 § 6.3, 06 § 6.3 — bouton d'un plat de la fiche R2 collègue"
+  },
+  "staff.dish.edited": {
+    "defaultMessage": "Plat modifié.",
+    "description": "06 § 6.3, 02 § 4.7 — toast de succès de la modification d'un plat"
+  },
+  "staff.dish.error.stockBelowBooked": {
+    "defaultMessage": "Impossible : {n, plural, one {# portion déjà réservée} other {# portions déjà réservées}} pour ce plat, le stock ne peut pas être inférieur.",
+    "description": "PLAN annexe F, D-19 — modification d'un plat sous les portions déjà réservées"
+  },
+  "staff.dish.error.zeroPrice": {
+    "defaultMessage": "Indiquez un prix supérieur à 0, ou laissez le champ vide.",
+    "description": "PLAN annexe F, D-22 — champ Prix d'un plat à 0 (ou illisible)"
+  },
+  "staff.dishForm.name.label": {
+    "defaultMessage": "Nom du plat",
+    "description": "06 § 6.1 — libellé du nom du plat (ajout et modification)"
+  },
+  "staff.dishForm.name.placeholder": {
+    "defaultMessage": "Ex. salade César",
+    "description": "06 § 6.1 — placeholder du nom du plat (ajout)"
+  },
+  "staff.dishForm.name.required": {
+    "defaultMessage": "Indiquez le nom du plat.",
+    "description": "06 § 6.1 — nom du plat vide"
+  },
+  "staff.dishForm.price.label": {
+    "defaultMessage": "Prix (optionnel)",
+    "description": "06 § 6.1 — libellé du prix du plat"
+  },
+  "staff.dishForm.price.placeholder": {
+    "defaultMessage": "Ex. 3,50",
+    "description": "06 § 6.1 — placeholder du prix du plat"
+  },
+  "staff.dishForm.price.voucherPlaceholder": {
+    "defaultMessage": "Ticket",
+    "description": "06 § 4.3, § 6.1 — placeholder du prix désactivé d'un plat au ticket restaurant"
+  },
+  "staff.dishForm.stock.label": {
+    "defaultMessage": "Stock",
+    "description": "06 § 6.1 — libellé du stock du plat"
+  },
+  "staff.dishForm.stock.placeholder": {
+    "defaultMessage": "Ex. 10",
+    "description": "06 § 6.1 — placeholder du stock (ajout)"
+  },
+  "staff.dishForm.stock.required": {
+    "defaultMessage": "Indiquez un stock supérieur à 0.",
+    "description": "06 § 6.1 — stock vide, nul ou négatif"
+  },
+  "staff.dishForm.voucher.label": {
+    "defaultMessage": "Ticket restaurant",
+    "description": "06 § 4.3, § 6.1 — case du plat payé par un ticket restaurant"
+  },
   "staff.editBooking.contact.label": {
     "defaultMessage": "Téléphone ou email",
     "description": "06 § 7.2 — libellé du contact d'une réservation modifiée (R1 et R2)"
