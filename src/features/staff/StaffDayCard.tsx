@@ -1,14 +1,15 @@
 import { FormattedMessage } from "react-intl";
 
 import type { IsoDate } from "@/domain/types";
-import { DayCard } from "@/features/calendar/DayCard";
+import { DayCard, DayCardTop } from "@/features/calendar/DayCard";
 
 import styles from "@/features/staff/StaffDayCard.module.css";
 
 /** Staff card of a day that no colleague opened (05 § 4.3, C-10b): « Ouvrir un jour » above the calendar creates it. */
 export function StaffNoServiceCard({ iso, past }: { iso: IsoDate; past: boolean }) {
   return (
-    <DayCard iso={iso} past={past}>
+    <DayCard past={past}>
+      <DayCardTop iso={iso} />
       <p className={styles["empty"]}>
         <FormattedMessage
           id="staff.dayCard.noService"

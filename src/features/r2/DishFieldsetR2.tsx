@@ -44,13 +44,14 @@ export function DishLabel({ stock }: { stock: DishStock }) {
 }
 
 interface DishFieldsetProps {
-  rows: ReactNode;
+  /** One row per dish: `SoldOutRow`, or `DishLabel` and its quantity field (04 § 5.3). */
+  children: ReactNode;
   /** « Choisissez au moins un plat. » is shown: the fieldset is described by it (E-41). */
   noDish: boolean;
   errorId: string;
 }
 
-export function DishFieldset({ rows, noDish, errorId }: DishFieldsetProps) {
+export function DishFieldset({ children, noDish, errorId }: DishFieldsetProps) {
   return (
     <fieldset
       className={styles["group"]}
@@ -64,7 +65,7 @@ export function DishFieldset({ rows, noDish, errorId }: DishFieldsetProps) {
           description="04 § 5.3 — légende du groupe des plats du formulaire R2"
         />
       </legend>
-      {rows}
+      {children}
       {noDish ? (
         <p className={styles["error"]}>
           <span className={styles["mark"]} aria-hidden="true">

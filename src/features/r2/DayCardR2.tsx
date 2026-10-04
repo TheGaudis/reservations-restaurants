@@ -6,6 +6,7 @@ import { dishesForDay, findDay, remainingStock } from "@/domain/capacity";
 import { isPast } from "@/domain/cutoff";
 import {
   DayCard,
+  DayCardTop,
   DayNote,
   NoServiceCard,
   TextBlock,
@@ -57,7 +58,8 @@ export function DayCardR2() {
   const orderable = !closed && dishes.length > 0 && !soldOut;
   const ordering = formOpen && (orderable || sending);
   return (
-    <DayCard iso={iso} past={past}>
+    <DayCard past={past}>
+      <DayCardTop iso={iso} />
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.note)} text={day.note} />
       {dishes.length > 0 && !ordering ? (

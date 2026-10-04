@@ -5,7 +5,13 @@ import { capacityClass, findDay, remainingSeats } from "@/domain/capacity";
 import { isPast } from "@/domain/cutoff";
 import { gaugePercent } from "@/domain/gauge";
 import type { FullState } from "@/domain/types";
-import { DayActions, DayCard, TextBlock, ThemeBlock } from "@/features/calendar/DayCard";
+import {
+  DayActions,
+  DayCard,
+  DayCardTop,
+  TextBlock,
+  ThemeBlock,
+} from "@/features/calendar/DayCard";
 import { useSelectedDay } from "@/features/calendar/page-search";
 import { PrintListButton } from "@/features/print/PrintListButton";
 import { AddBookingButtonR1, AddBookingFormR1 } from "@/features/staff/AddBookingFormR1";
@@ -41,21 +47,21 @@ export function StaffDayCardR1() {
   const day = findDay(state.r1Days, iso);
   if (day === undefined) return <StaffNoServiceCard iso={iso} past={past} />;
   const remaining = remainingSeats(state, day);
-  const gauge = (
-    <CapacityPill
-      percent={gaugePercent(remaining, day.capacity)}
-      state={capacityClass(remaining, day.capacity)}
-    >
-      <FormattedMessage
-        id="staff.r1.dayCard.seats"
-        defaultMessage="{remaining} / {capacity} couverts"
-        description="05 § 4.5 — jauge de la fiche R1 collègue (restant négatif possible)"
-        values={{ remaining: String(remaining), capacity: String(day.capacity) }}
-      />
-    </CapacityPill>
-  );
   return (
-    <DayCard iso={iso} past={past} gauge={gauge}>
+    <DayCard past={past}>
+      <DayCardTop iso={iso}>
+        <CapacityPill
+          percent={gaugePercent(remaining, day.capacity)}
+          state={capacityClass(remaining, day.capacity)}
+        >
+          <FormattedMessage
+            id="staff.r1.dayCard.seats"
+            defaultMessage="{remaining} / {capacity} couverts"
+            description="05 § 4.5 — jauge de la fiche R1 collègue (restant négatif possible)"
+            values={{ remaining: String(remaining), capacity: String(day.capacity) }}
+          />
+        </CapacityPill>
+      </DayCardTop>
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.menu)} text={day.menu} />
       <OpenedBy name={day.openedBy} />

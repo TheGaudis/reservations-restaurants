@@ -195,7 +195,7 @@ describe("past day (05 § 4.2, § 5.3)", () => {
     await renderColumn(
       "/collegue?r1=2026-10-01",
       "r1",
-      <DayCard iso="2026-10-01" past>
+      <DayCard past>
         <BookingListR1
           day={{ date: "2026-10-01", capacity: 20, menu: "", theme: "", openedBy: "" }}
         />

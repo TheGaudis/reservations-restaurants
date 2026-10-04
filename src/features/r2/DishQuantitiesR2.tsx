@@ -74,15 +74,18 @@ export const DishQuantitiesR2 = withFieldGroup({
     return (
       <>
         {first === undefined ? (
-          <DishFieldset rows={rows} noDish={false} errorId={errorId} />
+          <DishFieldset noDish={false} errorId={errorId}>
+            {rows}
+          </DishFieldset>
         ) : (
           <group.Field name={portionsField(first.dish.id)}>
             {(field) => (
               <DishFieldset
-                rows={rows}
                 noDish={errorText(field.state.meta.errors) === noDish}
                 errorId={errorId}
-              />
+              >
+                {rows}
+              </DishFieldset>
             )}
           </group.Field>
         )}

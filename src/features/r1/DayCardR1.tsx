@@ -7,6 +7,7 @@ import { isPast } from "@/domain/cutoff";
 import { gaugePercent } from "@/domain/gauge";
 import {
   DayCard,
+  DayCardTop,
   DayNote,
   NoServiceCard,
   TextBlock,
@@ -47,21 +48,21 @@ export function DayCardR1() {
   if (day === undefined) return <NoServiceCard iso={iso} past={past} />;
   const remaining = remainingSeats(state, day);
   const full = remaining <= 0;
-  const gauge = (
-    <CapacityPill
-      percent={gaugePercent(remaining, day.capacity)}
-      state={capacityClass(remaining, day.capacity)}
-    >
-      <FormattedMessage
-        id="public.r1.dayCard.seats"
-        defaultMessage="{remaining} / {capacity} couverts"
-        description="05 § 4.5, 04 § 4.2 — jauge de la fiche R1 (« 12 / 20 couverts », toujours au pluriel ; restant négatif possible)"
-        values={{ remaining: String(remaining), capacity: String(day.capacity) }}
-      />
-    </CapacityPill>
-  );
   return (
-    <DayCard iso={iso} past={past} gauge={gauge}>
+    <DayCard past={past}>
+      <DayCardTop iso={iso}>
+        <CapacityPill
+          percent={gaugePercent(remaining, day.capacity)}
+          state={capacityClass(remaining, day.capacity)}
+        >
+          <FormattedMessage
+            id="public.r1.dayCard.seats"
+            defaultMessage="{remaining} / {capacity} couverts"
+            description="05 § 4.5, 04 § 4.2 — jauge de la fiche R1 (« 12 / 20 couverts », toujours au pluriel ; restant négatif possible)"
+            values={{ remaining: String(remaining), capacity: String(day.capacity) }}
+          />
+        </CapacityPill>
+      </DayCardTop>
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.menu)} text={day.menu} />
       {!full && !past && !formOpen ? <ReserveButton restaurant="r1" iso={iso} /> : null}

@@ -4,7 +4,13 @@ import { useToday } from "@/background/clock";
 import { dishesForDay, findDay, remainingStock } from "@/domain/capacity";
 import { isPast } from "@/domain/cutoff";
 import type { FullState } from "@/domain/types";
-import { DayActions, DayCard, TextBlock, ThemeBlock } from "@/features/calendar/DayCard";
+import {
+  DayActions,
+  DayCard,
+  DayCardTop,
+  TextBlock,
+  ThemeBlock,
+} from "@/features/calendar/DayCard";
 import { useSelectedDay } from "@/features/calendar/page-search";
 import { PrintListButton } from "@/features/print/PrintListButton";
 import { DishRow } from "@/features/r2/DishRow";
@@ -42,7 +48,8 @@ export function StaffDayCardR2() {
   if (day === undefined) return <StaffNoServiceCard iso={iso} past={past} />;
   const dishes = dishesForDay(state, iso);
   return (
-    <DayCard iso={iso} past={past}>
+    <DayCard past={past}>
+      <DayCardTop iso={iso} />
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.note)} text={day.note} />
       <OpenedBy name={day.openedBy} />

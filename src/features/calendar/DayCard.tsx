@@ -39,38 +39,47 @@ export function DayDetail({ restaurant, children }: DayDetailProps) {
 }
 
 interface DayCardProps {
-  iso: IsoDate;
   /** Before today in Paris: the card pales without losing contrast (`.is-past`, 05 § 4.2, E-56); buttons keep their colours. */
   past: boolean;
+  /** `DayCardTop`, then text blocks, dishes, notes and actions, in the order of 05 § 5.1 and § 6.2. */
+  children: ReactNode;
+}
+
+/** Card of the selected day (`.day-card`, 05 § 4). */
+export function DayCard({ past, children }: DayCardProps) {
+  return (
+    <div className={styles["card"]} data-past={past || undefined}>
+      {children}
+    </div>
+  );
+}
+
+interface DayCardTopProps {
+  iso: IsoDate;
   /** On the right of the date: the seat gauge of R1 (05 § 5.1). */
-  gauge?: ReactNode;
-  /** Text blocks, dishes, notes and actions, in the order of 05 § 5.1 and § 6.2. */
   children?: ReactNode;
 }
 
 /**
- * Card of the selected day (`.day-card`, 05 § 4): the long date with « 1er » (E-21), then its content. The date takes
- * the focus by script after a deletion in the staff mode (`focusCardDate`, 03 § 5.4, E-48): `tabIndex` -1, out of the
- * tab order.
+ * First row of a day card (05 § 4): the long date with « 1er » (E-21), then its children. The date takes the focus by
+ * script after a deletion in the staff mode (`focusCardDate`, 03 § 5.4, E-48): `tabIndex` -1, out of the tab order.
  */
-export function DayCard({ iso, past, gauge, children }: DayCardProps) {
+export function DayCardTop({ iso, children }: DayCardTopProps) {
   return (
-    <div className={styles["card"]} data-past={past || undefined}>
-      <div className={styles["top"]}>
-        <p className={styles["date"]} tabIndex={-1} data-day-date="">
-          {formatLongDate(iso)}
-        </p>
-        {gauge}
-      </div>
+    <div className={styles["top"]}>
+      <p className={styles["date"]} tabIndex={-1} data-day-date="">
+        {formatLongDate(iso)}
+      </p>
       {children}
     </div>
   );
 }
 
 /** Card of a day that no colleague opened (05 § 4.3, P-03, P-10). */
-export function NoServiceCard({ iso, past }: Pick<DayCardProps, "iso" | "past">) {
+export function NoServiceCard({ iso, past }: { iso: IsoDate; past: boolean }) {
   return (
-    <DayCard iso={iso} past={past}>
+    <DayCard past={past}>
+      <DayCardTop iso={iso} />
       <p className={styles["empty"]}>
         <FormattedMessage {...commonMessages.noService} />
       </p>
