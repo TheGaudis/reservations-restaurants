@@ -1,4 +1,4 @@
-/* View transitions of the calendars (05 § 3.4, legacy/app.css « Transitions Material 3 du calendrier »). Global
+/* View transitions of the calendars (05 § 3.4, v1-final:app.css « Transitions Material 3 du calendrier »). Global
    rules: the ::view-transition-* pseudo-elements hang from :root, out of reach of a CSS Module. The label, the grid
    and the day card carry a view-transition-name of their restaurant (r1-calendar-label, r1-calendar-grid,
    r1-day-card…); the router passes one type, « {restaurant}-{kind} » (features/calendar/page-search.ts). Only the

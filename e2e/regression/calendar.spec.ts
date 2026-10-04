@@ -11,15 +11,11 @@ import {
   showPeriod,
 } from "../pages/calendar";
 import { dayCard } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, column, gotoHome } from "../pages/home";
+import { column, gotoHome } from "../pages/home";
 import { target } from "../pages/target";
 import type { Restaurant } from "../pages/target";
 
 // Calendars (09 § 3: P-01, P-01b, P-02, P-02b; 05 § 2-3). Seed of parite.md § 2, dated from 2026-10-05.
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Cells of the calendar: buttons of the group (legacy), gridcells (React). */
 function cells(page: Parameters<typeof calendarDays>[0], restaurant: Restaurant) {

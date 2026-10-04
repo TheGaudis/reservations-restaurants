@@ -3,7 +3,7 @@ import { TEST_NOW, TODAY } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectedDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast, toastKind } from "../pages/home";
+import { toast, toastKind } from "../pages/home";
 import { login, logout, modeButton, passwordField } from "../pages/login";
 import {
   bookingRow,
@@ -29,10 +29,6 @@ import {
 // End of a staff session: « Client », inactivity, password changed (09 § 4: C-30; 06 § 1.5-1.8; invariant 1).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test.describe("logoutPurgeAndPanels (REG-29)", () => {
   test.use({ fixedTime: null });

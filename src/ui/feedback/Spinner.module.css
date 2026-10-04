@@ -1,4 +1,4 @@
-/* Indeterminate circular indicator, Material 3 multicolour variant (08 § 4.15, legacy/design-system.css .spinner):
+/* Indeterminate circular indicator, Material 3 multicolour variant (08 § 4.15, v1-final:design-system.css .spinner):
    the arc grows and shrinks while turning and changes colour when it is shortest. */
 .spinner {
   display: block;

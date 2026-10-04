@@ -1,4 +1,4 @@
-/* .ab-stripe of legacy/design-system.css, .wrap and .columns of legacy/app.css (08 § 4.1, § 7.1, § 7.3, § 7.4). */
+/* .ab-stripe of v1-final:design-system.css, .wrap and .columns of v1-final:app.css (08 § 4.1, § 7.1, § 7.3, § 7.4). */
 .stripe {
   height: var(--stripe-height);
   background: var(--ab-gradient);

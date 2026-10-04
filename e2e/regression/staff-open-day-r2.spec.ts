@@ -4,7 +4,7 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectedDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast } from "../pages/home";
+import { toast } from "../pages/home";
 import { openDayPanel, staffCard } from "../pages/staff";
 import { target } from "../pages/target";
 import { actionBodies, loginAsStaff, openDayFormOf, pickerDay } from "./staff-helpers";
@@ -12,10 +12,6 @@ import { actionBodies, loginAsStaff, openDayFormOf, pickerDay } from "./staff-he
 // « Ouvrir un jour » of R2 and its dish lines (09 § 4: C-06; 06 § 4.2-4.3; D-19, D-22).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Field of dish line `index` (06 § 4.2): « Plat 1 : nom », « … : stock », « … : prix en euros (optionnel) »… */
 function dishLine(page: Page, index: number, part: string) {

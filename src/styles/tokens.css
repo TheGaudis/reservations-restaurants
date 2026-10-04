@@ -1,4 +1,4 @@
-/* Design tokens: legacy/design-system.css § 1-2 with unchanged values (docs/spec/08 § 1-2).
+/* Design tokens: v1-final:design-system.css § 1-2 with unchanged values (docs/spec/08 § 1-2).
    Rule of the charter: no colour written outside a token; "-ink" variants for text on white (AA contrast). */
 
 :root {
@@ -136,7 +136,7 @@
   --field-error-mark: 15px; /* round « ! » before a field error (08 § 4.6) */
   --fs-error-mark: 0.66rem; /* « ! » inside that mark */
   --fs-field-touch: 16px; /* fields on a touch screen: iOS zooms into a smaller one (08 § 4.6) */
-  --qty-input-width: calc(var(--space-10) + var(--space-8)); /* .qty-input, legacy/app.css */
+  --qty-input-width: calc(var(--space-10) + var(--space-8)); /* .qty-input, v1-final:app.css */
   --icon-size-stroke: 20px; /* stroke icon (print, settings) in an icon button (08 § 4.4) */
   --check-size-small: 16px; /* check of a selected compact segment (08 § 4.5) */
   --capacity-pill-min-width: 76px; /* .capacity-pill (08 § 4.8) */
@@ -145,7 +145,7 @@
   --dur-toast-enter: 0.3s; /* entry of a toast (08 § 1.7, § 4.14) */
   --dur-shimmer: 1.3s; /* loop of the skeleton gradient (08 § 1.7, § 4.16) */
 
-  /* Page layout: sizes written in legacy/app.css and legacy/design-system.css (08 § 4.1, § 4.17, § 4.18, § 7) */
+  /* Page layout: sizes written in v1-final:app.css and v1-final:design-system.css (08 § 4.1, § 4.17, § 4.18, § 7) */
   --page-max-width: 1040px; /* .wrap (08 § 7.1) */
   --stripe-height: 6px; /* .ab-stripe, top edge of a column (08 § 4.1, § 7.3) */
   --logo-height: 96px; /* .brand-logo (08 § 7.2) */

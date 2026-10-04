@@ -1,4 +1,4 @@
-/* .seg-group / .seg-btn / .seg-check of legacy/design-system.css (08 § 4.5): exclusive choice between views, state
+/* .seg-group / .seg-btn / .seg-check of v1-final:design-system.css (08 § 4.5): exclusive choice between views, state
    from Base UI's data-pressed. --segment-min-width: set by the parent (« Client / Collègue » of the header). */
 .group {
   display: inline-flex;

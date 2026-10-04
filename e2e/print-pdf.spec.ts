@@ -4,7 +4,7 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "./fixtures";
 import { selectDay } from "./pages/calendar";
-import { BLOCKED_FONT_PRELOAD, column, gotoHome, toast } from "./pages/home";
+import { column, gotoHome, toast } from "./pages/home";
 import { login, logout } from "./pages/login";
 import { closePrintedDocument, printedDocument, stubPrint } from "./pages/print";
 
@@ -19,8 +19,7 @@ const A4_LANDSCAPE = { width: 842, height: 595 };
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await stubPrint(page);
 });
 

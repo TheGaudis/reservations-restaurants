@@ -3,7 +3,7 @@ import { TODAY } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectDay, selectedDay, showPeriod } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast } from "../pages/home";
+import { toast } from "../pages/home";
 import { datePicker, staffCard } from "../pages/staff";
 import { target } from "../pages/target";
 import { actionBodies, loginAsStaff, openDayFormOf, pickerDay } from "./staff-helpers";
@@ -11,10 +11,6 @@ import { actionBodies, loginAsStaff, openDayFormOf, pickerDay } from "./staff-he
 // « Ouvrir un jour » of R1 and its date picker (09 § 4: C-04, C-05, C-10; 06 § 3, § 4.1; D-19).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 const R1_FIELDS = {
   staffName: "Votre nom (collègue qui ouvre ce jour)",

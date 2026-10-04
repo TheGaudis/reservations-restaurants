@@ -9,7 +9,7 @@ interface ColumnSkeletonProps {
   still?: boolean | undefined;
 }
 
-/** Calendar and card of a column before any data (legacy/index.html, 08 § 4.16): no text, hidden from assistive tech. */
+/** Calendar and card of a column before any data (v1-final:index.html, 08 § 4.16): no text, hidden from assistive tech. */
 export function ColumnSkeleton({ still = false }: ColumnSkeletonProps) {
   return (
     <div className={styles["skeleton"]} aria-hidden="true">

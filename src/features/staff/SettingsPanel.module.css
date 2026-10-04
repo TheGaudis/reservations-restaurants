@@ -1,4 +1,4 @@
-/* .panel.settings-panel, .settings-summary, .settings-chevron, .settings-body, .settings-grid of legacy/app.css
+/* .panel.settings-panel, .settings-summary, .settings-chevron, .settings-body, .settings-grid of v1-final:app.css
    (06 § 2.2): « Ouvrir un jour » in neutral colours. */
 .panel {
   margin-bottom: var(--space-4);

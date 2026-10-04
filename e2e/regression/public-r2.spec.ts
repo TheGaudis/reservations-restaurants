@@ -1,7 +1,7 @@
 import { expect, test } from "../fixtures";
 import { longDate, selectDay, showPeriod } from "../pages/calendar";
 import { bookingSummary, dayCard, dishRow, reserveButton } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, toast, toastKind } from "../pages/home";
+import { gotoHome, toast, toastKind } from "../pages/home";
 import {
   cancelOrderR2,
   fillOrderR2,
@@ -29,10 +29,6 @@ const EMAIL_FAILED = "L'email de confirmation n'a pas pu être envoyé. Gardez c
 const VOUCHER_HELP = "Sur place uniquement ce jour-là : repas au prix d'un ticket restaurant.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test(
   "r2DayCardStates (REG-21)",

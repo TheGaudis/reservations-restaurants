@@ -1,4 +1,4 @@
-/* .capacity-pill and .cap-ok|low|full of legacy/design-system.css (08 § 4.8, 05 § 4.5): the filled part is the share
+/* .capacity-pill and .cap-ok|low|full of v1-final:design-system.css (08 § 4.8, 05 § 4.5): the filled part is the share
    still free (width of .fill, `gaugeStyle` of 00 § 3); --cap is the state colour, the text a darker mix of it
    (≥ 4.5:1 on the filled part). */
 .gauge {

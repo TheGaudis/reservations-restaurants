@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "../fixtures";
-import { BLOCKED_FONT_PRELOAD, columnTitle, toast, toastKind } from "../pages/home";
+import { columnTitle, toast, toastKind } from "../pages/home";
 import { openSettings, staffPanel } from "../pages/staff";
 import { target } from "../pages/target";
 import { settle } from "./helpers";
@@ -14,10 +14,6 @@ import { actionBodies, loginAsStaff, storedJson } from "./staff-helpers";
 const LOCK_BUSY = "Le serveur est très sollicité : réessayez dans quelques secondes.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 async function openSettingsPanel(page: Page) {
   await loginAsStaff(page);

@@ -3,7 +3,7 @@ import { TEST_NOW, TODAY } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { calendarDays, longDate, selectDay, selectedDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, gotoHome, toast, toastKind } from "../pages/home";
+import { gotoHome, toast, toastKind } from "../pages/home";
 import { login, modeButton, openLogin, passwordField } from "../pages/login";
 import { bookingRow, staffCard } from "../pages/staff";
 import { readLocalCache, seedLocalCache } from "../pages/storage";
@@ -23,10 +23,6 @@ import {
 const DAY = 24 * 60 * 60 * 1000;
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 function searchOf(url: string): Record<string, string> {
   return Object.fromEntries(new URL(url).searchParams);

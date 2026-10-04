@@ -41,7 +41,7 @@ const messages = defineMessages({
   },
 });
 
-// Favicon of legacy/index.html (03 § 2.1).
+// Favicon of v1-final:index.html (03 § 2.1).
 const FAVICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff'/%3E%3Cpath d='M38 6h9L31 34h-9z' fill='%23A9C23F'/%3E%3Cpath d='M42 14h7L27 50H16z' fill='%231F4E9E'/%3E%3Cpath d='M12 44l40-15 4 7-40 15z' fill='%23A3237F'/%3E%3Cpath d='M41 36h7l8 16h-7z' fill='%23A9C23F'/%3E%3C/svg%3E";
 

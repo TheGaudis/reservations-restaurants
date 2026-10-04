@@ -5,7 +5,7 @@ import { TEST_NOW } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast } from "../pages/home";
+import { toast } from "../pages/home";
 import { bookingLines, bookingRow, confirmDelete, staffCard } from "../pages/staff";
 import { target } from "../pages/target";
 import { actionBodies, loginAsStaff, veil, veilGone } from "./staff-helpers";
@@ -16,10 +16,6 @@ import { actionBodies, loginAsStaff, veil, veilGone } from "./staff-helpers";
 const TOMORROW = "2026-10-06";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 async function tomorrowCard(page: Page) {
   await loginAsStaff(page);

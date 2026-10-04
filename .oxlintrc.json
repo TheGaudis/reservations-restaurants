@@ -347,13 +347,12 @@
       "rules": { "react/hook-use-state": "off" }
     },
     {
-      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33) ; tests dorés qui exécutent legacy/js/
-      // dans node:vm, test de la frontière de l'API qui lit src/ par node:fs (PLAN P2) et test S2 qui lit
-      // translations/fr.json, docs/spec/ et l'annexe F par node:fs (PLAN § 1.5, P7 (a))
+      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33), test de la frontière de l'API qui lit
+      // src/ par node:fs (PLAN P2) et test S2 qui lit translations/fr.json, docs/spec/ et l'annexe F par node:fs
+      // (PLAN § 1.5, P7 (a))
       "files": [
         "src/test/setup-node.ts",
         "src/test/network-isolation.test.ts",
-        "src/test/legacy-scripts.ts",
         "src/test/api-boundary.test.ts",
         "src/test/message-sources.test.ts"
       ],
@@ -411,7 +410,6 @@
 
   // Identiques dans .oxfmtrc.json et knip.json (PLAN P0)
   "ignorePatterns": [
-    "legacy/**",
     "docs/**",
     ".claude/**",
     "translations/**",

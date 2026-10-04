@@ -5,14 +5,7 @@ import { TEST_NOW } from "@/test/clock";
 import { expect, test } from "../fixtures";
 import { dayButton } from "../pages/calendar";
 import { reserveButton, seatsPill } from "../pages/day-card";
-import {
-  BLOCKED_FONT_PRELOAD,
-  columnTitle,
-  gotoHome,
-  loadError,
-  retryButton,
-  retryLoad,
-} from "../pages/home";
+import { columnTitle, gotoHome, loadError, retryButton, retryLoad } from "../pages/home";
 import { readLocalCache, seedLocalCache, seedStoredTexts } from "../pages/storage";
 import { target } from "../pages/target";
 import { reads, windowValue } from "./helpers";
@@ -28,10 +21,6 @@ const COPY_SUFFIX =
   "Le calendrier affiché date de votre dernière visite : les places restantes ont pu changer depuis.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Load error text as read (the `<br>` of 03 § 3.1 becomes a space). */
 async function expectLoadError(page: Page, text: string): Promise<void> {

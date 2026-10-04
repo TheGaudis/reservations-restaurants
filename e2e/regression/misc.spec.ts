@@ -1,5 +1,5 @@
 import { expect, test } from "../fixtures";
-import { BLOCKED_FONT_PRELOAD, columnTitle, gotoHome, logo } from "../pages/home";
+import { columnTitle, gotoHome, logo } from "../pages/home";
 import { pauseClock } from "./helpers";
 
 // Easter egg (09 § 7, D-01).
@@ -7,10 +7,6 @@ import { pauseClock } from "./helpers";
 const VIDEO = "https://youtu.be/dQw4w9WgXcQ?list=RDdQw4w9WgXcQ";
 
 test.use({ fixedTime: null });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test(
   "easterEgg (REG-43)",

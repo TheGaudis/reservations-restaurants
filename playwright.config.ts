@@ -3,12 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 // Cloud sessions: the preinstalled Chromium does not match Playwright's revision, hence the explicit path (PLAN § 2.1).
 const executablePath = process.env["PLAYWRIGHT_CHROMIUM_EXECUTABLE"];
-// Default ports of `pnpm serve:legacy` and `pnpm serve`; sessions running in parallel set their own.
-const legacyPort = Number(process.env["E2E_LEGACY_PORT"] ?? 4310);
+// Default port of `pnpm serve`; sessions running in parallel set their own.
 const reactPort = Number(process.env["E2E_REACT_PORT"] ?? 4311);
-const BASE = "/reservations-restaurants/";
-const legacyUrl = `http://127.0.0.1:${legacyPort}${BASE}`;
-const reactUrl = `http://127.0.0.1:${reactPort}${BASE}`;
+const reactUrl = `http://127.0.0.1:${reactPort}/reservations-restaurants/`;
 
 export default defineConfig({
   testDir: "e2e",
@@ -23,8 +20,8 @@ export default defineConfig({
     ...(executablePath === undefined ? {} : { launchOptions: { executablePath } }),
   },
   projects: [
-    // Regression suite (PLAN § 1.5, S1) on the legacy site, then on the React build.
-    { name: "legacy", testDir: "e2e/regression", use: { baseURL: legacyUrl } },
+    // Regression suite (PLAN § 1.5, S1). The `legacy` branches of its scenarios record each E-xx gap
+    // (docs/migration/parite.md, `legacy` column frozen at the switch); only `react` runs them.
     { name: "react", testDir: "e2e/regression", use: { baseURL: reactUrl } },
     // Tests of the new code only (smoke, hydration, PDF printing, accessibility), on the build:e2e output.
     {
@@ -40,8 +37,5 @@ export default defineConfig({
     },
   ],
   // A server left by another worktree must never answer for this one.
-  webServer: [
-    { command: "pnpm serve:legacy", url: legacyUrl, reuseExistingServer: false },
-    { command: "pnpm serve", url: reactUrl, reuseExistingServer: false },
-  ],
+  webServer: { command: "pnpm serve", url: reactUrl, reuseExistingServer: false },
 });

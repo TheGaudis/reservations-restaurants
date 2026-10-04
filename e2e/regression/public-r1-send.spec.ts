@@ -9,7 +9,7 @@ import {
 } from "../pages/booking-r1";
 import { longDate, selectDay } from "../pages/calendar";
 import { bookingSummary, reserveButton, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, toast, toastKind } from "../pages/home";
+import { gotoHome, toast, toastKind } from "../pages/home";
 import { target } from "../pages/target";
 import { otherBookingR1, pauseClock, posts } from "./helpers";
 
@@ -21,10 +21,6 @@ const DUPLICATE =
   "Cette réservation était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test.describe("r1MaxSeats (REG-16)", () => {
   test(

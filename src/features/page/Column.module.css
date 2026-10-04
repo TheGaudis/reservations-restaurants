@@ -1,4 +1,4 @@
-/* .col, .col-head, .desc of legacy/app.css and .slash-mark of legacy/design-system.css (08 § 4.18, § 7.3). */
+/* .col, .col-head, .desc of v1-final:app.css and .slash-mark of v1-final:design-system.css (08 § 4.18, § 7.3). */
 .column {
   position: relative;
   min-width: 0;

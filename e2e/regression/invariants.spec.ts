@@ -2,7 +2,7 @@ import { expect, test } from "../fixtures";
 import { fillBookingR1, bookingR1Form, openBookingR1, submitBookingR1 } from "../pages/booking-r1";
 import { dayButton, goToToday, longDate, selectDay, selectedDay } from "../pages/calendar";
 import { dayCard, reserveButton } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome } from "../pages/home";
+import { gotoHome } from "../pages/home";
 import { target } from "../pages/target";
 import { pauseClock, posts, reads, settle } from "./helpers";
 
@@ -19,8 +19,7 @@ function startsWithDay(iso: string): RegExp {
 
 test.use({ reducedMotion: "reduce", fixedTime: null });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await pauseClock(page, BEFORE_MIDNIGHT);
 });
 

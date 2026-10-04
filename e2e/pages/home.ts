@@ -5,13 +5,6 @@ import type { Restaurant } from "./target";
 
 // Page as a whole (09 § 2: G-01 to G-05, G-07). Same roles and texts on both sites unless stated.
 
-/**
- * Warning of the legacy page when the Google Fonts stylesheet it preloads never arrives (blocked by the network
- * isolation): Chromium writes it once the page has been loaded a few seconds.
- */
-export const BLOCKED_FONT_PRELOAD =
-  /^The resource https:\/\/fonts\.googleapis\.com\/.* was preloaded using link preload but not used/u;
-
 /** Opens the public page; `search` (09 § 1) only means something to the React site, the legacy one ignores it. */
 export async function gotoHome(page: Page, search: Record<string, string> = {}): Promise<void> {
   const query = new URLSearchParams(search).toString();

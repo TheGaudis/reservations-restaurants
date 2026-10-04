@@ -1,4 +1,4 @@
-/* .field-group, .row3, .field-error and .form-total of legacy/design-system.css and app.css (04 § 5.2, 08 § 4.6). */
+/* .field-group, .row3, .field-error and .form-total of v1-final:design-system.css and app.css (04 § 5.2, 08 § 4.6). */
 .group {
   min-width: 0;
   margin: 0 0 var(--space-3);

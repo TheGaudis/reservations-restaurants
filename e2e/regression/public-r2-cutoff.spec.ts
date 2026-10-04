@@ -1,7 +1,7 @@
 import { expect, test } from "../fixtures";
 import { longDate } from "../pages/calendar";
 import { dayCard, dishRow, reserveButton } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, toast, toastKind } from "../pages/home";
+import { gotoHome, toast, toastKind } from "../pages/home";
 import { fillOrderR2, openOrderR2, orderR2Form, submitOrderR2 } from "../pages/order-r2";
 import { target } from "../pages/target";
 import { pauseClock, posts } from "./helpers";
@@ -13,10 +13,6 @@ const CLOSED =
   "Commandes en ligne clôturées à 10h. Venez au restaurant Aristide à partir de 12h pour commander sur place.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test.describe("r2CutoffAt10 (REG-25)", () => {
   const BEFORE_TEN = Date.parse("2026-10-05T07:59:30Z");

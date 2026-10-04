@@ -1,4 +1,4 @@
-/* .seg-group.block / .seg-btn / .seg-check of legacy/design-system.css (08 § 4.5), state from Base UI's data-checked.
+/* .seg-group.block / .seg-btn / .seg-check of v1-final:design-system.css (08 § 4.5), state from Base UI's data-checked.
    Each Radio.Root is a <span> followed by a hidden <input>: the segment rules count spans (:first-of-type…). */
 .fieldset {
   min-width: 0;

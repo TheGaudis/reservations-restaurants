@@ -4,7 +4,7 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "../fixtures";
 import { selectDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast, toastKind } from "../pages/home";
+import { toast, toastKind } from "../pages/home";
 import { bookingLines, bookingRow, openAddPerson, staffCard, staffDish } from "../pages/staff";
 import { target } from "../pages/target";
 import { otherOrderR2 } from "./helpers";
@@ -13,10 +13,6 @@ import { actionBodies, loginAsStaff, veilGone } from "./staff-helpers";
 // Staff card of R2: dishes, bookings of a dish (09 § 4: C-14, C-20 to C-24; 05 § 6.3; 06 § 6-8).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 async function tomorrowR2(page: Page): Promise<Locator> {
   await loginAsStaff(page);

@@ -11,7 +11,7 @@ import { createScript, doGet, doPost, LOCK_BUSY } from "@/mocks/script";
  * the script's field names (`fake-db.ts`). Isomorphic: neither DOM nor `node:*`.
  */
 
-/** Every deployment id, the real one written in `legacy/index.html` included (R-33). */
+/** Every deployment id, the real one written in `v1-final:index.html` included (R-33). */
 export const APPS_SCRIPT_URL_PATTERN = "https://script.google.com/macros/s/:deploymentId/exec";
 
 const GOOGLE_ERROR_PAGE = "Sorry, unable to open the file at this time.";

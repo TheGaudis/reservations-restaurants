@@ -10,7 +10,7 @@ import {
 } from "../pages/booking-r1";
 import { longDate, selectDay, showPeriod } from "../pages/calendar";
 import { bookingSummary, dayCard, reserveButton, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome } from "../pages/home";
+import { gotoHome } from "../pages/home";
 import { openOrderR2, orderR2Form } from "../pages/order-r2";
 import { target } from "../pages/target";
 import { posts, rawTexts, windowValue } from "./helpers";
@@ -26,10 +26,6 @@ const FIELD_ERRORS = [
 ];
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test(
   "columnsIndependent (REG-13)",

@@ -1,4 +1,4 @@
-/* .sk, .sk-line, .sk-circle, .sk-cell, .sk-card of legacy/design-system.css and legacy/app.css (08 § 4.16):
+/* .sk, .sk-line, .sk-circle, .sk-cell, .sk-card of v1-final:design-system.css and v1-final:app.css (08 § 4.16):
    --text at 6 % and 11 % gives the legacy rgba(31, 35, 40, .06) and .11. */
 .skeleton {
   display: block;

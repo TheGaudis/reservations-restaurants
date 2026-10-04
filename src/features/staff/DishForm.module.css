@@ -1,4 +1,4 @@
-/* .booking-form and .row2 of legacy/app.css (06 § 6.1): the dish form opens under a thin rule and rises in; name and
+/* .booking-form and .row2 of v1-final:app.css (06 § 6.1): the dish form opens under a thin rule and rises in; name and
    stock side by side, one under the other on a narrow screen. */
 .form {
   margin-top: var(--space-4);

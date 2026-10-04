@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures";
 import { selectDay, showPeriod } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast, toastKind } from "../pages/home";
+import { toast, toastKind } from "../pages/home";
 import { bookingRow, openAddPerson, staffCard } from "../pages/staff";
 import { actionBodies, loginAsStaff } from "./staff-helpers";
 
@@ -10,10 +10,6 @@ const DUPLICATE =
   "Cette personne était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test(
   "r1StaffAddPerson (REG-36)",

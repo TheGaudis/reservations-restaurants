@@ -103,7 +103,6 @@ test("changedTagsMatchPlanGaps", { tag: ["@framework"] }, () => {
 test("pageObjectSignatures", { tag: ["@framework"] }, () => {
   const exported = (module: object) => Object.keys(module).toSorted();
   expect(exported(home)).toStrictEqual([
-    "BLOCKED_FONT_PRELOAD",
     "column",
     "columnTitle",
     "gotoHome",

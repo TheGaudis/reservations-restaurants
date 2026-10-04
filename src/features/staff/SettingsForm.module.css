@@ -1,4 +1,4 @@
-/* .settings-grid and .span-all of legacy/app.css (06 § 2.2): two columns, one under 600 px. */
+/* .settings-grid and .span-all of v1-final:app.css (06 § 2.2): two columns, one under 600 px. */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

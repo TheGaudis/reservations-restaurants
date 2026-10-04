@@ -10,7 +10,7 @@ import {
 } from "../pages/booking-r1";
 import { selectDay } from "../pages/calendar";
 import { bookingSummary, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, loadError, retryLoad } from "../pages/home";
+import { gotoHome, loadError, retryLoad } from "../pages/home";
 import { target } from "../pages/target";
 import {
   otherBookingR1,
@@ -30,10 +30,6 @@ const ONLINE_ERROR =
 const OFFLINE_ERROR = "Vous semblez hors ligne. Vérifiez votre connexion internet, puis réessayez.";
 
 test.use({ reducedMotion: "reduce", fixedTime: null });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Load error text as read (the `<br>` of 03 § 3.1 becomes a space). */
 async function expectLoadError(page: Page, text: string): Promise<void> {

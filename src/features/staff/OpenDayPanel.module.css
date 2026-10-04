@@ -1,4 +1,4 @@
-/* .panel.add-day, .add-day-summary, .add-day-plus, .add-day-body of legacy/app.css (06 § 4): dashed and tinted while
+/* .panel.add-day, .add-day-summary, .add-day-plus, .add-day-body of v1-final:app.css (06 § 4): dashed and tinted while
    closed, solid with a shadow once open. */
 .panel {
   margin-bottom: var(--space-4);

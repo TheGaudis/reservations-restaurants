@@ -1,4 +1,4 @@
-/* label.check > input[type=checkbox] of legacy/design-system.css (08 § 4.6): accent box, clickable text, 48 px. */
+/* label.check > input[type=checkbox] of v1-final:design-system.css (08 § 4.6): accent box, clickable text, 48 px. */
 .check {
   display: inline-flex;
   align-items: center;

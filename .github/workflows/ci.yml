@@ -130,11 +130,10 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - run: pnpm exec playwright install --with-deps chromium
 
-      # react-only: new code (smoke, hydration, PDF printing, session); legacy and react: the whole regression
-      # suite on the old site and on the React build (PLAN § 1.5 S1, P7). retries: 1 comes from playwright.config.ts
-      # when CI is set.
-      - name: E2E (react-only, legacy, react)
-        run: pnpm test:e2e --project=react-only --project=legacy --project=react
+      # react-only: new code (smoke, hydration, PDF printing, session); react: the whole regression suite
+      # (PLAN § 1.5 S1, P7). retries: 1 comes from playwright.config.ts when CI is set.
+      - name: E2E (react-only, react)
+        run: pnpm test:e2e --project=react-only --project=react
 
       # Production build, as the deploy job will publish it. Without the repository variable the build
       # still succeeds and the site shows the configuration banner (D-05, G-05).

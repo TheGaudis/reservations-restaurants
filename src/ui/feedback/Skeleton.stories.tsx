@@ -2,7 +2,7 @@ import { Skeleton } from "@/ui/feedback/Skeleton";
 
 import preview from "../../../.storybook/preview";
 
-// Calendar skeleton of a column (legacy/index.html #cal-r1): header row, period label, week, card.
+// Calendar skeleton of a column (v1-final:index.html #cal-r1): header row, period label, week, card.
 function CalendarSkeleton({ still }: { still: boolean }) {
   return (
     <div aria-busy="true" style={{ display: "grid", gap: "var(--space-4)", maxWidth: "28rem" }}>

@@ -5,7 +5,7 @@ import { TEST_NOW } from "@/test/clock";
 
 import { expect, test } from "./fixtures";
 import { calendarDays } from "./pages/calendar";
-import { BLOCKED_FONT_PRELOAD, column, gotoHome, toast, toastKind } from "./pages/home";
+import { column, gotoHome, toast, toastKind } from "./pages/home";
 import { login, logout, modeButton, passwordField } from "./pages/login";
 import { readLocalCache } from "./pages/storage";
 
@@ -14,10 +14,6 @@ import { readLocalCache } from "./pages/storage";
 // REG-31 go through panels of P5 (b) to (e); these checks need only the staff page and its cards.
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Every name of a colleague that a staff card of the seed shows (« Ouvert par »): staff data only (01 § 2.2). */
 async function expectNoStaffData(page: Page): Promise<void> {

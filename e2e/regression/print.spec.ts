@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "../fixtures";
 import { selectDay, showPeriod } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, column, toast } from "../pages/home";
+import { column, toast } from "../pages/home";
 import {
   closePrintedDocument,
   printedDocument,
@@ -21,8 +21,7 @@ const PRINTED_ON = "Imprimé le 5 octobre 2026";
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await stubPrint(page);
 });
 

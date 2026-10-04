@@ -1,5 +1,4 @@
 import { expect, test } from "../fixtures";
-import { BLOCKED_FONT_PRELOAD } from "../pages/home";
 import {
   closePrintedDocument,
   printedDocument,
@@ -21,8 +20,7 @@ const TOMORROW = "mardi 6 octobre 2026";
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await stubPrint(page);
 });
 
