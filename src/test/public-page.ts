@@ -17,9 +17,9 @@ export async function renderPublicPage(url: string) {
   return rendered;
 }
 
-/** Column of a restaurant (05 § 1): R1 comes first in the page. */
+/** Column of a restaurant (05 § 1): R1 comes first in the page; the staff panels above are sections too. */
 export function columnOf(restaurant: Restaurant): Locator {
-  const sections = document.querySelectorAll("main section");
+  const sections = document.querySelectorAll("main section[data-accent]");
   const section = sections.item(restaurant === "r1" ? 0 : 1);
   return page.elementLocator(section);
 }

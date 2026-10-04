@@ -168,8 +168,10 @@ describe("staff cards (05 § 4.3, § 5.1, § 6.2)", () => {
 
 describe("logout (PLAN § 3.3.4, S8)", () => {
   it("purges the cache and the page, closes the panels and says « Retour au mode client. »", async () => {
+    // Without `parametres=true`: the filled fields of « Paramètres » freeze a page of `renderRoute` (R-36); REG-29
+    // checks that panel after the logout on the built site.
     const { router, queryClient } = await renderStaffPage(
-      `/collegue?r1=${TODAY}&r1vue=mois&parametres=true&ouvrir=r1`,
+      `/collegue?r1=${TODAY}&r1vue=mois&ouvrir=r1`,
     );
     await expect.element(columnOf("r1").getByText(/^Ouvert par /u)).toBeVisible();
     await page.getByRole("button", { name: "Client", exact: true }).click();
@@ -217,7 +219,9 @@ describe("logout (PLAN § 3.3.4, S8)", () => {
         logged.push(...args);
       });
     }
-    const { router, queryClient } = await renderStaffPage(`/collegue?r1=${TODAY}&parametres=true`);
+    // `ouvrir=r1` rather than `parametres=true`: the filled fields of « Paramètres » freeze a page of `renderRoute`
+    // (R-36).
+    const { router, queryClient } = await renderStaffPage(`/collegue?r1=${TODAY}&ouvrir=r1`);
     await page.getByRole("button", { name: "Client", exact: true }).click();
     await expect.poll(() => router.state.location.pathname).toBe("/");
     const seen = [
