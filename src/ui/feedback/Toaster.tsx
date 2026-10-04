@@ -1,4 +1,5 @@
 import { Toast } from "@base-ui/react/toast";
+import type { RefObject } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { TOAST_DURATION_MS } from "@/domain/constants";
@@ -29,15 +30,20 @@ function ToastList() {
   ));
 }
 
+interface ToasterProps {
+  /** Element that receives the notification area; `<body>` by default. */
+  container?: RefObject<HTMLElement | null> | undefined;
+}
+
 /**
  * Notification area of the page (08 § 4.14), mounted once at the root: shows what `showToast` adds, one toast at a
  * time (a-8), for 3.5 s. The F6 key of Base UI reaches it from the keyboard.
  */
-export function Toaster() {
+export function Toaster({ container }: ToasterProps) {
   const intl = useIntl();
   return (
     <Toast.Provider toastManager={toastManager} limit={1} timeout={TOAST_DURATION_MS}>
-      <Toast.Portal>
+      <Toast.Portal container={container}>
         <Toast.Viewport
           className={styles["viewport"]}
           aria-label={intl.formatMessage(messages.viewport)}

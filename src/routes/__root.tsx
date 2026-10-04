@@ -8,12 +8,14 @@ import {
   ScriptOnce,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { useRef } from "react";
 import type { ReactNode } from "react";
 import { defineMessages } from "react-intl";
 
 import { earlyFetchScript } from "@/api/early-fetch";
 import { intl } from "@/intl/intl";
 import type { SessionStore } from "@/session/session";
+import { Toaster } from "@/ui/feedback/Toaster";
 
 import baseCss from "@/styles/base.css?url";
 import printCss from "@/styles/print.css?url";
@@ -69,11 +71,19 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 // Stacking context of the app: Base UI portals, appended to <body>, stay above it (PLAN § 3.6).
+// Toasts of every page (G-07), in an element of their own after it: their portal renders nothing in the prerendered
+// shell nor while React hydrates. A portal straight into <body> blocks the route tests, where React renders the
+// <body> of the shell inside a test container.
 function AppRoot() {
+  const toasts = useRef<HTMLDivElement>(null);
   return (
-    <div className="app-root">
-      <Outlet />
-    </div>
+    <>
+      <div className="app-root">
+        <Outlet />
+      </div>
+      <div ref={toasts} />
+      <Toaster container={toasts} />
+    </>
   );
 }
 

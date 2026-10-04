@@ -5,9 +5,11 @@ import { useClock } from "@/background/clock";
 import type { BackgroundDeps } from "@/background/deps";
 import { startBackgroundTasks } from "@/background/start";
 import { INACTIVITY_MS } from "@/domain/constants";
+import { PUBLIC_STATE_CACHE, publicStateOptions } from "@/queries/state";
 import { getRouter } from "@/router";
 import { useSessionStore } from "@/session/session";
 import { TEST_NOW } from "@/test/clock";
+import { publicState } from "@/test/domain-states";
 
 const initialSession = useSessionStore.getState();
 const initialClock = useClock.getState();
@@ -28,7 +30,14 @@ afterEach(() => {
 async function deps(): Promise<BackgroundDeps> {
   const router = getRouter();
   router.update({ ...router.options, history: createMemoryHistory({ initialEntries: ["/"] }) });
+  // A state in the cache, kept like the public state (no garbage-collection timer): the loader of / starts no
+  // read, whose timers would be counted below.
+  const { queryClient } = router.options.context;
+  queryClient.setQueryDefaults(publicStateOptions.queryKey, PUBLIC_STATE_CACHE);
+  queryClient.setQueryData(publicStateOptions.queryKey, publicState());
   await router.load();
+  // TanStack Query notifies its listeners in a setTimeout(0) batch: flushed before the timers are counted.
+  vi.runOnlyPendingTimers();
   return {
     queryClient: router.options.context.queryClient,
     router,

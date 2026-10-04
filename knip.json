@@ -5,13 +5,13 @@
     "src/**/*.{ts,tsx}!",
     "!src/mocks/**!",
     "!src/test/**!",
-    "!src/intl/common-messages.ts!", // retirer en P4 (a), qui l'importe dans la page
+    "!src/intl/common-messages.ts!", // retirer en P4 (b) : les fiches (« Réserver », jour sans service) l'importent
+    "!src/intl/staff-messages.ts!", // retirer en P5 : textes partagés du mode collègue (P4 (a))
     "!src/ui/**!", // retirer quand chaque composant de ui/ a un importeur de production (P7 (a) au plus tard)
     "!src/domain/**!", // retirer en P6 (b) : domain/ (P2 (a)) attend ses importeurs de production (api/, features/)
     // retirer en P4 (c) au plus tard : api/ (P2 (b1), P2 (b2)) attend ses importeurs de production (queries/, mutations/)
     "!src/api/{actions,errors,hedged-read,request-id,schemas,signals,staff-schemas,state,transport}.ts!",
-    // retirer en P4 (a) (state, use-app-state : page et actualisation) et en P5 (a) (purge : déconnexion)
-    "!src/queries/{purge,state,use-app-state}.ts!",
+    "!src/queries/purge.ts!", // retirer en P5 (a) (déconnexion)
     "!src/background/**!", // retirer en P5 (a), qui appelle startBackgroundTasks depuis getRouter()
     "!src/intl/{dates,amounts,calendar}.ts!", // retirer en P4 (b), dont les calendriers et les fiches les importent
     "e2e/**/*.ts",
