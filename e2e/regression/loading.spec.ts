@@ -80,11 +80,14 @@ test(
   { tag: ["@changed:E-47", "@G-02", "@p4"] },
   async ({ page, fakeScript }) => {
     await seedLocalCache(page, fakeScript.db, TEST_NOW - DAY);
-    // First day button of the page: when the document is parsed, and in ms from the start of navigation.
+    // First day button of the page: present when the document is parsed (legacy), or in ms after the prerendered
+    // skeleton (`main[aria-busy="true"]`) entered the DOM (React).
     await page.addInitScript(() => {
-      const marks = { shownAt: -1, shownWhenParsed: false };
+      const marks = { skeletonAt: -1, shownAt: -1, shownWhenParsed: false };
+      const skeleton = () => document.querySelector('main[aria-busy="true"]') !== null;
       const shown = () => document.querySelector('button[aria-label*=" 2026, "]') !== null;
       new MutationObserver(() => {
+        if (marks.skeletonAt < 0 && skeleton()) marks.skeletonAt = performance.now();
         if (marks.shownAt < 0 && shown()) marks.shownAt = performance.now();
       }).observe(document, { childList: true, subtree: true });
       document.addEventListener("DOMContentLoaded", () => {
@@ -102,17 +105,21 @@ test(
     await expect(reserveButton(page, "r2")).toBeEnabled();
     expect(reads(fakeScript.requests)).toStrictEqual(["?since=E1"]);
 
-    const marks = await windowValue<{ shownAt: number; shownWhenParsed: boolean }>(
-      page,
-      "e2eMarks",
-    );
+    const marks = await windowValue<{
+      skeletonAt: number;
+      shownAt: number;
+      shownWhenParsed: boolean;
+    }>(page, "e2eMarks");
     if (target(test.info()) === "legacy") {
       // The copy replaces the skeleton while the document is parsed (03 § 2.3).
       expect(marks.shownWhenParsed).toBe(true);
     } else {
-      // E-47: skeleton of the prerendered shell until hydration, 600 ms at most.
-      expect(marks.shownAt).toBeGreaterThan(0);
-      expect(marks.shownAt).toBeLessThanOrEqual(600);
+      // E-47, S4: skeleton of the prerendered shell until hydration, shown 600 ms at most. Counted from the moment
+      // the skeleton enters the DOM, before its first paint: the time spent before (document and stylesheets routed
+      // through the test runner, Playwright's clock script) is not skeleton time.
+      expect(marks.skeletonAt).toBeGreaterThan(0);
+      expect(marks.shownAt).toBeGreaterThan(marks.skeletonAt);
+      expect(marks.shownAt - marks.skeletonAt).toBeLessThanOrEqual(600);
     }
 
     release();
