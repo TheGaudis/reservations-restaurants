@@ -8,7 +8,7 @@
   margin-top: var(--space-4);
   padding-top: var(--space-4);
   border-top: var(--border-width) solid var(--border);
-  /* ANIM */
+  animation: rise var(--dur-slow) var(--ease-enter) both;
 }
 
 /* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
