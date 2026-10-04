@@ -1,4 +1,4 @@
-import { defineMessages } from "react-intl";
+import { defineMessages, FormattedMessage } from "react-intl";
 
 import { changedSettings, settingErrors, settingsValues, SETTING_KEYS } from "@/domain/settings";
 import type { SettingError, SettingsValues } from "@/domain/settings";
@@ -65,7 +65,6 @@ const labels = defineMessages<SettingKey>({
 
 const messages = defineMessages<{
   contactPlaceholder: Record<string, never>;
-  save: Record<string, never>;
   noChange: Record<string, never>;
   partialFailure: { saved: string; failed: string; message: string };
 }>({
@@ -73,11 +72,6 @@ const messages = defineMessages<{
     id: "staff.settings.field.cancellationContact.placeholder",
     defaultMessage: "Ex. le secrétariat au 03 00 00 00 00",
     description: "06 § 2.2 — exemple dans le champ du contact d'annulation",
-  },
-  save: {
-    id: "staff.settings.save",
-    defaultMessage: "Enregistrer les paramètres",
-    description: "06 § 2.2 — bouton d'envoi du panneau des paramètres",
   },
   noChange: {
     id: "staff.settings.noChange",
@@ -198,7 +192,11 @@ export function SettingsForm() {
         ))}
       </div>
       <form.SubmitButton pendingLabel={intl.formatMessage(commonMessages.saving)}>
-        {intl.formatMessage(messages.save)}
+        <FormattedMessage
+          id="staff.settings.save"
+          defaultMessage="Enregistrer les paramètres"
+          description="06 § 2.2 — bouton d'envoi du panneau des paramètres"
+        />
       </form.SubmitButton>
       <SlowWriteNotice slow={slowWrite.slow} />
     </Form>

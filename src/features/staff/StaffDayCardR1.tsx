@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { capacityClass, findDay, remainingSeats } from "@/domain/capacity";
@@ -17,14 +17,8 @@ import { useStaffState } from "@/features/staff/use-staff-state";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 const messages = defineMessages<{
-  seats: { remaining: string; capacity: string };
   menu: Record<string, never>;
 }>({
-  seats: {
-    id: "staff.r1.dayCard.seats",
-    defaultMessage: "{remaining} / {capacity} couverts",
-    description: "05 § 4.5 — jauge de la fiche R1 collègue (restant négatif possible)",
-  },
   menu: {
     id: "staff.r1.dayCard.menu",
     defaultMessage: "Menu du jour",
@@ -52,10 +46,12 @@ export function StaffDayCardR1() {
       percent={gaugePercent(remaining, day.capacity)}
       state={capacityClass(remaining, day.capacity)}
     >
-      {intl.formatMessage(messages.seats, {
-        remaining: String(remaining),
-        capacity: String(day.capacity),
-      })}
+      <FormattedMessage
+        id="staff.r1.dayCard.seats"
+        defaultMessage="{remaining} / {capacity} couverts"
+        description="05 § 4.5 — jauge de la fiche R1 collègue (restant négatif possible)"
+        values={{ remaining: String(remaining), capacity: String(day.capacity) }}
+      />
     </CapacityPill>
   );
   return (

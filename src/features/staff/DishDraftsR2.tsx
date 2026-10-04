@@ -1,4 +1,4 @@
-import { defineMessages } from "react-intl";
+import { defineMessages, FormattedMessage } from "react-intl";
 
 import type { DishDraft } from "@/domain/dishes";
 import { newDishLine } from "@/features/staff/dish-lines";
@@ -14,8 +14,6 @@ import { focusOnMount, requestFocus } from "@/ui/pending-focus";
 import styles from "@/features/staff/OpenDayForm.module.css";
 
 const messages = defineMessages<{
-  legend: Record<string, never>;
-  dishHead: Record<string, never>;
   name: { n: number };
   stock: { n: number };
   stockPlaceholder: Record<string, never>;
@@ -23,18 +21,7 @@ const messages = defineMessages<{
   pricePlaceholder: Record<string, never>;
   remove: { n: number };
   voucherName: { n: number };
-  add: Record<string, never>;
 }>({
-  legend: {
-    id: "staff.openDay.r2.dishes.legend",
-    defaultMessage: "Plats disponibles ce jour-là",
-    description: "06 § 4.2 — légende du groupe des lignes de plats de « Ouvrir un jour » R2",
-  },
-  dishHead: {
-    id: "staff.openDay.r2.dishes.dishHead",
-    defaultMessage: "Plat",
-    description: "06 § 4.2 — en-tête visuel (aria-hidden) de la colonne des noms",
-  },
   name: {
     id: "staff.openDay.r2.dish.name",
     defaultMessage: "Plat {n} : nom",
@@ -69,11 +56,6 @@ const messages = defineMessages<{
     id: "staff.openDay.r2.dish.voucher.name",
     defaultMessage: "Plat {n} : au prix d'un ticket restaurant",
     description: "06 § 4.2 — aria-label de la case ticket de la ligne de plat n",
-  },
-  add: {
-    id: "staff.openDay.r2.dishes.add",
-    defaultMessage: "+ Ajouter un plat",
-    description: "06 § 4.2 — bouton qui ajoute une ligne de plat vide",
   },
 });
 
@@ -186,11 +168,27 @@ export const DishDraftsR2 = withFieldGroup({
   props: draftsProps,
   render: ({ group, suggestions }) => (
     <fieldset className={styles["dishes"]}>
-      <legend className={styles["legend"]}>{intl.formatMessage(messages.legend)}</legend>
+      <legend className={styles["legend"]}>
+        <FormattedMessage
+          id="staff.openDay.r2.dishes.legend"
+          defaultMessage="Plats disponibles ce jour-là"
+          description="06 § 4.2 — légende du groupe des lignes de plats de « Ouvrir un jour » R2"
+        />
+      </legend>
       <div className={styles["head"]} aria-hidden="true">
-        <span>{intl.formatMessage(messages.dishHead)}</span>
-        <span>{intl.formatMessage(staffCommonMessages.dishStockLabel)}</span>
-        <span>{intl.formatMessage(staffCommonMessages.dishPriceLabel)}</span>
+        <span>
+          <FormattedMessage
+            id="staff.openDay.r2.dishes.dishHead"
+            defaultMessage="Plat"
+            description="06 § 4.2 — en-tête visuel (aria-hidden) de la colonne des noms"
+          />
+        </span>
+        <span>
+          <FormattedMessage {...staffCommonMessages.dishStockLabel} />
+        </span>
+        <span>
+          <FormattedMessage {...staffCommonMessages.dishPriceLabel} />
+        </span>
       </div>
       <group.AppField name="dishes" mode="array">
         {(dishes) => (
@@ -232,7 +230,11 @@ export const DishDraftsR2 = withFieldGroup({
                 dishes.pushValue(newDishLine());
               }}
             >
-              {intl.formatMessage(messages.add)}
+              <FormattedMessage
+                id="staff.openDay.r2.dishes.add"
+                defaultMessage="+ Ajouter un plat"
+                description="06 § 4.2 — bouton qui ajoute une ligne de plat vide"
+              />
             </Button>
           </>
         )}

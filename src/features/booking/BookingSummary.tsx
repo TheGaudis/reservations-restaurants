@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import type { SummaryR1, SummaryR2, SummaryWarning } from "@/domain/bookings";
 import type { Restaurant } from "@/domain/types";
@@ -28,8 +28,6 @@ const messages = defineMessages<{
   mode: Record<string, never>;
   dishFallback: Record<string, never>;
   portions: { portions: string };
-  total: Record<string, never>;
-  contact: { contact: string };
   defaultContact: Record<string, never>;
 }>({
   title: {
@@ -84,16 +82,6 @@ const messages = defineMessages<{
     defaultMessage: "× {portions}",
     description:
       "04 § 7 — portions accordées d'un plat du récapitulatif R2 (« × 2 », signe U+00D7)",
-  },
-  total: {
-    id: "public.summary.total",
-    defaultMessage: "Total",
-    description: "04 § 7, § 9 — libellé du total du récapitulatif",
-  },
-  contact: {
-    id: "public.summary.contact",
-    defaultMessage: "Pour annuler ou modifier, contactez {contact}.",
-    description: "04 § 7, § 9 — note du récapitulatif (contact d'annulation des paramètres)",
   },
   defaultContact: {
     id: "public.summary.defaultContact",
@@ -186,7 +174,7 @@ export function BookingSummary({ summary, onClose }: BookingSummaryProps) {
             tabIndex={-1}
             ref={focusOnMount(columnFocus.summary(summary.restaurant), focusTitle)}
           >
-            {intl.formatMessage(summary.duplicate ? messages.duplicateTitle : messages.title)}
+            <FormattedMessage {...(summary.duplicate ? messages.duplicateTitle : messages.title)} />
           </p>
           <p className={styles["date"]}>{formatLongDate(summary.date)}</p>
         </div>
@@ -208,17 +196,28 @@ export function BookingSummary({ summary, onClose }: BookingSummaryProps) {
       </ul>
       {total === "" ? null : (
         <div className={styles["total"]}>
-          <span>{intl.formatMessage(messages.total)}</span>
+          <span>
+            <FormattedMessage
+              id="public.summary.total"
+              defaultMessage="Total"
+              description="04 § 7, § 9 — libellé du total du récapitulatif"
+            />
+          </span>
           <b>{total}</b>
         </div>
       )}
       <p className={styles["note"]}>
-        {intl.formatMessage(messages.contact, {
-          contact: contact === "" ? intl.formatMessage(messages.defaultContact) : contact,
-        })}
+        <FormattedMessage
+          id="public.summary.contact"
+          defaultMessage="Pour annuler ou modifier, contactez {contact}."
+          description="04 § 7, § 9 — note du récapitulatif (contact d'annulation des paramètres)"
+          values={{
+            contact: contact === "" ? intl.formatMessage(messages.defaultContact) : contact,
+          }}
+        />
       </p>
       <Button size="small" onClick={onClose}>
-        {intl.formatMessage(commonMessages.close)}
+        <FormattedMessage {...commonMessages.close} />
       </Button>
     </output>
   );

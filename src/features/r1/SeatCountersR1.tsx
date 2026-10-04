@@ -1,3 +1,5 @@
+import { FormattedMessage } from "react-intl";
+
 import type { SeatCountValues } from "@/domain/bookings";
 import { priceR1, seatTotal } from "@/domain/pricing";
 import type { R1Prices } from "@/domain/pricing";
@@ -65,7 +67,7 @@ export const SeatCountersR1 = withFieldGroup({
     <>
       <fieldset className={styles["group"]}>
         <legend className={styles["legend"]}>
-          {intl.formatMessage(commonMessages.seatsLegend, { max })}
+          <FormattedMessage {...commonMessages.seatsLegend} values={{ max }} />
         </legend>
         {help === "" ? null : <p className={styles["help"]}>{help}</p>}
         <div className={styles["row"]}>

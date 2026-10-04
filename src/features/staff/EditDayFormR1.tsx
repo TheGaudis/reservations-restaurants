@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { BusinessError, PasswordRejectedError } from "@/api/errors";
 import { seatsBooked } from "@/domain/capacity";
@@ -21,15 +21,6 @@ import { Form } from "@/ui/form/Form";
 import { focusById } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/EditDayFormR1.module.css";
-
-const messages = defineMessages({
-  open: {
-    id: "staff.editDay.open",
-    defaultMessage: "Modifier ce jour",
-    description:
-      "05 § 5.3, 06 § 5.1 — bouton de la fiche R1 collègue qui ouvre « Modifier ce jour »",
-  },
-});
 
 interface EditDayR1Props {
   /** Selected R1 day, from the full state. */
@@ -62,7 +53,11 @@ export function EditDayButtonR1(_props: EditDayR1Props) {
         navigate({ ...search, editJour: open ? undefined : "r1" }, { replace: open });
       }}
     >
-      {intl.formatMessage(messages.open)}
+      <FormattedMessage
+        id="staff.editDay.open"
+        defaultMessage="Modifier ce jour"
+        description="05 § 5.3, 06 § 5.1 — bouton de la fiche R1 collègue qui ouvre « Modifier ce jour »"
+      />
     </Button>
   );
 }

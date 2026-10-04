@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { CONFIRM_WINDOW_MS } from "@/domain/constants";
 import { Button } from "@/ui/button/Button";
@@ -13,11 +13,6 @@ const messages = defineMessages({
     id: "ui.confirm.label",
     defaultMessage: "Confirmer ?",
     description: "00 § 2.1, 06 § 5.2 — libellé d'un bouton de suppression armé",
-  },
-  armedAnnouncement: {
-    id: "ui.confirm.armedAnnouncement",
-    defaultMessage: "Cliquez de nouveau pour confirmer.",
-    description: "PLAN annexe F, a-19 — annonce masquée quand un bouton de suppression s'arme",
   },
 });
 
@@ -96,7 +91,13 @@ export function ConfirmButton({
         </span>
       ) : null}
       <output className="visually-hidden">
-        {armed ? intl.formatMessage(messages.armedAnnouncement) : null}
+        {armed ? (
+          <FormattedMessage
+            id="ui.confirm.armedAnnouncement"
+            defaultMessage="Cliquez de nouveau pour confirmer."
+            description="PLAN annexe F, a-19 — annonce masquée quand un bouton de suppression s'arme"
+          />
+        ) : null}
       </output>
     </>
   );

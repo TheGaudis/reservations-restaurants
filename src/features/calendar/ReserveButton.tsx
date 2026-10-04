@@ -1,4 +1,4 @@
-import { useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import type { IsoDate, Restaurant } from "@/domain/types";
 import { columnFocus, useBookingColumns } from "@/features/booking/booking-columns";
@@ -23,7 +23,6 @@ interface ReserveButtonProps {
  * its first field; after « Annuler », the button that comes back takes the focus (04 § 5.1).
  */
 export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) {
-  const intl = useIntl();
   const search = usePageSearch();
   const navigate = usePageNavigate();
   const columns = useBookingColumns();
@@ -42,7 +41,7 @@ export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) 
           navigate({ ...search, ...day, reserver: restaurant }, { replace: false });
         }}
       >
-        {intl.formatMessage(commonMessages.book)}
+        <FormattedMessage {...commonMessages.book} />
       </Button>
     </DayActions>
   );

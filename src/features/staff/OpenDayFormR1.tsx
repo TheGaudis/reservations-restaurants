@@ -1,6 +1,6 @@
 import { useSelector } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { openDateProblem } from "@/domain/days";
@@ -174,7 +174,7 @@ function OpenDayBodyR1() {
         )}
       </form.AppField>
       <form.SubmitButton pendingLabel={formatMessage(staffCommonMessages.opening)}>
-        {formatMessage(staffCommonMessages.openDaySubmit)}
+        <FormattedMessage {...staffCommonMessages.openDaySubmit} />
       </form.SubmitButton>
       <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
