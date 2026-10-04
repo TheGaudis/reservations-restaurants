@@ -38,7 +38,11 @@ it("neither reads nor writes the local copy without window", () => {
 it("restores the local copy, then writes each new public state, when window exists", () => {
   const setItem = stubStorage();
   vi.stubGlobal("window", globalThis);
+  const addEventListener = vi.fn<(type: string, listener: unknown) => void>();
+  vi.stubGlobal("addEventListener", addEventListener);
   const { queryClient } = getRouter().options.context;
+  // Stale chunk after a deployment: one reload (R-06).
+  expect(addEventListener).toHaveBeenCalledWith("vite:preloadError", expect.any(Function));
   expect(queryClient.getQueryData(publicStateOptions.queryKey)).toStrictEqual(COPY);
   expect(setItem).not.toHaveBeenCalled();
   queryClient.setQueryData(publicStateOptions.queryKey, publicState({ etag: "NEW" }));
