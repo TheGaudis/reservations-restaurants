@@ -10,7 +10,7 @@ import {
 } from "../pages/booking-r1";
 import { selectDay } from "../pages/calendar";
 import { bookingSummary, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, loadError } from "../pages/home";
+import { BLOCKED_FONT_PRELOAD, gotoHome, loadError, retryLoad } from "../pages/home";
 import { target } from "../pages/target";
 import {
   otherBookingR1,
@@ -131,6 +131,10 @@ test(
       await expectLoadError(page, ONLINE_ERROR);
     }
     for (const release of releases) release();
+    if (target(test.info()) === "react") {
+      // E-45: the abandoned reads answer no one; « Réessayer » starts a new read (03 § 3.2).
+      await retryLoad(page);
+    }
     await expect(seatsPill(page)).toHaveText("12 / 20 couverts");
   },
 );

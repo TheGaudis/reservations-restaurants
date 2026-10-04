@@ -9,8 +9,12 @@ test("root serves the prerendered shell", async ({ page }) => {
   await expect(page).toHaveTitle("Réservations — Restaurants pédagogiques");
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
   await page.waitForLoadState("networkidle");
-  // No local copy: the skeleton stays (G-01).
-  await expect(page.getByRole("main")).toHaveAttribute("aria-busy", "true");
+  // No local copy: the skeleton until the fake script answers, then the page (G-01, G-04).
+  await expect(page.getByRole("main")).toHaveAttribute("aria-busy", "false");
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText([
+    "Restaurant Pédagogique",
+    "Aristide",
+  ]);
 });
 
 test("deep link /collegue gets 404.html and the app starts", async ({ page }) => {

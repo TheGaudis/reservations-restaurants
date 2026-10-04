@@ -87,14 +87,25 @@ test("first render from the local copy, before any script response", async ({
   await installTimeline(page, { "reservations-cache-v1": LOCAL_COPY });
 
   await page.goto("./");
-  await expect(page.getByRole("heading", { name: "Restaurant de la copie" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Aristide de la copie" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Restaurant de la copie", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Aristide de la copie", exact: true }),
+  ).toBeVisible();
+  // D-24: the title follows name2.
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Réservations des restaurants pédagogiques et Aristide de la copie",
+  );
   expect(script.responses).toStrictEqual([]);
   // The inline script of the <head> sent the etag of the copy (03 § 2.1).
   expect(script.requests()).toContain(`${SCRIPT_URL}?since=ETAG-LOCAL`);
 
   await expect.poll(() => script.responses.length, { timeout: HOLD_MS + 2000 }).toBeGreaterThan(0);
-  await page.waitForTimeout(500);
+  // The answer of the script replaces the copy, without going back to the skeleton.
+  await expect(
+    page.getByRole("heading", { name: "Restaurant Pédagogique", exact: true }),
+  ).toBeVisible();
   const timeline = await page.evaluate(() => window.hydrationTimeline);
   test.info().annotations.push({ type: "timeline", description: JSON.stringify(timeline) });
 
@@ -108,7 +119,7 @@ test("first render from the local copy, before any script response", async ({
   expect(timeline.slice(firstContent).map((s) => s.view)).toStrictEqual(["content"]);
 });
 
-test("stored titles only: the skeleton stays, without hydration error", async ({
+test("stored titles only: the skeleton shows them until the first answer, without hydration error", async ({
   page,
   fakeScript,
 }) => {
@@ -123,14 +134,34 @@ test("stored titles only: the skeleton stays, without hydration error", async ({
   });
 
   await page.goto("./");
+  // G-01: titles of the last visit on the skeleton, default descriptions for the empty ones (04 § 2).
+  await expect(page.getByRole("heading", { name: "Titre mémorisé", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aristide mémorisé", exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByRole("main")
+      .getByText("Table réservée par nombre de couverts, avec le menu du jour."),
+  ).toBeVisible();
   await page.waitForTimeout(1500);
   expect(script.responses).toStrictEqual([]);
   // No copy: the inline script reads without etag.
   expect(script.requests()).toStrictEqual([SCRIPT_URL]);
   await expect(page.getByRole("main")).toHaveAttribute("aria-busy", "true");
+  const beforeAnswer = await page.evaluate(() => window.hydrationTimeline.map((s) => s.view));
+  expect(beforeAnswer).not.toContain("content");
 
   await expect.poll(() => script.responses.length, { timeout: HOLD_MS + 2000 }).toBeGreaterThan(0);
+  // The first answer replaces the skeleton and the stored titles.
+  await expect(
+    page.getByRole("heading", { name: "Restaurant Pédagogique", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("main")).not.toHaveAttribute("aria-busy", "true");
   const timeline = await page.evaluate(() => window.hydrationTimeline);
   test.info().annotations.push({ type: "timeline", description: JSON.stringify(timeline) });
-  expect(timeline.map((s) => s.view)).not.toContain("content");
+  expect(timeline.map((s) => s.view).filter((view) => view !== "none")).toStrictEqual([
+    "skeleton",
+    "content",
+  ]);
+  // Only the read of the <head>: the page took it instead of reading again (03 § 2.4).
+  expect(script.requests()).toStrictEqual([SCRIPT_URL]);
 });
