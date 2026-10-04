@@ -87,7 +87,7 @@ test.describe("r1MaxSeats (REG-16)", () => {
 
 test(
   "r1BookingSuccess (REG-17)",
-  { tag: ["@changed:E-12", "@changed:E-13", "@P-05", "@P-06", "@p4"] },
+  { tag: ["@changed:E-12", "@changed:E-13", "@P-05", "@P-06", "@G-07", "@p4"] },
   async ({ page, fakeScript }) => {
     const react = target(test.info()) === "react";
     const { db } = fakeScript;

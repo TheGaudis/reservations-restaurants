@@ -106,7 +106,7 @@ test.describe("loginPanel (REG-27)", () => {
 
   test(
     "loginPanel (REG-27) — wrong passwords and network error",
-    { tag: ["@changed:E-02", "@L-01", "@p5"] },
+    { tag: ["@changed:E-02", "@L-01", "@G-07", "@p5"] },
     async ({ page, fakeScript }) => {
       await gotoHome(page);
       await expect(calendarDays(page, "r1")).toBeVisible();
