@@ -12,11 +12,13 @@ import type {
   IsoDate,
   ServiceMode,
   StaffServiceDayR1,
+  StaffServiceDayR2,
 } from "@/domain/types";
 
 export type PrintStateR1 = Pick<FullState, "r1Days" | "r1Bookings">;
 export type ListStateR1 = PrintStateR1 & Pick<FullState, "settings">;
 export type PrintStateR2 = Pick<FullState, "dishes" | "r2Bookings">;
+export type ListStateR2 = PrintStateR2 & Pick<FullState, "r2Days" | "settings">;
 
 /** Totals of an R1 list (07 § 3, § 5, § 6). */
 export interface R1Totals {
@@ -32,6 +34,7 @@ export interface R1Totals {
 
 /** One booking line of an order: a dish of the day and its portions. */
 export interface OrderLine {
+  bookingId: string;
   dish: Dish;
   portions: number;
   observation: string;
@@ -39,6 +42,8 @@ export interface OrderLine {
 
 /** The R2 bookings of one customer on a day (07 § 4.1). */
 export interface Order {
+  /** Grouping key: name, class and contact, trimmed, in lower case (07 § 4.1). */
+  key: string;
   name: string;
   className: string;
   contact: string;
@@ -52,11 +57,11 @@ export interface Order {
 /** One dish in the per-dish summary (07 § 4.2, § 5, § 7). */
 export interface DishTotal {
   dish: Dish;
+  /** Bookings of the dish, in the order of the sheet: customers of the "Demain" panel, rows of document D. */
+  bookings: BookingR2[];
   portions: number;
   /** Euros of the portions; for a voucher dish, one voucher per order that has it (E-16). */
   amounts: Amounts;
-  /** Customers who ordered it, in the order of the bookings ("Demain" panel, 07 § 5). */
-  names: string[];
 }
 
 /** Total of an R2 day (07 § 4.2): clients, portions, euros and one voucher per order. */
@@ -140,9 +145,10 @@ function orderKey(booking: BookingR2): string {
     .join("|");
 }
 
-function newOrder(booking: BookingR2): Order {
+function newOrder(key: string, booking: BookingR2): Order {
   const { name, className, contact } = booking;
   return {
+    key,
     name,
     className,
     contact,
@@ -166,9 +172,14 @@ export function ordersForDay(state: PrintStateR2, iso: IsoDate): Order[] {
     const dish = dishes.get(booking.dishId);
     if (dish === undefined) continue;
     const key = orderKey(booking);
-    const order = orders.get(key) ?? newOrder(booking);
+    const order = orders.get(key) ?? newOrder(key, booking);
     orders.set(key, order);
-    order.lines.push({ dish, portions: booking.portions, observation: booking.observation });
+    order.lines.push({
+      bookingId: booking.id,
+      dish,
+      portions: booking.portions,
+      observation: booking.observation,
+    });
     order.portions += booking.portions;
     if (!order.serviceModes.includes(booking.serviceMode)) {
       order.serviceModes.push(booking.serviceMode);
@@ -192,16 +203,14 @@ export function dishTotals(
       const ordersWithDish = orders.filter((order) =>
         order.lines.some((line) => line.dish.id === dish.id),
       );
-      const portions = bookingsForDish(state, dish.id).reduce(
-        (sum, booking) => sum + booking.portions,
-        0,
-      );
+      const bookings = bookingsForDish(state, dish.id);
+      const portions = bookings.reduce((sum, booking) => sum + booking.portions, 0);
       const amounts = r2Amounts([{ dish, portions }]);
       return {
         dish,
+        bookings,
         portions,
         amounts: dish.voucher ? { ...amounts, vouchers: ordersWithDish.length } : amounts,
-        names: bookingsForDish(state, dish.id).map((booking) => booking.name),
       };
     });
 }
@@ -212,5 +221,36 @@ export function r2DayTotals(orders: readonly Order[]): R2DayTotals {
     clients: orders.length,
     portions: orders.reduce((sum, order) => sum + order.portions, 0),
     amounts: addAmounts(orders.map((order) => order.amounts)),
+  };
+}
+
+/** Amount of one booking row (document D, 07 § 7): its portions, one voucher at most (E-16). */
+export function bookingAmounts(dish: Dish, portions: number): Amounts {
+  return orderAmounts([{ dish, portions }]);
+}
+
+/**
+ * What an R2 document prints for `iso`, read from the full state at the click (PLAN § 3.8): the day, or undefined
+ * when it is not open, the orders of its customers, every dish of the day and the day's total (07 § 4, § 5, § 7).
+ */
+export interface ListR2 {
+  iso: IsoDate;
+  restaurantName: string;
+  day: StaffServiceDayR2 | undefined;
+  orders: Order[];
+  dishes: DishTotal[];
+  totals: R2DayTotals;
+}
+
+/** Snapshot of the R2 list, tomorrow block or tomorrow summary of `iso` (07 § 4, § 5, § 7). */
+export function listR2(state: ListStateR2, iso: IsoDate): ListR2 {
+  const orders = ordersForDay(state, iso);
+  return {
+    iso,
+    restaurantName: state.settings.name2,
+    day: findDay(state.r2Days, iso),
+    orders,
+    dishes: dishTotals(state, iso, orders),
+    totals: r2DayTotals(orders),
   };
 }

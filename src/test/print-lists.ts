@@ -1,5 +1,11 @@
-import type { BookingR1, StaffServiceDayR1 } from "@/domain/types";
-import { bookingR1, staffDayR1 } from "@/test/domain-states";
+import type {
+  BookingR1,
+  BookingR2,
+  Dish,
+  StaffServiceDayR1,
+  StaffServiceDayR2,
+} from "@/domain/types";
+import { bookingR1, bookingR2, dish, staffDayR1, staffDayR2 } from "@/test/domain-states";
 
 // R1 day of the printed documents in tests and stories: Tuesday 6 October 2026 of the seed (parite.md § 2), with
 // Cyrille Ungerer, Léa Martin, then Jean Petit, booked before the prices. English model only (api-boundary.test.ts).
@@ -60,4 +66,36 @@ export function longBookingsR1(count: number): BookingR1[] {
       total: index % 2 === 0 ? 19.8 : 12.2,
     }),
   );
+}
+
+// R2 day of the same Tuesday: Lasagnes at 4,50 €, Bowl for a meal voucher; Ariele Gsell orders 3 Bowl (one voucher,
+// E-16), Noah Bernard 1 Lasagnes; Paul Durand's booking belongs to a deleted dish (b-3).
+
+export const LASAGNES: Dish = dish("lasagnes", DAY, { name: "Lasagnes", stock: 15, price: 4.5 });
+export const BOWL: Dish = dish("bowl", DAY, { name: "Bowl", stock: 10, voucher: true });
+
+export const GSELL_BOWL: BookingR2 = bookingR2("gsell", "bowl", {
+  name: "Ariele Gsell",
+  className: "Vie scolaire",
+  contact: "a.gsell@exemple.fr",
+  portions: 3,
+  serviceMode: "dineIn",
+});
+export const BERNARD_LASAGNES: BookingR2 = bookingR2("bernard", "lasagnes", {
+  name: "Noah Bernard",
+  className: "TS1",
+  contact: "n.bernard@exemple.fr",
+  portions: 1,
+  serviceMode: "dineIn",
+  observation: "Sans fromage",
+});
+export const DURAND_ORPHAN: BookingR2 = bookingR2("durand", "deleted-dish", {
+  name: "Paul Durand",
+  className: "TS1",
+  contact: "p.durand@exemple.fr",
+  portions: 2,
+});
+
+export function seedDayR2(overrides: Partial<StaffServiceDayR2> = {}): StaffServiceDayR2 {
+  return { ...staffDayR2(DAY, "M. Dupont"), ...overrides };
 }

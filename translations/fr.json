@@ -387,6 +387,90 @@
     "defaultMessage": "Classe",
     "description": "07 § 6 — colonne du résumé R1 du lendemain"
   },
+  "print.r2.column.className": {
+    "defaultMessage": "Classe",
+    "description": "07 § 4.2, § 7 — colonne des tableaux R2"
+  },
+  "print.r2.column.portions": {
+    "defaultMessage": "Portions",
+    "description": "07 § 4.2, § 7 — colonne des tableaux R2"
+  },
+  "print.r2.dish.booked": {
+    "defaultMessage": "{portions} / {stock}",
+    "description": "07 § 4.2, § 7 — portions réservées sur le stock d'un plat (« 3 / 10 »)"
+  },
+  "print.r2.list.byCustomer": {
+    "defaultMessage": "Par client ({count})",
+    "description": "07 § 4.2 — titre du tableau des clients ; count : nombre de clients"
+  },
+  "print.r2.list.byDish": {
+    "defaultMessage": "Récapitulatif par plat",
+    "description": "07 § 4.2 — titre du tableau des plats"
+  },
+  "print.r2.list.column.amount": {
+    "defaultMessage": "Montant",
+    "description": "07 § 4.2 — colonne du récapitulatif par plat"
+  },
+  "print.r2.list.column.contact": {
+    "defaultMessage": "Contact",
+    "description": "07 § 4.2 — colonne du tableau « Par client »"
+  },
+  "print.r2.list.column.dish": {
+    "defaultMessage": "Plat",
+    "description": "07 § 4.2 — colonne du récapitulatif par plat"
+  },
+  "print.r2.list.column.dishes": {
+    "defaultMessage": "Plats",
+    "description": "07 § 4.2 — colonne du tableau « Par client »"
+  },
+  "print.r2.list.column.mode": {
+    "defaultMessage": "Mode",
+    "description": "07 § 4.2 — colonne du tableau « Par client »"
+  },
+  "print.r2.list.column.unitPrice": {
+    "defaultMessage": "Prix unitaire",
+    "description": "07 § 4.2 — colonne du récapitulatif par plat"
+  },
+  "print.r2.list.dishLine": {
+    "defaultMessage": "<b>{count}×</b> {dish}",
+    "description": "07 § 4.2 — ligne d'un plat dans la colonne « Plats » (« 1× Lasagnes — 4,50 € »)"
+  },
+  "print.r2.list.info.note": {
+    "defaultMessage": "Note",
+    "description": "07 § 4 — information « Note » de la liste R2"
+  },
+  "print.r2.list.info.theme": {
+    "defaultMessage": "Thème",
+    "description": "07 § 4 — information « Thème » de la liste R2"
+  },
+  "print.r2.list.modes": {
+    "defaultMessage": "{before} + {after}",
+    "description": "07 § 4.2 — modes d'un client joints par « + » (« À emporter + Sur place »)"
+  },
+  "print.r2.list.noDish": {
+    "defaultMessage": "Aucun plat.",
+    "description": "07 § 4.2 — récapitulatif par plat d'un jour sans plat"
+  },
+  "print.r2.list.total.clients": {
+    "defaultMessage": "{count, plural, one {# client} other {# clients}}",
+    "description": "07 § 4.2 — nombre de clients du total (« 2 clients »)"
+  },
+  "print.r2.list.total.label": {
+    "defaultMessage": "Total du jour",
+    "description": "07 § 4.2 — intitulé du total de la liste R2"
+  },
+  "print.r2.tomorrow.noDish": {
+    "defaultMessage": "Aucun plat ouvert.",
+    "description": "07 § 7 — résumé R2 du lendemain d'un jour sans plat"
+  },
+  "print.r2.tomorrow.unitPrice": {
+    "defaultMessage": "{price} l''unité",
+    "description": "07 § 7 — prix en euros d'un plat dans son titre (« Lasagnes — 4,50 € l'unité »)"
+  },
+  "print.r2.total.portions": {
+    "defaultMessage": "{count, plural, one {# portion} other {# portions}}",
+    "description": "07 § 4.2, § 7 — nombre de portions du total (« 4 portions »)"
+  },
   "print.table.noBookings": {
     "defaultMessage": "Aucune réservation.",
     "description": "07 § 3, § 4, § 6, § 7 — tableau sans réservation"
@@ -394,6 +478,10 @@
   "print.tomorrow.noDay": {
     "defaultMessage": "Aucun jour ouvert pour demain.",
     "description": "07 § 6, § 7 — résumé du lendemain sans jour ouvert"
+  },
+  "print.tomorrow.r2.dishLine": {
+    "defaultMessage": "• {name} : {n, plural, one {# portion} other {# portions}}",
+    "description": "PLAN annexe F, a-24 — résumé R2 du lendemain (remplace « {Nom}: … portion(s) »)"
   },
   "print.tomorrow.subtitle": {
     "defaultMessage": "Demain, {date}",
@@ -1151,9 +1239,61 @@
     "defaultMessage": "Paramètres",
     "description": "06 § 2.2 — titre du panneau dépliant des paramètres"
   },
+  "staff.tomorrow.comma": {
+    "defaultMessage": "{before}, {after}",
+    "description": "07 § 5 — séparateur des noms des listes du résumé"
+  },
+  "staff.tomorrow.noDay": {
+    "defaultMessage": "Aucun jour ouvert pour demain.",
+    "description": "07 § 5 — panneau « Demain » quand aucun restaurant n'a de jour ouvert demain"
+  },
+  "staff.tomorrow.openedBy": {
+    "defaultMessage": "Ouvert par {name}",
+    "description": "07 § 5 — collègue qui a ouvert le jour de demain"
+  },
+  "staff.tomorrow.openedBy.none": {
+    "defaultMessage": "(aucun)",
+    "description": "07 § 5 — « Ouvert par » d'un jour ouvert sans nom"
+  },
   "staff.tomorrow.portions": {
     "defaultMessage": "{name} : {count, plural, one {<b>#</b> portion réservée} other {<b>#</b> portions réservées}}",
     "description": "06 § 2.1 — portions réservées pour demain au restaurant 2 ; name : nom du restaurant 2"
+  },
+  "staff.tomorrow.print": {
+    "defaultMessage": "Imprimer",
+    "description": "07 § 5 — aria-label et title du bouton icône qui imprime le résumé d'un restaurant"
+  },
+  "staff.tomorrow.r1.booked": {
+    "defaultMessage": "Réservés : {seats} / {capacity} couverts",
+    "description": "07 § 5 — couverts réservés de demain au restaurant 1, sans prix"
+  },
+  "staff.tomorrow.r1.bookedWithPrice": {
+    "defaultMessage": "Réservés : {seats} / {capacity} couverts — {price}",
+    "description": "07 § 5 — couverts réservés de demain au restaurant 1 et somme des prix"
+  },
+  "staff.tomorrow.r1.customer": {
+    "defaultMessage": "{name} ({className})",
+    "description": "07 § 5 — une personne de la liste « Clients »"
+  },
+  "staff.tomorrow.r1.customers": {
+    "defaultMessage": "Clients : {names}",
+    "description": "07 § 5 — personnes inscrites demain au restaurant 1, dans l'ordre de la feuille"
+  },
+  "staff.tomorrow.r2.dishCustomers": {
+    "defaultMessage": "{line} ({names})",
+    "description": "07 § 5 — ligne d'un plat suivie des noms des personnes qui l'ont réservé"
+  },
+  "staff.tomorrow.r2.noDish": {
+    "defaultMessage": "Aucun plat ouvert.",
+    "description": "07 § 5 — bloc du restaurant 2 d'un jour sans plat"
+  },
+  "staff.tomorrow.r2.total": {
+    "defaultMessage": "Total {name} : {amounts}",
+    "description": "07 § 5 — montants de demain au restaurant 2 ; name : nom du restaurant 2"
+  },
+  "staff.tomorrow.r2.totalWithGap": {
+    "defaultMessage": "Total {name} (hors plats sans prix indiqué) : {amounts}",
+    "description": "07 § 5, D-03 — montants de demain au restaurant 2 avec un plat sans prix"
   },
   "staff.tomorrow.seats": {
     "defaultMessage": "{name} : {count, plural, one {<b>#</b> couvert réservé} other {<b>#</b> couverts réservés}}",

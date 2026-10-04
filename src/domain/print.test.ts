@@ -1,17 +1,26 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  bookingAmounts,
   bookingsForDayR1,
   bookingsForDish,
   dishTotals,
   listR1,
+  listR2,
   ordersForDay,
   r1Totals,
   r2DayTotals,
   seatsLineR1,
 } from "@/domain/print";
 import type { OrderLine } from "@/domain/print";
-import { bookingR1, bookingR2, dish, fullState, staffDayR1 } from "@/test/domain-states";
+import {
+  bookingR1,
+  bookingR2,
+  dish,
+  fullState,
+  staffDayR1,
+  staffDayR2,
+} from "@/test/domain-states";
 
 const TOMORROW = "2026-10-06";
 
@@ -150,9 +159,10 @@ describe("R2 lists (07 § 4, § 5, § 7)", () => {
   it("keeps the lines, portions and modes of an order, one voucher at most (E-16)", () => {
     const order = orders[3];
     expect(order?.lines).toStrictEqual<OrderLine[]>([
-      { dish: bowl, portions: 2, observation: "sans sauce" },
-      { dish: wrap, portions: 1, observation: "" },
+      { bookingId: "a1", dish: bowl, portions: 2, observation: "sans sauce" },
+      { bookingId: "a2", dish: wrap, portions: 1, observation: "" },
     ]);
+    expect(order?.key).toBe("ariele gsell|vie scolaire|a.gsell@exemple.fr");
     expect(order?.portions).toBe(3);
     expect(order?.serviceModes).toStrictEqual(["dineIn", "takeaway"]);
     expect(order?.amounts).toStrictEqual({ euros: 0, vouchers: 1, gap: false });
@@ -178,25 +188,25 @@ describe("R2 lists (07 § 4, § 5, § 7)", () => {
         dish: lasagnes,
         portions: 3,
         amounts: { euros: 13.5, vouchers: 0, gap: false },
-        names: ["Noah Bernard", "Emma Roy", "Ariele Gsell"],
+        bookings: bookingsForDish(state, "lasagnes"),
       },
       {
         dish: bowl,
         portions: 2,
         amounts: { euros: 0, vouchers: 1, gap: false },
-        names: ["Ariele Gsell"],
+        bookings: bookingsForDish(state, "bowl"),
       },
       {
         dish: wrap,
         portions: 1,
         amounts: { euros: 0, vouchers: 1, gap: false },
-        names: [" ariele gsell "],
+        bookings: bookingsForDish(state, "wrap"),
       },
       {
         dish: salade,
         portions: 1,
         amounts: { euros: 0, vouchers: 0, gap: true },
-        names: ["Élodie Petit"],
+        bookings: bookingsForDish(state, "salade"),
       },
     ]);
   });
@@ -223,5 +233,33 @@ describe("R2 lists (07 § 4, § 5, § 7)", () => {
 
   it("has no order on a day without booking", () => {
     expect(ordersForDay(state, "2026-10-07")).toStrictEqual([]);
+  });
+
+  it.each([
+    [
+      "a priced dish counts its portions in euros",
+      lasagnes,
+      3,
+      { euros: 13.5, vouchers: 0, gap: false },
+    ],
+    ["a voucher dish counts one voucher (E-16)", bowl, 3, { euros: 0, vouchers: 1, gap: false }],
+    ["a dish without price leaves a gap", salade, 1, { euros: 0, vouchers: 0, gap: true }],
+  ])("prices a row of document D: %s (07 § 7)", (_case, rowDish, portions, amounts) => {
+    expect(bookingAmounts(rowDish, portions)).toStrictEqual(amounts);
+  });
+
+  it("takes the snapshot of an R2 day: name, day, orders, dishes and total (PLAN § 3.8)", () => {
+    const day = { ...staffDayR2(TOMORROW, "M. Dupont"), note: "Menu végétarien" };
+    const list = listR2({ ...state, r2Days: [staffDayR2("2026-10-05"), day] }, TOMORROW);
+    expect(list.iso).toBe(TOMORROW);
+    expect(list.restaurantName).toBe("Aristide");
+    expect(list.day).toStrictEqual(day);
+    expect(list.orders).toStrictEqual(orders);
+    expect(list.dishes).toStrictEqual(dishTotals(state, TOMORROW, orders));
+    expect(list.totals).toStrictEqual(r2DayTotals(orders));
+  });
+
+  it("has no day when the R2 day is not open", () => {
+    expect(listR2(state, TOMORROW).day).toBeUndefined();
   });
 });
