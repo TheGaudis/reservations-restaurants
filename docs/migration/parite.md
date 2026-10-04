@@ -168,23 +168,23 @@ Fichiers (P1 (c)) : `staff-access.spec.ts` REG-27, REG-28 ; `staff-session.spec.
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
 | G-06 | REG-27, REG-35 | `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (a), 4 oct.) : REG-27 vert (bouton occupé, aucun voile) ; REG-35 attend P5 (b) et (d1) | — (disparu) | E-04 |
-| G-08 | REG-27, REG-28 | `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (a), 4 oct.) : REG-27 vert (URL `/collegue`) ; REG-28 attend « Modifier » d'une ligne (P5 (d1)) ; garde et retour exact verts dans `e2e/staff-session.spec.ts` (`react-only`) | `routes/-collegue.test.tsx` (garde, schéma, chargeur) | E-23 |
+| G-08 | REG-27, REG-28 | `@changed` | vert (P1 (c), 3 oct.) | vert (P5 (d1), 4 oct.) : REG-27 (P5 (a)) et REG-28 (rechargement de `/collegue?r1=…&editResa=…`, connexion, retour exact, formulaire rouvert) ; garde et retour exact aussi dans `e2e/staff-session.spec.ts` (`react-only`) | `routes/-collegue.test.tsx` (garde, schéma, chargeur) | E-23 |
 | L-01 | REG-27 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | vert (P5 (a), 4 oct.) : les quatre tests de REG-27 | stories et tests de `ModeSwitch` | E-02, E-04 |
 | C-02 | REG-32, REG-29 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `SettingsPanel` | E-18, E-37, E-40 |
 | C-04 | REG-33, REG-30 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `OpenDayFormR1` | E-36 |
 | C-05 | REG-33, REG-29 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `DatePickerPopover` | E-05 |
 | C-06 | REG-34 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `OpenDayFormR2` | E-36, E-39 |
-| C-10 | REG-35, REG-33 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire (cadre de la fiche et « Ouvert par » en P5 (a)) | story `StaffDayCardR1` `OpenDay` | E-36, E-38 |
-| C-10b | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire (message fait en P5 (a), REG-35 attend P5 (b) et (d1)) | stories `StaffDayCardR1` et `StaffDayCardR2` `NoService` ; `routes/-collegue.test.tsx` | — |
-| C-11 | REG-35 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `EditBookingFormR1` | E-48 |
+| C-10 | REG-35, REG-33 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (d1), 4 oct.) : lignes, « Ouvert par » et jauge de REG-35 « lines and actions » vertes quand les boutons de `DayActions` existent (essai local avec des boutons provisoires, non commité) ; ce test attend « + Ajouter une personne » (P5 (d2)), « Modifier ce jour » et « Supprimer ce jour » (P5 (b)), « Imprimer la liste » (P6 (a)) ; REG-33 attend P5 (b) | story `StaffDayCardR1` `OpenDay` ; stories `BookingList` `R1Bookings`, `NoBookings` ; `BookingList.test.tsx`, `booking-line.test.ts` | E-36, E-38 |
+| C-10b | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | partiel (P5 (d1), 4 oct.) : message de P5 (a) vérifié contre `05` § 4.3 ; il est asserté à la fin de REG-35 « lines and actions », qui attend les boutons de P5 (b), (d2) et P6 (a) (voir C-10) | stories `StaffDayCardR1` et `StaffDayCardR2` `NoService` ; `routes/-collegue.test.tsx` | — |
+| C-11 | REG-35 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | vert (P5 (d1), 4 oct.) : REG-35 « edit form checks and cancel » (`@changed:E-48`) et « edit sent » | stories `EditBookingFormR1` `Open`, `BeforePrices` ; `EditBookingFormR1.test.tsx` | E-48 |
 | C-12 | REG-36, REG-30 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `AddBookingFormR1` | — |
 | C-13 | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `EditDayFormR1` | — |
-| C-14 | REG-35, REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `ConfirmButton` | E-04, E-38 |
+| C-14 | REG-35, REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (d1), 4 oct.) : variante réservation verte (REG-35 « delete a booking in two clicks ») ; variantes jour (P5 (b)) et plat (REG-37, P5 (c)) à faire | stories et tests de `ConfirmButton` ; story `BookingList` `DeleteArmed` ; `BookingList.test.tsx` | E-04, E-38 |
 | C-20 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire (cadre de la fiche et « Ouvert par » en P5 (a)) | story `StaffDayCardR2` `OpenDay` | — |
 | C-21 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `DishForm` (ajout) | — |
 | C-22 | REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `DishForm` (modification) | E-36, E-38 |
 | C-23 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `AddBookingFormR2` | E-36 |
-| C-24 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `EditBookingFormR2` | E-36 |
+| C-24 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (d1), 4 oct.) : REG-38 « booking edited » vert avec un « Modifier ce plat » provisoire (essai local, non commité) : le page object `staffDish` cherche ce bouton de P5 (c) | stories `EditBookingFormR2` `VoucherDay`, `OtherDay` ; `EditBookingFormR2.test.tsx` | E-36 |
 | C-30 | REG-29, REG-30, REG-31 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire : REG-29 à REG-31 passent par les panneaux de P5 (b), (d1), (d2), (e) ; les trois déconnexions sont vertes dans `e2e/staff-session.spec.ts` (`react-only`, P5 (a), 4 oct.) | tests S8 de `routes/-collegue.test.tsx` et `mutations/staff/write.test.tsx` (dont déconnexion pendant une écriture retenue) | E-08, E-17, E-24 |
 | `09` § 6 | REG-27 (L-01), REG-33 (C-05), REG-35 (C-14) | — | vert (P1 (c), 3 oct.) | partiel (P5 (a), 4 oct.) : REG-27 vert | — | — |
 
