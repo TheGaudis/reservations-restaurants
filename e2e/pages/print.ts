@@ -4,8 +4,9 @@ import { currentTarget } from "./target";
 
 // Printed documents (09 § 5: I-00 to I-04; 07) and the tomorrow panel (09 § 4: C-01, C-03; 06 § 2.1, 07 § 5).
 // Legacy: a popup window per document, left open (07 § 8). React: the same document, `window.print` intercepted
-// (E-15, PLAN § 3.8). Either way, `print()` only counts its calls and the document is read in print media: what
-// the printer receives, without the screen-only footer of the legacy popup (07 § 2.2).
+// (E-15, PLAN § 3.8), the printed document being the page's only article. Either way, `print()` only counts its
+// calls and the document is read in print media: what the printer receives, without the screen-only footer of the
+// legacy popup (07 § 2.2).
 
 interface PrintWindow {
   e2ePrintCalls?: number;
@@ -45,7 +46,7 @@ export async function printedDocument(page: Page, trigger: () => Promise<void>):
     before,
   );
   await page.emulateMedia({ media: "print" });
-  return page.locator("body");
+  return page.getByRole("article");
 }
 
 /** Ends the printing of `printed`: closes the popup (legacy), or leaves print media and fires `afterprint`. */
