@@ -1,6 +1,6 @@
 import { Popover } from "@base-ui/react/popover";
 import { useId, useState } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { addMonthsClamped, firstOfMonth, isSameMonth, monthCells } from "@/domain/dates";
@@ -141,7 +141,7 @@ function MonthPanel({
       />
       <p className={styles["legend"]}>
         <span aria-hidden="true" className={styles["dot"]} />
-        {intl.formatMessage(messages.marked)}
+        <FormattedMessage {...messages.marked} />
       </p>
     </>
   );

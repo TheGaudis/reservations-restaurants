@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { portionsBooked } from "@/domain/capacity";
 import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
@@ -34,23 +34,10 @@ const EMPTY_DISH = emptyDishDraft();
 // Each open form is a search param (`editPlat`, `ajoutPlat`, PLAN § 3.2).
 
 const messages = defineMessages<{
-  edit: Record<string, never>;
-  delete: Record<string, never>;
   deleteDetail: Record<string, never>;
   deleteWithBookings: { n: number };
-  add: Record<string, never>;
   addSubmit: Record<string, never>;
 }>({
-  edit: {
-    id: "staff.dish.edit",
-    defaultMessage: "Modifier ce plat",
-    description: "05 § 6.3, 06 § 6.3 — bouton d'un plat de la fiche R2 collègue",
-  },
-  delete: {
-    id: "staff.dish.delete",
-    defaultMessage: "Supprimer ce plat",
-    description: "05 § 6.3, 06 § 6.4 — bouton de suppression d'un plat (deux clics)",
-  },
   deleteDetail: {
     id: "staff.dish.delete.confirm",
     defaultMessage: "Confirmer la suppression de ce plat",
@@ -62,11 +49,6 @@ const messages = defineMessages<{
       "Confirmer la suppression de ce plat ({n, plural, one {# réservation ne sera plus affichée} other {# réservations ne seront plus affichées}}, les personnes ne seront pas prévenues)",
     description:
       "PLAN annexe F, D-21 — note et aria-label du bouton armé d'un plat qui a des réservations",
-  },
-  add: {
-    id: "staff.dish.add.open",
-    defaultMessage: "+ Ajouter un plat à ce jour",
-    description: "06 § 6.2 — bouton sous la liste des plats de la fiche R2 collègue",
   },
   addSubmit: {
     id: "staff.dish.add.submit",
@@ -105,7 +87,11 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
           void confirm();
         }}
       >
-        {intl.formatMessage(messages.delete)}
+        <FormattedMessage
+          id="staff.dish.delete"
+          defaultMessage="Supprimer ce plat"
+          description="05 § 6.3, 06 § 6.4 — bouton de suppression d'un plat (deux clics)"
+        />
       </ConfirmButton>
     </span>
   );
@@ -113,7 +99,6 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
 
 /** « Modifier ce plat » and « Supprimer ce plat », after « + Ajouter une personne » in the dish actions (05 § 6.3). */
 export function DishActions({ dish }: { dish: Dish }) {
-  const intl = useIntl();
   const search = usePageSearch();
   const navigate = usePageNavigate();
   const editing = search.editPlat === dish.id;
@@ -130,7 +115,11 @@ export function DishActions({ dish }: { dish: Dish }) {
           navigate({ ...search, editPlat: dish.id }, { replace: false });
         }}
       >
-        {intl.formatMessage(messages.edit)}
+        <FormattedMessage
+          id="staff.dish.edit"
+          defaultMessage="Modifier ce plat"
+          description="05 § 6.3, 06 § 6.3 — bouton d'un plat de la fiche R2 collègue"
+        />
       </Button>
       <DeleteDishButton dish={dish} />
     </>
@@ -214,7 +203,6 @@ function AddDishFormOpen({ iso }: { iso: IsoDate }) {
  * cancelled: closed, focus back on the button (E-48).
  */
 export function AddDish({ iso }: { iso: IsoDate }) {
-  const intl = useIntl();
   const search = usePageSearch();
   const navigate = usePageNavigate();
   if (search.ajoutPlat === true) return <AddDishFormOpen key={iso} iso={iso} />;
@@ -228,7 +216,11 @@ export function AddDish({ iso }: { iso: IsoDate }) {
           navigate({ ...search, ajoutPlat: true }, { replace: false });
         }}
       >
-        {intl.formatMessage(messages.add)}
+        <FormattedMessage
+          id="staff.dish.add.open"
+          defaultMessage="+ Ajouter un plat à ce jour"
+          description="06 § 6.2 — bouton sous la liste des plats de la fiche R2 collègue"
+        />
       </Button>
     </DayActions>
   );

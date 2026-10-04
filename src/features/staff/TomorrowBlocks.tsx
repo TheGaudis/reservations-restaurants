@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { hasAmounts } from "@/domain/pricing";
@@ -20,26 +20,16 @@ import styles from "@/features/staff/TomorrowPanel.module.css";
 
 // Value types of each message: react-intl types `formatMessage` from them.
 const messages = defineMessages<{
-  noDay: Record<string, never>;
   print: Record<string, never>;
   openedBy: { name: string };
   nobody: Record<string, never>;
-  bookedR1: { seats: number; capacity: number };
-  bookedR1WithPrice: { seats: number; capacity: number; price: string };
-  customers: { names: string };
   customer: { name: string; className: string };
   comma: { before: string; after: string };
   dishLine: { name: string; n: number };
   dishCustomers: { line: string; names: string };
   totalR2: { name: string; amounts: string };
   totalR2WithGap: { name: string; amounts: string };
-  noDish: Record<string, never>;
 }>({
-  noDay: {
-    id: "staff.tomorrow.noDay",
-    defaultMessage: "Aucun jour ouvert pour demain.",
-    description: "07 § 5 — panneau « Demain » quand aucun restaurant n'a de jour ouvert demain",
-  },
   print: {
     id: "staff.tomorrow.print",
     defaultMessage: "Imprimer",
@@ -55,21 +45,6 @@ const messages = defineMessages<{
     id: "staff.tomorrow.openedBy.none",
     defaultMessage: "(aucun)",
     description: "07 § 5 — « Ouvert par » d'un jour ouvert sans nom",
-  },
-  bookedR1: {
-    id: "staff.tomorrow.r1.booked",
-    defaultMessage: "Réservés : {seats} / {capacity} couverts",
-    description: "07 § 5 — couverts réservés de demain au restaurant 1, sans prix",
-  },
-  bookedR1WithPrice: {
-    id: "staff.tomorrow.r1.bookedWithPrice",
-    defaultMessage: "Réservés : {seats} / {capacity} couverts — {price}",
-    description: "07 § 5 — couverts réservés de demain au restaurant 1 et somme des prix",
-  },
-  customers: {
-    id: "staff.tomorrow.r1.customers",
-    defaultMessage: "Clients : {names}",
-    description: "07 § 5 — personnes inscrites demain au restaurant 1, dans l'ordre de la feuille",
   },
   customer: {
     id: "staff.tomorrow.r1.customer",
@@ -100,11 +75,6 @@ const messages = defineMessages<{
     id: "staff.tomorrow.r2.totalWithGap",
     defaultMessage: "Total {name} (hors plats sans prix indiqué) : {amounts}",
     description: "07 § 5, D-03 — montants de demain au restaurant 2 avec un plat sans prix",
-  },
-  noDish: {
-    id: "staff.tomorrow.r2.noDish",
-    defaultMessage: "Aucun plat ouvert.",
-    description: "07 § 5 — bloc du restaurant 2 d'un jour sans plat",
   },
 });
 
@@ -164,27 +134,40 @@ function LinesR1({ list }: { list: ListR1 }) {
   return (
     <>
       <p className={styles["line"]}>
-        {totals.price > 0
-          ? intl.formatMessage(messages.bookedR1WithPrice, {
-              seats: totals.seats,
-              capacity,
-              price: formatEuros(totals.price),
-            })
-          : intl.formatMessage(messages.bookedR1, { seats: totals.seats, capacity })}
+        {totals.price > 0 ? (
+          <FormattedMessage
+            id="staff.tomorrow.r1.bookedWithPrice"
+            defaultMessage="Réservés : {seats} / {capacity} couverts — {price}"
+            description="07 § 5 — couverts réservés de demain au restaurant 1 et somme des prix"
+            values={{ seats: totals.seats, capacity, price: formatEuros(totals.price) }}
+          />
+        ) : (
+          <FormattedMessage
+            id="staff.tomorrow.r1.booked"
+            defaultMessage="Réservés : {seats} / {capacity} couverts"
+            description="07 § 5 — couverts réservés de demain au restaurant 1, sans prix"
+            values={{ seats: totals.seats, capacity }}
+          />
+        )}
       </p>
       {bookings.length > 0 ? (
         <p className={styles["meta"]}>
-          {intl.formatMessage(messages.customers, {
-            names: commaList(
-              intl,
-              bookings.map((booking) =>
-                intl.formatMessage(messages.customer, {
-                  name: booking.name,
-                  className: booking.className,
-                }),
+          <FormattedMessage
+            id="staff.tomorrow.r1.customers"
+            defaultMessage="Clients : {names}"
+            description="07 § 5 — personnes inscrites demain au restaurant 1, dans l'ordre de la feuille"
+            values={{
+              names: commaList(
+                intl,
+                bookings.map((booking) =>
+                  intl.formatMessage(messages.customer, {
+                    name: booking.name,
+                    className: booking.className,
+                  }),
+                ),
               ),
-            ),
-          })}
+            }}
+          />
         </p>
       ) : null}
     </>
@@ -208,7 +191,15 @@ function dishLineText(intl: IntlShape, total: DishTotal): string {
 function LinesR2({ list }: { list: ListR2 }) {
   const intl = useIntl();
   if (list.dishes.length === 0) {
-    return <p className={styles["meta"]}>{intl.formatMessage(messages.noDish)}</p>;
+    return (
+      <p className={styles["meta"]}>
+        <FormattedMessage
+          id="staff.tomorrow.r2.noDish"
+          defaultMessage="Aucun plat ouvert."
+          description="07 § 5 — bloc du restaurant 2 d'un jour sans plat"
+        />
+      </p>
+    );
   }
   const { amounts } = list.totals;
   const values = { name: list.restaurantName, amounts: amountsText(amounts) };
@@ -223,7 +214,10 @@ function LinesR2({ list }: { list: ListR2 }) {
         ))}
       {hasAmounts(amounts) ? (
         <p className={styles["blockTotal"]}>
-          {intl.formatMessage(amounts.gap ? messages.totalR2WithGap : messages.totalR2, values)}
+          <FormattedMessage
+            {...(amounts.gap ? messages.totalR2WithGap : messages.totalR2)}
+            values={values}
+          />
         </p>
       ) : null}
     </>
@@ -237,12 +231,19 @@ interface TomorrowBlocksProps {
 
 /** Blocks of restaurant 1 and restaurant 2 for `tomorrow`, each when its day is open (07 § 5, D-07). */
 export function TomorrowBlocks({ tomorrow }: TomorrowBlocksProps) {
-  const intl = useIntl();
   const state = useStaffState(whole);
   const r1 = listR1(state, tomorrow);
   const r2 = listR2(state, tomorrow);
   if (r1.day === undefined && r2.day === undefined) {
-    return <p className={styles["meta"]}>{intl.formatMessage(messages.noDay)}</p>;
+    return (
+      <p className={styles["meta"]}>
+        <FormattedMessage
+          id="staff.tomorrow.noDay"
+          defaultMessage="Aucun jour ouvert pour demain."
+          description="07 § 5 — panneau « Demain » quand aucun restaurant n'a de jour ouvert demain"
+        />
+      </p>
+    );
   }
   return (
     <div className={styles["blocks"]}>

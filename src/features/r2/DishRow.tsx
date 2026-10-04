@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { capacityClass } from "@/domain/capacity";
 import { gaugePercent } from "@/domain/gauge";
@@ -9,15 +9,6 @@ import { commonMessages } from "@/intl/common-messages";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 import styles from "@/features/r2/DishRow.module.css";
-
-const messages = defineMessages<{ stock: { remaining: string; stock: string } }>({
-  stock: {
-    id: "public.r2.dish.stock",
-    defaultMessage: "{remaining} / {stock}",
-    description:
-      "05 § 4.5, § 6.3 — jauge d'un plat (« 4 / 10 », portions restantes sur le stock, sans unité)",
-  },
-});
 
 interface DishRowProps {
   dish: Dish;
@@ -45,10 +36,12 @@ export function DishRow({ dish, remaining, past, children }: DishRowProps) {
             state={capacityClass(remaining, dish.stock)}
             fullLabel={intl.formatMessage(commonMessages.soldOut)}
           >
-            {intl.formatMessage(messages.stock, {
-              remaining: String(remaining),
-              stock: String(dish.stock),
-            })}
+            <FormattedMessage
+              id="public.r2.dish.stock"
+              defaultMessage="{remaining} / {stock}"
+              description="05 § 4.5, § 6.3 — jauge d'un plat (« 4 / 10 », portions restantes sur le stock, sans unité)"
+              values={{ remaining: String(remaining), stock: String(dish.stock) }}
+            />
           </CapacityPill>
         </span>
       </div>

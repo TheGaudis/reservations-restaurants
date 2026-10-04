@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { dayStatusR1, dayStatusR2 } from "@/domain/capacity";
@@ -33,7 +33,6 @@ interface OpenDatePickerProps {
  * follows the date: a valid choice clears it (06 § 3.3), another refused date shows its own message (E-46).
  */
 export function OpenDatePicker({ restaurant, date, error, warning }: OpenDatePickerProps) {
-  const intl = useIntl();
   const id = useId();
   const labelId = useId();
   const errorId = useId();
@@ -45,7 +44,7 @@ export function OpenDatePicker({ restaurant, date, error, warning }: OpenDatePic
   return (
     <div className={styles["field"]}>
       <label id={labelId} htmlFor={id} className={styles["label"]}>
-        {intl.formatMessage(staffCommonMessages.dateLabel)}
+        <FormattedMessage {...staffCommonMessages.dateLabel} />
       </label>
       <DatePickerPopover
         id={id}

@@ -1,5 +1,5 @@
 import { useIsMutating } from "@tanstack/react-query";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useIsR2OrderingClosed, useToday } from "@/background/clock";
 import { dishesForDay, findDay, remainingStock } from "@/domain/capacity";
@@ -28,12 +28,6 @@ const messages = defineMessages({
     id: "public.r2.dayCard.note",
     defaultMessage: "Note",
     description: "05 § 4.4, 04 § 4.3 — surtitre du bloc note de la fiche R2",
-  },
-  allSoldOut: {
-    id: "public.r2.dayCard.allSoldOutNote",
-    defaultMessage: "Tous les plats sont épuisés.",
-    description:
-      "annexe F, D-02 — phrase sous la fiche R2 dont tous les plats sont épuisés, à la place de « Réserver »",
   },
 });
 
@@ -76,7 +70,10 @@ export function DayCardR2() {
       {closed && !past && !ordering ? (
         <div className={styles["closed"]}>
           <Alert variant="note" tone="warning">
-            {intl.formatMessage(commonMessages.r2Closed, { name2: state.settings.name2 })}
+            <FormattedMessage
+              {...commonMessages.r2Closed}
+              values={{ name2: state.settings.name2 }}
+            />
           </Alert>
         </div>
       ) : null}
@@ -85,7 +82,13 @@ export function DayCardR2() {
       ) : null}
       {ordering ? <OrderFormR2Slot /> : null}
       {soldOut && !closed && !ordering ? (
-        <DayNote>{intl.formatMessage(messages.allSoldOut)}</DayNote>
+        <DayNote>
+          <FormattedMessage
+            id="public.r2.dayCard.allSoldOutNote"
+            defaultMessage="Tous les plats sont épuisés."
+            description="annexe F, D-02 — phrase sous la fiche R2 dont tous les plats sont épuisés, à la place de « Réserver »"
+          />
+        </DayNote>
       ) : null}
     </DayCard>
   );

@@ -1,4 +1,5 @@
 import { useSelector } from "@tanstack/react-form";
+import { FormattedMessage } from "react-intl";
 
 import { DayActions } from "@/features/calendar/DayCard";
 import { commonMessages } from "@/intl/common-messages";
@@ -27,7 +28,7 @@ export function FormActions({
     <DayActions>
       <SubmitButton pendingLabel={pendingLabel}>{submitLabel}</SubmitButton>
       <Button variant="ghost" disabled={sending} onClick={onCancel}>
-        {intl.formatMessage(commonMessages.cancel)}
+        <FormattedMessage {...commonMessages.cancel} />
       </Button>
     </DayActions>
   );

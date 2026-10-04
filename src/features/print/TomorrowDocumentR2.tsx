@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { bookingAmounts } from "@/domain/print";
@@ -17,14 +17,8 @@ import { PrintTable } from "@/ui/print/PrintTable";
 import type { PrintColumn } from "@/ui/print/PrintTable";
 
 const messages = defineMessages<{
-  noDishOpen: Record<string, never>;
   unitPrice: { price: string };
 }>({
-  noDishOpen: {
-    id: "print.r2.tomorrow.noDish",
-    defaultMessage: "Aucun plat ouvert.",
-    description: "07 § 7 — résumé R2 du lendemain d'un jour sans plat",
-  },
   unitPrice: {
     id: "print.r2.tomorrow.unitPrice",
     defaultMessage: "{price} l''unité",
@@ -79,12 +73,23 @@ function DishSection({ total }: { total: DishTotal }) {
 
 /** Body of document D: no day, no dish, or one section per dish in the order of the sheet (07 § 7). */
 function Body({ list }: { list: ListR2 }) {
-  const intl = useIntl();
   if (list.day === undefined) {
-    return <PrintNote>{intl.formatMessage(documentMessages.noDayTomorrow)}</PrintNote>;
+    return (
+      <PrintNote>
+        <FormattedMessage {...documentMessages.noDayTomorrow} />
+      </PrintNote>
+    );
   }
   if (list.dishes.length === 0) {
-    return <PrintNote>{intl.formatMessage(messages.noDishOpen)}</PrintNote>;
+    return (
+      <PrintNote>
+        <FormattedMessage
+          id="print.r2.tomorrow.noDish"
+          defaultMessage="Aucun plat ouvert."
+          description="07 § 7 — résumé R2 du lendemain d'un jour sans plat"
+        />
+      </PrintNote>
+    );
   }
   return list.dishes.map((total) => <DishSection key={total.dish.id} total={total} />);
 }

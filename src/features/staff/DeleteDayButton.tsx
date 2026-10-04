@@ -1,4 +1,4 @@
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 import { bookingsOfDay } from "@/domain/days";
 import type { IsoDate, Restaurant } from "@/domain/types";
@@ -49,7 +49,7 @@ export function DeleteDayButton({ restaurant, iso }: DeleteDayButtonProps) {
         void confirm();
       }}
     >
-      {formatMessage(staffCommonMessages.deleteDay)}
+      <FormattedMessage {...staffCommonMessages.deleteDay} />
     </ConfirmButton>
   );
 }
