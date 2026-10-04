@@ -1,8 +1,6 @@
-import cardStyles from "@/features/calendar/DayCard.module.css";
-
-// Focus around the dish forms (E-48, 03 § 5.4). A form opened by its button focuses its first field; the button that
-// opened it takes the focus back when the form closes; a deletion hands it to the date of the card. A form opened by a
-// link or a reload leaves the focus alone.
+// Focus around the dish forms (E-48). A form opened by its button focuses its first field; the button that opened it
+// takes the focus back when the form closes. A form opened by a link or a reload leaves the focus alone. After a
+// deletion, `focusCardDate` (features/calendar/card-date-focus.ts) hands the focus to the date of the card.
 
 let pendingFocus: string | null = null;
 
@@ -50,20 +48,4 @@ export function focusFirstField(target: string) {
       element.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
     }
   };
-}
-
-/** Date of the day card around `element`, read before a deletion removes `element` from the page. */
-export function cardDateOf(element: HTMLElement | null): HTMLElement | null {
-  return (
-    element
-      ?.closest(`.${cardStyles["card"]}`)
-      ?.querySelector<HTMLElement>(`.${cardStyles["date"]}`) ?? null
-  );
-}
-
-/** Focuses the date of a card, by script only (`tabIndex` -1, 03 § 5.4), if it is still in the page. */
-export function focusCardDate(date: HTMLElement | null) {
-  if (date === null || !date.isConnected) return;
-  date.setAttribute("tabindex", "-1");
-  date.focus({ preventScroll: true });
 }

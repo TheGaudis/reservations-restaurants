@@ -1,11 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useRef } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { portionsBooked } from "@/domain/capacity";
 import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
 import type { PageSearchParams } from "@/domain/navigation";
 import type { Dish, IsoDate } from "@/domain/types";
+import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { DayActions } from "@/features/calendar/DayCard";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import {
@@ -13,9 +13,7 @@ import {
   ADD_FORM,
   editButtonId,
   editFormId,
-  cardDateOf,
   editTarget,
-  focusCardDate,
   focusEditButton,
   focusFirstField,
   requestFocus,
@@ -102,7 +100,6 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
   const intl = useIntl();
   const remove = useDeleteDish();
   const bookings = useStaffState((state) => bookingsOfDish(state, dish.id));
-  const slot = useRef<HTMLSpanElement>(null);
   const detail =
     bookings > 0
       ? intl.formatMessage(messages.deleteWithBookings, { n: bookings })
@@ -110,16 +107,15 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
   async function confirm() {
     // The dish and this button leave the page with the answer: `mutateAsync` resolves all the same, the callbacks
     // given to `mutate` would not run. The card's date takes the focus (03 § 5.4, E-48).
-    const date = cardDateOf(slot.current);
     try {
       await remove.mutateAsync(dish.id);
-      focusCardDate(date);
+      focusCardDate("r2");
     } catch (error) {
       showFailure(error);
     }
   }
   return (
-    <span ref={slot} className={styles["slot"]}>
+    <span className={styles["slot"]}>
       <ConfirmButton
         size="small"
         detail={detail}

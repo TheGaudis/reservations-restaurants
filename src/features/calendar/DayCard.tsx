@@ -23,11 +23,16 @@ interface DayDetailProps {
 
 /**
  * Space under a calendar (`#detail-rX`, 05 § 1): its view-transition-name lets the card slide when a day is chosen
- * with the mouse (05 § 3.4, view-transitions.css).
+ * with the mouse (05 § 3.4, view-transitions.css). `data-day-detail` lets `focusCardDate` find the card of the
+ * restaurant.
  */
 export function DayDetail({ restaurant, children }: DayDetailProps) {
   return (
-    <div className={styles["detail"]} style={{ viewTransitionName: `${restaurant}-day-card` }}>
+    <div
+      className={styles["detail"]}
+      data-day-detail={restaurant}
+      style={{ viewTransitionName: `${restaurant}-day-card` }}
+    >
       {children}
     </div>
   );
@@ -43,12 +48,18 @@ interface DayCardProps {
   children?: ReactNode;
 }
 
-/** Card of the selected day (`.day-card`, 05 § 4): the long date with « 1er » (E-21), then its content. */
+/**
+ * Card of the selected day (`.day-card`, 05 § 4): the long date with « 1er » (E-21), then its content. The date takes
+ * the focus by script after a deletion in the staff mode (`focusCardDate`, 03 § 5.4, E-48): `tabIndex` -1, out of the
+ * tab order.
+ */
 export function DayCard({ iso, past, gauge, children }: DayCardProps) {
   return (
     <div className={styles["card"]} data-past={past || undefined}>
       <div className={styles["top"]}>
-        <p className={styles["date"]}>{formatLongDate(iso)}</p>
+        <p className={styles["date"]} tabIndex={-1} data-day-date="">
+          {formatLongDate(iso)}
+        </p>
         {gauge}
       </div>
       {children}

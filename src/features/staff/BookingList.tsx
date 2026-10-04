@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { ReactNode, RefObject } from "react";
+import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
@@ -13,13 +13,13 @@ import type {
   Restaurant,
   StaffServiceDayR1,
 } from "@/domain/types";
+import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { bookingLineR1, bookingLineR2, editResaValue } from "@/features/staff/booking-line";
 import { BookingRow } from "@/features/staff/BookingRow";
 import { EditBookingFormR1 } from "@/features/staff/EditBookingFormR1";
 import { EditBookingFormR2 } from "@/features/staff/EditBookingFormR2";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { formatLongDate } from "@/intl/dates";
 import { useDeleteBooking } from "@/mutations/staff/bookings";
 import { staffErrorText } from "@/mutations/staff/write";
 import { showToast } from "@/ui/feedback/toast";
@@ -34,29 +34,14 @@ const messages = defineMessages({
   },
 });
 
-/**
- * Gives the focus to the date of the day card after a deletion (03 § 5.4, 08 § 7.6): the deleted row and its buttons
- * are gone. The date is the `<p>` of the column that reads the long date of the card.
- */
-function focusCardDate(list: HTMLElement | null, iso: IsoDate) {
-  const column = list?.closest("section");
-  if (column === null || column === undefined) return;
-  const text = formatLongDate(iso);
-  const date = [...column.querySelectorAll("p")].find((element) => element.textContent === text);
-  if (date === undefined) return;
-  date.tabIndex = -1;
-  date.focus();
-}
-
 /** Deletion of a booking from its list, which stays in the page when its last row leaves (06 § 5.2). */
-function useDeleteFromList(restaurant: Restaurant, iso: IsoDate) {
-  const list = useRef<HTMLDivElement>(null);
+function useDeleteFromList(restaurant: Restaurant) {
   const remove = useDeleteBooking(restaurant);
   const deleting = (id: string) => remove.isPending && remove.variables === id;
   const deleteBooking = (id: string) => {
     remove.mutate(id, {
       onSuccess: () => {
-        focusCardDate(list.current, iso);
+        focusCardDate(restaurant);
       },
       onError: (error) => {
         const text = staffErrorText(error);
@@ -64,22 +49,21 @@ function useDeleteFromList(restaurant: Restaurant, iso: IsoDate) {
       },
     });
   };
-  return { list, deleting, deleteBooking };
+  return { deleting, deleteBooking };
 }
 
 interface ListFrameProps {
-  list: RefObject<HTMLDivElement | null>;
   iso: IsoDate;
   count: number;
   children: ReactNode;
 }
 
 /** `.bookings-list` (05 § 4.6): the rows in the order of the sheet, never sorted (D-08 not retained), or « Aucune réservation. ». */
-function ListFrame({ list, iso, count, children }: ListFrameProps) {
+function ListFrame({ iso, count, children }: ListFrameProps) {
   const intl = useIntl();
   const past = isPast(iso, useToday());
   return (
-    <div ref={list} className={styles["list"]} data-past={past || undefined}>
+    <div className={styles["list"]} data-past={past || undefined}>
       {count === 0 ? (
         <p className={styles["empty"]}>{intl.formatMessage(messages.empty)}</p>
       ) : (
@@ -155,9 +139,9 @@ export function BookingListR1({ day }: { day: StaffServiceDayR1 }) {
   const bookings = useStaffState((state: FullState): BookingR1[] =>
     state.r1Bookings.filter((booking) => booking.date === day.date),
   );
-  const { list, deleting, deleteBooking } = useDeleteFromList("r1", day.date);
+  const { deleting, deleteBooking } = useDeleteFromList("r1");
   return (
-    <ListFrame list={list} iso={day.date} count={bookings.length}>
+    <ListFrame iso={day.date} count={bookings.length}>
       {bookings.map((booking) => (
         <BookingItemR1
           key={booking.id}
@@ -180,9 +164,9 @@ export function BookingListR2({ dish }: { dish: Dish }) {
   const bookings = useStaffState((state: FullState): BookingR2[] =>
     state.r2Bookings.filter((booking) => booking.dishId === dish.id),
   );
-  const { list, deleting, deleteBooking } = useDeleteFromList("r2", dish.date);
+  const { deleting, deleteBooking } = useDeleteFromList("r2");
   return (
-    <ListFrame list={list} iso={dish.date} count={bookings.length}>
+    <ListFrame iso={dish.date} count={bookings.length}>
       {bookings.map((booking) => (
         <BookingItemR2
           key={booking.id}

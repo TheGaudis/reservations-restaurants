@@ -1,17 +1,14 @@
-import { useRef } from "react";
 import { useIntl } from "react-intl";
 
 import { bookingsOfDay } from "@/domain/days";
 import type { IsoDate, Restaurant } from "@/domain/types";
-import { columnOf, focusCardDate } from "@/features/staff/card-date-focus";
+import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useDeleteDay } from "@/mutations/staff/days";
 import { staffErrorText } from "@/mutations/staff/write";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
 import { showToast } from "@/ui/feedback/toast";
-
-import styles from "@/features/staff/DeleteDayButton.module.css";
 
 interface DeleteDayButtonProps {
   restaurant: Restaurant;
@@ -33,36 +30,28 @@ export function DeleteDayButton({ restaurant, iso }: DeleteDayButtonProps) {
     bookings === 0
       ? formatMessage(staffCommonMessages.deleteDayDetail)
       : formatMessage(staffCommonMessages.deleteDayWithBookings, { n: bookings });
-  const column = useRef<HTMLElement | null>(null);
   async function confirm() {
-    // Taken now: the button and its wrapper leave the page with the day.
-    const target = column.current;
+    // The day and this button leave the page with the answer: `mutateAsync` resolves all the same, the callbacks
+    // given to `mutate` would not run.
     try {
       await remove.mutateAsync(iso);
-      focusCardDate(target, iso);
+      focusCardDate(restaurant);
     } catch (error) {
       const text = staffErrorText(error);
       if (text !== null) showToast(text, "error");
     }
   }
   return (
-    <span
-      className={styles["contents"]}
-      ref={(element) => {
-        column.current = element === null ? null : columnOf(element);
+    <ConfirmButton
+      size="small"
+      detail={detail}
+      showDetail={bookings > 0}
+      busy={remove.isPending}
+      onConfirm={() => {
+        void confirm();
       }}
     >
-      <ConfirmButton
-        size="small"
-        detail={detail}
-        showDetail={bookings > 0}
-        busy={remove.isPending}
-        onConfirm={() => {
-          void confirm();
-        }}
-      >
-        {formatMessage(staffCommonMessages.deleteDay)}
-      </ConfirmButton>
-    </span>
+      {formatMessage(staffCommonMessages.deleteDay)}
+    </ConfirmButton>
   );
 }
