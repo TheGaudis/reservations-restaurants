@@ -231,7 +231,7 @@ export function OrderFormR2({ date }: OrderFormR2Props) {
             )}
           </form.Subscribe>
         </DayActions>
-        <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+        <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>
   );

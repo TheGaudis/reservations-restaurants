@@ -657,7 +657,7 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 | --- | --- | --- | --- |
 | `.btn`, `.primary`, `.ghost`, `.small`, `.danger` (`08` § 4.2) | `ui/button/Button.tsx` | `Button` | `data-variant`, `data-size`, `aria-busy` + libellé d'attente (« Envoi en cours… ») |
 | `.icon-btn`, `.tonal` (`08` § 4.4) | `ui/button/IconButton.tsx` | `Button` | `aria-label` obligatoire dans le type des props |
-| `confirmClick` / `disarm` (`00` § 3, `06` § 5.2) | `ui/button/ConfirmButton.tsx` | `Button` | 1er clic : `data-armed`, « Confirmer ? », largeur figée, `aria-label` et `title` = détail ; 2e clic dans les 4 s : action ; minuteur local armé dans le gestionnaire de clic, gardé dans une `ref`, annulé à chaque armement et désarmement (a-19) et nettoyé par la fonction de retour d'une ref callback (aucun effet) ; annonce `role="status"` masquée (texte : annexe F) ; état occupé pendant l'envoi |
+| `confirmClick` / `disarm` (`00` § 3, `06` § 5.2) | `ui/button/ConfirmButton.tsx` | `Button` | 1er clic : `data-armed`, « Confirmer ? », largeur figée, `aria-label` et `title` = détail ; 2e clic dans les 4 s : action ; minuteur local armé dans le gestionnaire de clic, gardé dans une `ref`, annulé à chaque armement et désarmement (a-19), sans nettoyage au démontage (aucun effet) ; annonce `role="status"` masquée (texte : annexe F) ; état occupé pendant l'envoi |
 | `segGroup` Semaine/Mois, Client/Collègue (`08` § 6.3) | `ui/toggle/ViewToggle.tsx` | `ToggleGroup` + `Toggle` | ignorer la valeur vide (2e clic) ; coche animée sur `[data-pressed]` |
 | Mode de service (`04` § 5.3), mode d'une réservation R2 (`06` § 7.4, 8.3) | `ui/form/SegmentedRadio.tsx` | `RadioGroup` + `Radio` + `Fieldset` | une seule option un jour au ticket (`:only-of-type`) ; remplace le `<select>` collègue |
 | `.field`, `label`, `.field-help`, `.field-error`, `checkFields`, `markInvalid`, `linkLabels` (`00` § 3) | `ui/form/TextField.tsx`, `PasswordField.tsx` | `Field` | `invalid`, `touched`, `dirty` venus de TanStack Form ; `Field.Error` rendu conditionnellement ; aide masquée en erreur ; jamais `required` / `pattern` natifs |
@@ -1466,8 +1466,8 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - 0 à 2 `useEffect` dans toute l'appli, chacun commenté (système extérieur à synchroniser).
 - Pas de `useMemo`, `useCallback`, `memo` par réflexe (React Compiler) ; pas de `forwardRef`.
 - Minuteurs et écouteurs globaux (horloge, inactivité, actualisation) dans `background/`, au niveau module. Minuteur local d'un
-  composant (`ConfirmButton`, signal de lenteur D-15) : armé dans un gestionnaire, gardé dans une `ref`, nettoyé par la fonction
-  de retour d'une ref callback.
+  composant (`ConfirmButton`, signal de lenteur D-15) : armé dans un gestionnaire, gardé dans une `ref`, annulé par le
+  gestionnaire suivant ; aucun nettoyage au démontage (React 19 ignore une mise à jour d'état d'un composant démonté).
 - Navigation par `<Link search={…}>`. `navigate` impératif seulement dans un gestionnaire (clavier, `onSuccess` passé à `mutate`)
   ou dans les tâches de fond de `background/` (déconnexion, 10 h) ; `background/` et `mutations/` peuvent appeler
   `ui/feedback/toast.ts` (gestionnaire sans composant), rien d'autre de `ui/`.

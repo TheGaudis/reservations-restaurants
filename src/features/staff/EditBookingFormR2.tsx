@@ -142,7 +142,7 @@ export function EditBookingFormR2({ booking, dish, opener }: EditBookingFormR2Pr
       </form.AppField>
       <EditObservationField form={form} fields={OBSERVATION} />
       <FormActions onCancel={close} />
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

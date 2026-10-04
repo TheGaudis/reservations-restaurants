@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -54,14 +54,6 @@ export function ConfirmButton({
   const [armed, setArmed] = useState(false);
   const [frozenWidth, setFrozenWidth] = useState<number | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  // React runs the cleanup of a ref callback each time it receives a new callback: a stable callback keeps the timer
-  // across renders and clears it once, when the button leaves the page.
-  const clearTimerOnUnmount = useCallback(
-    () => () => {
-      clearTimeout(timer.current);
-    },
-    [],
-  );
 
   function disarm() {
     setArmed(false);
@@ -85,7 +77,6 @@ export function ConfirmButton({
   return (
     <>
       <Button
-        ref={clearTimerOnUnmount}
         variant="danger"
         size={size}
         busy={busy}

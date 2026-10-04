@@ -165,7 +165,7 @@ function EditDayFormBody({ day }: EditDayR1Props) {
         {(field) => <field.TextField label={formatMessage(dayMessages.menuLabel)} />}
       </form.AppField>
       <FormActions onCancel={close} />
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

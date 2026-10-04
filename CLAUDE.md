@@ -70,8 +70,8 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - 0 à 2 `useEffect` dans toute l'appli, chacun commenté sur la ligne au-dessus (système extérieur à synchroniser ; vérifié en CI).
 - Pas de `useMemo`, `useCallback`, `memo` par réflexe (React Compiler) ; pas de `forwardRef`.
 - Minuteurs et écouteurs globaux (horloge, inactivité, actualisation) dans `background/`, au niveau module. Minuteur local d'un
-  composant (`ConfirmButton`, signal de lenteur D-15) : armé dans un gestionnaire, gardé dans une `ref`, nettoyé par la fonction
-  de retour d'une ref callback.
+  composant (`ConfirmButton`, signal de lenteur D-15) : armé dans un gestionnaire, gardé dans une `ref`, annulé par le
+  gestionnaire suivant ; aucun nettoyage au démontage (React 19 ignore une mise à jour d'état d'un composant démonté).
 - Navigation par `<Link search={…}>`. `navigate` impératif seulement dans un gestionnaire (clavier, `onSuccess` passé à `mutate`)
   ou dans les tâches de fond de `background/` (déconnexion, 10 h) ; `background/` et `mutations/` peuvent appeler
   `ui/feedback/toast.ts` (gestionnaire sans composant), rien d'autre de `ui/`.

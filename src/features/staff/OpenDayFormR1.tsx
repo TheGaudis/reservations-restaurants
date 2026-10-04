@@ -176,7 +176,7 @@ function OpenDayBodyR1() {
       <form.SubmitButton pendingLabel={formatMessage(staffCommonMessages.opening)}>
         {formatMessage(staffCommonMessages.openDaySubmit)}
       </form.SubmitButton>
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

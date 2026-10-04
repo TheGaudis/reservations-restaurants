@@ -189,7 +189,7 @@ function AddBookingFormR2Open({ dish }: AddBookingR2Props) {
           submitLabel={intl.formatMessage(staffCommonMessages.addPersonSubmit)}
           pendingLabel={intl.formatMessage(staffCommonMessages.adding)}
         />
-        <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+        <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>
   );

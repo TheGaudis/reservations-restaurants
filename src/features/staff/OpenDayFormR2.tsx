@@ -202,7 +202,7 @@ function OpenDayBodyR2() {
           {formatMessage(staffCommonMessages.openDaySubmit)}
         </form.SubmitButton>
       </div>
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

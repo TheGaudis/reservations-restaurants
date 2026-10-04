@@ -142,7 +142,7 @@ export function DishFields(props: DishFieldsProps) {
           )}
         </form.AppField>
         <FormActions onCancel={cancel} submitLabel={submitLabel} pendingLabel={pendingLabel} />
-        <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+        <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>
   );

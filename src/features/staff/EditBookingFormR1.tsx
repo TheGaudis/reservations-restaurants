@@ -165,7 +165,7 @@ export function EditBookingFormR1({ booking, opener }: EditBookingFormR1Props) {
       />
       <EditObservationField form={form} fields={OBSERVATION} />
       <FormActions onCancel={close} />
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

@@ -186,7 +186,7 @@ export function BookingFormR1({ date }: BookingFormR1Props) {
             )}
           </form.Subscribe>
         </DayActions>
-        <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+        <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>
   );
