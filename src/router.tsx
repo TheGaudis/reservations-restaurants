@@ -5,6 +5,7 @@ import { RawIntlProvider } from "react-intl";
 import { listenPreloadError } from "@/background/preload-error";
 import { startBackgroundTasks } from "@/background/start";
 import { isConfigMissing } from "@/config";
+import { startViewTransition } from "@/features/calendar/view-transition";
 import { LoadErrorPage } from "@/features/page/LoadErrorPage";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { intl } from "@/intl/intl";
@@ -48,6 +49,13 @@ export function getRouter() {
     ),
   });
   if (typeof window !== "undefined") {
+    // Calendar transitions (05 § 3.4): a skipped one never ends in an unhandled rejection. Like the router, the
+    // transition asked for applies to one load only: back and forward navigate without one.
+    router.startViewTransition = async (update: () => Promise<void>) => {
+      const transition = router.shouldViewTransition;
+      router.shouldViewTransition = false;
+      return startViewTransition(update, transition);
+    };
     // Clock (today, 10:00, midnight), inactivity and logout steps (PLAN § 3.4, § 3.3.4); idempotent (R-25).
     startBackgroundTasks({
       queryClient,
