@@ -3,6 +3,7 @@
 *Rédigé le 3 octobre 2026. Feuille de route des sessions d'implémentation (humaines ou agents). Branche d'intégration : `claude/frontend-react-migration-lw5zfz`.*
 
 **Journal du plan** (le plus récent en tête) :
+- Exécution, 4 octobre 2026 (orchestrateur) : P7 (b) fusionnée (`57ec5dc`) : `e2e/a11y.spec.ts` (8 écrans, 0 violation, aucune règle coupée) et 185 stories sous axe sans exception ; écart E-58 (niveaux de titres du panneau « Demain » et du document D) ; build de validation `pnpm exec vite build --mode real` (lit `.env.real.local`, § 3.11) ; `PrintLayout` reçoit `subtitleHeading` (§ 3.8) ; option `--host` de `scripts/serve-pages.ts` (orchestrateur) ; budget inchangé (180,4 kB JS, 10,9 kB CSS, rapport par morceau dans `journal/p7b.md`). `docs/migration/validation.md` relu par l'orchestrateur, complété par la vérification de `getAdminState` sur le script déployé.
 - Exécution, 4 octobre 2026 (orchestrateur) : correctifs des scénarios instables fusionnés (`cd3d390`). REG-03 « no new attempt offline » et REG-05 finissaient par `context.setOffline(false)`, dont la lecture de rattrapage (`03` § 5.1) partait après la coupure de l'isolation réseau : ligne retirée, aucune assertion modifiée (20/20 sous charge). REG-02 mesurait depuis le début de la navigation (feuilles de styles, scripts de Playwright compris) : il mesure désormais de l'insertion du squelette au premier contenu, seuil inchangé à 600 ms, assertions d'ordre inchangées (journal `fix-flaky-reg02-reg05.md`). **S4 précisé** (orchestrateur) : point de départ de la mesure et condition de charge (§ 1.5, E-47).
 - Exécution, 4 octobre 2026 (orchestrateur) : P6 (b) fusionnée (`7aa8b90`), **P6 terminée** : documents R2 (`ListDocumentR2`, `TomorrowDocumentR2`, `list-r2.ts`) et blocs du panneau « Demain » (`TomorrowBlocks`) ; 6 scénarios `@p6` verts ; `E2E_REACT_GREP` = `@p4|@p5|@p6|@framework` ; budget 180,4 kB. Déconnexion (§ 3.3.4, étape 2) : `clearPrintedDocument()` (chargé par `import()` seulement si `.print-root` contient un document) retire le document imprimé de la page (invariant 1, S8). Un ticket par commande aussi sur chaque ligne de plat au ticket (« 1 ticket restaurant », E-16, § 3.8). À trancher en P7 (b) : règle axe `heading-order` coupée dans les stories de `TomorrowDocumentR2` (07 § 7 et REG-42 imposent des `h3` sous le `h1`), contraire à S5 sans exception ; exclusion knip `!src/domain/**!` (20 exports et 8 types sans importeur de production).
 - Exécution, 4 octobre 2026 (orchestrateur) : P5 (e) fusionnée (`409f371`), **P5 terminée** : 30 scénarios `@p5` verts sur `react` ; `E2E_REACT_GREP` = `@p4|@p5|@framework|@I-01`. Paramètres (`SettingsForm`, `domain/settings.ts`) et ligne de totaux du panneau « Demain » (`TomorrowPanel`, titre en h3 ; emplacement `TomorrowBlocks` pour P6 (b)) ; D-20 et R-36 complétés. Instabilités à root-causer en P7 : REG-05 (rouge par intermittence, y compris sur une base sans P5 (e)) et REG-02 (seuil de 600 ms).
@@ -935,6 +936,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-55 | Écriture collègue qui répond après la déconnexion | toast de succès affiché quand même (« Jour modifié. »…) | réponse jetée par la garde de session (§ 3.3.3, F-02) : ni toast, ni écriture dans le cache | invariant 1 ; relevé par P1 (c) ; P5 (a) l'étiquette dans la variante `react` de REG-29 et remplace « n/a » par REG-29 | REG-29 |
 | E-56 | Fiche d'un jour passé (`05` § 4.2) | opacité 0,55 sur toute la fiche (contraste du texte 2,3 à 3,6:1) | pâleur sans opacité : fond `--surface-alt`, textes en `--text-muted` (5,2 à 6,1:1), jauges en niveaux de gris ; « passé » reste dans l'`aria-label` de la case | charte (`08` § 8) et S5 sans exception ; relevé par P4 (b) ; vérifié par axe dans les stories P-08 et P-17 | n/a |
 | E-57 | Panneaux « Ouvrir un jour » (`06` § 4) | ceux de R1 et de R2 peuvent être dépliés en même temps | un seul ouvert à la fois (paramètre d'URL `ouvrir` à une valeur) | schéma d'URL du § 3.2, comme « un seul formulaire public à la fois » (D-11) ; relevé par P5 (b) | n/a |
+| E-58 | Niveaux de titres du panneau « Demain » et du document D | `h3` « Demain (…) » juste sous le `h1` (`06` § 2.1), nom du restaurant en `<b>` ; date du document D dans un paragraphe | `h2` « Demain (…) », noms des restaurants des blocs en `h3` ; date du document D en `h2` au-dessus des `h3` des plats (rendu identique) | S5 sans exception (axe `heading-order`, `e2e/a11y.spec.ts` et stories `TomorrowDocumentR2`) ; relevé par P7 (b) | n/a |
 
 ### 4.3 Traitement des points a-*
 
@@ -984,7 +986,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | terminé le 4 oct. : (a) `09247a6`, (b) `5fd5baf`, (c) `5fbb0d1`, (d) `b0f7a69` ; 37 scénarios `@p4` verts sur `react` |
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | terminé le 4 oct. : (a) `d102547`, (d1) `a79689d`, (c) `e6feb25`, (b) `32efb0c`, (d2) `66368aa`, (e) `409f371` ; 30 scénarios `@p5` verts sur `react` |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | terminé le 4 oct. : (a) `0eb411d`, (b) `7aa8b90` ; 6 scénarios `@p6` verts sur `react` |
-| P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | à faire |
+| P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | en cours : (b) `57ec5dc` le 4 oct. ; (a) en cours |
 | P8 | bascule et nettoyage | 1 | 1 | non | à faire |
 | **Total** | | **35,5** (43 avec 20 % de marge) | **31** | | |
 
@@ -1546,7 +1548,7 @@ Voir [`recherche/README.md`](recherche/README.md) (une ligne par rapport, ce qui
 | P4 | `tanstack-start.md` (§ 4), `react-architecture.md` (§ 2), `ui-forms.md` (§ 5) |
 | P5 | terminé le 4 oct. : (a) `d102547`, (d1) `a79689d`, (c) `e6feb25`, (b) `32efb0c`, (d2) `66368aa`, (e) `409f371` ; 30 scénarios `@p5` verts sur `react` |
 | P6 | terminé le 4 oct. : (a) `0eb411d`, (b) `7aa8b90` ; 6 scénarios `@p6` verts sur `react` |
-| P7 | `element-admin-reference.md` (§ 8), `react-architecture.md` (§ 8) |
+| P7 | en cours : (b) `57ec5dc` le 4 oct. ; (a) en cours |
 | P8 | `react-architecture.md` (§ 10, sans sa préproduction ni son retour arrière par relance du workflow : § 6.1), § 7 de ce plan |
 
 Les rapports reflètent l'état du 3 octobre 2026 ; leurs propositions contraires aux arbitrages sont listées au § 6.1.
