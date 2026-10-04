@@ -247,7 +247,8 @@
     // ======================= FormatJS (jsPlugins, PLAN § 3.10) ====================
     "formatjs/enforce-default-message": ["error", "literal"],
     "formatjs/enforce-description": ["error", "literal"],
-    "formatjs/enforce-placeholders": "error",
+    // <b> et <i> : `defaultRichTextElements` de src/intl/intl.ts
+    "formatjs/enforce-placeholders": ["error", { "ignoreList": ["b", "i"] }],
     "formatjs/enforce-plural-rules": ["error", { "one": true, "other": true }],
     "formatjs/no-multiple-whitespaces": "error",
     "formatjs/no-multiple-plurals": "error",

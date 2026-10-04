@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
@@ -34,10 +33,6 @@ const messages = defineMessages<{ byCustomer: { count: number }; byDish: Record<
   },
 });
 
-function bold(chunks: ReactNode[]) {
-  return <b>{chunks}</b>;
-}
-
 /**
  * « Plats » of a customer: one line per booking, « **{qte}×** {plat}[ — {montant}] », then its observation in bold
  * italics (07 § 4.2); a voucher dish counts one voucher (E-16).
@@ -53,7 +48,6 @@ function DishLines({ order }: { order: Order }) {
         values={{
           count: line.portions,
           dish: withPrice(line.dish.name, amountsText(bookingAmounts(line.dish, line.portions))),
-          b: bold,
         }}
       />
       {line.observation === "" ? null : (
