@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { printDocument } from "@/ui/print/print";
+import { clearPrintedDocument, printDocument } from "@/ui/print/print";
 
 import "@/styles/print.css";
 
@@ -104,5 +104,34 @@ describe("printDocument", () => {
     globalThis.dispatchEvent(new Event("afterprint"));
     expect(document.title).toBe(PAGE_TITLE);
     expect(printRoot()?.childElementCount).toBe(0);
+  });
+
+  it("clearPrintedDocument: empty .print-root and title of the page without afterprint (invariant 1)", async () => {
+    await printDocument(createElement("p", null, "Cyrille Ungerer"), {
+      title: "Liste",
+      opener: null,
+    });
+    clearPrintedDocument();
+    expect(printRoot()?.childElementCount).toBe(0);
+    expect(document.body.textContent).not.toContain("Cyrille Ungerer");
+    expect(document.title).toBe(PAGE_TITLE);
+    // A later afterprint changes nothing.
+    globalThis.dispatchEvent(new Event("afterprint"));
+    expect(document.title).toBe(PAGE_TITLE);
+  });
+
+  it("clearPrintedDocument cancels a print still waiting for the fonts", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    vi.spyOn(document.fonts, "ready", "get").mockReturnValue(FONTS_NEVER_READY);
+    const pending = printDocument(createElement("p", null, "Liste"), {
+      title: "Liste",
+      opener: null,
+    });
+    clearPrintedDocument();
+    await vi.advanceTimersByTimeAsync(2000);
+    await pending;
+    expect(calls).toHaveLength(0);
+    expect(printRoot()?.childElementCount).toBe(0);
+    vi.useRealTimers();
   });
 });

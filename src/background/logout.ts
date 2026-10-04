@@ -42,11 +42,28 @@ function toastOf(reason: SessionEnd): { message: string; type: ToastType } {
   }
 }
 
+/**
+ * Step 2 for the last printed document (invariant 1): it leaves the page even without `afterprint`. `.print-root`
+ * holds a document only once ui/print/print.ts has printed it, so the import() finds that module already loaded and
+ * the logout loads no print code otherwise (S3).
+ */
+async function clearPrintedDocument(): Promise<void> {
+  if (document.querySelector(".print-root:not(:empty)") === null) return;
+  try {
+    const print = await import("@/ui/print/print");
+    print.clearPrintedDocument();
+  } catch (error) {
+    console.error(error);
+    document.querySelector(".print-root")?.remove();
+  }
+}
+
 /** @internal exported for the tests; `watchLogout` runs it. */
 export function afterLogout(deps: BackgroundDeps, reason: SessionEnd | null): void {
   const { queryClient, router } = deps;
   // 2. Names, contacts and the variables of past writes leave the cache, without waiting for the network.
   deps.purgeStaffSession(queryClient);
+  void clearPrintedDocument();
   // 4. The public state shown again is read again, with `since`.
   void queryClient.invalidateQueries({ queryKey: stateKeys.public() });
   // 5.

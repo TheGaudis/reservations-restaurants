@@ -5,10 +5,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BackgroundDeps } from "@/background/deps";
 import { afterLogout, watchLogout } from "@/background/logout";
 import { stopBackgroundTasks } from "@/background/start";
+import { printListR1 } from "@/features/print/print-documents";
 import { stateKeys } from "@/queries/state";
 import { getRouter } from "@/router";
 import { useSessionStore } from "@/session/session";
 import type { SessionEnd } from "@/session/session";
+import { fullState } from "@/test/domain-states";
+import { DAY, MARTIN, PETIT, UNGERER, seedDayR1 } from "@/test/print-lists";
 
 const initialSession = useSessionStore.getState();
 const STAFF_KEY = ["state", "staff", 1] as const;
@@ -113,5 +116,31 @@ describe("watchLogout", () => {
     useSessionStore.getState().open("secret");
     useSessionStore.getState().close("logout");
     expect(deps.purgeStaffSession).not.toHaveBeenCalled();
+  });
+});
+
+describe("afterLogout and the printed document (invariant 1, S8)", () => {
+  it("removes a list printed without afterprint: empty .print-root, no name left in the page", async () => {
+    vi.spyOn(window, "print").mockImplementation(() => {
+      // The print dialog never closes: no afterprint.
+    });
+    const pageTitle = document.title;
+    const opener = document.createElement("button");
+    document.body.append(opener);
+    const state = fullState({ r1Days: [seedDayR1()], r1Bookings: [UNGERER, MARTIN, PETIT] });
+    await printListR1(state, DAY, opener);
+    expect(document.body.textContent).toContain("Cyrille Ungerer");
+
+    const { deps } = await depsAt("/");
+    afterLogout(deps, "logout");
+    await vi.waitFor(() => {
+      expect(document.body.querySelector(":scope > .print-root")?.childElementCount).toBe(0);
+    });
+    for (const booking of [UNGERER, MARTIN, PETIT]) {
+      expect(document.body.textContent).not.toContain(booking.name);
+      expect(document.body.textContent).not.toContain(booking.contact);
+    }
+    expect(document.title).toBe(pageTitle);
+    opener.remove();
   });
 });

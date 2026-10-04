@@ -45,13 +45,29 @@ function unmount(current: Printing): void {
   current.root.unmount();
 }
 
-function endPrinting(): void {
-  if (printing === null) return;
+/** Ends the printing in progress, if any: document removed, title of the page back. Returns what it ended. */
+function stopPrinting(): Printing | null {
   const current = printing;
+  if (current === null) return null;
   printing = null;
   unmount(current);
   document.title = current.previousTitle;
-  if (current.opener?.isConnected === true) current.opener.focus();
+  return current;
+}
+
+function endPrinting(): void {
+  const current = stopPrinting();
+  if (current?.opener?.isConnected === true) current.opener.focus();
+}
+
+/**
+ * Removes the printed document from the page without waiting for `afterprint`, which some browsers never send:
+ * called when the staff session closes, its names must leave the page (invariant 1, PLAN § 3.3.4). A print still
+ * waiting for the fonts is cancelled.
+ */
+export function clearPrintedDocument(): void {
+  stopPrinting();
+  document.body.querySelector(":scope > .print-root")?.replaceChildren();
 }
 
 /** Resolves once the fonts are loaded, or after 2 s (07 § 8). */

@@ -5,7 +5,7 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 import { expect, test } from "./fixtures";
 import { selectDay } from "./pages/calendar";
 import { BLOCKED_FONT_PRELOAD, column, gotoHome, toast } from "./pages/home";
-import { login } from "./pages/login";
+import { login, logout } from "./pages/login";
 import { closePrintedDocument, printedDocument, stubPrint } from "./pages/print";
 
 // Printing in the same document on the built site (PLAN § 3.8, P6; E-15, R-27): `window.print` intercepted, the page
@@ -31,8 +31,8 @@ async function openStaffDay(page: Page): Promise<void> {
   await selectDay(page, "r1", DAY);
 }
 
-function printButton(page: Page) {
-  return column(page, "r1").getByRole("button", { name: "Imprimer la liste" });
+function printButton(page: Page, restaurant: "r1" | "r2" = "r1") {
+  return column(page, restaurant).getByRole("button", { name: "Imprimer la liste" });
 }
 
 interface PageSize {
@@ -104,4 +104,26 @@ test("spreads a long list over several landscape pages (07 § 2.4)", async ({
   expect(pages.length).toBeGreaterThanOrEqual(3);
   expect(pages.length).toBeLessThanOrEqual(5);
   for (const size of pages) expect(size).toStrictEqual(A4_LANDSCAPE);
+});
+
+test("logging out removes a document printed without afterprint (invariant 1, S8)", async ({
+  page,
+}) => {
+  await openStaffDay(page);
+  await selectDay(page, "r2", DAY);
+  const printed = await printedDocument(page, async () => printButton(page, "r2").click());
+  await expect(printed.getByRole("heading", { level: 2 }).first()).toHaveText("Par client (2)");
+  // Document B prints on the same A4 landscape page (07 § 2.1, § 4).
+  expect(await pdfPages(page)).toStrictEqual([A4_LANDSCAPE]);
+
+  // The print dialog closed without afterprint, then the colleague leaves the staff mode.
+  await page.emulateMedia({ media: null });
+  await logout(page);
+  await expect(toast(page)).toHaveText("Retour au mode client.");
+  await expect(page.locator("body > .print-root")).toBeEmpty();
+  await expect(page).toHaveTitle(PAGE_TITLE);
+  const text = await page.evaluate(() => document.body.textContent);
+  for (const name of ["Ariele Gsell", "Noah Bernard", "a.gsell@exemple.fr"]) {
+    expect(text).not.toContain(name);
+  }
 });
