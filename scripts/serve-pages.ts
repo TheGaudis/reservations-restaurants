@@ -14,6 +14,8 @@ const { values } = parseArgs({
     root: { type: "string", default: "dist/client" },
     base: { type: "string", default: "/reservations-restaurants/" },
     port: { type: "string", default: "4311" },
+    // Local only by default (E2E); "0.0.0.0" lets a tablet on the same network open the build (docs/migration/validation.md).
+    host: { type: "string", default: "127.0.0.1" },
     "port-env": { type: "string" },
   },
 });
@@ -88,6 +90,6 @@ const server = createServer((req, res) => {
   else sendNotFound(res);
 });
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`serving ${root} at http://127.0.0.1:${port}${base}`);
+server.listen(port, values.host, () => {
+  console.log(`serving ${root} at http://${values.host}:${port}${base}`);
 });
