@@ -38,12 +38,23 @@ describe("formatEuros (04 § 8, 00 § 3)", () => {
     [3.5, `3,50${NBSP}€`],
     ["6.10", `6,10${NBSP}€`],
     [999.99, `999,99${NBSP}€`],
+    // Same outputs as the old formatEuro (00 § 3) for these amounts.
+    [0.5, `0,50${NBSP}€`],
+    [4.95, `4,95${NBSP}€`],
+    [6.1, `6,10${NBSP}€`],
+    [99.9, `99,90${NBSP}€`],
+    [120.45, `120,45${NBSP}€`],
   ])("%s → %s", (value, expected) => {
     expect(formatEuros(value)).toBe(expected);
   });
 
-  it("separates thousands with U+202F beyond 999 € (E-20)", () => {
-    expect(formatEuros(1234.5)).toBe(`1 234,50${NBSP}€`);
+  // The old formatEuro wrote « 1000,00 € » and « 1188,00 € » (E-20).
+  it.each([
+    [1000, `1 000,00${NBSP}€`],
+    [1188, `1 188,00${NBSP}€`],
+    [1234.5, `1 234,50${NBSP}€`],
+  ])("separates thousands with U+202F beyond 999 € (E-20): %s → %s", (value, expected) => {
+    expect(formatEuros(value)).toBe(expected);
   });
 });
 

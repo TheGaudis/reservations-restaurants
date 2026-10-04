@@ -113,7 +113,16 @@ describe("capacity class (01 § 3.3)", () => {
     [1, 1, "available"],
     [0, 1, "full"],
     [3, 0, "available"],
-  ] as const)("%i left of %i: %s", (left, capacity, cls) => {
+    // Same classes as the old capacityClass (cap-ok, cap-low, cap-full).
+    [21, 20, "available"],
+    [9.5, 20, "almostFull"],
+    [11, 10, "available"],
+    [9.5, 10, "available"],
+    [2, 3, "available"],
+    [1, 3, "almostFull"],
+    [0, 0, "full"],
+    [-2, 0, "full"],
+  ] as const)("%d left of %d: %s", (left, capacity, cls) => {
     expect(capacityClass(left, capacity)).toBe(cls);
   });
 });

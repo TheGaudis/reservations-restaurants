@@ -139,6 +139,18 @@ describe("keyboard target (05 § 3.2)", () => {
     ["PageDown", "2026-12-15", "2027-01-15"],
     ["ArrowRight", "2026-10-25", "2026-10-26"],
     ["ArrowDown", "2026-03-25", "2026-04-01"],
+    // Sunday, year end, both clock changes of 2026, leap day; the old keyTargetIso gave the same days, except
+    // after a month end that the target month lacks (E-07).
+    ["Home", "2026-10-04", "2026-09-28"],
+    ["End", "2026-10-04", "2026-10-04"],
+    ["ArrowLeft", "2027-01-01", "2026-12-31"],
+    ["ArrowRight", "2026-12-31", "2027-01-01"],
+    ["ArrowDown", "2026-03-29", "2026-04-05"],
+    ["ArrowUp", "2026-03-30", "2026-03-23"],
+    ["PageUp", "2026-10-25", "2026-09-25"],
+    ["PageUp", "2028-02-29", "2028-01-29"],
+    ["PageDown", "2028-02-29", "2028-03-29"],
+    ["PageDown", "2026-05-31", "2026-06-30"],
   ])("%s from %s goes to %s", (key, iso, expected) => {
     expect(keyTargetIso(key, iso)).toBe(expected);
   });

@@ -160,6 +160,9 @@ describe("restoreLocalCache (03 § 1.1, PLAN § 3.3.1)", () => {
     ["a copy without r1Used", copyOf(TEST_NOW, { r1Used: undefined })],
     ["a copy with a bad date", copyOf(TEST_NOW, { r1Used: { demain: 2 } })],
     ["a copy without savedAt", copyOf(TEST_NOW, { savedAt: undefined })],
+    ["a copy of 15 days", copyOf(TEST_NOW - 15 * DAY_MS)],
+    // The old loadCache kept it; the schema requires config.
+    ["a copy without config", copyOf(TEST_NOW, { config: undefined })],
   ])("ignores %s", (_label, raw) => {
     if (raw !== null) storage.set(KEY, raw);
     const queryClient = new QueryClient();
