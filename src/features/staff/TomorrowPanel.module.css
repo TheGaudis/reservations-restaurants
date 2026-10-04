@@ -53,10 +53,13 @@
   margin-bottom: var(--space-1);
 }
 
+/* An h3 under the panel's h2, in the body font of the old bold name (07 § 5). */
 .blockName {
   margin: 0;
+  font-family: var(--font-body);
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
+  letter-spacing: normal;
   color: var(--accent);
 }
 

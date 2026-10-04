@@ -53,7 +53,7 @@ function panel() {
 
 /** Block of a restaurant: the parent of the row that holds its name (07 § 5). */
 function block(name: string) {
-  return panel().getByRole("heading", { level: 4, name }).element().parentElement?.parentElement;
+  return panel().getByRole("heading", { level: 3, name }).element().parentElement?.parentElement;
 }
 
 function printButton(name: string) {
@@ -77,14 +77,14 @@ function blockLines(name: string): string[] {
 
 async function renderPanel() {
   await renderColumn("/collegue", "r1", <TomorrowPanel />);
-  await expect.element(panel().getByRole("heading", { level: 3 })).toBeVisible();
+  await expect.element(panel().getByRole("heading", { level: 2 })).toBeVisible();
 }
 
 describe("TomorrowPanel, totals row (06 § 2.1)", () => {
   it("titles the panel with tomorrow in Paris and totals the bookings, orphans left out (E-30)", async () => {
     await renderPanel();
     await expect
-      .element(panel().getByRole("heading", { level: 3, name: "Demain (mardi 6 octobre 2026)" }))
+      .element(panel().getByRole("heading", { level: 2, name: "Demain (mardi 6 octobre 2026)" }))
       .toBeVisible();
     expect(totals()).toStrictEqual([
       ["Restaurant Pédagogique : 15 couverts réservés", "15"],

@@ -31,7 +31,7 @@ export const Tomorrow = meta.story({
     await expect(canvas.getByRole("region")).toHaveTextContent(
       "Restaurant Pédagogique : 15 couverts réservésAristide : 4 portions réservées",
     );
-    await expect(canvas.getByRole("heading", { level: 4, name: "Aristide" })).toBeVisible();
+    await expect(canvas.getByRole("heading", { level: 3, name: "Aristide" })).toBeVisible();
     await expect(canvas.getAllByRole("button", { name: "Imprimer" })).toHaveLength(2);
     await expect(
       canvas.getByText(/^Total Aristide : 4,50\s€ \+ 1 ticket restaurant$/u),

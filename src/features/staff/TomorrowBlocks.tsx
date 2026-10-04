@@ -139,7 +139,7 @@ function Block({ restaurant, name, openedBy, onPrint, children }: BlockProps) {
   return (
     <div className={styles["block"]} data-accent={restaurant}>
       <div className={styles["blockHead"]}>
-        <h4 className={styles["blockName"]}>{name}</h4>
+        <h3 className={styles["blockName"]}>{name}</h3>
         <IconButton
           aria-label={label}
           title={label}

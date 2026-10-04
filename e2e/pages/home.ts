@@ -18,9 +18,16 @@ export async function gotoHome(page: Page, search: Record<string, string> = {}):
   await page.goto(query === "" ? "./" : `./?${query}`);
 }
 
-/** Title of a column: `name1` or `name2`, the only level-2 headings of the public page (04 § 2). */
+/**
+ * Title of a column: `name1` or `name2`, the only level-2 headings of the public page (04 § 2). In staff mode, the
+ * React site titles the panel « Demain (…) » with a level-2 heading as well (heading order under the h1, S5): it is
+ * left out.
+ */
 export function columnTitle(page: Page, restaurant: Restaurant): Locator {
-  return page.getByRole("heading", { level: 2 }).nth(restaurant === "r1" ? 0 : 1);
+  return page
+    .getByRole("heading", { level: 2 })
+    .filter({ hasNotText: /^Demain \(/u })
+    .nth(restaurant === "r1" ? 0 : 1);
 }
 
 /**

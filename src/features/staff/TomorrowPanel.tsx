@@ -50,10 +50,10 @@ export function TomorrowPanel() {
   const { name1, name2, seats, portions } = useStaffState((state) => totalsOf(state, tomorrow));
   return (
     <section className={styles["panel"]} aria-labelledby={titleId}>
-      {/* h3 as in the old page (06 § 2.1): the h2 headings are the column titles. */}
-      <h3 id={titleId} className={styles["title"]}>
+      {/* h2 right under the page's h1, before the column titles (axe `heading-order`, PLAN § 1.5, S5). */}
+      <h2 id={titleId} className={styles["title"]}>
         {intl.formatMessage(messages.title, { date: formatLongDate(tomorrow) })}
-      </h3>
+      </h2>
       <div className={styles["totals"]}>
         <p className={styles["total"]}>
           <FormattedMessage
