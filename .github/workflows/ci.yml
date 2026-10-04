@@ -107,9 +107,9 @@ jobs:
     permissions:
       contents: read
     env:
-      # Tags of the regression scenarios already green on the React build (PLAN § 3.1: filtered until P7).
-      # Empty: the react project does not run. Example: "@G-01|@G-03|@G-07".
-      E2E_REACT_GREP: ""
+      # Regression scenarios already green on the React build (PLAN § 3.1: filtered until P7), by id or title.
+      # Empty: the react project does not run. P4 (b): loading, calendars, day cards, midnight.
+      E2E_REACT_GREP: "REG-0[1-7]|REG-09|REG-1[0-2]|REG-14|REG-21|REG-26|REG-43|midnight (reaches|without)|publicPageFromFakeScript|@framework"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
