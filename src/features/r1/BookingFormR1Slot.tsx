@@ -1,5 +1,5 @@
 import { useSelectedDay } from "@/features/calendar/page-search";
-import { useBookingFormR1Module } from "@/features/r1/load-booking-form";
+import { bookingFormR1Chunk, useChunk } from "@/features/page/lazy-chunks";
 import { Spinner } from "@/ui/feedback/Spinner";
 
 import styles from "@/features/r1/BookingFormR1.module.css";
@@ -11,7 +11,7 @@ import styles from "@/features/r1/BookingFormR1.module.css";
  */
 export function BookingFormR1Slot() {
   const date = useSelectedDay("r1");
-  const module = useBookingFormR1Module();
+  const module = useChunk(bookingFormR1Chunk);
   if (module === null) {
     return (
       <div className={styles["pending"]}>

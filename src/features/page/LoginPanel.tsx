@@ -6,7 +6,7 @@ import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/page/ModeSwitch.module.css";
 
-// Login panel of the mode switch, in a chunk of its own (`load-login-panel.ts`): TanStack Form and the fields of
+// Login panel of the mode switch, in a chunk of its own (`lazy-chunks.ts`): TanStack Form and the fields of
 // `ui/form/` stay out of the initial path of a public visitor (S3, R-15).
 
 const messages = defineMessages({

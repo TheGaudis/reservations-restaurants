@@ -5,7 +5,7 @@ import { defineMessages, useIntl } from "react-intl";
 import { PasswordRejectedError } from "@/api/errors";
 import { publicSearch } from "@/domain/navigation";
 import type { PageSearchParams } from "@/domain/navigation";
-import { loadLoginPanel, useLoginPanelModule } from "@/features/page/load-login-panel";
+import { loginPanelChunk, useChunk } from "@/features/page/lazy-chunks";
 import type { LoginPanelProps } from "@/features/page/LoginPanel";
 import { useLogin } from "@/mutations/login";
 import { useIsFromCache } from "@/queries/use-app-state";
@@ -83,7 +83,7 @@ interface LoginSearch extends PageSearchParams {
 
 /** The login panel once its chunk is there (TanStack Form and the fields stay out of the initial path, S3). */
 function LoginPanelSlot(props: Omit<LoginPanelProps, "takeFocus">) {
-  const module = useLoginPanelModule();
+  const module = useChunk(loginPanelChunk);
   if (module === null) return null;
   return <module.LoginPanel {...props} takeFocus={takeFieldFocus} />;
 }
@@ -160,7 +160,7 @@ export function ModeSwitch() {
   const choose = (mode: Mode) => {
     if (mode === "staff") {
       focusPasswordField = true;
-      void loadLoginPanel();
+      loginPanelChunk.load();
       void navigate({
         to: ".",
         search: (previous) => ({ ...previous, connexion: true }),
