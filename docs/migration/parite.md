@@ -86,7 +86,7 @@ Phases de sortie : `@p4` = REG-01 à REG-26 et REG-43 ; `@p5` = REG-27 à REG-38
 | REG-26 | `r2ParisTime` | P-12, P-15 | `@changed:E-01` `@p4` | `timezoneId: 'America/New_York'` à 10 h 30 heure de Paris : « Réserver » présent (`legacy`) ou note de clôture (`react`) | 2026-10-05T08:30:00Z |
 | REG-27 | `loginPanel` | L-01, G-02, G-06, G-08 | `@changed:E-04` `@changed:E-02` `@changed:E-23` `@p5` | Avec la copie locale et le GET retenu : connexion refusée (« Les données se chargent. Réessayez dans un instant. »). Puis : œil (`aria-label`), Échap → focus sur « Client », mauvais mot de passe ×2 à 3 s d'écart (toasts qui se chevauchent sur `legacy`, un seul sur `react`), erreur réseau → « Erreur de connexion. Réessayez. », succès → « Mode collègue activé. », focus sur « Collègue » ; voile (`legacy`) ou bouton occupé (`react`) ; URL `/collegue` sur `react` | `TEST_NOW` |
 | REG-28 | `staffGuardReload` | G-08 | `@changed:E-23` `@p5` | Rechargement de `/collegue?r1=2026-10-06&editResa=r1:{id}` : retour au mode client (`legacy`) ; connexion puis retour exact (`react`) | `TEST_NOW` |
-| REG-29 | `logoutPurgeAndPanels` | C-30, C-02, C-05 | `@changed:E-24` `@changed:E-17` `@changed:E-08` `@p5` | Paramètres et sélecteur ouverts, clic « Client » : toast, aucun nom dans le DOM ; une actualisation 3 min plus tard (absente sur `legacy`, a-13) ; reconnexion : panneaux rouverts (`legacy`) ou fermés (`react`) ; `localStorage` : copie sans etag (`legacy`) ou avec `E1` (`react`). Variante `react` : déconnexion pendant une écriture collègue retenue par `hold()`, puis réponse → aucun nom dans le DOM ni dans le cache (F-02) | `install` + `runFor('03:00')` |
+| REG-29 | `logoutPurgeAndPanels` | C-30, C-02, C-05 | `@changed:E-24` `@changed:E-17` `@changed:E-08` `@changed:E-55` `@p5` | Paramètres et sélecteur ouverts, clic « Client » : toast, aucun nom dans le DOM ; une actualisation 3 min plus tard (absente sur `legacy`, a-13) ; reconnexion : panneaux rouverts (`legacy`) ou fermés (`react`) ; `localStorage` : copie sans etag (`legacy`) ou avec `E1` (`react`). Variante : déconnexion pendant une écriture collègue retenue par `hold()`, puis réponse → aucun nom dans le DOM ni dans le cache (F-02) ; toast « Jour modifié. » sur `legacy`, aucun toast sur `react` (`@changed:E-55`) | `install` + `runFor('03:00')` |
 | REG-30 | `inactivityLogoutJourney` | C-04, C-12, C-30, invariant 1 | `@parity` `@p5` | Connexion → ouvrir un jour → ajouter une personne → activité à 9 min (repousse) → `fastForward('10:01')` → toast « Déconnecté du mode collègue après 10 minutes d'inactivité. », plus aucun nom | `install` + `fastForward` |
 | REG-31 | `passwordChanged` | C-30 | `@parity` `@p5` | Après la connexion, `fakeScript.setPassword('autre')` ; actualisation suivante → toast d'erreur exact, mode client, GET public | `install` + `runFor('03:00')` |
 | REG-32 | `settingsPanel` | C-02 | `@parity` `@changed:E-18` `@changed:E-37` `@changed:E-40` `@p5` | Aucune modification → « Aucune modification à enregistrer. » ; `name2` et `priceEleve` modifiés → 2 `setConfigField` en séquence, toast pluriel, titres et sous-titre mis à jour, `<h1>` « … et Aristide » (`legacy`) ou « … et {name2} » (`react`) ; `desc2` vidé (ignoré sur `legacy`, envoyé `""` sur `react`) ; nom vidé refusé sur `react` ; échec du 2e champ → détail sur `react` ; `reservations-textes` écrite (`legacy`) ou non (`react`) ; assertion commune : panneau resté ouvert après succès | `TEST_NOW` |
@@ -125,6 +125,7 @@ Pour revenir sous 40 scénarios, on peut fusionner REG-03 dans REG-02, REG-06 da
 | E-15 | REG-40 | E-32 | REG-13 | E-49 | n/a |
 | E-16 | REG-41, REG-42 | E-33 | REG-19 | E-50 | REG-22 |
 | E-17 | REG-29 | E-34 | REG-15, REG-22 | E-54 | REG-25 |
+| E-55 | REG-29 | | | | |
 
 ## 5. Matrice par identifiant de `09`
 
@@ -135,11 +136,11 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
 | G-01 | REG-01, REG-03 | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-01 et les quatre variantes de REG-03 | stories `PageSkeleton`, tests de `Page` et `-routes.test.tsx` ; S4 (`e2e/hydration.spec.ts`) | E-45 |
-| G-02 | REG-02, REG-05, REG-27 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | partiel (P4 (b), 4 oct.) : REG-02 et REG-05 verts ; REG-27 en P5 (a) | test de `useIsFromCache` ; S4 | E-47 |
+| G-02 | REG-02, REG-05, REG-27 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | vert (P5 (a), 4 oct.) : REG-02, REG-05, REG-27 (connexion refusée sur la copie) | test de `useIsFromCache` ; S4 | E-47 |
 | G-03 | REG-04, REG-05, REG-06 | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-04, REG-05, REG-06 | stories et tests `LoadErrorBox` (en ligne, hors ligne, copie, « Réessayer »), stories `Page` | E-42 |
 | G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-01, REG-08, `smoke.spec.ts` et tous les scénarios publics `@p4` | stories de `Page` | E-08 |
 | G-05 | REG-07 | `@legacy-only` | vert (P1 (b), 3 oct.) | sans objet ; variante `react` de REG-07 verte (P4 (a), 4 oct.) | stories et test Vitest de `ConfigBanner` (P4 (a)) | E-29 |
-| G-07 | REG-27, REG-17 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | partiel (P4 (c), 4 oct.) : REG-17 vert (toast de succès, un seul toast) ; aucun scénario étiqueté `@G-07` ; REG-27 en P5 (a) | stories et tests de `Toaster` | E-02 |
+| G-07 | REG-27, REG-17 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | vert (P5 (a), 4 oct.) : REG-17, REG-27 (un seul toast, E-02) ; aucun scénario étiqueté `@G-07` | stories et tests de `Toaster` | E-02 |
 | P-01 | REG-09, REG-11, REG-12 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-09, REG-11, REG-12 | table des touches de `CalendarGrid` ; tests et stories de `RestaurantCalendar` | E-05, E-07, E-21 |
 | P-01b | REG-09 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-09 | story « semaine » ; tests de `RestaurantCalendar` | E-06 |
 | P-02 | REG-10, REG-11 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-10, REG-11 | story « mois » ; tests de `RestaurantCalendar` | E-23 |
@@ -166,26 +167,26 @@ Fichiers (P1 (c)) : `staff-access.spec.ts` REG-27, REG-28 ; `staff-session.spec.
 
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
-| G-06 | REG-27, REG-35 | `@changed` | vert (P1 (c), 3 oct.) | à faire | — (disparu) | E-04 |
-| G-08 | REG-27, REG-28 | `@changed` | vert (P1 (c), 3 oct.) | à faire | test de la garde de `/collegue` | E-23 |
-| L-01 | REG-27 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `ModeSwitch` | E-02, E-04 |
+| G-06 | REG-27, REG-35 | `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (a), 4 oct.) : REG-27 vert (bouton occupé, aucun voile) ; REG-35 attend P5 (b) et (d1) | — (disparu) | E-04 |
+| G-08 | REG-27, REG-28 | `@changed` | vert (P1 (c), 3 oct.) | partiel (P5 (a), 4 oct.) : REG-27 vert (URL `/collegue`) ; REG-28 attend « Modifier » d'une ligne (P5 (d1)) ; garde et retour exact verts dans `e2e/staff-session.spec.ts` (`react-only`) | `routes/-collegue.test.tsx` (garde, schéma, chargeur) | E-23 |
+| L-01 | REG-27 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | vert (P5 (a), 4 oct.) : les quatre tests de REG-27 | stories et tests de `ModeSwitch` | E-02, E-04 |
 | C-02 | REG-32, REG-29 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `SettingsPanel` | E-18, E-37, E-40 |
 | C-04 | REG-33, REG-30 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `OpenDayFormR1` | E-36 |
 | C-05 | REG-33, REG-29 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `DatePickerPopover` | E-05 |
 | C-06 | REG-34 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `OpenDayFormR2` | E-36, E-39 |
-| C-10 | REG-35, REG-33 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de la fiche R1 collègue | E-36, E-38 |
-| C-10b | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire | story de la fiche R1 collègue sans service | — |
+| C-10 | REG-35, REG-33 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire (cadre de la fiche et « Ouvert par » en P5 (a)) | story `StaffDayCardR1` `OpenDay` | E-36, E-38 |
+| C-10b | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire (message fait en P5 (a), REG-35 attend P5 (b) et (d1)) | stories `StaffDayCardR1` et `StaffDayCardR2` `NoService` ; `routes/-collegue.test.tsx` | — |
 | C-11 | REG-35 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `EditBookingFormR1` | E-48 |
 | C-12 | REG-36, REG-30 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `AddBookingFormR1` | — |
 | C-13 | REG-35 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `EditDayFormR1` | — |
 | C-14 | REG-35, REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories et tests de `ConfirmButton` | E-04, E-38 |
-| C-20 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de la fiche R2 collègue | — |
+| C-20 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire (cadre de la fiche et « Ouvert par » en P5 (a)) | story `StaffDayCardR2` `OpenDay` | — |
 | C-21 | REG-37 | `@parity` | vert (P1 (c), 3 oct.) | à faire | stories de `DishForm` (ajout) | — |
 | C-22 | REG-37 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `DishForm` (modification) | E-36, E-38 |
 | C-23 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `AddBookingFormR2` | E-36 |
 | C-24 | REG-38 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | stories de `EditBookingFormR2` | E-36 |
-| C-30 | REG-29, REG-30, REG-31 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire | test S8 (dont déconnexion pendant une écriture) | E-08, E-17, E-24 |
-| `09` § 6 | REG-27 (L-01), REG-33 (C-05), REG-35 (C-14) | — | vert (P1 (c), 3 oct.) | à faire | — | — |
+| C-30 | REG-29, REG-30, REG-31 | `@parity` + `@changed` | vert (P1 (c), 3 oct.) | à faire : REG-29 à REG-31 passent par les panneaux de P5 (b), (d1), (d2), (e) ; les trois déconnexions sont vertes dans `e2e/staff-session.spec.ts` (`react-only`, P5 (a), 4 oct.) | tests S8 de `routes/-collegue.test.tsx` et `mutations/staff/write.test.tsx` (dont déconnexion pendant une écriture retenue) | E-08, E-17, E-24 |
+| `09` § 6 | REG-27 (L-01), REG-33 (C-05), REG-35 (C-14) | — | vert (P1 (c), 3 oct.) | partiel (P5 (a), 4 oct.) : REG-27 vert | — | — |
 
 ### 5.3 Impression et invariants (P1 (d), puis P6)
 
