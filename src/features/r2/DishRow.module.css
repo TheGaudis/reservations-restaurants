@@ -24,7 +24,12 @@
   font-weight: var(--fw-semibold);
 }
 
-/* Past day (05 § 4.2): name and gauge fade, staff buttons stay sharp. */
-.row[data-past] :is(.name, .gauge) {
-  opacity: var(--past-opacity);
+/* Past day (05 § 4.2, E-56): muted name and gauge without its colour, contrast kept (08 § 8); staff buttons keep
+   their colours. */
+.row[data-past] .name {
+  color: var(--text-muted);
+}
+
+.row[data-past] .gauge {
+  filter: grayscale(1);
 }

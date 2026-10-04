@@ -54,13 +54,9 @@ export const Full = meta.story({
   },
 });
 
-/**
- * P-08: past day, faded, without button. The texts at `--past-opacity` (05 § 4.2, 08 § 1) fall under the 4.5:1 of
- * 08 § 8: contrast left out of axe for this state only (journal p4b, contradictions).
- */
+/** P-08: past day, paled without losing contrast (E-56), without button. */
 export const Past = meta.story({
   decorators: [atUrl("/?r1=2026-10-01")],
-  parameters: { a11y: { config: { rules: [{ id: "color-contrast", enabled: false }] } } },
   play: async ({ canvas }) => {
     await expect(await canvas.findByText("jeudi 1er octobre 2026")).toBeVisible();
     await expect(canvas.queryByRole("button", { name: "Réserver" })).toBeNull();

@@ -35,7 +35,7 @@ export function DayDetail({ restaurant, children }: DayDetailProps) {
 
 interface DayCardProps {
   iso: IsoDate;
-  /** Before today in Paris: the texts of the card fade (`.is-past`, 05 § 4.2); its buttons stay sharp. */
+  /** Before today in Paris: the card pales without losing contrast (`.is-past`, 05 § 4.2, E-56); buttons keep their colours. */
   past: boolean;
   /** On the right of the date: the seat gauge of R1 (05 § 5.1). */
   gauge?: ReactNode;

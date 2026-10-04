@@ -64,7 +64,17 @@
   padding: 0;
 }
 
-/* Past day (05 § 4.2): the texts fade, buttons and forms stay sharp. */
-.card[data-past] :is(.top, .block, .empty) {
-  opacity: var(--past-opacity);
+/* Past day (05 § 4.2, E-56): a neutral background, the texts in the muted colour (≥ 4.5:1 on --surface-alt in the
+   three themes, 08 § 8) and the gauges without their colour; no opacity, which broke the contrast. Buttons and forms
+   keep their colours. */
+.card[data-past] {
+  background: var(--surface-alt);
+}
+
+.card[data-past] :is(.date, .text) {
+  color: var(--text-muted);
+}
+
+.card[data-past] .top {
+  filter: grayscale(1);
 }

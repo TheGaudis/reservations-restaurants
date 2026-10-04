@@ -48,7 +48,7 @@ interface DayCardR1Props {
 /**
  * Public card of the selected R1 day (05 § 5, P-03, P-04, P-07, P-08): date and seat gauge, theme, menu, then
  * « Réserver » when seats are left and the day is not past (R1 has no time limit, 01 § 3.7). A full day says
- * « Complet. » (D-02); a past day fades and says nothing.
+ * « Complet. » (D-02); a past day pales (E-56) and says nothing.
  */
 export function DayCardR1({ form }: DayCardR1Props) {
   const intl = useIntl();

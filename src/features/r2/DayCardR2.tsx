@@ -42,7 +42,7 @@ interface DayCardR2Props {
 /**
  * Public card of the selected R2 day (05 § 6, P-10 to P-12, P-15 to P-17): date, theme, note, dishes with their
  * gauge, then « Réserver » when orders are open (before 10:00 in Paris, 01 § 3.7) and a dish has portions left. From
- * 10:00 on the day itself the closing note replaces it; every dish sold out says so (D-02); a past day fades and says
+ * 10:00 on the day itself the closing note replaces it; every dish sold out says so (D-02); a past day pales (E-56) and says
  * nothing. A day open without any dish shows its texts only.
  */
 export function DayCardR2({ form }: DayCardR2Props) {

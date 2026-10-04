@@ -23,7 +23,7 @@ interface DishRowProps {
   dish: Dish;
   /** Portions left: stock minus portions booked, negative when the stock was lowered (01 § 3.2). */
   remaining: number;
-  /** Day before today: name and gauge fade (05 § 4.2). */
+  /** Day before today: muted name, gauge without its colour (05 § 4.2, E-56). */
   past: boolean;
   /** Staff actions, forms and bookings of the dish (06 § 6-8, P5). */
   children?: ReactNode;

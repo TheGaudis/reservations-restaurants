@@ -82,7 +82,7 @@ describe("DayCardR2 states (05 § 6.5)", () => {
     await expect.element(reserve()).not.toBeInTheDocument();
   });
 
-  it("fades a past day, without button nor closing note (P-17)", async () => {
+  it("pales a past day, without button nor closing note (P-17, E-56)", async () => {
     await renderPublicPage("/?r2=2026-10-01");
     await expect.element(text("8 / 10")).toBeVisible();
     await expect.element(reserve()).not.toBeInTheDocument();

@@ -75,10 +75,17 @@ describe("DayCardR1 states (05 § 5.2)", () => {
     await expect.element(text("Complet.")).toBeVisible();
   });
 
-  it("fades a past day, with neither button nor sentence (P-08, E-21)", async () => {
+  it("pales a past day, with neither button nor sentence (P-08, E-21, E-56)", async () => {
     await renderPublicPage("/?r1=2026-10-01");
     await expect.element(text("jeudi 1er octobre 2026")).toBeVisible();
     await expect.element(text("16 / 20 couverts")).toBeVisible();
+    // E-56: no opacity on the way from the date to the page, so the contrast of the muted colour holds (08 § 8).
+    const date = text("jeudi 1er octobre 2026").element();
+    const opacities: string[] = [];
+    for (let node: Element | null = date; node !== null; node = node.parentElement) {
+      opacities.push(getComputedStyle(node).opacity);
+    }
+    expect(opacities.every((opacity) => opacity === "1")).toBe(true);
     await expect.element(reserve()).not.toBeInTheDocument();
     await expect.element(text("Complet.")).not.toBeInTheDocument();
   });
