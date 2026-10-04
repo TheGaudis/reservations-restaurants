@@ -6,9 +6,8 @@ import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useDeleteDay } from "@/mutations/staff/days";
-import { staffErrorText } from "@/mutations/staff/write";
+import { showStaffError } from "@/mutations/staff/write";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
-import { showToast } from "@/ui/feedback/toast";
 
 interface DeleteDayButtonProps {
   restaurant: Restaurant;
@@ -37,8 +36,7 @@ export function DeleteDayButton({ restaurant, iso }: DeleteDayButtonProps) {
       await remove.mutateAsync(iso);
       focusCardDate(restaurant);
     } catch (error) {
-      const text = staffErrorText(error);
-      if (text !== null) showToast(text, "error");
+      showStaffError(error);
     }
   }
   return (

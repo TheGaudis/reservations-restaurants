@@ -7,18 +7,25 @@ import { Button } from "@/ui/button/Button";
 import { useFormContext } from "@/ui/form/form-context";
 import { SubmitButton } from "@/ui/form/SubmitButton";
 
-/**
- * « Enregistrer » (busy: « Enregistrement… ») and « Annuler », disabled while sending (E-13), inside the `Form` of an
- * edit form (06 § 7.3, § 7.4).
- */
-export function EditBookingActions({ onCancel }: { onCancel: () => void }) {
+interface FormActionsProps {
+  onCancel: () => void;
+  /** Defaults to « Enregistrer » (06 § 7.3). */
+  submitLabel?: string;
+  /** Defaults to « Enregistrement… » (08 § 4.2). */
+  pendingLabel?: string;
+}
+
+/** Submit button and « Annuler », disabled while sending (E-13), inside the `Form` of a staff form. */
+export function FormActions({
+  onCancel,
+  submitLabel = intl.formatMessage(commonMessages.save),
+  pendingLabel = intl.formatMessage(commonMessages.saving),
+}: FormActionsProps) {
   const form = useFormContext();
   const sending = useSelector(form.store, (state) => state.isSubmitting);
   return (
     <DayActions>
-      <SubmitButton pendingLabel={intl.formatMessage(commonMessages.saving)}>
-        {intl.formatMessage(commonMessages.save)}
-      </SubmitButton>
+      <SubmitButton pendingLabel={pendingLabel}>{submitLabel}</SubmitButton>
       <Button variant="ghost" disabled={sending} onClick={onCancel}>
         {intl.formatMessage(commonMessages.cancel)}
       </Button>

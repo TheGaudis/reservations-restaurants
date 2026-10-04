@@ -25,10 +25,9 @@ import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useAddDish, useDeleteDish, useEditDish } from "@/mutations/staff/dishes";
-import { staffErrorText } from "@/mutations/staff/write";
+import { showStaffError } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
-import { showToast } from "@/ui/feedback/toast";
 
 import styles from "@/features/staff/DishForm.module.css";
 
@@ -89,12 +88,6 @@ function useCloseForm() {
   };
 }
 
-/** Toast of a failed dish write: the script's message as is (« Plat introuvable. »), or D-14. */
-function showFailure(error: unknown) {
-  const text = staffErrorText(error);
-  if (text !== null) showToast(text, "error");
-}
-
 /** « Supprimer ce plat » (06 § 6.4): two clicks; the armed button details the bookings left orphaned (D-21, E-38). */
 function DeleteDishButton({ dish }: { dish: Dish }) {
   const intl = useIntl();
@@ -111,7 +104,7 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
       await remove.mutateAsync(dish.id);
       focusCardDate("r2");
     } catch (error) {
-      showFailure(error);
+      showStaffError(error);
     }
   }
   return (
@@ -180,7 +173,7 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
         try {
           await edit.mutateAsync({ ...input, dishId: dish.id }, { onSuccess: close });
         } catch (error) {
-          showFailure(error);
+          showStaffError(error);
         }
       }}
       cancel={close}
@@ -220,7 +213,7 @@ function AddDishFormOpen({ iso }: { iso: IsoDate }) {
         try {
           await add.mutateAsync({ ...input, date: iso }, { onSuccess: close });
         } catch (error) {
-          showFailure(error);
+          showStaffError(error);
         }
       }}
       cancel={close}

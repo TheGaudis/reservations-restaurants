@@ -12,18 +12,17 @@ import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { SeatCountersR1 } from "@/features/r1/SeatCountersR1";
 import { editResaValue } from "@/features/staff/booking-line";
 import { editIdentityErrors, identityOf, useCloseEditBooking } from "@/features/staff/edit-booking";
-import { EditBookingActions } from "@/features/staff/EditBookingActions";
 import {
   EditContactField,
   EditNameFields,
   EditObservationField,
 } from "@/features/staff/EditBookingFields";
+import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { isCapacityRefusal, useEditBookingR1 } from "@/mutations/staff/bookings";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
+import { showStaffError } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
@@ -123,8 +122,7 @@ function useEditFormR1(booking: BookingR1, close: () => void) {
             externals: message,
           });
         } else {
-          const text = staffErrorText(error);
-          if (text !== null) showToast(text, "error");
+          showStaffError(error);
         }
       } finally {
         slowWrite.stop();
@@ -166,7 +164,7 @@ export function EditBookingFormR1({ booking, opener }: EditBookingFormR1Props) {
         help={help}
       />
       <EditObservationField form={form} fields={OBSERVATION} />
-      <EditBookingActions onCancel={close} />
+      <FormActions onCancel={close} />
       <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
     </Form>
   );

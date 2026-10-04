@@ -8,17 +8,15 @@ import type { EditDayR1Input, StaffServiceDayR1 } from "@/domain/types";
 import { compose, parseCount, positiveInteger, required } from "@/domain/validation";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { DayActions } from "@/features/calendar/DayCard";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { dayMessages } from "@/features/staff/day-messages";
+import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useEditDayR1 } from "@/mutations/staff/days";
-import { staffErrorText } from "@/mutations/staff/write";
+import { showStaffError } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
-import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
@@ -133,8 +131,7 @@ function useEditDayFormR1(day: StaffServiceDayR1) {
         if (error instanceof BusinessError && !(error instanceof PasswordRejectedError)) {
           setServerErrors(formApi, { capacity: error.message });
         } else {
-          const text = staffErrorText(error);
-          if (text !== null) showToast(text, "error");
+          showStaffError(error);
         }
       } finally {
         slowWrite.stop();
@@ -167,18 +164,7 @@ function EditDayFormBody({ day }: EditDayR1Props) {
       <form.AppField name="menu">
         {(field) => <field.TextField label={formatMessage(dayMessages.menuLabel)} />}
       </form.AppField>
-      <DayActions>
-        <form.SubmitButton pendingLabel={formatMessage(commonMessages.saving)}>
-          {formatMessage(commonMessages.save)}
-        </form.SubmitButton>
-        <form.Subscribe selector={(state) => state.isSubmitting}>
-          {(sending) => (
-            <Button variant="ghost" disabled={sending} onClick={close}>
-              {formatMessage(commonMessages.cancel)}
-            </Button>
-          )}
-        </form.Subscribe>
-      </DayActions>
+      <FormActions onCancel={close} />
       <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
     </Form>
   );

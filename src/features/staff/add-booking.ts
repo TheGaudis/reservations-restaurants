@@ -7,8 +7,6 @@ import type { Restaurant, WriteResponse } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
 import type { ToastKind } from "@/ui/feedback/toast";
 
 // « + Ajouter une personne » (06 § 8): the form open is the search param `ajout` (`r1`, or `r2:{dish id}`, PLAN § 3.2),
@@ -95,10 +93,4 @@ export function addedToast(
   // Two sentences, as the old page joined them (collegue.js, afterAddBooking).
   const failure = intl.formatMessage(staffCommonMessages.emailFailed);
   return { text: `${success} ${failure}`, kind: "error" };
-}
-
-/** Failed addition: the script's message as is, else the staff text of D-14 (06 § 8.5); the form stays open. */
-export function showAddFailure(error: unknown) {
-  const text = staffErrorText(error);
-  if (text !== null) showToast(text, "error");
 }

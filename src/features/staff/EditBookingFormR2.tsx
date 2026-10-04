@@ -9,20 +9,19 @@ import { dayHasVoucher } from "@/domain/vouchers";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { editResaValue } from "@/features/staff/booking-line";
+import { modeOptions, portionsError } from "@/features/staff/booking-r2";
 import { editIdentityErrors, identityOf, useCloseEditBooking } from "@/features/staff/edit-booking";
-import { EditBookingActions } from "@/features/staff/EditBookingActions";
 import {
   EditContactField,
   EditNameFields,
   EditObservationField,
 } from "@/features/staff/EditBookingFields";
+import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { isCapacityRefusal, useEditBookingR2 } from "@/mutations/staff/bookings";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
+import { showStaffError } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
@@ -46,14 +45,6 @@ const NAME = { name: "name", className: "className" } as const;
 const CONTACT = { contact: "contact" } as const;
 const OBSERVATION = { observation: "observation" } as const;
 
-/** Portions: at least 1, at most the stock left plus the booking's own portions (06 § 7.4, D-19). */
-function portionsError(portions: number | null, max: number): string | undefined {
-  const count = portions ?? 0;
-  if (count <= 0) return intl.formatMessage(staffCommonMessages.quantityRequired);
-  if (count > max) return intl.formatMessage(commonMessages.maxPortions, { count: max });
-  return undefined;
-}
-
 /** Rules of 06 § 7.2 and § 7.4 in one validator. */
 function editR2Rules(value: EditR2Values, max: number) {
   const portions = portionsError(value.portions, max);
@@ -62,13 +53,6 @@ function editR2Rules(value: EditR2Values, max: number) {
     ...(portions === undefined ? {} : { portions }),
   };
   return Object.keys(fields).length === 0 ? undefined : { fields };
-}
-
-/** « À emporter » and « Sur place »; « Sur place » alone on a voucher day (D-19, invariant 5). */
-function modeOptions(voucherDay: boolean): Array<{ value: ServiceMode; label: string }> {
-  const dineIn = { value: "dineIn" as const, label: intl.formatMessage(commonMessages.dineIn) };
-  if (voucherDay) return [dineIn];
-  return [{ value: "takeaway", label: intl.formatMessage(commonMessages.takeaway) }, dineIn];
 }
 
 function useEditFormR2(booking: BookingR2, close: () => void) {
@@ -101,8 +85,7 @@ function useEditFormR2(booking: BookingR2, close: () => void) {
         if (isCapacityRefusal(error)) {
           setServerErrors(formApi, { portions: error.message });
         } else {
-          const text = staffErrorText(error);
-          if (text !== null) showToast(text, "error");
+          showStaffError(error);
         }
       } finally {
         slowWrite.stop();
@@ -158,7 +141,7 @@ export function EditBookingFormR2({ booking, dish, opener }: EditBookingFormR2Pr
         )}
       </form.AppField>
       <EditObservationField form={form} fields={OBSERVATION} />
-      <EditBookingActions onCancel={close} />
+      <FormActions onCancel={close} />
       <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
     </Form>
   );

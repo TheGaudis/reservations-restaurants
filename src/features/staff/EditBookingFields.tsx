@@ -7,7 +7,7 @@ import { withFieldGroup } from "@/ui/form/app-form";
 import styles from "@/features/staff/EditBookingForm.module.css";
 
 // Fields shared by the two edit forms of a booking (06 § 7.2-7.4); their rules and the closing of the form are in
-// edit-booking.ts, the buttons in EditBookingActions.tsx.
+// edit-booking.ts, the buttons in FormActions.tsx.
 
 const nameDefaults: Pick<IdentityValues, "name" | "className"> = { name: "", className: "" };
 

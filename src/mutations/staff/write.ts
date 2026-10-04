@@ -105,3 +105,9 @@ export function staffErrorText(error: unknown): string | null {
   if (error instanceof PasswordRejectedError) return null;
   return errorMessage(error) ?? intl.formatMessage(staffCommonMessages.serviceUnavailable);
 }
+
+/** Error toast of a failed staff write (`staffErrorText`); nothing for a refused password. */
+export function showStaffError(error: unknown): void {
+  const text = staffErrorText(error);
+  if (text !== null) showToast(text, "error");
+}

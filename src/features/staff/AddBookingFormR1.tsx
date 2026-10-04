@@ -17,13 +17,16 @@ import {
   addFormId,
   addFormTarget,
   ajoutValue,
-  showAddFailure,
   useCloseAddBooking,
 } from "@/features/staff/add-booking";
-import { AddBookingActions, AddPersonButton } from "@/features/staff/AddBookingParts";
+import { AddPersonButton } from "@/features/staff/AddBookingParts";
 import { focusFirstField } from "@/features/staff/dish-focus";
+import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
+import { intl } from "@/intl/intl";
+import { staffCommonMessages } from "@/intl/staff-messages";
 import { isSeatsRefusal, useBookR1 } from "@/mutations/bookings";
+import { showStaffError } from "@/mutations/staff/write";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
@@ -106,7 +109,7 @@ function useAddFormR1(day: StaffServiceDayR1) {
             externals: message,
           });
         } else {
-          showAddFailure(error);
+          showStaffError(error);
         }
       } finally {
         slowWrite.stop();
@@ -129,7 +132,11 @@ function AddBookingFormR1Open({ day }: AddBookingR1Props) {
         <IdentityFields form={form} fields={IDENTITY} variant="staffAdd" />
         <SeatCountersR1 form={form} fields={SEATS} max={max} prices={prices} errorId={errorId} />
         <ObservationField form={form} fields={OBSERVATION} />
-        <AddBookingActions onCancel={close} />
+        <FormActions
+          onCancel={close}
+          submitLabel={intl.formatMessage(staffCommonMessages.addPersonSubmit)}
+          pendingLabel={intl.formatMessage(staffCommonMessages.adding)}
+        />
         <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
       </Form>
     </div>

@@ -21,8 +21,7 @@ import { EditBookingFormR1 } from "@/features/staff/EditBookingFormR1";
 import { EditBookingFormR2 } from "@/features/staff/EditBookingFormR2";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { useDeleteBooking } from "@/mutations/staff/bookings";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
+import { showStaffError } from "@/mutations/staff/write";
 
 import styles from "@/features/staff/BookingList.module.css";
 
@@ -44,8 +43,7 @@ function useDeleteFromList(restaurant: Restaurant) {
         focusCardDate(restaurant);
       },
       onError: (error) => {
-        const text = staffErrorText(error);
-        if (text !== null) showToast(text, "error");
+        showStaffError(error);
       },
     });
   };
