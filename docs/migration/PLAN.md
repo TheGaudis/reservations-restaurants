@@ -3,6 +3,7 @@
 *Rédigé le 3 octobre 2026. Feuille de route des sessions d'implémentation (humaines ou agents). Branche d'intégration : `claude/frontend-react-migration-lw5zfz`.*
 
 **Journal du plan** (le plus récent en tête) :
+- Exécution, 4 octobre 2026 (orchestrateur) : P4 (b) fusionnée (`5fd5baf`). Écart E-56 ajouté (jour passé pâli sans perte de contraste, arbitrage de l'orchestrateur contre une exception à S5). Reportés : notifications de Query en microtâche (§ 3.3) ; `getRouter()` démarre déjà les tâches de fond dans le navigateur (horloge pour minuit et 10 h, déconnexion, inactivité) : P5 (a) n'a plus qu'à vérifier leur branchement ; ‹ ›, « Semaine / Mois », « Aujourd'hui », « Réserver » et les cases du calendrier naviguent dans leur gestionnaire de clic (`IconButton` et `Button` ne rendent pas de lien).
 - Exécution, 4 octobre 2026 (orchestrateur) : P4 (a) fusionnée (`09247a6`), reprise après un redémarrage de la session. Reportés : loader de `/` qui n'attend jamais le script (§ 3.2, § 3.3.1 étape 4, § 3.9 G-03), ordre `stripSearchParams` puis `retainSearchParams` (§ 3.2), `Toaster` monté dans son propre élément après `.app-root` (prop `container`). Arbitrage sur REG-03 (d) (`@changed:E-45`) : la variante `react` clique sur « Réessayer » après l'encadré, puis attend la fiche ; la variante `legacy` ne change pas.
 - Exécution, 3 octobre 2026 (orchestrateur) : P0 (b) a réussi l'essai de la barrière client-only. Sur la route `/`, `useHydrated()` fait rendre exactement `PageSkeleton` pendant l'hydratation, ce qui permet `pendingMinMs: 0` sans erreur #418 (contenu à 127 ms, 628 ms avec CPU ×6, 10 chargements sans #418). La barrière est retenue (arbitrage 16 bis). `pendingMinMs: 0` **sans** barrière reste interdit, comme `onRecoverableError`. Sections mises à jour : § 0, § 3.2, § 3.3.1, § 3.9, E-47, P4, annexe C.
 - Révision du 3 octobre 2026 (relecture) : arbitrage 16 + synthèse des corrections C/F/X/faisabilité.
@@ -434,6 +435,7 @@ Réglages par défaut (`queries/client.ts`) :
 | `retry` (lectures) | `(n, e) => n < 1 && !(e instanceof BusinessError) && navigator.onLine` | un seul nouvel essai, jamais pour une erreur du script, pas hors ligne (`02` § 1.5) ; dans les défauts du client pour que les tests puissent le neutraliser |
 | `retryDelay` | `1500` | `02` § 1.5 |
 | `refetchIntervalInBackground` | `false` | pause quand l'onglet est caché |
+| Notifications des observateurs | `notifyManager.setScheduler(queueMicrotask)` | un `setTimeout(0)` attend le prochain `runFor` d'une horloge en pause (REG-03) ; P4 (b) |
 | mutations : `retry` / `networkMode` | `false` / `'always'` | jamais de rejeu ; hors ligne, erreur immédiate au lieu d'une mise en pause qui repartirait seule |
 | `QueryCache` et `MutationCache` `onError` | `PasswordRejectedError` → `session.close('password-changed')` | remplace `adminSessionExpired` (`02` § 2) |
 
@@ -917,6 +919,7 @@ Liste fermée : un comportement de l'ancien site ne change que s'il figure ici. 
 | E-53 | Sélecteur de date C-05 | inséré dans le panneau « Ouvrir un jour », pousse le formulaire vers le bas | s'ouvre en popover (Base UI `Popover`) au-dessus du formulaire ; Échap, clic extérieur et retour du focus gérés | § 3.5 ; relevé par P3 (c) | n/a |
 | E-54 | Changement de jour à minuit | les calendriers gardent le jour sélectionné au chargement jusqu'au prochain rendu (une actualisation `{ unchanged }` ne rend rien) ; la fiche d'hier garde « Réserver » jusqu'au premier clic | les calendriers sans `r1` / `r2` dans l'URL passent au nouveau jour à minuit pile, sans rechargement ; un formulaire ouvert garde sa date | PLAN § 3.4 ; relevé par P1 (d) | REG-25 |
 | E-55 | Écriture collègue qui répond après la déconnexion | toast de succès affiché quand même (« Jour modifié. »…) | réponse jetée par la garde de session (§ 3.3.3, F-02) : ni toast, ni écriture dans le cache | invariant 1 ; relevé par P1 (c) ; P5 (a) l'étiquette dans la variante `react` de REG-29 et remplace « n/a » par REG-29 | n/a |
+| E-56 | Fiche d'un jour passé (`05` § 4.2) | opacité 0,55 sur toute la fiche (contraste du texte 2,3 à 3,6:1) | pâleur sans opacité : fond `--surface-alt`, textes en `--text-muted` (5,2 à 6,1:1), jauges en niveaux de gris ; « passé » reste dans l'`aria-label` de la case | charte (`08` § 8) et S5 sans exception ; relevé par P4 (b) | n/a (axe dans les stories P-08 et P-17) |
 
 ### 4.3 Traitement des points a-*
 
@@ -963,7 +966,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | terminé le 3 oct. : (a1) `d56570a`, (a2) `00564a4`, (b) `2f8304a`, (c) `51e414a`, (d) `48d61c7` ; suite `legacy` complète verte |
 | P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | terminé le 3 oct. : (a) `7aa65f1`, (b1) `e3acf36`, (c) `ef81bc7`, (b2) `3298501` |
 | P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | terminé le 3 oct. : (0) `554fad8`, (a) `366502a`, (b) `ad7fa45`, (c) `ff8e301` |
-| P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | en cours : (a) `09247a6` le 4 oct. |
+| P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | en cours : (a) `09247a6`, (b) `5fd5baf` le 4 oct. |
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | à faire |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | à faire |
 | P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | à faire |
