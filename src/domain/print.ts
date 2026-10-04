@@ -4,9 +4,18 @@
 import { findDay } from "@/domain/capacity";
 import { addAmounts, orderAmounts, r2Amounts } from "@/domain/pricing";
 import type { Amounts } from "@/domain/pricing";
-import type { BookingR1, BookingR2, Dish, FullState, IsoDate, ServiceMode } from "@/domain/types";
+import type {
+  BookingR1,
+  BookingR2,
+  Dish,
+  FullState,
+  IsoDate,
+  ServiceMode,
+  StaffServiceDayR1,
+} from "@/domain/types";
 
 export type PrintStateR1 = Pick<FullState, "r1Days" | "r1Bookings">;
+export type ListStateR1 = PrintStateR1 & Pick<FullState, "settings">;
 export type PrintStateR2 = Pick<FullState, "dishes" | "r2Bookings">;
 
 /** Totals of an R1 list (07 § 3, § 5, § 6). */
@@ -83,6 +92,30 @@ export function r1Totals(bookings: readonly BookingR1[]): R1Totals {
   totals.detailed =
     totals.seats > 0 && totals.students + totals.staffMembers + totals.externals === totals.seats;
   return totals;
+}
+
+/**
+ * What an R1 document prints for `iso`, read from the full state at the click (PLAN § 3.8): the day, or undefined
+ * once deleted, its bookings in the order of the sheet and their totals (07 § 3, § 6).
+ */
+export interface ListR1 {
+  iso: IsoDate;
+  restaurantName: string;
+  day: StaffServiceDayR1 | undefined;
+  bookings: BookingR1[];
+  totals: R1Totals;
+}
+
+/** Snapshot of the R1 list or tomorrow summary of `iso` (07 § 3, § 6). */
+export function listR1(state: ListStateR1, iso: IsoDate): ListR1 {
+  const bookings = bookingsForDayR1(state, iso);
+  return {
+    iso,
+    restaurantName: state.settings.name1,
+    day: findDay(state.r1Days, iso),
+    bookings,
+    totals: r1Totals(bookings),
+  };
 }
 
 /** Seats booked over capacity of an open R1 day ("Places", 07 § 3, § 6); null when the day is not open. */

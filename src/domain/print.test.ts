@@ -4,6 +4,7 @@ import {
   bookingsForDayR1,
   bookingsForDish,
   dishTotals,
+  listR1,
   ordersForDay,
   r1Totals,
   r2DayTotals,
@@ -77,6 +78,20 @@ describe("R1 lists (07 § 3, § 5, § 6)", () => {
       detailed: false,
       price: 0,
     });
+  });
+
+  it("takes the snapshot of a list: name, day, bookings of the day and totals (PLAN § 3.8)", () => {
+    const list = listR1(state, TOMORROW);
+    expect(list.restaurantName).toBe("Restaurant Pédagogique");
+    expect(list.day).toStrictEqual(staffDayR1(TOMORROW, 20, "M. Dupont"));
+    expect(list.bookings.map((booking) => booking.id)).toStrictEqual(["b1", "b2"]);
+    expect(list.totals.seats).toBe(12);
+  });
+
+  it("has no day once the day is deleted (annexe F, print.r1.list.dayClosed)", () => {
+    const list = listR1(state, "2026-10-07");
+    expect(list.day).toBeUndefined();
+    expect(list.bookings).toStrictEqual([]);
   });
 
   it("reads « Places » of an open day only", () => {

@@ -1,0 +1,221 @@
+/* Common frame of the printed documents: PRINT_CSS of legacy/js/impression.js (07 § 2), with the tokens of
+   tokens.css and the print tokens of styles/print.css. */
+.document {
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: var(--print-fs-body);
+  line-height: var(--print-lh-body);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.document *,
+.document *::before,
+.document *::after {
+  box-sizing: border-box;
+}
+
+/* Screen preview (stories): centred, 269 mm at most (07 § 2.1). */
+@media screen {
+  .document {
+    max-width: var(--print-screen-width);
+    margin: 0 auto;
+    padding: var(--print-space-10) var(--print-space-9);
+  }
+}
+
+.stripe {
+  height: var(--print-stripe);
+  margin-bottom: var(--print-space-6);
+  background: var(--ab-gradient);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--print-space-7);
+  padding-bottom: var(--print-space-5);
+  border-bottom: var(--print-rule) solid var(--border);
+}
+
+.logo {
+  width: auto;
+  height: var(--print-logo-height);
+}
+
+.school {
+  margin: 0;
+  font-size: var(--print-fs-caps);
+  font-weight: var(--fw-semibold);
+  line-height: var(--print-lh-school);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.printedOn {
+  margin: 0 0 0 auto;
+  font-size: var(--print-fs-date);
+  color: var(--text-muted);
+}
+
+.document h1,
+.document h2,
+.document h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-title);
+  break-after: avoid;
+}
+
+/* Title of the restaurant, after a slanted mark of its colour (07 § 2.2). */
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--print-space-5);
+  margin: var(--print-space-7) 0 var(--print-space-1);
+  font-size: var(--print-fs-h1);
+  color: var(--print-ink);
+}
+
+.title::before {
+  content: "";
+  flex: 0 0 auto;
+  width: var(--print-mark-width);
+  height: var(--print-mark-height);
+  background: var(--print-mark);
+  border-radius: var(--print-mark-radius);
+  transform: skewX(var(--print-mark-skew));
+}
+
+.subtitle {
+  margin: 0 0 var(--print-space-6);
+  font-size: var(--print-fs-subtitle);
+  color: var(--text-muted);
+}
+
+.subtitle::first-letter {
+  text-transform: uppercase;
+}
+
+/* Section titles of the R2 documents (07 § 4.2, § 7): h2, and h3 with the stock on the right in a <span>. */
+.document h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--print-space-4);
+  margin: var(--print-space-8) 0 var(--print-space-3);
+  font-size: var(--print-fs-h2);
+  color: var(--print-ink);
+}
+
+.document h3 {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--print-space-6);
+  margin: var(--print-space-7) 0 var(--print-space-2);
+  font-size: var(--print-fs-h3);
+  color: var(--text);
+}
+
+.document h3 span {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+/* Informations side by side; the menu takes more room (07 § 2.2). */
+.infos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--print-space-3) var(--print-space-9);
+  margin: 0 0 var(--print-space-7);
+  padding: var(--print-space-5) var(--print-space-6);
+  border: var(--print-rule) solid var(--border);
+  border-radius: var(--radius-sm);
+  break-inside: avoid;
+}
+
+.info {
+  flex: 1 1 var(--print-meta-basis);
+}
+
+.info[data-wide] {
+  flex: 3 1 var(--print-meta-wide-basis);
+}
+
+.info dt {
+  margin-bottom: var(--print-space-1);
+  font-size: var(--print-fs-caps);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.info dd {
+  margin: 0;
+}
+
+/* The total stays with the end of the table, never alone at the top of a page (07 § 2.2). */
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--print-space-8);
+  margin: var(--print-space-7) 0 0;
+  padding: var(--print-space-5) var(--print-space-6);
+  background: var(--surface-alt);
+  border-left: var(--print-bar-strong) solid var(--print-accent);
+  border-radius: var(--radius-sm);
+  break-before: avoid;
+  break-inside: avoid;
+}
+
+.total span {
+  font-size: var(--print-fs-caps);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.total b {
+  font-family: var(--font-display);
+  font-size: var(--print-fs-big);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Each label, then its writing line on the same row (07 § 2.2). */
+.signature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--print-space-10);
+  margin-top: var(--print-space-9);
+  break-inside: avoid;
+}
+
+.signature p {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--print-space-5);
+  margin: 0;
+  font-size: var(--print-fs-caps);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.signature p::after {
+  content: "";
+  flex: 1;
+  height: var(--print-sign-line);
+  border-bottom: var(--print-rule) solid var(--border-strong);
+}
+
+.note {
+  color: var(--text-muted);
+}

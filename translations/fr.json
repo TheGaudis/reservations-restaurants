@@ -247,6 +247,170 @@
     "defaultMessage": "Nouvelle tentative…",
     "description": "00 § 2.3, 03 § 3.2 — bouton « Réessayer » occupé"
   },
+  "print.column.name": {
+    "defaultMessage": "Nom",
+    "description": "07 § 3, § 4, § 6, § 7 — colonne des tableaux"
+  },
+  "print.column.price": {
+    "defaultMessage": "Prix",
+    "description": "07 § 3, § 4, § 6, § 7 — colonne des tableaux"
+  },
+  "print.info.openedBy": {
+    "defaultMessage": "Ouvert par",
+    "description": "07 § 3, § 4, § 6, § 7 — intitulé d'une information du document"
+  },
+  "print.info.openedBy.none": {
+    "defaultMessage": "Non renseigné",
+    "description": "07 § 3, § 4 — « Ouvert par » d'un jour ouvert sans nom"
+  },
+  "print.layout.logoAlt": {
+    "defaultMessage": "Lycée Aristide Briand",
+    "description": "07 § 2.2 — texte de remplacement du logo de l'en-tête imprimé"
+  },
+  "print.layout.printedOn": {
+    "defaultMessage": "Imprimé le {date}",
+    "description": "07 § 2.2 — date d'impression à droite de l'en-tête (« Imprimé le 3 octobre 2026 »)"
+  },
+  "print.layout.restaurants": {
+    "defaultMessage": "Restaurants pédagogiques",
+    "description": "07 § 2.2 — en-tête imprimé, seconde ligne"
+  },
+  "print.layout.school": {
+    "defaultMessage": "Lycée professionnel Aristide Briand",
+    "description": "07 § 2.2 — en-tête imprimé, première ligne"
+  },
+  "print.layout.signatory": {
+    "defaultMessage": "Nom du responsable",
+    "description": "07 § 2.2 — intitulé de la signature, à gauche"
+  },
+  "print.layout.signature": {
+    "defaultMessage": "Signature",
+    "description": "07 § 2.2 — intitulé de la signature, à droite"
+  },
+  "print.list.title": {
+    "defaultMessage": "{name} — {date}",
+    "description": "07 § 3, § 4 — titre du document, nom proposé pour le PDF (« Restaurant Pédagogique — vendredi 9 octobre 2026 »)"
+  },
+  "print.r1.column.seats": {
+    "defaultMessage": "Couverts",
+    "description": "07 § 3, § 6 — colonne des tableaux R1"
+  },
+  "print.r1.info.places": {
+    "defaultMessage": "Places",
+    "description": "07 § 3, § 6 — intitulé d'une information du document R1"
+  },
+  "print.r1.info.seatsBooked": {
+    "defaultMessage": "{seats} / {capacity} couverts réservés",
+    "description": "07 § 3, § 6 — valeur de l'information « Places »"
+  },
+  "print.r1.list.column.className": {
+    "defaultMessage": "Classe ou service",
+    "description": "07 § 3 — colonne de la liste R1"
+  },
+  "print.r1.list.column.contact": {
+    "defaultMessage": "Contact",
+    "description": "07 § 3 — colonne de la liste R1"
+  },
+  "print.r1.list.column.externals": {
+    "defaultMessage": "Ext.",
+    "description": "07 § 3 — colonne de la liste R1 (extérieurs)"
+  },
+  "print.r1.list.column.headWaiter": {
+    "defaultMessage": "Chef de rang",
+    "description": "07 § 3 — colonne vide, à remplir en salle"
+  },
+  "print.r1.list.column.observation": {
+    "defaultMessage": "Observation",
+    "description": "07 § 3 — colonne de la liste R1"
+  },
+  "print.r1.list.column.staffMembers": {
+    "defaultMessage": "Pers.",
+    "description": "07 § 3 — colonne de la liste R1 (personnels)"
+  },
+  "print.r1.list.column.students": {
+    "defaultMessage": "Élèves",
+    "description": "07 § 3 — colonne de la liste R1"
+  },
+  "print.r1.list.column.tableNumber": {
+    "defaultMessage": "N° table",
+    "description": "07 § 3 — colonne vide, à remplir en salle"
+  },
+  "print.r1.list.dayClosed": {
+    "defaultMessage": "Ce jour n'est plus ouvert.",
+    "description": "PLAN annexe F, a-24 — liste imprimée R1 d'un jour supprimé entre-temps (remplace « Aucun jour ouvert pour demain. »)"
+  },
+  "print.r1.list.group.booking": {
+    "defaultMessage": "Réservation",
+    "description": "07 § 3 — en-tête de groupe (Élèves à Prix)"
+  },
+  "print.r1.list.group.customer": {
+    "defaultMessage": "Client",
+    "description": "07 § 3 — en-tête de groupe (Nom, Classe ou service)"
+  },
+  "print.r1.list.group.information": {
+    "defaultMessage": "Informations",
+    "description": "07 § 3 — en-tête de groupe (Contact, Observation)"
+  },
+  "print.r1.list.group.room": {
+    "defaultMessage": "À remplir en salle",
+    "description": "07 § 3 — en-tête de groupe (N° table, Chef de rang)"
+  },
+  "print.r1.list.info.menu": {
+    "defaultMessage": "Menu",
+    "description": "07 § 3 — information « Menu » de la liste R1 (colonne large)"
+  },
+  "print.r1.list.info.theme": {
+    "defaultMessage": "Thème",
+    "description": "07 § 3 — information « Thème » de la liste R1"
+  },
+  "print.r1.list.noCount": {
+    "defaultMessage": "–",
+    "description": "07 § 3 — case Élèves, Pers. ou Ext. vide ou à 0, grisée"
+  },
+  "print.r1.list.total.comma": {
+    "defaultMessage": "{before}, {after}",
+    "description": "07 § 3 — séparateur du détail du total (« 8 élèves, 3 personnels »)"
+  },
+  "print.r1.list.total.externals": {
+    "defaultMessage": "{count, plural, one {# extérieur} other {# extérieurs}}",
+    "description": "07 § 3 — détail du total (« 1 extérieur »)"
+  },
+  "print.r1.list.total.staffMembers": {
+    "defaultMessage": "{count, plural, one {# personnel} other {# personnels}}",
+    "description": "07 § 3 — détail du total (« 3 personnels »)"
+  },
+  "print.r1.list.total.students": {
+    "defaultMessage": "{count, plural, one {# élève} other {# élèves}}",
+    "description": "07 § 3 — détail du total (« 8 élèves »)"
+  },
+  "print.r1.tomorrow.column.className": {
+    "defaultMessage": "Classe",
+    "description": "07 § 6 — colonne du résumé R1 du lendemain"
+  },
+  "print.table.noBookings": {
+    "defaultMessage": "Aucune réservation.",
+    "description": "07 § 3, § 4, § 6, § 7 — tableau sans réservation"
+  },
+  "print.tomorrow.noDay": {
+    "defaultMessage": "Aucun jour ouvert pour demain.",
+    "description": "07 § 6, § 7 — résumé du lendemain sans jour ouvert"
+  },
+  "print.tomorrow.subtitle": {
+    "defaultMessage": "Demain, {date}",
+    "description": "07 § 6, § 7 — sous-titre du résumé du lendemain"
+  },
+  "print.tomorrow.title": {
+    "defaultMessage": "{name} — demain {date}",
+    "description": "07 § 6, § 7 — titre du résumé du lendemain, nom proposé pour le PDF"
+  },
+  "print.total.dot": {
+    "defaultMessage": "{before} · {after}",
+    "description": "07 § 3, § 4, § 6, § 7 — séparateur des parties d'un total (« 12 couverts · 67,80 € »)"
+  },
+  "print.total.label": {
+    "defaultMessage": "Total",
+    "description": "07 § 3, § 6, § 7 — intitulé du total"
+  },
   "public.calendar.day.almostFull": {
     "defaultMessage": "bientôt complet",
     "description": "05 § 2.4 — état d'un jour dans l'aria-label d'une case du calendrier (CAL_STATUS_WORD)"
@@ -762,6 +926,10 @@
   "staff.openDay.success": {
     "defaultMessage": "Jour ajouté.",
     "description": "06 § 4.1, § 4.2 — toast de succès de « Ouvrir un jour »"
+  },
+  "staff.print.list": {
+    "defaultMessage": "Imprimer la liste",
+    "description": "05 § 5.3, § 6.2, 07 § 1 — bouton de la fiche collègue qui imprime la liste du jour"
   },
   "staff.r1.dayCard.menu": {
     "defaultMessage": "Menu du jour",
