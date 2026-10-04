@@ -51,7 +51,7 @@ Scénarios verts sur `react` : REG-01, REG-02, REG-03 (quatre variantes), REG-04
 
 ## Contradictions et remarques
 
-- **Jour passé et contraste** : `05` § 4.2 et `08` § 1 pâlissent les textes d'une fiche passée (`--past-opacity` 0,55) ; `08` § 8 exige 4,5:1 et S5 « 0 violation, aucune liste d'exceptions ». axe relève 2,3:1 à 3,6:1 sur les stories P-08 et P-17. J'ai gardé l'opacité de la spec et retiré la seule règle `color-contrast` de ces deux stories (commentaire dans chacune). Autres options pour l'orchestrateur : une pâleur qui garde 4,5:1 (couleurs mêlées au lieu de l'opacité, nouvel écart E-xx) ; ou accepter l'exception dans S5 (WCAG 1.4.3 exempte le texte « incidental »). Retour arrière : une ligne par story.
+- **Jour passé et contraste**, tranché par l'orchestrateur le 4 octobre (écart **E-56**, ajouté par lui au PLAN § 4.2) : `05` § 4.2 et `08` § 1 pâlissaient la fiche par une opacité de 0,55 (axe : 2,3:1 à 3,6:1), contre les 4,5:1 de `08` § 8 et S5. La fiche d'un jour passé n'a plus d'opacité : fond `--surface-alt`, date, textes et noms de plats en `--text-muted` (5,2:1, 5,7:1 et 6,1:1 sur `--surface-alt` dans les thèmes bleu, vert et magenta, calculés), jauges en niveaux de gris (`filter: grayscale(1)`). Aucun jeton ajouté. Stories P-08 et P-17 contrôlées par axe sans règle coupée ; `DayCardR1.test.tsx` vérifie l'opacité 1 de la date jusqu'à la page. « passé » reste dans l'`aria-label` de la case.
 - **CLAUDE.md « Navigation par `<Link search>` »** contre les composants `ui/` sans lien : décision 3, exception admise par l'orchestrateur.
 - **Lancement P4 (b), « liens `<Link search={…}>` pour ‹ › et Semaine / Mois »** : impossible sans changer `ui/` (décision 3).
 - **Commande du lancement** `--grep "@G-02|@G-04|@P-0[1-48]|@P-1[0-25-7]"` : elle sélectionne aussi REG-08 (`@G-04`, formulaire R1), REG-25 à 10 h (`@P-15`, formulaire R2) et REG-27 (`@G-02`, connexion), hors de P4 (b).
@@ -67,7 +67,7 @@ Aucun.
 
 ## Fichiers partagés modifiés
 
-- `src/queries/client.ts` (décision 1, P2 (b2)) ; `src/router.tsx`, `src/router.test.ts`, `src/background/start.ts`, `start.test.ts`, `clock.test.ts`, `logout.test.ts` (décision 2) ; balises `@internal` dans `src/background/{clock,logout,preload-error}.ts` et `src/intl/dates.ts` (décision 12) ; `src/queries/use-app-state.ts` (`@public` retiré) ; `vitest.config.ts` (décision 11) ; `knip.json` (décision 12) ; `features/page/PublicPage.tsx` (emplacements) ; `docs/migration/parite.md`.
+- `src/queries/client.ts` (décision 1, P2 (b2)) ; `src/router.tsx`, `src/router.test.ts`, `src/background/start.ts`, `start.test.ts`, `clock.test.ts`, `logout.test.ts` (décision 2) ; balises `@internal` dans `src/background/{clock,logout,preload-error}.ts` et `src/intl/dates.ts` (décision 12) ; `src/queries/use-app-state.ts` (`@public` retiré) ; `vitest.config.ts` (décision 11) ; `knip.json` (décision 12) ; `.github/workflows/ci.yml` (`E2E_REACT_GREP`, demandé par l'orchestrateur) ; `features/page/PublicPage.tsx` (emplacements) ; `docs/migration/parite.md`.
 - Aucun changement d'`ui/`, de `domain/`, de `intl/common-messages.ts`, des assertions ou des page objects de `e2e/`.
 
 ## Reste à faire
@@ -76,10 +76,23 @@ Aucun.
 - **P4 (d)** : `OrderFormR2` dans l'emplacement `form` de `DayCardR2` ; repli de la liste des plats (`05` § 6.4) ; retirer `"!src/intl/amounts.ts!"` de `knip.json` quand les totaux sont importés. Scénarios : REG-22 à REG-25 (10 h).
 - **P5 (a)** : tâches de fond déjà démarrées par `getRouter()` (décision 2) ; vérifier la déconnexion de bout en bout. Calendriers et fiches lisent l'URL par `useSearch({ strict: false })` : ils fonctionnent tels quels sous `/collegue` dès que sa route valide `CalendarSearch`.
 - **P5 (b), (d1), (c)** : fiches en mode collègue. `DayCardR1` / `DayCardR2` sont publiques ; `DayCard`, `TextBlock`, `ThemeBlock`, `DishRow` (prop `children` pour les actions et réservations d'un plat) et `DayDetail` se réemploient ; le texte « Aucun jour ouvert… » (`05` § 4.3) et « Ouvert par » restent à ajouter.
-- **Orchestrateur** : `E2E_REACT_GREP` de `.github/workflows/ci.yml` (texte proposé ci-dessous) ; trancher le contraste du jour passé ; reporter les décisions 1 et 2 dans PLAN.md.
+- **Orchestrateur** : reporter les décisions 1 et 2 dans PLAN.md (fait par lui d'après son arbitrage du 4 octobre) ; E-56 au PLAN § 4.2.
 
 ## Pour l'orchestrateur
 
-- `E2E_REACT_GREP: "REG-0[1-7]|REG-09|REG-1[0-2]|REG-14|REG-21|REG-26|REG-43|midnight (reaches|without)|publicPageFromFakeScript|@framework"`.
+- `E2E_REACT_GREP` renseigné dans `.github/workflows/ci.yml` à la demande de l'orchestrateur (commit « CI : scénarios `react` de P4 (b) ») : `REG-0[1-7]|REG-09|REG-1[0-2]|REG-14|REG-21|REG-26|REG-43|midnight (reaches|without)|publicPageFromFakeScript|@framework`.
 - PLAN § 3.3 (tableau des réglages de `queries/client.ts`), ligne à ajouter : « Notifications des observateurs | `notifyManager.setScheduler(queueMicrotask)` | un `setTimeout(0)` attend le prochain `runFor` d'une horloge en pause (REG-03) et le réveil d'un onglet en arrière-plan ».
 - PLAN § 5 (P5 (a), livrables) : « branchement de `afterLogout` et de l'inactivité » est fait par `getRouter()` depuis P4 (b) ; P5 (a) vérifie seulement.
+
+## Après l'arbitrage du 4 octobre (E-56, CI)
+
+| Commande | Résultat |
+| --- | --- |
+| `pnpm check` | vert ; Vitest 141 fichiers, 1 994 tests ; knip propre |
+| `vitest run --project browser --project storybook src/features` | 17 fichiers, 82 tests verts, dont les stories P-08 et P-17 sous axe sans règle coupée |
+| `pnpm build && pnpm budget` | JS 161,2 kB gzip, CSS 8,4 kB |
+| `pnpm build:e2e && git diff --exit-code src/routeTree.gen.ts translations/fr.json` | aucune différence |
+| `pnpm test:e2e:legacy` | 76 verts sur 76 |
+| `pnpm test:e2e --project=react --grep "$E2E_REACT_GREP"` (valeur de `ci.yml`) | 24 verts sur 24, dont REG-12, REG-14 et REG-21 (jours passés) |
+| grep du lancement sur `react` | 13 verts, mêmes 4 rouges hors périmètre (REG-08, REG-25 à 10 h ×2, REG-27) |
+| `pnpm test:e2e --project=react-only` | 5 verts sur 5 |
