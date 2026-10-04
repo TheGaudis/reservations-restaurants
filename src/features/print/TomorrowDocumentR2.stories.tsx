@@ -20,9 +20,6 @@ import preview from "../../../.storybook/preview";
 
 const meta = preview.meta({
   component: TomorrowDocumentR2,
-  // Paper only (hidden on screen, styles/print.css): the dish titles are h3 right under the h1, as in the legacy
-  // document (07 § 7) and as REG-42 reads them (heading level 3).
-  parameters: { a11y: { config: { rules: [{ id: "heading-order", enabled: false }] } } },
   args: {
     printedAt: TEST_NOW,
     list: listR2(

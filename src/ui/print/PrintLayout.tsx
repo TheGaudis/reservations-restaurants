@@ -30,6 +30,11 @@ interface PrintLayoutProps {
   heading: string;
   /** Under the title: the date, capitalised by CSS. */
   subtitle: string;
+  /**
+   * The date as an `h2`, same look: a document whose sections are `h3` (document D, 07 § 7) keeps its heading levels
+   * in sequence (axe `heading-order`, PLAN § 1.5, S5).
+   */
+  subtitleHeading?: boolean | undefined;
   /** Informations with a value, in order; none: no frame. */
   infos?: readonly PrintInfo[] | undefined;
   /** `.pb-total`: label on the left, value on the right. */
@@ -109,6 +114,7 @@ export function PrintLayout({
   printedAt,
   heading,
   subtitle,
+  subtitleHeading = false,
   infos = NO_INFOS,
   total,
   signature = false,
@@ -118,7 +124,11 @@ export function PrintLayout({
     <article className={styles["document"]} data-print-accent={accent}>
       <PrintHeader logo={logo} printedAt={printedAt} />
       <h1 className={styles["title"]}>{heading}</h1>
-      <p className={styles["subtitle"]}>{subtitle}</p>
+      {subtitleHeading ? (
+        <h2 className={styles["subtitle"]}>{subtitle}</h2>
+      ) : (
+        <p className={styles["subtitle"]}>{subtitle}</p>
+      )}
       {infos.length > 0 ? (
         <dl className={styles["infos"]}>
           {infos.map((info) => (

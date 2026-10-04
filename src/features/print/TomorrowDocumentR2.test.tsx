@@ -62,9 +62,10 @@ describe("TomorrowDocumentR2 (07 § 7)", () => {
   it("prints « Demain, {date} » and « Ouvert par » only", async () => {
     await renderSummary();
     await expect.element(page.getByRole("heading", { level: 1 })).toHaveTextContent("Aristide");
+    // The date is the h2 above the h3 of the dishes (axe `heading-order`, S5).
     await expect
-      .element(page.getByText("Demain, mardi 6 octobre 2026", { exact: true }))
-      .toBeVisible();
+      .element(page.getByRole("heading", { level: 2 }))
+      .toHaveTextContent("Demain, mardi 6 octobre 2026");
     expect(texts("term")).toStrictEqual(["Ouvert par"]);
     expect(texts("definition")).toStrictEqual(["M. Dupont"]);
   });

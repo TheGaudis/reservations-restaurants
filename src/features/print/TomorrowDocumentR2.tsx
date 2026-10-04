@@ -98,7 +98,8 @@ interface TomorrowDocumentR2Props {
 
 /**
  * Document D, R2 summary of tomorrow (07 § 7): « Ouvert par » only, one heading and one table per dish, total of the
- * portions and amounts with one voucher per order (E-16), no signature.
+ * portions and amounts with one voucher per order (E-16), no signature. The dish titles are `h3` (07 § 7, REG-42),
+ * under the date set as an `h2`.
  */
 export function TomorrowDocumentR2({ list, printedAt }: TomorrowDocumentR2Props) {
   const intl = useIntl();
@@ -110,6 +111,7 @@ export function TomorrowDocumentR2({ list, printedAt }: TomorrowDocumentR2Props)
       printedAt={printedAt}
       heading={list.restaurantName}
       subtitle={tomorrowSubtitle(list.iso)}
+      subtitleHeading
       infos={
         day === undefined
           ? []

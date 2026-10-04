@@ -88,16 +88,6 @@
   transform: skewX(var(--print-mark-skew));
 }
 
-.subtitle {
-  margin: 0 0 var(--print-space-6);
-  font-size: var(--print-fs-subtitle);
-  color: var(--text-muted);
-}
-
-.subtitle::first-letter {
-  text-transform: uppercase;
-}
-
 /* Section titles of the R2 documents (07 § 4.2, § 7): h2, and h3 with the stock on the right in a <span>. */
 .document h2 {
   display: flex;
@@ -122,6 +112,23 @@
   font-weight: var(--fw-medium);
   white-space: nowrap;
   color: var(--text-muted);
+}
+
+/* Date under the title; written after the h2 rule, with a higher specificity, so that the date set as an h2
+   (document D) looks the same as the paragraph of the other documents. */
+.document .subtitle {
+  display: block;
+  margin: 0 0 var(--print-space-6);
+  font-family: var(--font-body);
+  font-size: var(--print-fs-subtitle);
+  font-weight: var(--fw-regular);
+  line-height: var(--print-lh-body);
+  letter-spacing: normal;
+  color: var(--text-muted);
+}
+
+.document .subtitle::first-letter {
+  text-transform: uppercase;
 }
 
 /* Informations side by side; the menu takes more room (07 § 2.2). */
