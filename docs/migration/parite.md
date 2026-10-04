@@ -195,9 +195,9 @@ Fichiers (P1 (c)) : `staff-access.spec.ts` REG-27, REG-28 ; `staff-session.spec.
 | C-01 | REG-39 | `@changed` | vert (P1 (d), 3 oct.) | à faire | stories de `TomorrowPanel` | E-30 |
 | C-03 | REG-39 | `@changed` | vert (P1 (d), 3 oct.) | à faire | — (fusionné dans C-01) | E-30, E-44 |
 | I-00 | REG-40 (variante `@legacy-only`) | `@changed` | vert (P1 (d), 3 oct.) | sans objet | — (disparu) | E-15 |
-| I-01 | REG-40 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `ListDocumentR1` ; `e2e/print-pdf.spec.ts` | E-15, E-20 |
+| I-01 | REG-40 | `@changed` | vert (P1 (d), 3 oct.) | vert (P6 (a), 4 oct.) : REG-40 (06 et gala du 12, E-20) ; document seul à l'impression, titre rétabli, `.print-root` vide et focus rendu après `afterprint` (`e2e/print-pdf.spec.ts`) | stories `ListDocumentR1` (`Bookings`, `DetailedTotal`, `LongList`, `NoBookings`, `DayClosed`) ; `ListDocumentR1.test.tsx`, `PrintListButton.test.tsx`, `ui/print/print.test.ts` ; `e2e/print-pdf.spec.ts` (A4 paysage, longue liste sur plusieurs pages) | E-15, E-20 |
 | I-02 | REG-41 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `ListDocumentR2` | E-16 |
-| I-03 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `TomorrowDocumentR1` | E-44 |
+| I-03 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | partiel (P6 (a), 4 oct.) : document C vert jusqu'à la ligne 126 de REG-42 avec un bouton « Imprimer » provisoire dans `TomorrowPanel` (non commité) ; le bouton du bloc R1 et le document D viennent de P6 (b) | stories `TomorrowDocumentR1` (`Tomorrow`, `NoBookings`, `NoDay`) ; `TomorrowDocumentR1.test.tsx` | E-44 |
 | I-04 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `TomorrowDocumentR2` | E-16, E-44 |
 | invariant 1 | REG-29, REG-30 | — | P1 (c) | à faire | test S8 | E-17 |
 | invariant 2 | REG-02, REG-03, REG-20 | — | vert (P1 (b), 3 oct.) | vert (P4 (c), relevé en P4 (d), 4 oct.) : REG-02, REG-03, REG-20 | tests de `api/hedged-read.ts`, `early-fetch.ts` | E-45, E-47 |
