@@ -143,6 +143,42 @@
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
   },
+  "common.page.defaultDesc1": {
+    "defaultMessage": "Table réservée par nombre de couverts, avec le menu du jour.",
+    "description": "01 § 4.1, 03 § 2.2 — description du restaurant 1 avant toute donnée"
+  },
+  "common.page.defaultDesc2": {
+    "defaultMessage": "Plats à emporter ou sur place, chacun avec son propre stock.",
+    "description": "01 § 4.1, 03 § 2.2 — description du restaurant 2 avant toute donnée"
+  },
+  "common.page.defaultName1": {
+    "defaultMessage": "Restaurant Pédagogique",
+    "description": "04 § 2, 05 § 1, 01 § 4.1 — nom du restaurant 1 avant toute donnée"
+  },
+  "common.page.defaultName2": {
+    "defaultMessage": "Aristide",
+    "description": "04 § 2, 05 § 1, 01 § 4.1 — nom du restaurant 2 avant toute donnée"
+  },
+  "common.page.footNote": {
+    "defaultMessage": "Les places se mettent à jour automatiquement toutes les 3 minutes. Vous pouvez aussi actualiser la page.",
+    "description": "00 § 2.3, 04 § 2 — pied de page"
+  },
+  "common.page.kicker": {
+    "defaultMessage": "Lycée professionnel Aristide Briand",
+    "description": "03 § 2.2, 04 § 2 — surtitre de l'en-tête"
+  },
+  "common.page.logoAlt": {
+    "defaultMessage": "Lycée Aristide Briand",
+    "description": "08 § 7.2 — texte de remplacement du logo"
+  },
+  "common.page.signature": {
+    "defaultMessage": "Lycée professionnel Aristide Briand · Restaurants pédagogiques",
+    "description": "03 § 2.2, 08 § 4.17 — signature tricolore du pied de page"
+  },
+  "common.page.subtitle": {
+    "defaultMessage": "Table côté {name1} · Plats à emporter ou sur place côté {name2}",
+    "description": "04 § 2, 03 § 2.2 — sous-titre de l'en-tête"
+  },
   "common.serviceMode.dineIn": {
     "defaultMessage": "Sur place",
     "description": "04 § 5.3, § 9, 06 § 7.4, § 8.3 — mode de service R2"
@@ -158,6 +194,42 @@
   "common.write.slow": {
     "defaultMessage": "Le service met du temps à répondre. Gardez cette page ouverte : la confirmation s'affichera ici.",
     "description": "PLAN annexe F, D-15 — sous le bouton occupé après 20 s, public et collègue"
+  },
+  "dev.realDataBanner": {
+    "defaultMessage": "Données réelles",
+    "description": "PLAN annexe F, § 3.11 — bandeau de pnpm dev:real"
+  },
+  "loading.configBanner": {
+    "defaultMessage": "Configuration manquante : l'adresse du service de réservation n'est pas renseignée ou n'est pas valide. Prévenez l'établissement.",
+    "description": "PLAN annexe F, D-05 — bandeau de configuration manquante (« ⚠ » dessiné par une icône)"
+  },
+  "loading.failure.fromCache": {
+    "defaultMessage": "Le calendrier affiché date de votre dernière visite : les places restantes ont pu changer depuis.",
+    "description": "03 § 3.1 — suffixe de l'encadré d'échec quand la copie locale est affichée"
+  },
+  "loading.failure.offline.body": {
+    "defaultMessage": "Vérifiez votre connexion internet, puis réessayez.",
+    "description": "03 § 3.1 — texte de l'encadré d'échec, hors ligne"
+  },
+  "loading.failure.offline.title": {
+    "defaultMessage": "Vous semblez hors ligne.",
+    "description": "03 § 3.1 — titre de l'encadré d'échec, hors ligne"
+  },
+  "loading.failure.online.body": {
+    "defaultMessage": "Réessayez dans un instant. Si le problème continue, prévenez l'établissement.",
+    "description": "03 § 3.1 — texte de l'encadré d'échec, en ligne"
+  },
+  "loading.failure.online.title": {
+    "defaultMessage": "Le service de réservation ne répond pas.",
+    "description": "03 § 3.1 — titre de l'encadré d'échec, en ligne"
+  },
+  "loading.retry": {
+    "defaultMessage": "Réessayer",
+    "description": "00 § 2.3, 03 § 3.2 — bouton de l'encadré d'échec de chargement"
+  },
+  "loading.retry.pending": {
+    "defaultMessage": "Nouvelle tentative…",
+    "description": "00 § 2.3, 03 § 3.2 — bouton « Réessayer » occupé"
   },
   "public.calendar.day.almostFull": {
     "defaultMessage": "bientôt complet",
@@ -210,6 +282,10 @@
   "public.form.submit": {
     "defaultMessage": "Confirmer la réservation",
     "description": "00 § 2.3, 04 § 5.2-5.3 — bouton d'envoi des formulaires publics R1 et R2"
+  },
+  "public.header.title": {
+    "defaultMessage": "Réservations des restaurants pédagogiques et {name2}",
+    "description": "PLAN annexe F, D-24 — titre de la page, dérivé du nom du restaurant 2"
   },
   "public.r1.form.counter.decrement": {
     "defaultMessage": "Diminuer : {label}",

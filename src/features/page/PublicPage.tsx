@@ -1,26 +1,9 @@
-import { getRouteApi } from "@tanstack/react-router";
+import { Page } from "@/features/page/Page";
 
-import { PageSkeleton } from "@/features/page/PageSkeleton";
-import { useHydrated } from "@/features/page/use-hydrated";
-
-import styles from "@/features/page/PageSkeleton.module.css";
-
-const routeApi = getRouteApi("/");
-
-/** Shell of the public page: restaurant names from the local copy, the skeleton until a state exists. */
+/**
+ * Public page (G-01 to G-05, P-*): the calendars and day cards of P4 (b) go into the slots of `Page`, which renders
+ * exactly `PageSkeleton` while React hydrates (arbitrage 16).
+ */
 export function PublicPage() {
-  const state = routeApi.useLoaderData();
-  const hydrated = useHydrated();
-  // While hydrating, render exactly the prerendered skeleton (route option pendingMinMs: 0).
-  if (!hydrated || state === null) return <PageSkeleton />;
-  return (
-    <main className={styles["page"]}>
-      <section className={styles["column"]} data-accent="r1">
-        <h2>{state.settings.name1}</h2>
-      </section>
-      <section className={styles["column"]} data-accent="r2">
-        <h2>{state.settings.name2}</h2>
-      </section>
-    </main>
-  );
+  return <Page />;
 }

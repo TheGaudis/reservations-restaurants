@@ -1,0 +1,36 @@
+/* .ab-stripe of legacy/design-system.css, .wrap and .columns of legacy/app.css (08 § 4.1, § 7.1, § 7.3, § 7.4). */
+.stripe {
+  height: var(--stripe-height);
+  background: var(--ab-gradient);
+}
+
+.wrap {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: calc(var(--space-6) + var(--space-1)) max(var(--space-5), env(safe-area-inset-right))
+    calc(var(--space-8) * 2) max(var(--space-5), env(safe-area-inset-left));
+}
+
+.main {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    padding: var(--space-4) var(--space-4) calc(var(--space-6) * 2);
+  }
+}

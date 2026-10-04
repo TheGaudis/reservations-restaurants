@@ -144,6 +144,29 @@
   --skeleton-card: 120px; /* .sk-card (08 § 4.16) */
   --dur-toast-enter: 0.3s; /* entry of a toast (08 § 1.7, § 4.14) */
   --dur-shimmer: 1.3s; /* loop of the skeleton gradient (08 § 1.7, § 4.16) */
+
+  /* Page layout: sizes written in legacy/app.css and legacy/design-system.css (08 § 4.1, § 4.17, § 4.18, § 7) */
+  --page-max-width: 1040px; /* .wrap (08 § 7.1) */
+  --stripe-height: 6px; /* .ab-stripe, top edge of a column (08 § 4.1, § 7.3) */
+  --logo-height: 96px; /* .brand-logo (08 § 7.2) */
+  --logo-height-small: 64px; /* .brand-logo under 640 px (08 § 7.4) */
+  --brand-basis: 420px; /* flex basis of .brand (08 § 7.2) */
+  --header-watermark-width: 260px; /* oblique strokes behind the header (08 § 7.2) */
+  --header-watermark-height: 220px;
+  --header-watermark-right: -30px;
+  --header-watermark-top: -40px;
+  --measure-title: 26ch; /* .brand h1 (08 § 7.2) */
+  --measure-subtitle: 60ch; /* #page-subtitle (08 § 7.2) */
+  --measure-desc: 52ch; /* .desc of a column (08 § 7.3) */
+  --tracking-brand: 0.12em; /* .brand-kicker (08 § 7.2) */
+  --tracking-signature: 0.04em; /* .brand-signature (08 § 4.17) */
+  --signature-bar-width: 34px; /* strokes around .brand-signature (08 § 4.17) */
+  --signature-bar-height: 3px;
+  --slash-width: 7px; /* .slash-mark before a restaurant name (08 § 4.18) */
+  --slash-height: 1.05em;
+  --slash-skew: -22deg;
+  --mark-radius: 2px; /* .slash-mark, .brand-signature strokes */
+  --mode-switch-segment-width: 108px; /* .mode-switch .seg-btn (08 § 4.5): ModeSwitch sets --segment-min-width to it */
 }
 
 /* Restaurant accents, set on a container (docs/spec/08 § 2); blue keeps the :root values. */

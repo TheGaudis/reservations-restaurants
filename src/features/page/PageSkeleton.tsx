@@ -1,20 +1,13 @@
-import styles from "@/features/page/PageSkeleton.module.css";
+import { ColumnSkeleton } from "@/features/page/ColumnSkeleton";
+import { useSkeletonTexts } from "@/features/page/page-texts";
+import { PageLayout } from "@/features/page/PageLayout";
 
 /**
- * Skeleton of both columns (G-01), prerendered in the shell and shown for at least pendingMinMs (PLAN arbitrage 16).
- * No text: 03 § 3 shows no "Chargement" message.
+ * The page before any data (G-01, 03 § 3): header, titles and descriptions, a skeleton in each column, no
+ * « Chargement » text. Prerendered in the shell (pending component): while React hydrates it renders exactly the
+ * prerendered markup, with the default titles; then the titles of the last visit (03 § 1.2).
  */
 export function PageSkeleton() {
-  return (
-    <main className={styles["page"]} aria-busy="true">
-      <div className={styles["column"]} data-accent="r1" aria-hidden="true">
-        <span className={`${styles["block"]} ${styles["title"]}`} />
-        <span className={styles["block"]} />
-      </div>
-      <div className={styles["column"]} data-accent="r2" aria-hidden="true">
-        <span className={`${styles["block"]} ${styles["title"]}`} />
-        <span className={styles["block"]} />
-      </div>
-    </main>
-  );
+  const texts = useSkeletonTexts();
+  return <PageLayout texts={texts} busy r1={<ColumnSkeleton />} r2={<ColumnSkeleton />} />;
 }
