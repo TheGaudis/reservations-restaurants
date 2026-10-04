@@ -1,0 +1,29 @@
+/* .booking-form and .row2 of legacy/app.css (06 § 5.1): under the actions of the card, above a thin rule; capacity
+   and theme side by side, one under the other on a narrow screen. */
+.form {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--border-width) solid var(--border);
+  animation: rise var(--dur) var(--ease-enter) both;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+/* 32.5em = 520 px, the breakpoint of .row2 (media queries ignore custom properties). */
+@media (max-width: 32.5em) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
+  }
+}

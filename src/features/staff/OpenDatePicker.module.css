@@ -1,0 +1,36 @@
+/* .field and .field-error of legacy/design-system.css around the date trigger (06 § 3.1, 08 § 4.6). */
+.field {
+  margin-bottom: var(--space-3);
+}
+
+.label {
+  display: block;
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--danger);
+}
+
+.mark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-error-mark);
+  height: var(--field-error-mark);
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  color: var(--text-on-accent);
+  font-size: var(--fs-error-mark);
+  font-weight: var(--fw-bold);
+}
