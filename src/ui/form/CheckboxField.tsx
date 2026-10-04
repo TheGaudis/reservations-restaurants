@@ -31,7 +31,8 @@ export function CheckboxField({
 }: CheckboxFieldProps) {
   const field = useFieldContext<boolean>();
   const fieldMessages = useFieldMessages(field);
-  // Base UI names the box by the label element; a name of its own needs `aria-labelledby`, which wins.
+  // Base UI names the box by the label element; a name of its own needs `aria-labelledby`, which wins. A native button
+  // takes the label's `for`: the hidden input of the form value gets no label (one control per name, REG-37).
   const nameId = useId();
   return (
     <Field.Root
@@ -44,6 +45,8 @@ export function CheckboxField({
     >
       <Field.Label className={styles["check"]}>
         <Checkbox.Root
+          nativeButton
+          render={(props) => <button {...props} type="button" />}
           checked={field.state.value}
           onCheckedChange={(checked) => {
             field.handleChange(checked);
