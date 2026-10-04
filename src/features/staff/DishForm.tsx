@@ -1,23 +1,17 @@
-import { useNavigate } from "@tanstack/react-router";
 import { defineMessages, useIntl } from "react-intl";
 
 import { portionsBooked } from "@/domain/capacity";
 import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
-import type { PageSearchParams } from "@/domain/navigation";
 import type { Dish, IsoDate } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { DayActions } from "@/features/calendar/DayCard";
-import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
+import { useCloseForm, usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import {
   ADD_BUTTON,
   ADD_FORM,
   editButtonId,
   editFormId,
   editTarget,
-  focusEditButton,
-  focusFirstField,
-  requestFocus,
-  takeFocusRequest,
 } from "@/features/staff/dish-focus";
 import { bookingsOfDish } from "@/features/staff/dish-rules";
 import { DishFields } from "@/features/staff/DishFields";
@@ -25,10 +19,10 @@ import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useAddDish, useDeleteDish, useEditDish } from "@/mutations/staff/dishes";
-import { staffErrorText } from "@/mutations/staff/write";
+import { showStaffError } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
-import { showToast } from "@/ui/feedback/toast";
+import { focusById, focusFirstInput, focusOnMount, requestFocus } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/DishForm.module.css";
 
@@ -81,20 +75,6 @@ const messages = defineMessages<{
   },
 });
 
-/** Leaves the URL in `replace`, from the search params current when the answer comes, not those of the render. */
-function useCloseForm() {
-  const navigate = useNavigate();
-  return (close: (search: PageSearchParams) => PageSearchParams) => {
-    void navigate({ to: ".", search: close, replace: true, resetScroll: false });
-  };
-}
-
-/** Toast of a failed dish write: the script's message as is (« Plat introuvable. »), or D-14. */
-function showFailure(error: unknown) {
-  const text = staffErrorText(error);
-  if (text !== null) showToast(text, "error");
-}
-
 /** « Supprimer ce plat » (06 § 6.4): two clicks; the armed button details the bookings left orphaned (D-21, E-38). */
 function DeleteDishButton({ dish }: { dish: Dish }) {
   const intl = useIntl();
@@ -111,7 +91,7 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
       await remove.mutateAsync(dish.id);
       focusCardDate("r2");
     } catch (error) {
-      showFailure(error);
+      showStaffError(error);
     }
   }
   return (
@@ -163,7 +143,7 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
   const booked = useStaffState((state) => portionsBooked(state, dish.id));
   const closeForm = useCloseForm();
   const close = () => {
-    focusEditButton(dish.id);
+    focusById(editButtonId(dish.id));
     closeForm((search) =>
       search.editPlat === dish.id ? { ...search, editPlat: undefined } : search,
     );
@@ -180,11 +160,11 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
         try {
           await edit.mutateAsync({ ...input, dishId: dish.id }, { onSuccess: close });
         } catch (error) {
-          showFailure(error);
+          showStaffError(error);
         }
       }}
       cancel={close}
-      wrapperRef={focusFirstField(editTarget(dish.id))}
+      wrapperRef={focusOnMount(editTarget(dish.id), focusFirstInput)}
     />
   );
 }
@@ -220,11 +200,11 @@ function AddDishFormOpen({ iso }: { iso: IsoDate }) {
         try {
           await add.mutateAsync({ ...input, date: iso }, { onSuccess: close });
         } catch (error) {
-          showFailure(error);
+          showStaffError(error);
         }
       }}
       cancel={close}
-      wrapperRef={focusFirstField(ADD_FORM)}
+      wrapperRef={focusOnMount(ADD_FORM, focusFirstInput)}
     />
   );
 }
@@ -241,11 +221,7 @@ export function AddDish({ iso }: { iso: IsoDate }) {
   return (
     <DayActions>
       <Button
-        ref={(button) => {
-          if (button !== null && takeFocusRequest(ADD_BUTTON)) {
-            button.focus({ preventScroll: true });
-          }
-        }}
+        ref={focusOnMount(ADD_BUTTON)}
         size="small"
         onClick={() => {
           requestFocus(ADD_FORM);

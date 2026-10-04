@@ -15,8 +15,8 @@ import {
 import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
+import { orderFormR2Chunk } from "@/features/page/lazy-chunks";
 import { DishRow } from "@/features/r2/DishRow";
-import { loadOrderFormR2 } from "@/features/r2/load-order-form";
 import { commonMessages } from "@/intl/common-messages";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { Alert } from "@/ui/feedback/Alert";
@@ -40,10 +40,6 @@ const messages = defineMessages({
 interface DayCardR2Props {
   /** Order form (`OrderFormR2Slot`), shown in place of the dishes and « Réserver » while `reserver=r2` and the day can be ordered. */
   form?: ReactNode;
-}
-
-function preloadForm() {
-  void loadOrderFormR2();
 }
 
 /**
@@ -90,7 +86,7 @@ export function DayCardR2({ form }: DayCardR2Props) {
         </div>
       ) : null}
       {orderable && !formOpen ? (
-        <ReserveButton restaurant="r2" iso={iso} preload={preloadForm} />
+        <ReserveButton restaurant="r2" iso={iso} preload={orderFormR2Chunk.load} />
       ) : null}
       {ordering ? form : null}
       {soldOut && !closed && !ordering ? (

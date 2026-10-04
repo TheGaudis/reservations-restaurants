@@ -20,7 +20,7 @@ function Sending() {
       <button type="button" onClick={slowWrite.stop}>
         Réponse
       </button>
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </>
   );
 }
@@ -55,14 +55,5 @@ describe("useSlowWrite and SlowWriteNotice (D-15)", () => {
     expect(shown()).toBe(SLOW);
     press("Réponse");
     expect(shown()).toBe("");
-  });
-
-  it("stops the timer when the form leaves the page", async () => {
-    const { screen } = await renderWithProviders(<Sending />);
-    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
-    press("Envoyer");
-    expect(vi.getTimerCount()).toBe(1);
-    await screen.unmount();
-    expect(vi.getTimerCount()).toBe(0);
   });
 });

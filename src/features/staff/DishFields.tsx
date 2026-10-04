@@ -5,12 +5,10 @@ import type { DishDraft } from "@/domain/dishes";
 import type { DishInput } from "@/domain/types";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { DayActions } from "@/features/calendar/DayCard";
 import { dishErrors } from "@/features/staff/dish-rules";
+import { FormActions } from "@/features/staff/FormActions";
 import { usePriceSuggestions } from "@/features/staff/price-suggestions";
-import { commonMessages } from "@/intl/common-messages";
 import { staffCommonMessages } from "@/intl/staff-messages";
-import { Button } from "@/ui/button/Button";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
@@ -143,17 +141,8 @@ export function DishFields(props: DishFieldsProps) {
             <field.CheckboxField label={intl.formatMessage(staffCommonMessages.dishVoucherLabel)} />
           )}
         </form.AppField>
-        <DayActions>
-          <form.SubmitButton pendingLabel={pendingLabel}>{submitLabel}</form.SubmitButton>
-          <form.Subscribe selector={(state) => state.isSubmitting}>
-            {(sending) => (
-              <Button variant="ghost" disabled={sending} onClick={cancel}>
-                {intl.formatMessage(commonMessages.cancel)}
-              </Button>
-            )}
-          </form.Subscribe>
-        </DayActions>
-        <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+        <FormActions onCancel={cancel} submitLabel={submitLabel} pendingLabel={pendingLabel} />
+        <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>
   );

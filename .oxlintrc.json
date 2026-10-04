@@ -247,7 +247,8 @@
     // ======================= FormatJS (jsPlugins, PLAN § 3.10) ====================
     "formatjs/enforce-default-message": ["error", "literal"],
     "formatjs/enforce-description": ["error", "literal"],
-    "formatjs/enforce-placeholders": "error",
+    // <b> et <i> : `defaultRichTextElements` de src/intl/intl.ts
+    "formatjs/enforce-placeholders": ["error", { "ignoreList": ["b", "i"] }],
     "formatjs/enforce-plural-rules": ["error", { "one": true, "other": true }],
     "formatjs/no-multiple-whitespaces": "error",
     "formatjs/no-multiple-plurals": "error",
@@ -345,6 +346,21 @@
       // inutilisé tomberait sous `no-unused-vars`. Exemple minimal et journal : p4c.
       "files": ["src/features/booking/use-request-id.ts"],
       "rules": { "react/hook-use-state": "off" }
+    },
+    {
+      // Easter egg du logo (D-01) : cinq clics de souris sur une image hors de l'ordre de tabulation, comme l'écouteur
+      // de l'ancien `main.js`. Une blague réservée à la souris, sans équivalent clavier voulu.
+      "files": ["src/features/page/Header.tsx"],
+      "rules": {
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off"
+      }
+    },
+    {
+      // Paramètres envoyés un par un, chacun après la réponse du précédent (06 § 2.2 (4)) : un `Promise.all`
+      // ferait partir les requêtes ensemble.
+      "files": ["src/mutations/staff/settings.ts"],
+      "rules": { "no-await-in-loop": "off" }
     },
     {
       // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33) ; tests dorés qui exécutent legacy/js/

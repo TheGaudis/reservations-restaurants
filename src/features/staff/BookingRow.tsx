@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import type { ReactNode, Ref } from "react";
+import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import type { BookingLine } from "@/features/staff/booking-line";
@@ -44,8 +44,8 @@ function LineText({ line }: { line: BookingLine }) {
 
 interface BookingRowProps {
   line: BookingLine;
-  /** « Modifier » of the row: the edit form gives it the focus back when it closes (E-48). */
-  opener: Ref<HTMLButtonElement>;
+  /** Id of « Modifier »: the edit form gives it the focus back when it closes (E-48). */
+  editButtonId: string;
   /** The edit form of this booking is open under the row. */
   expanded: boolean;
   onEdit: () => void;
@@ -58,7 +58,7 @@ interface BookingRowProps {
 /** One booking of a staff card (05 § 4.6, 06 § 7.1): its line, « Modifier » (`aria-expanded`), « Supprimer » (two clicks). */
 export function BookingRow({
   line,
-  opener,
+  editButtonId,
   expanded,
   onEdit,
   deleting,
@@ -69,7 +69,7 @@ export function BookingRow({
     <div className={styles["row"]}>
       <LineText line={line} />
       <span className={styles["actions"]}>
-        <Button ref={opener} size="small" aria-expanded={expanded} onClick={onEdit}>
+        <Button id={editButtonId} size="small" aria-expanded={expanded} onClick={onEdit}>
           {intl.formatMessage(staffCommonMessages.edit)}
         </Button>
         <ConfirmButton

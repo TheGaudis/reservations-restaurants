@@ -1,15 +1,9 @@
-import { useSelector } from "@tanstack/react-form";
-
-import { DayActions } from "@/features/calendar/DayCard";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { addButtonId, addFormId, addFormTarget } from "@/features/staff/add-booking";
-import { requestFocus } from "@/features/staff/dish-focus";
-import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
-import { useFormContext } from "@/ui/form/form-context";
-import { SubmitButton } from "@/ui/form/SubmitButton";
+import { requestFocus } from "@/ui/pending-focus";
 
 // Parts shared by the R1 and R2 forms « Ajouter une personne » (06 § 8).
 
@@ -41,24 +35,5 @@ export function AddPersonButton({ ajout }: AddPersonButtonProps) {
     >
       {intl.formatMessage(staffCommonMessages.addPerson)}
     </Button>
-  );
-}
-
-/**
- * « Ajouter cette personne » (busy: « Ajout en cours… ») and « Annuler », disabled while sending (E-13), inside the
- * `Form` of an addition (06 § 8.2, § 8.3).
- */
-export function AddBookingActions({ onCancel }: { onCancel: () => void }) {
-  const form = useFormContext();
-  const sending = useSelector(form.store, (state) => state.isSubmitting);
-  return (
-    <DayActions>
-      <SubmitButton pendingLabel={intl.formatMessage(staffCommonMessages.adding)}>
-        {intl.formatMessage(staffCommonMessages.addPersonSubmit)}
-      </SubmitButton>
-      <Button variant="ghost" disabled={sending} onClick={onCancel}>
-        {intl.formatMessage(commonMessages.cancel)}
-      </Button>
-    </DayActions>
   );
 }

@@ -41,7 +41,6 @@ function Column() {
       {summary === null ? null : (
         <BookingSummary
           summary={summary}
-          titleRef={columns.titleRef("r1")}
           onClose={() => {
             columns.clear("r1");
           }}

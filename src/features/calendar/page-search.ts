@@ -55,3 +55,14 @@ export function usePageNavigate(): (search: PageSearchParams, options: PageNavig
     });
   };
 }
+
+/**
+ * Closes a form of the current page (`replace`, no scroll). `update` receives the search params of the moment: a form
+ * opened meanwhile stays open.
+ */
+export function useCloseForm(): (update: (search: PageSearchParams) => PageSearchParams) => void {
+  const navigate = useNavigate();
+  return (update) => {
+    void navigate({ to: ".", search: update, replace: true, resetScroll: false });
+  };
+}

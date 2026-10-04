@@ -29,7 +29,6 @@ export const staffCommonMessages = defineMessages<{
   contactRequired: NoValues;
   quantityRequired: NoValues;
   dateLabel: NoValues;
-  dateRequired: NoValues;
   pastDate: NoValues;
   openedByLabel: NoValues;
   themeLabel: NoValues;
@@ -148,11 +147,6 @@ export const staffCommonMessages = defineMessages<{
     id: "staff.openDay.date.label",
     defaultMessage: "Date",
     description: "06 § 3.1, § 4.1, § 4.2 — champ Date de « Ouvrir un jour »",
-  },
-  dateRequired: {
-    id: "staff.openDay.date.required",
-    defaultMessage: "Choisissez une date.",
-    description: "06 § 4.1, § 4.2 — aucune date choisie",
   },
   pastDate: {
     id: "staff.openDay.error.pastDate",

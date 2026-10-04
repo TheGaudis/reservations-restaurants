@@ -1,5 +1,4 @@
 import { useId } from "react";
-import type { ReactNode } from "react";
 import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
@@ -23,11 +22,6 @@ const messages = defineMessages<{ title: { date: string } }>({
     description: "06 § 2.1, D-07 — titre du panneau du lendemain ; date longue",
   },
 });
-
-/** Number of a total, in bold (06 § 2.1). */
-function bold(chunks: ReactNode[]) {
-  return <b>{chunks}</b>;
-}
 
 /** Seats and portions booked for `tomorrow`; bookings of a deleted dish are left out (D-07, b-3, E-30). */
 function totalsOf(state: FullState, tomorrow: IsoDate) {
@@ -60,7 +54,7 @@ export function TomorrowPanel() {
             id="staff.tomorrow.seats"
             defaultMessage="{name} : {count, plural, one {<b>#</b> couvert réservé} other {<b>#</b> couverts réservés}}"
             description="06 § 2.1 — couverts réservés pour demain au restaurant 1 ; name : nom du restaurant 1"
-            values={{ name: name1, count: seats, b: bold }}
+            values={{ name: name1, count: seats }}
           />
         </p>
         <p className={styles["total"]}>
@@ -68,7 +62,7 @@ export function TomorrowPanel() {
             id="staff.tomorrow.portions"
             defaultMessage="{name} : {count, plural, one {<b>#</b> portion réservée} other {<b>#</b> portions réservées}}"
             description="06 § 2.1 — portions réservées pour demain au restaurant 2 ; name : nom du restaurant 2"
-            values={{ name: name2, count: portions, b: bold }}
+            values={{ name: name2, count: portions }}
           />
         </p>
       </div>

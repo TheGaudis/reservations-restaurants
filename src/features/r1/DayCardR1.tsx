@@ -16,7 +16,7 @@ import {
 import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
-import { loadBookingFormR1 } from "@/features/r1/load-booking-form";
+import { bookingFormR1Chunk } from "@/features/page/lazy-chunks";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
@@ -46,10 +46,6 @@ const messages = defineMessages<{
 interface DayCardR1Props {
   /** Booking form (`BookingFormR1Slot`), shown in place of « Réserver » while `reserver=r1` and the day can be booked. */
   form?: ReactNode;
-}
-
-function preloadForm() {
-  void loadBookingFormR1();
 }
 
 /**
@@ -85,7 +81,7 @@ export function DayCardR1({ form }: DayCardR1Props) {
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.menu)} text={day.menu} />
       {!full && !past && !formOpen ? (
-        <ReserveButton restaurant="r1" iso={iso} preload={preloadForm} />
+        <ReserveButton restaurant="r1" iso={iso} preload={bookingFormR1Chunk.load} />
       ) : null}
       {(!full || sending) && !past && formOpen ? form : null}
       {full && !past && !(sending && formOpen) ? (

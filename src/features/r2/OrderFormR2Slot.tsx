@@ -1,5 +1,5 @@
 import { useSelectedDay } from "@/features/calendar/page-search";
-import { useOrderFormR2Module } from "@/features/r2/load-order-form";
+import { orderFormR2Chunk, useChunk } from "@/features/page/lazy-chunks";
 import { Spinner } from "@/ui/feedback/Spinner";
 
 import styles from "@/features/r2/OrderFormR2.module.css";
@@ -11,7 +11,7 @@ import styles from "@/features/r2/OrderFormR2.module.css";
  */
 export function OrderFormR2Slot() {
   const date = useSelectedDay("r2");
-  const module = useOrderFormR2Module();
+  const module = useChunk(orderFormR2Chunk);
   if (module === null) {
     return (
       <div className={styles["pending"]}>

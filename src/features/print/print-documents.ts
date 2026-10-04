@@ -2,6 +2,7 @@
 // then loads the document and the print module by import(): neither enters the initial path nor the /collegue
 // chunk (S3).
 import { createElement } from "react";
+import type { ComponentType } from "react";
 import { defineMessages } from "react-intl";
 
 import { listR1, listR2 } from "@/domain/print";
@@ -37,94 +38,70 @@ function tomorrowTitle(name: string, iso: IsoDate): string {
   return intl.formatMessage(messages.tomorrowTitle, { name, date: formatLongDate(iso) });
 }
 
-/** Document A, list of the R1 day `iso` (07 § 3); `opener` gets the focus back after printing. */
-export async function printListR1(
-  state: FullState,
-  iso: IsoDate,
-  opener: HTMLElement,
-): Promise<void> {
-  const list = listR1(state, iso);
-  const printedAt = Date.now();
-  const [{ printDocument }, { ListDocumentR1 }] = await Promise.all([
-    import("@/ui/print/print"),
-    import("@/features/print/ListDocumentR1"),
-  ]);
-  await printDocument(createElement(ListDocumentR1, { list, printedAt }), {
-    title: listTitle(list.restaurantName, iso),
-    opener,
-  });
-}
-
-/** Document B, list of the R2 day `iso` (07 § 4); `opener` gets the focus back after printing. */
-export async function printListR2(
-  state: FullState,
-  iso: IsoDate,
-  opener: HTMLElement,
-): Promise<void> {
-  const list = listR2(state, iso);
-  const printedAt = Date.now();
-  const [{ printDocument }, { ListDocumentR2 }] = await Promise.all([
-    import("@/ui/print/print"),
-    import("@/features/print/ListDocumentR2"),
-  ]);
-  await printDocument(createElement(ListDocumentR2, { list, printedAt }), {
-    title: listTitle(list.restaurantName, iso),
-    opener,
-  });
-}
-
-/** Document C, R1 summary of `tomorrow` (07 § 6), for the « Imprimer » button of the R1 block of « Demain ». */
-export async function printTomorrowR1(
-  state: FullState,
-  tomorrow: IsoDate,
-  opener: HTMLElement,
-): Promise<void> {
-  const list = listR1(state, tomorrow);
-  const printedAt = Date.now();
-  const [{ printDocument }, { TomorrowDocumentR1 }] = await Promise.all([
-    import("@/ui/print/print"),
-    import("@/features/print/TomorrowDocumentR1"),
-  ]);
-  await printDocument(createElement(TomorrowDocumentR1, { list, printedAt }), {
-    title: tomorrowTitle(list.restaurantName, tomorrow),
-    opener,
-  });
-}
-
-/** Document D, R2 summary of `tomorrow` (07 § 7), for the « Imprimer » button of the R2 block of « Demain ». */
-export async function printTomorrowR2(
-  state: FullState,
-  tomorrow: IsoDate,
-  opener: HTMLElement,
-): Promise<void> {
-  const list = listR2(state, tomorrow);
-  const printedAt = Date.now();
-  const [{ printDocument }, { TomorrowDocumentR2 }] = await Promise.all([
-    import("@/ui/print/print"),
-    import("@/features/print/TomorrowDocumentR2"),
-  ]);
-  await printDocument(createElement(TomorrowDocumentR2, { list, printedAt }), {
-    title: tomorrowTitle(list.restaurantName, tomorrow),
-    opener,
-  });
-}
-
-/** Signature of the four print actions above. */
-type PrintAction = (state: FullState, iso: IsoDate, opener: HTMLElement) => Promise<void>;
-
 /**
- * Runs `print` from a click handler; never rejects. A chunk that fails to load (site updated meanwhile, network down) leaves the page
- * as it was, with the error in the console: no text of the spec covers that case.
+ * Loads the document and the print module, then prints `list`; `opener` gets the focus back after printing. Never
+ * rejects: a chunk that fails to load (site updated meanwhile, network down) leaves the page as it was, with the error
+ * in the console; no text of the spec covers that case.
  */
-export async function startPrinting(
-  print: PrintAction,
-  state: FullState,
-  iso: IsoDate,
+async function printWith<L>(
+  loadDocument: () => Promise<ComponentType<{ list: L; printedAt: number }>>,
+  list: L,
+  title: string,
   opener: HTMLElement,
 ): Promise<void> {
+  const printedAt = Date.now();
   try {
-    await print(state, iso, opener);
+    const [{ printDocument }, Document] = await Promise.all([
+      import("@/ui/print/print"),
+      loadDocument(),
+    ]);
+    await printDocument(createElement(Document, { list, printedAt }), { title, opener });
   } catch (error) {
     console.error(error);
   }
+}
+
+// One chunk per document (S3): each `import()` stays literal.
+async function loadListR1() {
+  const module = await import("@/features/print/ListDocumentR1");
+  return module.ListDocumentR1;
+}
+
+async function loadListR2() {
+  const module = await import("@/features/print/ListDocumentR2");
+  return module.ListDocumentR2;
+}
+
+async function loadTomorrowR1() {
+  const module = await import("@/features/print/TomorrowDocumentR1");
+  return module.TomorrowDocumentR1;
+}
+
+async function loadTomorrowR2() {
+  const module = await import("@/features/print/TomorrowDocumentR2");
+  return module.TomorrowDocumentR2;
+}
+
+/** Document A, list of the R1 day `iso` (07 § 3). */
+export async function printListR1(state: FullState, iso: IsoDate, opener: HTMLElement) {
+  const list = listR1(state, iso);
+  await printWith(loadListR1, list, listTitle(list.restaurantName, iso), opener);
+}
+
+/** Document B, list of the R2 day `iso` (07 § 4). */
+export async function printListR2(state: FullState, iso: IsoDate, opener: HTMLElement) {
+  const list = listR2(state, iso);
+  await printWith(loadListR2, list, listTitle(list.restaurantName, iso), opener);
+}
+
+/** Document C, R1 summary of `tomorrow` (07 § 6), for the « Imprimer » button of the R1 block of « Demain ». */
+export async function printTomorrowR1(state: FullState, tomorrow: IsoDate, opener: HTMLElement) {
+  const list = listR1(state, tomorrow);
+  await printWith(loadTomorrowR1, list, tomorrowTitle(list.restaurantName, tomorrow), opener);
+}
+
+/** Document D, R2 summary of `tomorrow` (07 § 7), for the « Imprimer » button of the R2 block of « Demain ». */
+export async function printTomorrowR2(state: FullState, tomorrow: IsoDate, opener: HTMLElement) {
+  const list = listR2(state, tomorrow);
+  await printWith(loadTomorrowR2, list, tomorrowTitle(list.restaurantName, tomorrow), opener);
 }

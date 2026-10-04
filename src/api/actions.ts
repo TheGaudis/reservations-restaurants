@@ -24,12 +24,7 @@ import { withVoucherMark } from "@/domain/vouchers";
 // API boundary (PLAN § 3.3.6), writes: one function per POST action the site sends (02 § 4.4, § 4.5, § 4.7),
 // never `addBookingR2` (obsolete, 02 § 4.6) nor `checkPassword`. Each takes the English model and rebuilds the body
 // with the script's names, exactly the fields of the old client. A write is sent once: no retry, no timeout
-// (R-11); `signal` is only for a caller that gives up waiting, the script still writes.
-
-/** Options of a write. */
-export interface ActionOptions {
-  signal?: AbortSignal;
-}
+// (R-11).
 
 /**
  * Script key of each setting, sent by `setConfigField` (01 § 2.1, 02 § 4.7).
@@ -59,9 +54,8 @@ function apiDish({ name, stock, price, voucher }: DishInput) {
 async function publicWrite(
   action: string,
   body: Readonly<Record<string, unknown>>,
-  options: ActionOptions,
 ): Promise<WriteResponse> {
-  return parseAnswer(WriteResponseSchema, await postAction(action, body, options));
+  return parseAnswer(WriteResponseSchema, await postAction(action, body));
 }
 
 /** Protected action (02 § 2): the password goes in the body, never in the URL; the answer is the full state. */
@@ -69,16 +63,12 @@ async function staffWrite(
   action: string,
   password: string,
   body: Readonly<Record<string, unknown>>,
-  options: ActionOptions,
 ): Promise<FullState> {
-  return parseAnswer(FullStateSchema, await postAction(action, { password, ...body }, options));
+  return parseAnswer(FullStateSchema, await postAction(action, { password, ...body }));
 }
 
 /** `addBookingR1` (02 § 4.4): public form and staff addition, without password. */
-export async function addBookingR1(
-  input: BookingR1Input,
-  options: ActionOptions = {},
-): Promise<WriteResponse> {
+export async function addBookingR1(input: BookingR1Input): Promise<WriteResponse> {
   const body = {
     date: input.date,
     nom: input.name,
@@ -90,14 +80,11 @@ export async function addBookingR1(
     observation: input.observation,
     requestId: input.requestId,
   };
-  return publicWrite("addBookingR1", body, options);
+  return publicWrite("addBookingR1", body);
 }
 
 /** `addBookingR2Multi` (02 § 4.5): public form and staff addition, without password. */
-export async function addBookingR2Multi(
-  input: OrderR2Input,
-  options: ActionOptions = {},
-): Promise<WriteResponse> {
+export async function addBookingR2Multi(input: OrderR2Input): Promise<WriteResponse> {
   const body = {
     date: input.date,
     nom: input.name,
@@ -108,15 +95,11 @@ export async function addBookingR2Multi(
     observation: input.observation,
     requestId: input.requestId,
   };
-  return publicWrite("addBookingR2Multi", body, options);
+  return publicWrite("addBookingR2Multi", body);
 }
 
 /** `addDayR1` (02 § 4.7, 06 § 4.1). */
-export async function addDayR1(
-  password: string,
-  input: OpenDayR1Input,
-  options: ActionOptions = {},
-): Promise<FullState> {
+export async function addDayR1(password: string, input: OpenDayR1Input): Promise<FullState> {
   const body = {
     date: input.date,
     capacity: input.capacity,
@@ -124,42 +107,29 @@ export async function addDayR1(
     theme: input.theme,
     collegue: input.openedBy,
   };
-  return staffWrite("addDayR1", password, body, options);
+  return staffWrite("addDayR1", password, body);
 }
 
 /** `editDayR1` (02 § 4.7, 06 § 5.1). */
-export async function editDayR1(
-  password: string,
-  input: EditDayR1Input,
-  options: ActionOptions = {},
-): Promise<FullState> {
+export async function editDayR1(password: string, input: EditDayR1Input): Promise<FullState> {
   const body = { date: input.date, capacity: input.capacity, menu: input.menu, theme: input.theme };
-  return staffWrite("editDayR1", password, body, options);
+  return staffWrite("editDayR1", password, body);
 }
 
 /** `deleteDayR1` (02 § 4.7, 06 § 5.2): the script also deletes every booking of the day. */
-export async function deleteDayR1(
-  password: string,
-  date: IsoDate,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("deleteDayR1", password, { date }, options);
+export async function deleteDayR1(password: string, date: IsoDate): Promise<FullState> {
+  return staffWrite("deleteDayR1", password, { date });
 }
 
 /** `deleteBookingR1` (02 § 4.7, 06 § 7.1). */
-export async function deleteBookingR1(
-  password: string,
-  id: string,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("deleteBookingR1", password, { id }, options);
+export async function deleteBookingR1(password: string, id: string): Promise<FullState> {
+  return staffWrite("deleteBookingR1", password, { id });
 }
 
 /** `editBookingR1` (02 § 4.7, 06 § 7.3): `qte` and `prixTotal` are sent as the old client did; the script ignores them. */
 export async function editBookingR1(
   password: string,
   input: EditBookingR1Input,
-  options: ActionOptions = {},
 ): Promise<FullState> {
   const body = {
     id: input.id,
@@ -173,15 +143,11 @@ export async function editBookingR1(
     prixTotal: input.total,
     observation: input.observation,
   };
-  return staffWrite("editBookingR1", password, body, options);
+  return staffWrite("editBookingR1", password, body);
 }
 
 /** `addDayR2` (02 § 4.7, 06 § 4.2): on an open day, the script adds only the dishes of a new name. */
-export async function addDayR2(
-  password: string,
-  input: OpenDayR2Input,
-  options: ActionOptions = {},
-): Promise<FullState> {
+export async function addDayR2(password: string, input: OpenDayR2Input): Promise<FullState> {
   const body = {
     date: input.date,
     note: input.note,
@@ -189,59 +155,38 @@ export async function addDayR2(
     theme: input.theme,
     collegue: input.openedBy,
   };
-  return staffWrite("addDayR2", password, body, options);
+  return staffWrite("addDayR2", password, body);
 }
 
 /** `addItemR2` (02 § 4.7, 06 § 6.2). */
-export async function addItemR2(
-  password: string,
-  input: AddDishInput,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("addItemR2", password, { date: input.date, ...apiDish(input) }, options);
+export async function addItemR2(password: string, input: AddDishInput): Promise<FullState> {
+  return staffWrite("addItemR2", password, { date: input.date, ...apiDish(input) });
 }
 
 /** `editItemR2` (02 § 4.7, 06 § 6.3). */
-export async function editItemR2(
-  password: string,
-  input: EditDishInput,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("editItemR2", password, { itemId: input.dishId, ...apiDish(input) }, options);
+export async function editItemR2(password: string, input: EditDishInput): Promise<FullState> {
+  return staffWrite("editItemR2", password, { itemId: input.dishId, ...apiDish(input) });
 }
 
 /** `deleteItemR2` (02 § 4.7, 06 § 6.4): the bookings of the dish stay. */
-export async function deleteItemR2(
-  password: string,
-  dishId: string,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("deleteItemR2", password, { itemId: dishId }, options);
+export async function deleteItemR2(password: string, dishId: string): Promise<FullState> {
+  return staffWrite("deleteItemR2", password, { itemId: dishId });
 }
 
 /** `deleteDayR2` (02 § 4.7, 06 § 5.2): the script also deletes the dishes and bookings of the day. */
-export async function deleteDayR2(
-  password: string,
-  date: IsoDate,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("deleteDayR2", password, { date }, options);
+export async function deleteDayR2(password: string, date: IsoDate): Promise<FullState> {
+  return staffWrite("deleteDayR2", password, { date });
 }
 
 /** `deleteBookingR2` (02 § 4.7, 06 § 7.1). */
-export async function deleteBookingR2(
-  password: string,
-  id: string,
-  options: ActionOptions = {},
-): Promise<FullState> {
-  return staffWrite("deleteBookingR2", password, { id }, options);
+export async function deleteBookingR2(password: string, id: string): Promise<FullState> {
+  return staffWrite("deleteBookingR2", password, { id });
 }
 
 /** `editBookingR2` (02 § 4.7, 06 § 7.4). */
 export async function editBookingR2(
   password: string,
   input: EditBookingR2Input,
-  options: ActionOptions = {},
 ): Promise<FullState> {
   const body = {
     id: input.id,
@@ -252,15 +197,11 @@ export async function editBookingR2(
     mode: apiServiceMode(input.serviceMode),
     observation: input.observation,
   };
-  return staffWrite("editBookingR2", password, body, options);
+  return staffWrite("editBookingR2", password, body);
 }
 
 /** `setConfigField` (02 § 4.7, 06 § 2.2): one setting per request; the settings panel sends them in sequence. */
-export async function setConfigField(
-  password: string,
-  input: SettingInput,
-  options: ActionOptions = {},
-): Promise<FullState> {
+export async function setConfigField(password: string, input: SettingInput): Promise<FullState> {
   const body = { key: SETTINGS_API_KEYS[input.key], value: input.value };
-  return staffWrite("setConfigField", password, body, options);
+  return staffWrite("setConfigField", password, body);
 }

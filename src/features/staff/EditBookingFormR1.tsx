@@ -1,5 +1,4 @@
 import { useId } from "react";
-import type { RefObject } from "react";
 import { defineMessages } from "react-intl";
 
 import { editBookingR1Input, maxSeatsForEdit } from "@/domain/bookings";
@@ -12,18 +11,17 @@ import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { SeatCountersR1 } from "@/features/r1/SeatCountersR1";
 import { editResaValue } from "@/features/staff/booking-line";
 import { editIdentityErrors, identityOf, useCloseEditBooking } from "@/features/staff/edit-booking";
-import { EditBookingActions } from "@/features/staff/EditBookingActions";
 import {
   EditContactField,
   EditNameFields,
   EditObservationField,
 } from "@/features/staff/EditBookingFields";
+import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { isCapacityRefusal, useEditBookingR1 } from "@/mutations/staff/bookings";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
+import { showStaffError } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
@@ -123,8 +121,7 @@ function useEditFormR1(booking: BookingR1, close: () => void) {
             externals: message,
           });
         } else {
-          const text = staffErrorText(error);
-          if (text !== null) showToast(text, "error");
+          showStaffError(error);
         }
       } finally {
         slowWrite.stop();
@@ -136,8 +133,6 @@ function useEditFormR1(booking: BookingR1, close: () => void) {
 
 interface EditBookingFormR1Props {
   booking: BookingR1;
-  /** « Modifier » of the booking row: it takes the focus back when the form closes (E-48). */
-  opener: RefObject<HTMLButtonElement | null>;
 }
 
 /**
@@ -146,8 +141,8 @@ interface EditBookingFormR1Props {
  * The values follow a refresh until a field changes, then stay as typed (03 § 5.4). Success: toast « Réservation
  * modifiée. », form closed; failure: the script's message under the counters (seats) or in a toast.
  */
-export function EditBookingFormR1({ booking, opener }: EditBookingFormR1Props) {
-  const close = useCloseEditBooking(editResaValue("r1", booking.id), opener);
+export function EditBookingFormR1({ booking }: EditBookingFormR1Props) {
+  const close = useCloseEditBooking(editResaValue("r1", booking.id));
   const { form, max, prices, slowWrite } = useEditFormR1(booking, close);
   const errorId = useId();
   const help = madeBeforePrices(booking)
@@ -166,8 +161,8 @@ export function EditBookingFormR1({ booking, opener }: EditBookingFormR1Props) {
         help={help}
       />
       <EditObservationField form={form} fields={OBSERVATION} />
-      <EditBookingActions onCancel={close} />
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <FormActions onCancel={close} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

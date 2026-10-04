@@ -9,6 +9,7 @@ import { Button } from "@/ui/button/Button";
 import { IconButton } from "@/ui/button/IconButton";
 import { withFieldGroup } from "@/ui/form/app-form";
 import { CloseIcon } from "@/ui/icons";
+import { focusOnMount, requestFocus } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/OpenDayForm.module.css";
 
@@ -171,14 +172,9 @@ const draftsDefaults: { dishes: DishLine[] } = { dishes: [newDishLine()] };
 
 const draftsProps: { suggestions: readonly string[] } = { suggestions: [] };
 
-// Set by « + Ajouter un plat », taken by the line it adds: its name field gets the focus.
-let focusAddedLine = false;
-
-function focusIfAdded(line: HTMLDivElement | null) {
-  if (line === null || !focusAddedLine) return;
-  focusAddedLine = false;
-  line.querySelector("input")?.focus();
-}
+// Asked by « + Ajouter un plat », taken by the line it adds: its name field gets the focus, scrolled into view.
+const ADDED_LINE = "added-dish-line";
+const focusIfAdded = focusOnMount(ADDED_LINE, (line) => line.querySelector("input")?.focus());
 
 /**
  * « Plats disponibles ce jour-là » of « Ouvrir un jour » R2 (06 § 4.2-4.3), bound to the field `dishes`: one line per
@@ -232,7 +228,7 @@ export const DishDraftsR2 = withFieldGroup({
               variant="ghost"
               data-add-dish=""
               onClick={() => {
-                focusAddedLine = true;
+                requestFocus(ADDED_LINE);
                 dishes.pushValue(newDishLine());
               }}
             >

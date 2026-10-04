@@ -16,19 +16,21 @@ import {
   addFormId,
   addFormTarget,
   ajoutValue,
-  showAddFailure,
   useCloseAddBooking,
 } from "@/features/staff/add-booking";
-import { AddBookingActions, AddPersonButton } from "@/features/staff/AddBookingParts";
-import { focusFirstField } from "@/features/staff/dish-focus";
+import { AddPersonButton } from "@/features/staff/AddBookingParts";
+import { modeOptions, portionsError } from "@/features/staff/booking-r2";
+import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useOrderR2 } from "@/mutations/bookings";
+import { showStaffError } from "@/mutations/staff/write";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
+import { focusFirstInput, focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/AddBookingForm.module.css";
 
@@ -72,14 +74,6 @@ export function AddBookingButtonR2({ dish }: AddBookingR2Props) {
   return <AddPersonButton ajout={ajoutValue(dish.id)} />;
 }
 
-/** Portions: at least 1, at most the stock left (06 § 8.3). */
-function portionsError(portions: number | null, max: number): string | undefined {
-  const count = portions ?? 0;
-  if (count <= 0) return intl.formatMessage(staffCommonMessages.quantityRequired);
-  if (count > max) return intl.formatMessage(commonMessages.maxPortions, { count: max });
-  return undefined;
-}
-
 /** Rules of 06 § 8.1 and § 8.3 in one validator. */
 function addR2Rules(value: AddR2Values, max: number) {
   const portions = portionsError(value.portions, max);
@@ -88,13 +82,6 @@ function addR2Rules(value: AddR2Values, max: number) {
     ...(portions === undefined ? {} : { portions }),
   };
   return Object.keys(fields).length === 0 ? undefined : { fields };
-}
-
-/** « À emporter » (first, the default) and « Sur place »; « Sur place » alone on a voucher day (D-19, E-36). */
-function modeOptions(voucherDay: boolean): Array<{ value: ServiceMode; label: string }> {
-  const dineIn = { value: "dineIn" as const, label: intl.formatMessage(commonMessages.dineIn) };
-  if (voucherDay) return [dineIn];
-  return [{ value: "takeaway", label: intl.formatMessage(commonMessages.takeaway) }, dineIn];
 }
 
 /**
@@ -152,7 +139,7 @@ function useAddFormR2(dish: Dish) {
           },
         });
       } catch (error) {
-        showAddFailure(error);
+        showStaffError(error);
       } finally {
         slowWrite.stop();
       }
@@ -167,7 +154,7 @@ function AddBookingFormR2Open({ dish }: AddBookingR2Props) {
   return (
     <div
       id={addFormId(ajout)}
-      ref={focusFirstField(addFormTarget(ajout))}
+      ref={focusOnMount(addFormTarget(ajout), focusFirstInput)}
       className={styles["reveal"]}
     >
       <Form form={form} className={styles["form"]}>
@@ -197,8 +184,12 @@ function AddBookingFormR2Open({ dish }: AddBookingR2Props) {
           </form.AppField>
         </div>
         <ObservationField form={form} fields={OBSERVATION} />
-        <AddBookingActions onCancel={close} />
-        <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+        <FormActions
+          onCancel={close}
+          submitLabel={intl.formatMessage(staffCommonMessages.addPersonSubmit)}
+          pendingLabel={intl.formatMessage(staffCommonMessages.adding)}
+        />
+        <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>
   );

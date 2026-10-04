@@ -43,7 +43,6 @@ export const commonMessages = defineMessages<{
   maxPortions: { count: number };
   quantityDecrement: { name: string };
   quantityIncrement: { name: string };
-  errorGeneric: NoValues;
   offline: NoValues;
   serviceUnavailable: NoValues;
   slowWrite: NoValues;
@@ -230,11 +229,6 @@ export const commonMessages = defineMessages<{
     id: "public.r2.form.quantity.increment",
     defaultMessage: "Ajouter une portion : {name}",
     description: "PLAN annexe F, D-17 — bouton + d'une quantité R2",
-  },
-  errorGeneric: {
-    id: "common.error.generic",
-    defaultMessage: "Erreur",
-    description: "04 § 9, 06 § 4.1 — toast d'erreur sans message du script",
   },
   offline: {
     id: "common.error.offline",

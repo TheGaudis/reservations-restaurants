@@ -1,9 +1,8 @@
-import type { Ref } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import type { SummaryR1, SummaryR2, SummaryWarning } from "@/domain/bookings";
 import type { Restaurant } from "@/domain/types";
-import { useBookingColumns } from "@/features/booking/booking-columns";
+import { columnFocus, useBookingColumns } from "@/features/booking/booking-columns";
 import type { BookingSummaryContent } from "@/features/booking/booking-columns";
 import { useSelectedDay } from "@/features/calendar/page-search";
 import { summaryR1TotalText, summaryR2TotalText } from "@/intl/amounts";
@@ -14,6 +13,7 @@ import type { AppState } from "@/queries/use-app-state";
 import { Button } from "@/ui/button/Button";
 import { Alert } from "@/ui/feedback/Alert";
 import { SummaryCheckIcon } from "@/ui/icons";
+import { focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/booking/BookingSummary.module.css";
 
@@ -149,12 +149,15 @@ function warningTexts(intl: Intl, summary: BookingSummaryContent): string[] {
 
 const cancellationContactOf = (state: AppState) => state.settings.cancellationContact;
 
+/** The title of a summary just shown takes the focus, scrolled into view (E-12). */
+const focusTitle = (title: HTMLElement) => {
+  title.focus();
+};
+
 interface BookingSummaryProps {
   summary: BookingSummaryContent;
   /** « Fermer ». */
   onClose: () => void;
-  /** Title, focused after the booking (E-12). */
-  titleRef?: Ref<HTMLParagraphElement> | undefined;
 }
 
 /**
@@ -162,7 +165,7 @@ interface BookingSummaryProps {
  * apply, E-14; « déjà enregistrée » for a duplicate, D-16), lines, total, cancellation contact, « Fermer ».
  * @internal exported for the tests and stories; the page shows it through `ColumnSummary`
  */
-export function BookingSummary({ summary, onClose, titleRef }: BookingSummaryProps) {
+export function BookingSummary({ summary, onClose }: BookingSummaryProps) {
   const intl = useIntl();
   const contact = useAppState(cancellationContactOf);
   const lines = summary.restaurant === "r1" ? linesR1(intl, summary) : linesR2(intl, summary);
@@ -178,7 +181,11 @@ export function BookingSummary({ summary, onClose, titleRef }: BookingSummaryPro
           <SummaryCheckIcon />
         </span>
         <div>
-          <p className={styles["title"]} tabIndex={-1} ref={titleRef}>
+          <p
+            className={styles["title"]}
+            tabIndex={-1}
+            ref={focusOnMount(columnFocus.summary(summary.restaurant), focusTitle)}
+          >
             {intl.formatMessage(summary.duplicate ? messages.duplicateTitle : messages.title)}
           </p>
           <p className={styles["date"]}>{formatLongDate(summary.date)}</p>
@@ -229,7 +236,6 @@ export function ColumnSummary({ restaurant }: { restaurant: Restaurant }) {
   return (
     <BookingSummary
       summary={summary}
-      titleRef={columns.titleRef(restaurant)}
       onClose={() => {
         columns.clear(restaurant);
       }}

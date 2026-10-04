@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -17,12 +16,12 @@ import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { bookingLineR1, bookingLineR2, editResaValue } from "@/features/staff/booking-line";
 import { BookingRow } from "@/features/staff/BookingRow";
+import { editBookingButtonId } from "@/features/staff/edit-booking";
 import { EditBookingFormR1 } from "@/features/staff/EditBookingFormR1";
 import { EditBookingFormR2 } from "@/features/staff/EditBookingFormR2";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { useDeleteBooking } from "@/mutations/staff/bookings";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
+import { showStaffError } from "@/mutations/staff/write";
 
 import styles from "@/features/staff/BookingList.module.css";
 
@@ -44,8 +43,7 @@ function useDeleteFromList(restaurant: Restaurant) {
         focusCardDate(restaurant);
       },
       onError: (error) => {
-        const text = staffErrorText(error);
-        if (text !== null) showToast(text, "error");
+        showStaffError(error);
       },
     });
   };
@@ -91,19 +89,19 @@ interface ItemProps<B> {
 }
 
 function BookingItemR1({ booking, deleting, onDelete }: ItemProps<BookingR1>) {
-  const opener = useRef<HTMLButtonElement>(null);
-  const { expanded, open } = useEditResa(editResaValue("r1", booking.id));
+  const editResa = editResaValue("r1", booking.id);
+  const { expanded, open } = useEditResa(editResa);
   return (
     <>
       <BookingRow
         line={bookingLineR1(booking)}
-        opener={opener}
+        editButtonId={editBookingButtonId(editResa)}
         expanded={expanded}
         onEdit={open}
         deleting={deleting}
         onDelete={onDelete}
       />
-      {expanded ? <EditBookingFormR1 booking={booking} opener={opener} /> : null}
+      {expanded ? <EditBookingFormR1 booking={booking} /> : null}
     </>
   );
 }
@@ -114,19 +112,19 @@ function BookingItemR2({
   deleting,
   onDelete,
 }: ItemProps<BookingR2> & { dish: Dish }) {
-  const opener = useRef<HTMLButtonElement>(null);
-  const { expanded, open } = useEditResa(editResaValue("r2", booking.id));
+  const editResa = editResaValue("r2", booking.id);
+  const { expanded, open } = useEditResa(editResa);
   return (
     <>
       <BookingRow
         line={bookingLineR2(booking, dish)}
-        opener={opener}
+        editButtonId={editBookingButtonId(editResa)}
         expanded={expanded}
         onEdit={open}
         deleting={deleting}
         onDelete={onDelete}
       />
-      {expanded ? <EditBookingFormR2 booking={booking} dish={dish} opener={opener} /> : null}
+      {expanded ? <EditBookingFormR2 booking={booking} dish={dish} /> : null}
     </>
   );
 }

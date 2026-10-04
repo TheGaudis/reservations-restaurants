@@ -200,7 +200,7 @@ export function SettingsForm() {
       <form.SubmitButton pendingLabel={intl.formatMessage(commonMessages.saving)}>
         {intl.formatMessage(messages.save)}
       </form.SubmitButton>
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

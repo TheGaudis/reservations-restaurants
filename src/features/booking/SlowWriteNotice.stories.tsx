@@ -8,7 +8,7 @@ import preview from "../../../.storybook/preview";
 
 const meta = preview.meta({
   component: SlowWriteNotice,
-  args: { slow: false, timerRef: null },
+  args: { slow: false },
   globals: { accent: "r1" },
 });
 

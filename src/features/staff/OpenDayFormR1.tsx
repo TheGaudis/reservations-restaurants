@@ -19,8 +19,7 @@ import { useStaffState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { useOpenDayR1 } from "@/mutations/staff/days";
-import { staffErrorText } from "@/mutations/staff/write";
-import { showToast } from "@/ui/feedback/toast";
+import { showStaffError } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
@@ -115,8 +114,7 @@ function useOpenDayFormR1(date: IsoDate, problem: OpenDateProblem | null) {
           },
         });
       } catch (error) {
-        const text = staffErrorText(error);
-        if (text !== null) showToast(text, "error");
+        showStaffError(error);
       } finally {
         slowWrite.stop();
       }
@@ -178,7 +176,7 @@ function OpenDayBodyR1() {
       <form.SubmitButton pendingLabel={formatMessage(staffCommonMessages.opening)}>
         {formatMessage(staffCommonMessages.openDaySubmit)}
       </form.SubmitButton>
-      <SlowWriteNotice slow={slowWrite.slow} timerRef={slowWrite.clearOnUnmount} />
+      <SlowWriteNotice slow={slowWrite.slow} />
     </Form>
   );
 }

@@ -6,7 +6,7 @@ import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/page/ModeSwitch.module.css";
 
-// Login panel of the mode switch, in a chunk of its own (`load-login-panel.ts`): TanStack Form and the fields of
+// Login panel of the mode switch, in a chunk of its own (`lazy-chunks.ts`): TanStack Form and the fields of
 // `ui/form/` stay out of the initial path of a public visitor (S3, R-15).
 
 const messages = defineMessages({
@@ -32,7 +32,7 @@ export interface LoginPanelProps {
   submit: (password: string) => Promise<void>;
   /** Échap in the field (06 § 1.2), with the field. */
   onEscape: (input: HTMLInputElement) => void;
-  /** Stable ref callback of the field: the field of a panel opened by « Collègue » takes the focus (06 § 1.2). */
+  /** Ref callback of the field: the field of a panel opened by « Collègue » takes the focus (06 § 1.2). */
   takeFocus: (input: HTMLInputElement | null) => void;
 }
 

@@ -19,25 +19,15 @@ const messages = defineMessages({
 // Easter egg of the old site (D-01, 09 § 7).
 const VIDEO_URL = "https://youtu.be/dQw4w9WgXcQ?list=RDdQw4w9WgXcQ";
 
-/**
- * Five clicks on the logo within 2 s open the video in a new tab (D-01). Times kept in a ref: nothing renders.
- * A mouse-only joke, like the click listener of the old `main.js`: the logo stays an image, outside the tab order,
- * so the listener goes on the element itself through a ref callback.
- */
-function useEasterEgg(): (logo: HTMLImageElement) => () => void {
+/** Five clicks on the logo within 2 s open the video in a new tab (D-01). Times kept in a ref: nothing renders. */
+function useEasterEgg(): () => void {
   const clicks = useRef<number[]>([]);
-  const onClick = () => {
+  return () => {
     const now = Date.now();
     clicks.current = [...clicks.current.filter((time) => now - time < LOGO_CLICK_WINDOW_MS), now];
     if (clicks.current.length < LOGO_CLICKS) return;
     clicks.current = [];
     window.open(VIDEO_URL, "_blank", "noopener");
-  };
-  return (logo) => {
-    logo.addEventListener("click", onClick);
-    return () => {
-      logo.removeEventListener("click", onClick);
-    };
   };
 }
 
@@ -50,12 +40,12 @@ interface HeaderProps {
 /** Header of the page (04 § 2, 08 § 7.2): logo, school, title derived from `name2` (D-24), subtitle. */
 export function Header({ texts, modeSwitch }: HeaderProps) {
   const intl = useIntl();
-  const logoRef = useEasterEgg();
+  const onLogoClick = useEasterEgg();
   return (
     <header className={styles["header"]}>
       <div className={styles["brand"]}>
         <img
-          ref={logoRef}
+          onClick={onLogoClick}
           className={styles["logo"]}
           src={logoUrl}
           width={161}
