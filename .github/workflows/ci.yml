@@ -1,5 +1,5 @@
 # Checks every push to main and to the integration branch, and every pull request (PLAN § 3.1, P0).
-# Nothing is deployed before the switch: the deploy job only runs on a push to main (PLAN § 7, R-29).
+# The deploy job publishes to GitHub Pages from main only: a push, or a manual run on main (PLAN § 7, R-29).
 # Actions are pinned by commit SHA (git ls-remote --tags), version in the trailing comment.
 name: CI
 
@@ -163,9 +163,12 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # Active from the switch (P8) only: a push to main publishes the dist/client artifact of this run.
+  # Publishes the dist/client artifact of this run (PLAN P8, § 7). Never from another branch nor from a pull request:
+  # github.ref of a pull_request event is refs/pull/<n>/merge. A manual run (workflow_dispatch) on main redeploys
+  # without a commit, after a change of the repository variable. The github-pages environment, which allows main
+  # only, refuses any other ref a second time.
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: [check, browser, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -179,10 +182,21 @@ jobs:
       group: pages
       cancel-in-progress: false
     steps:
+      # Without the script URL the site would show « Configuration manquante » to everyone (D-05).
+      - name: Repository variable VITE_APPS_SCRIPT_URL set
+        if: vars.VITE_APPS_SCRIPT_URL == ''
+        run: |
+          echo "::error::Repository variable VITE_APPS_SCRIPT_URL is not set: nothing is published"
+          exit 1
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist-client
           path: dist/client
+      - name: Pages files present (index.html, 404.html for deep links, no mock service worker)
+        run: |
+          test -f dist/client/index.html
+          test -f dist/client/404.html
+          test ! -e dist/client/mockServiceWorker.js
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: dist/client
