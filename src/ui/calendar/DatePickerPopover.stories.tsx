@@ -42,10 +42,9 @@ const meta = preview.meta({
 /** Closed: the long date and the calendar icon. */
 export const Closed = meta.story({
   play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: "Date lundi 5 octobre 2026" })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
+    await expect(
+      canvas.getByRole("button", { name: "Date", description: "lundi 5 octobre 2026" }),
+    ).toHaveAttribute("aria-expanded", "false");
   },
 });
 
@@ -53,7 +52,7 @@ export const Closed = meta.story({
 export const Open = meta.story({
   args: { initial: "2026-10-20" },
   play: async ({ canvas }) => {
-    await userEvent.click(canvas.getByRole("button", { name: /^Date /u }));
+    await userEvent.click(canvas.getByRole("button", { name: "Date" }));
     const dialog = await screen.findByRole("dialog", { name: "Choisir la date" });
     // The popup fades in (`data-starting-style`).
     await waitFor(async () => {
@@ -70,7 +69,7 @@ export const OpenR2 = meta.story({
   args: { accent: "r2" as const },
   globals: { accent: "r2" },
   play: async ({ canvas }) => {
-    await userEvent.click(canvas.getByRole("button", { name: /^Date /u }));
+    await userEvent.click(canvas.getByRole("button", { name: "Date" }));
     const dialog = await screen.findByRole("dialog", { name: "Choisir la date" });
     await waitFor(async () => {
       await expect(dialog).toBeVisible();

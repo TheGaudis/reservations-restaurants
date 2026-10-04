@@ -45,7 +45,8 @@ const messages = defineMessages<{
 export interface DatePickerPopoverProps {
   /** Id of the trigger, for the `<label htmlFor>` of the field (« Date », 06 § 3.1). */
   id: string;
-  /** Id of that label: the trigger is named « Date » followed by the date shown. */
+  /** Id of that label: the trigger is named « Date », as the `<label for>` of 06 § 3.1 names it; the date shown
+   * describes it. */
   labelId: string;
   value: IsoDate;
   /** Today in Paris: earlier days cannot be chosen (06 § 3.2). */
@@ -182,9 +183,9 @@ export function DatePickerPopover({
       <Popover.Trigger
         id={id}
         className={styles["trigger"]}
-        aria-labelledby={`${labelId} ${valueId}`}
+        aria-labelledby={labelId}
         aria-invalid={invalid === true || undefined}
-        aria-describedby={describedBy}
+        aria-describedby={describedBy === undefined ? valueId : `${describedBy} ${valueId}`}
       >
         <span id={valueId}>{formatLongDate(value)}</span>
         <CalendarIcon />

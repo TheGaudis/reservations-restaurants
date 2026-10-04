@@ -42,7 +42,7 @@ function DateField({
   );
 }
 
-const trigger = () => page.getByRole("button", { name: /^Date /u });
+const trigger = () => page.getByRole("button", { name: "Date", exact: true });
 const dialog = () => page.getByRole("dialog", { name: "Choisir la date" });
 const dayIn = (name: RegExp) => dialog().getByRole("button", { name });
 const selectedDay = () => dialog().getByRole("gridcell", { selected: true }).getByRole("button");
@@ -53,9 +53,10 @@ async function open() {
 }
 
 describe("DatePickerPopover: field (06 § 3.1)", () => {
-  it("is a button named by the label and the long date, which opens a dialog", async () => {
+  it("is a button named by the label, described by the long date, which opens a dialog", async () => {
     await renderWithProviders(<DateField />);
-    await expect.element(trigger()).toHaveAccessibleName("Date lundi 5 octobre 2026");
+    await expect.element(trigger()).toHaveAccessibleName("Date");
+    await expect.element(trigger()).toHaveAccessibleDescription("lundi 5 octobre 2026");
     await expect.element(trigger()).toHaveAttribute("aria-haspopup", "dialog");
     await expect.element(trigger()).toHaveAttribute("aria-expanded", "false");
     await open();
@@ -153,7 +154,7 @@ describe("DatePickerPopover: keyboard (06 § 3.3, 05 § 3.2)", () => {
     await expect.element(dialog().getByRole("grid")).toHaveAccessibleName(month);
     expect((document.activeElement as HTMLElement | null)?.dataset["iso"]).toBe(focused);
     expect(onChange).not.toHaveBeenCalled();
-    await expect.element(trigger()).toHaveAccessibleName("Date mardi 20 octobre 2026");
+    await expect.element(trigger()).toHaveAccessibleDescription("mardi 20 octobre 2026");
   });
 
   it("chooses the focused day with Enter, closes and gives the focus back to the field", async () => {
@@ -164,7 +165,7 @@ describe("DatePickerPopover: keyboard (06 § 3.3, 05 § 3.2)", () => {
     expect(onChange).toHaveBeenCalledWith("2026-11-06");
     await expect.element(dialog()).not.toBeInTheDocument();
     await expect.element(trigger()).toHaveFocus();
-    await expect.element(trigger()).toHaveAccessibleName("Date vendredi 6 novembre 2026");
+    await expect.element(trigger()).toHaveAccessibleDescription("vendredi 6 novembre 2026");
   });
 
   it("chooses with Space as well", async () => {
