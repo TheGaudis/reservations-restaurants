@@ -11,9 +11,9 @@ import { formatLongDate } from "@/intl/dates";
 
 import styles from "@/features/staff/TomorrowPanel.module.css";
 
-// Slot `tomorrow` of `StaffPage` (journal p5a): panel « Demain ({date}) », first of the staff mode, which merges the
-// old « Demain » and « Résumé pour demain » panels (06 § 2.1, 07 § 5, D-07, E-30, C-01, C-03). The totals row is here;
-// the blocks per restaurant and their print buttons are in `TomorrowBlocks`.
+// Panel « Demain ({date}) » of `StaffPage`, first of the staff mode, which merges the old « Demain » and « Résumé pour
+// demain » panels (06 § 2.1, 07 § 5, D-07, E-30, C-01, C-03). The totals row is here; the blocks per restaurant and
+// their print buttons are in `TomorrowBlocks`.
 
 const messages = defineMessages<{ title: { date: string } }>({
   title: {

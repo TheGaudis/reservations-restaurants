@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 
 import { useClock } from "@/background/clock";
-import { BookingFormR1Slot } from "@/features/r1/BookingFormR1Slot";
 import { DayCardR1 } from "@/features/r1/DayCardR1";
 import { stateKeys } from "@/queries/state";
 import { fakeScript } from "@/test/browser-fake-script";
@@ -27,8 +26,7 @@ afterEach(() => {
 });
 
 const column = () => page;
-const renderPage = async (url: string) =>
-  renderColumn(url, "r1", <DayCardR1 form={<BookingFormR1Slot />} />);
+const renderPage = async (url: string) => renderColumn(url, "r1", <DayCardR1 />);
 const field = (name: string | RegExp) => column().getByRole("textbox", { name });
 const button = (name: string) => column().getByRole("button", { name, exact: true });
 const reserve = () => button("Réserver");

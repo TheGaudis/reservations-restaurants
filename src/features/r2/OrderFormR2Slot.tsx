@@ -5,7 +5,7 @@ import { Spinner } from "@/ui/feedback/Spinner";
 import styles from "@/features/r2/OrderFormR2.module.css";
 
 /**
- * The R2 order form in the slot `form` of `DayCardR2` (`reserver=r2`). Keyed by day: another day, or a new opening,
+ * The R2 order form in `DayCardR2` (`reserver=r2`). Keyed by day: another day, or a new opening,
  * starts an empty form with a new `requestId` (invariant 3) and reads its `defaultValues` again. A spinner stands in
  * while its chunk loads (R-31).
  */

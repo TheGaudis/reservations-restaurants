@@ -1,5 +1,4 @@
 import { useIsMutating } from "@tanstack/react-query";
-import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
@@ -17,6 +16,7 @@ import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
 import { bookingFormR1Chunk } from "@/features/page/lazy-chunks";
+import { BookingFormR1Slot } from "@/features/r1/BookingFormR1Slot";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
@@ -43,17 +43,12 @@ const messages = defineMessages<{
   },
 });
 
-interface DayCardR1Props {
-  /** Booking form (`BookingFormR1Slot`), shown in place of « Réserver » while `reserver=r1` and the day can be booked. */
-  form?: ReactNode;
-}
-
 /**
  * Public card of the selected R1 day (05 § 5, P-03, P-04, P-07, P-08): date and seat gauge, theme, menu, then
  * « Réserver » when seats are left and the day is not past (R1 has no time limit, 01 § 3.7), or the booking form
  * while `reserver=r1`. A full day says « Complet. » (D-02); a past day pales (E-56) and says nothing.
  */
-export function DayCardR1({ form }: DayCardR1Props) {
+export function DayCardR1() {
   const intl = useIntl();
   const iso = useSelectedDay("r1");
   const past = isPast(iso, useToday());
@@ -83,7 +78,7 @@ export function DayCardR1({ form }: DayCardR1Props) {
       {!full && !past && !formOpen ? (
         <ReserveButton restaurant="r1" iso={iso} preload={bookingFormR1Chunk.load} />
       ) : null}
-      {(!full || sending) && !past && formOpen ? form : null}
+      {(!full || sending) && !past && formOpen ? <BookingFormR1Slot /> : null}
       {full && !past && !(sending && formOpen) ? (
         <DayNote>{intl.formatMessage(messages.fullNote)}</DayNote>
       ) : null}

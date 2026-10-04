@@ -1,5 +1,4 @@
 import { useIsMutating } from "@tanstack/react-query";
-import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { useIsR2OrderingClosed, useToday } from "@/background/clock";
@@ -17,6 +16,7 @@ import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
 import { orderFormR2Chunk } from "@/features/page/lazy-chunks";
 import { DishRow } from "@/features/r2/DishRow";
+import { OrderFormR2Slot } from "@/features/r2/OrderFormR2Slot";
 import { commonMessages } from "@/intl/common-messages";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { Alert } from "@/ui/feedback/Alert";
@@ -37,11 +37,6 @@ const messages = defineMessages({
   },
 });
 
-interface DayCardR2Props {
-  /** Order form (`OrderFormR2Slot`), shown in place of the dishes and « Réserver » while `reserver=r2` and the day can be ordered. */
-  form?: ReactNode;
-}
-
 /**
  * Public card of the selected R2 day (05 § 6, P-10 to P-12, P-15 to P-17): date, theme, note, dishes with their
  * gauge, then « Réserver » when orders are open (before 10:00 in Paris, 01 § 3.7) and a dish has portions left. From
@@ -49,7 +44,7 @@ interface DayCardR2Props {
  * nothing. A day open without any dish shows its texts only. While the order form is open the dish list folds away:
  * the form shows each dish again (05 § 6.4).
  */
-export function DayCardR2({ form }: DayCardR2Props) {
+export function DayCardR2() {
   const intl = useIntl();
   const iso = useSelectedDay("r2");
   const past = isPast(iso, useToday());
@@ -88,7 +83,7 @@ export function DayCardR2({ form }: DayCardR2Props) {
       {orderable && !formOpen ? (
         <ReserveButton restaurant="r2" iso={iso} preload={orderFormR2Chunk.load} />
       ) : null}
-      {ordering ? form : null}
+      {ordering ? <OrderFormR2Slot /> : null}
       {soldOut && !closed && !ordering ? (
         <DayNote>{intl.formatMessage(messages.allSoldOut)}</DayNote>
       ) : null}

@@ -1,6 +1,6 @@
 import { defineMessages, useIntl } from "react-intl";
 
-import type { Settings } from "@/domain/types";
+import type { Restaurant, Settings } from "@/domain/types";
 import { useHydrated } from "@/features/page/use-hydrated";
 import { readFallbackTexts } from "@/queries/local-cache";
 import type { FallbackTexts } from "@/queries/local-cache";
@@ -32,6 +32,13 @@ const messages = defineMessages({
 });
 
 export type PageTexts = Pick<Settings, "name1" | "name2" | "desc1" | "desc2">;
+
+/** Title and description of the column of `restaurant` (05 § 1). */
+export function columnTexts(texts: PageTexts, restaurant: Restaurant) {
+  return restaurant === "r1"
+    ? { title: texts.name1, description: texts.desc1 }
+    : { title: texts.name2, description: texts.desc2 };
+}
 
 /** An empty value is never applied: the default stays (04 § 2, `renderTexts`). */
 function withDefaults(texts: FallbackTexts | null, defaults: PageTexts): PageTexts {

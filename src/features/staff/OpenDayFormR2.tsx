@@ -208,8 +208,8 @@ function OpenDayBodyR2() {
 }
 
 /**
- * Slot `openDayR2` of `StaffPage` (06 § 4.2-4.3, C-05, C-06): « + Ouvrir un jour » above the R2 calendar, its form
- * with the dish lines while `ouvrir=r2`.
+ * « + Ouvrir un jour » above the R2 calendar of `StaffPage` (06 § 4.2-4.3, C-05, C-06), its form with the dish lines
+ * while `ouvrir=r2`.
  */
 export function OpenDayFormR2() {
   return (

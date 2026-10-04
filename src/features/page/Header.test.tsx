@@ -25,10 +25,9 @@ async function clickLogo(times: number, every: number): Promise<void> {
 describe("Header", () => {
   it("shows the school, the title and the subtitle of 04 § 2", async () => {
     const { screen } = await renderWithProviders(
-      <Header
-        texts={{ ...TEXTS, name1: "Le Gourmet" }}
-        modeSwitch={<button type="button">Client</button>}
-      />,
+      <Header texts={{ ...TEXTS, name1: "Le Gourmet" }}>
+        <button type="button">Client</button>
+      </Header>,
     );
     await expect.element(screen.getByText("Lycée professionnel Aristide Briand")).toBeVisible();
     await expect
