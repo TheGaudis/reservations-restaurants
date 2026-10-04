@@ -122,7 +122,7 @@ GitHub Pages ne sert pas un tag : il faut une branche qui pointe dessus.
 
    ```sh
    git fetch origin --tags
-   git push origin v1-final:refs/heads/rollback
+   git push origin "v1-final^{commit}:refs/heads/rollback"
    ```
 
    Ou sur GitHub : page d'accueil du dépôt, menu des branches, onglet **Tags**, `v1-final`, puis dans le même menu taper `rollback` et choisir **Create branch rollback from v1-final**.

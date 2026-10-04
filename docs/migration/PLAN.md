@@ -989,7 +989,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | terminé le 4 oct. : (a) `d102547`, (d1) `a79689d`, (c) `e6feb25`, (b) `32efb0c`, (d2) `66368aa`, (e) `409f371` ; 30 scénarios `@p5` verts sur `react` |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | terminé le 4 oct. : (a) `0eb411d`, (b) `7aa8b90` ; 6 scénarios `@p6` verts sur `react` |
 | P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | terminé le 4 oct. : (a) `ec0b57f` (suite entière verte trois fois sur `legacy`, `react`, `react-only`, 516/516), (b) `57ec5dc` ; reste la validation par les collègues (S9, `validation.md`) |
-| P8 | bascule et nettoyage | 1 | 1 | non | à faire |
+| P8 | bascule et nettoyage | 1 | 1 | non | préparée sur `claude/p8-bascule`, en attente de S9 |
 | **Total** | | **35,5** (43 avec 20 % de marge) | **31** | | |
 
 La colonne « Statut » est tenue par l'orchestrateur (à faire / en cours / terminé + date et commit), d'après les journaux des sessions. Les messages de lancement des 31 sessions, avec leurs lectures, livrables, critères, commandes et interdits, sont dans [`lancements.md`](lancements.md) ; ils précisent cette section sans la contredire.
