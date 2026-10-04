@@ -137,7 +137,7 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 | G-01 | REG-01, REG-03 | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-01 et les quatre variantes de REG-03 | stories `PageSkeleton`, tests de `Page` et `-routes.test.tsx` ; S4 (`e2e/hydration.spec.ts`) | E-45 |
 | G-02 | REG-02, REG-05, REG-27 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | partiel (P4 (b), 4 oct.) : REG-02 et REG-05 verts ; REG-27 en P5 (a) | test de `useIsFromCache` ; S4 | E-47 |
 | G-03 | REG-04, REG-05, REG-06 | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-04, REG-05, REG-06 | stories et tests `LoadErrorBox` (en ligne, hors ligne, copie, « Réessayer »), stories `Page` | E-42 |
-| G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | vert (P1 (b), 3 oct.) | partiel (P4 (c), 4 oct.) : REG-01, REG-08 et `smoke.spec.ts` verts ; les scénarios R2 attendent P4 (d) | stories de `Page` | E-08 |
+| G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-01, REG-08, `smoke.spec.ts` et tous les scénarios publics `@p4` | stories de `Page` | E-08 |
 | G-05 | REG-07 | `@legacy-only` | vert (P1 (b), 3 oct.) | sans objet ; variante `react` de REG-07 verte (P4 (a), 4 oct.) | stories et test Vitest de `ConfigBanner` (P4 (a)) | E-29 |
 | G-07 | REG-27, REG-17 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | partiel (P4 (c), 4 oct.) : REG-17 vert (toast de succès, un seul toast) ; aucun scénario étiqueté `@G-07` ; REG-27 en P5 (a) | stories et tests de `Toaster` | E-02 |
 | P-01 | REG-09, REG-11, REG-12 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-09, REG-11, REG-12 | table des touches de `CalendarGrid` ; tests et stories de `RestaurantCalendar` | E-05, E-07, E-21 |
@@ -146,16 +146,16 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 | P-02b | REG-10, REG-12 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-10, REG-12 | story « mois », jour hors période ; story `R2AfterTen` de `RestaurantCalendar` | E-43 |
 | P-03 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-14 | story `DayCardR1` `NoService` ; tests de `DayCardR1` | — |
 | P-04 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-14 | stories `DayCardR1` `Available`, `AlmostFull`, `CapacityPill` ; tests de `DayCardR1` | E-27 |
-| P-05 | REG-15 à REG-20, REG-08, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | partiel (P4 (c), 4 oct.) : REG-08, REG-15 à REG-20 et la variante « midnight keeps the open form's date » de REG-25 verts ; REG-13 s'arrête à l'ouverture du formulaire R2 (P4 (d)) | stories et tests de `BookingFormR1` | E-03, E-19, E-34, E-35, E-46 |
-| P-06 | REG-13, REG-17, REG-19 | `@changed` | vert (P1 (b), 3 oct.) | partiel (P4 (c), 4 oct.) : REG-17, REG-19 verts ; REG-13 en P4 (d) (formulaire R2) | stories et tests de `BookingSummary` | E-12, E-32, E-33 |
+| P-05 | REG-15 à REG-20, REG-08, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-08, REG-13, REG-15 à REG-20 et la variante « midnight keeps the open form's date » de REG-25 | stories et tests de `BookingFormR1` | E-03, E-19, E-34, E-35, E-46 |
+| P-06 | REG-13, REG-17, REG-19 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-13, REG-17, REG-19 | stories et tests de `BookingSummary` | E-12, E-32, E-33 |
 | P-07 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-14 | story `DayCardR1` `Full` ; tests de `DayCardR1` | E-27 |
 | P-08 | REG-14 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-14 | story `DayCardR1` `Past` ; tests de `DayCardR1` | — |
 | P-10 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-21 | story `DayCardR2` `NoService` ; tests de `DayCardR2` | — |
 | P-11 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-21 | story `DayCardR2` `WithoutDishes` ; tests de `DayCardR2` | — |
 | P-12 | REG-21, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-21, REG-26 | story `DayCardR2` `Open` ; tests de `DayCardR2` | E-01 |
-| P-13 | REG-22, REG-24, REG-25, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories et tests de `OrderFormR2` | E-09, E-11, E-34, E-41, E-50 |
-| P-14 | REG-23 | `@changed` | vert (P1 (b), 3 oct.) | à faire | stories de `BookingSummary` R2 | E-14, E-28 |
-| P-15 | REG-12, REG-25, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | partiel (P4 (b), 4 oct.) : REG-12 et REG-26 verts ; REG-25 (formulaire ouvert à 10 h, contrôle à l'envoi) attend le formulaire R2 (P4 (d)) ; les trois variantes de minuit de REG-25 vertes (« midnight keeps the open form's date » en P4 (c)) | tests de `background/clock.ts` ; story `DayCardR2` `ClosedAt10` ; tests de `DayCardR2` | E-01, E-09, E-43 |
+| P-13 | REG-22, REG-24, REG-25, REG-13 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-13, les deux variantes de REG-22, REG-24, REG-25 (10 h et contrôle à l'envoi) | stories et tests de `OrderFormR2` (`OrderFormR2.test.tsx`, `OrderFormR2.send.test.tsx`), tests de `order-rules.ts` | E-09, E-11, E-34, E-41, E-50 |
+| P-14 | REG-23 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-23 | stories de `BookingSummary` R2 ; tests d'envoi de `OrderFormR2` | E-14, E-28 |
+| P-15 | REG-12, REG-25, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (d), 4 oct.) : REG-12, REG-26 et les cinq variantes de REG-25 (10 h, contrôle à l'envoi, trois variantes de minuit) | tests de `background/clock.ts` (dont `syncClock` et commande en vol) ; story `DayCardR2` `ClosedAt10` ; tests de `DayCardR2` | E-01, E-09, E-43 |
 | P-16 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-21 | story `DayCardR2` `AllSoldOut` ; tests de `DayCardR2` | E-27 |
 | P-17 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | vert (P4 (b), 4 oct.) : REG-21 | story `DayCardR2` `Past` ; tests de `DayCardR2` | — |
 | `09` § 7 | REG-43 | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (a), 4 oct.) | test de `Header` | — |
@@ -199,7 +199,7 @@ Fichiers (P1 (c)) : `staff-access.spec.ts` REG-27, REG-28 ; `staff-session.spec.
 | I-03 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `TomorrowDocumentR1` | E-44 |
 | I-04 | REG-42 | `@changed` | vert (P1 (d), 3 oct.) | à faire | rendu de `TomorrowDocumentR2` | E-16, E-44 |
 | invariant 1 | REG-29, REG-30 | — | P1 (c) | à faire | test S8 | E-17 |
-| invariant 2 | REG-02, REG-03, REG-20 | — | vert (P1 (b), 3 oct.) | partiel (P4 (b), 4 oct.) : REG-02, REG-03 verts ; REG-20 en P4 (c) | tests de `api/hedged-read.ts`, `early-fetch.ts` | E-45, E-47 |
+| invariant 2 | REG-02, REG-03, REG-20 | — | vert (P1 (b), 3 oct.) | vert (P4 (c), relevé en P4 (d), 4 oct.) : REG-02, REG-03, REG-20 | tests de `api/hedged-read.ts`, `early-fetch.ts` | E-45, E-47 |
 | invariant 3 | REG-08, REG-18, REG-19, REG-36 | — | vert (P1 (b), 3 oct.) ; REG-36 : P1 (c) | partiel (P4 (c), 4 oct.) : REG-08, REG-18, REG-19 verts ; REG-36 en P5 (d2) | tests de `mutations/bookings.ts` et de `BookingFormR1` | — |
-| invariant 4 | REG-25 (minuit compris), REG-26, REG-38 | — | vert (P1 (b) ; minuit : P1 (d), 3 oct.) ; REG-38 : P1 (c) | partiel (P4 (b), 4 oct.) : REG-26 et deux variantes de minuit de REG-25 vertes ; REG-25 à 10 h en P4 (d) ; REG-38 en P5 | tests de `domain/cutoff.ts` et de `background/clock.ts` (10 h, minuit) | E-01, E-09 |
-| invariant 5 | REG-22, REG-23, REG-38, REG-39, REG-41, REG-42 | — | vert (P1 (b), P1 (d), 3 oct.) ; REG-38 : P1 (c) | à faire | tests de `domain/pricing.ts`, `domain/print.ts` | E-16, E-36 |
+| invariant 4 | REG-25 (minuit compris), REG-26, REG-38 | — | vert (P1 (b) ; minuit : P1 (d), 3 oct.) ; REG-38 : P1 (c) | partiel (P4 (d), 4 oct.) : REG-25 (cinq variantes) et REG-26 verts ; REG-38 en P5 | tests de `domain/cutoff.ts` et de `background/clock.ts` (10 h, minuit) | E-01, E-09 |
+| invariant 5 | REG-22, REG-23, REG-38, REG-39, REG-41, REG-42 | — | vert (P1 (b), P1 (d), 3 oct.) ; REG-38 : P1 (c) | partiel (P4 (d), 4 oct.) : REG-22, REG-23 verts ; REG-38 en P5, REG-39, REG-41, REG-42 en P6 | tests de `domain/pricing.ts`, `domain/print.ts` | E-16, E-36 |
