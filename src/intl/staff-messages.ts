@@ -7,7 +7,6 @@ type NoValues = Record<string, never>;
 
 /**
  * Texts of the staff mode used by several files.
- * @public used from P5 (staff mode)
  */
 export const staffCommonMessages = defineMessages<{
   edit: NoValues;

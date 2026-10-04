@@ -6,15 +6,12 @@ import { PasswordRejectedError } from "@/api/errors";
 import type { FullState, SettingInput, SettingKey } from "@/domain/types";
 import { intl } from "@/intl/intl";
 import { adoptStaffState, staffWriteOptions } from "@/mutations/staff/write";
-import type { StaffWriteDomain, StaffWriteResult } from "@/mutations/staff/write";
+import type { StaffWriteResult } from "@/mutations/staff/write";
 import { useSessionStore } from "@/session/session";
 
 // Writes of the settings (02 § 4.7, 06 § 2.2, D-20): one `setConfigField` per changed field, in sequence, in a single
 // `write` of `staffWriteOptions` (write.ts). A failure after the first field keeps the fields already saved: the full
 // state they answered goes to the cache past the session guard.
-
-/** Domain of these writes in their key `['write', 'settings', 'save']`. */
-export const SETTINGS_DOMAIN: StaffWriteDomain = "settings";
 
 const messages = defineMessages({
   savedOne: {
@@ -102,7 +99,7 @@ async function saveInSequence(
 export function useSaveSettings() {
   return useMutation({
     ...staffWriteOptions({
-      domain: SETTINGS_DOMAIN,
+      domain: "settings",
       action: "save",
       write: saveInSequence,
       successToast: (changes: readonly SettingInput[]) =>

@@ -20,7 +20,10 @@ export type StaffWriteDomain = "days" | "dishes" | "bookings" | "settings";
 /** Writes go to the script one after the other, the public bookings included (PLAN § 3.3). */
 const WRITE_SCOPE = { id: "write" };
 
-/** `['write', domain, action]` (PLAN § 3.3): never a password nor a name in it. */
+/**
+ * `['write', domain, action]` (PLAN § 3.3): never a password nor a name in it.
+ * @internal exported for its tests only (knip --production)
+ */
 export function staffWriteKey(domain: StaffWriteDomain, action: string) {
   return ["write", domain, action] as const;
 }

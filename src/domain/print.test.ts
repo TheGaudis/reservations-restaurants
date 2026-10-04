@@ -10,7 +10,6 @@ import {
   ordersForDay,
   r1Totals,
   r2DayTotals,
-  seatsLineR1,
 } from "@/domain/print";
 import type { OrderLine } from "@/domain/print";
 import {
@@ -101,11 +100,6 @@ describe("R1 lists (07 § 3, § 5, § 6)", () => {
     const list = listR1(state, "2026-10-07");
     expect(list.day).toBeUndefined();
     expect(list.bookings).toStrictEqual([]);
-  });
-
-  it("reads « Places » of an open day only", () => {
-    expect(seatsLineR1(state, TOMORROW)).toStrictEqual({ seats: 12, capacity: 20 });
-    expect(seatsLineR1(state, "2026-10-07")).toBeNull();
   });
 });
 

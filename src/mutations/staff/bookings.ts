@@ -6,15 +6,11 @@ import type { EditBookingR1Input, EditBookingR2Input, Restaurant } from "@/domai
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { staffWriteOptions } from "@/mutations/staff/write";
-import type { StaffWriteDomain } from "@/mutations/staff/write";
 import { stateKeys } from "@/queries/state";
 
 // Staff writes of the bookings (02 § 4.7, 06 § 7): `editBookingR1`, `editBookingR2`, `deleteBookingR1`,
 // `deleteBookingR2`, built with `staffWriteOptions` (write.ts). The person added by a colleague goes through
 // `useBookR1` / `useOrderR2` of mutations/bookings.ts, without password (06 § 8).
-
-/** Domain of these writes in their key `['write', 'bookings', action]`. */
-export const BOOKINGS_DOMAIN: StaffWriteDomain = "bookings";
 
 /** `editBookingR1` refused for lack of seats (02 § 4.7): « Il ne reste que 2 couvert(s) disponible(s) pour ce jour. » */
 const SEATS_REFUSAL = /^Il ne reste que -?\d+ couvert\(s\) disponible\(s\) pour ce jour\.$/u;
@@ -48,7 +44,7 @@ export function useEditBookingR1() {
   const onError = useRefreshOnCapacityRefusal();
   return useMutation({
     ...staffWriteOptions({
-      domain: BOOKINGS_DOMAIN,
+      domain: "bookings",
       action: "editBookingR1",
       write: async (password: string, input: EditBookingR1Input) => editBookingR1(password, input),
       successToast: () => intl.formatMessage(staffCommonMessages.bookingEdited),
@@ -62,7 +58,7 @@ export function useEditBookingR2() {
   const onError = useRefreshOnCapacityRefusal();
   return useMutation({
     ...staffWriteOptions({
-      domain: BOOKINGS_DOMAIN,
+      domain: "bookings",
       action: "editBookingR2",
       write: async (password: string, input: EditBookingR2Input) => editBookingR2(password, input),
       successToast: () => intl.formatMessage(staffCommonMessages.bookingEdited),
@@ -78,7 +74,7 @@ export function useEditBookingR2() {
 export function useDeleteBooking(restaurant: Restaurant) {
   return useMutation(
     staffWriteOptions({
-      domain: BOOKINGS_DOMAIN,
+      domain: "bookings",
       action: restaurant === "r1" ? "deleteBookingR1" : "deleteBookingR2",
       write: async (password: string, id: string) =>
         restaurant === "r1" ? deleteBookingR1(password, id) : deleteBookingR2(password, id),

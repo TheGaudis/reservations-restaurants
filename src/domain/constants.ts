@@ -18,9 +18,6 @@ export const REFRESH_INTERVAL_MS = 180_000;
 /** Paris hour from which R2 online orders are closed for the day (`R2_CUTOFF_HOUR`, 01 § 3.7). */
 export const R2_CUTOFF_HOUR = 10;
 
-/** Paris hour from which R2 takes orders on site (`R2_ONSITE_HOUR`, 01 § 3.7). */
-export const R2_ONSITE_HOUR = 12;
-
 /** "Almost full" when fewer than half the seats or portions remain (01 § 3.3). */
 export const ALMOST_FULL_RATIO = 0.5;
 
@@ -35,9 +32,6 @@ export const INACTIVITY_MS = 600_000;
 
 /** Slow-write notice under the busy button (D-15). */
 export const SLOW_WRITE_MS = 20_000;
-
-/** Printing waits at most this long for the fonts (07 § 8). */
-export const PRINT_FONTS_TIMEOUT_MS = 2000;
 
 /** Easter egg: this many clicks on the logo (00 § 2.1, D-01)… */
 export const LOGO_CLICKS = 5;

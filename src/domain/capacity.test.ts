@@ -6,7 +6,6 @@ import {
   dayStatusR2,
   dishesForDay,
   findDay,
-  isSoldOut,
   portionsBooked,
   portionsBookedForDay,
   remainingSeats,
@@ -74,13 +73,12 @@ describe("seats left (01 § 3.1)", () => {
 
 describe("portions left (01 § 3.2)", () => {
   it.each([
-    [lasagnes, 6, 4, false],
-    [bowl, 0, 10, false],
-    [salade, 7, -2, true],
-  ])("$name: %i booked", (item, booked, left, soldOut) => {
+    [lasagnes, 6, 4],
+    [bowl, 0, 10],
+    [salade, 7, -2],
+  ])("$name: %i booked", (item, booked, left) => {
     expect(portionsBooked(state, item.id)).toBe(booked);
     expect(remainingStock(state, item)).toBe(left);
-    expect(isSoldOut(state, item)).toBe(soldOut);
   });
 
   it("lists the dishes of a day in the order of the sheet", () => {

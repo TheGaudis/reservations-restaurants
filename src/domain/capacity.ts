@@ -89,11 +89,6 @@ export function remainingStock(state: CapacityState, dish: Dish): number {
   return dish.stock - portionsBooked(state, dish.id);
 }
 
-/** "Épuisé" (04 § 5.3): no portion left. */
-export function isSoldOut(state: CapacityState, dish: Dish): boolean {
-  return remainingStock(state, dish) <= 0;
-}
-
 /** Dishes of a day, in the order of the sheet (`itemsR2`, 05 § 6.2). */
 export function dishesForDay(state: CapacityState, iso: IsoDate): readonly Dish[] {
   return indexOf(state).dishesByDate.get(iso) ?? [];

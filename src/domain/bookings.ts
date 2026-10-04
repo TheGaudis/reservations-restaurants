@@ -1,15 +1,8 @@
 // Bookings: inputs of the booking actions built from the forms, maxima, reading of the answer, content of the
 // booking summary (04 § 5 to § 7, 06 § 7 and § 8). Numbers and structures only: the texts come from `intl/`.
 
-import {
-  dishesForDay,
-  findDay,
-  isSoldOut,
-  remainingSeats,
-  remainingStock,
-} from "@/domain/capacity";
+import { findDay, remainingSeats, remainingStock } from "@/domain/capacity";
 import type { CapacityState } from "@/domain/capacity";
-import { isPast, isR2OrderingClosed } from "@/domain/cutoff";
 import { orderAmounts, priceR1, seatTotal } from "@/domain/pricing";
 import type { Amounts, DishLine, R1Prices, SeatCounts } from "@/domain/pricing";
 import type {
@@ -76,7 +69,10 @@ export interface SummaryR1 {
   warnings: SummaryWarning[];
 }
 
-/** One dish line of the R2 summary: name without the voucher mark, portions granted. */
+/**
+ * One dish line of the R2 summary: name without the voucher mark, portions granted.
+ * @internal exported for its tests only (knip --production)
+ */
 export interface SummaryDish {
   name: string;
   portions: number;
@@ -114,19 +110,6 @@ function trimmedIdentity(values: IdentityValues): IdentityValues {
     className: values.className.trim(),
     observation: values.observation.trim(),
   };
-}
-
-/** R1 can be booked (05 § 5.2): open, not past, seats left. No cutoff hour in R1. */
-export function canBookR1(state: CapacityState, iso: IsoDate, today: IsoDate): boolean {
-  const day = findDay(state.r1Days, iso);
-  return day !== undefined && !isPast(iso, today) && remainingSeats(state, day) > 0;
-}
-
-/** R2 can be ordered online (05 § 6.5): open with a dish left, before 10 a.m. on the day (invariant 4). */
-export function canOrderR2(state: CapacityState, iso: IsoDate, now: number): boolean {
-  const open = findDay(state.r2Days, iso) !== undefined;
-  const dishLeft = dishesForDay(state, iso).some((dish) => !isSoldOut(state, dish));
-  return open && dishLeft && !isR2OrderingClosed(iso, now);
 }
 
 /** `addBookingR1` (02 § 4.4): texts trimmed, empty counters sent as 0 (04 § 6.2). */
@@ -202,7 +185,10 @@ export function emailFailed(status: EmailStatus | null): boolean {
   return status !== null && !status.sent && status.reason !== "no-email";
 }
 
-/** Some portions were reduced or some dishes left out for lack of stock (04 § 7). */
+/**
+ * Some portions were reduced or some dishes left out for lack of stock (04 § 7).
+ * @internal exported for its tests only (knip --production)
+ */
 export function wasAdjusted(result: BookingResult): boolean {
   return result.adjusted.length > 0 || result.skipped.length > 0;
 }

@@ -28,19 +28,28 @@ import type {
 // API boundary (PLAN § 3.3.6), full state of the staff mode (02 § 4.3): the same rules as schemas.ts, plus the
 // personal data that only the staff mode reads. Every column may be missing from an old sheet (01 § 1).
 
-/** R1 day of the full state, with `OuvertPar` (01 § 2.2). */
+/**
+ * R1 day of the full state, with `OuvertPar` (01 § 2.2).
+ * @internal exported for its tests only (knip --production)
+ */
 export const StaffServiceDayR1Schema = v.pipe(
   v.object({ ...ApiDayR1.entries, OuvertPar: TextCell }),
   v.transform((day): StaffServiceDayR1 => ({ ...toDayR1(day), openedBy: day.OuvertPar })),
 );
 
-/** R2 day of the full state, with `OuvertPar` (01 § 2.4). */
+/**
+ * R2 day of the full state, with `OuvertPar` (01 § 2.4).
+ * @internal exported for its tests only (knip --production)
+ */
 export const StaffServiceDayR2Schema = v.pipe(
   v.object({ ...ApiDayR2.entries, OuvertPar: TextCell }),
   v.transform((day): StaffServiceDayR2 => ({ ...toDayR2(day), openedBy: day.OuvertPar })),
 );
 
-/** R1 booking of the full state (01 § 2.3): counters and total empty on bookings made before the prices. */
+/**
+ * R1 booking of the full state (01 § 2.3): counters and total empty on bookings made before the prices.
+ * @internal exported for its tests only (knip --production)
+ */
 export const BookingR1Schema = v.pipe(
   v.object({
     ID: v.string(),
@@ -72,7 +81,10 @@ export const BookingR1Schema = v.pipe(
   })),
 );
 
-/** R2 booking line of the full state, one per dish of an order (01 § 2.6). */
+/**
+ * R2 booking line of the full state, one per dish of an order (01 § 2.6).
+ * @internal exported for its tests only (knip --production)
+ */
 export const BookingR2Schema = v.pipe(
   v.object({
     ID: v.string(),

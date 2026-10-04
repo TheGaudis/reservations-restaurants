@@ -1,20 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  atLeast,
-  atMost,
   compose,
   countValue,
   email,
   isEmail,
   nonNegativeAmount,
-  nonNegativeInteger,
   parseAmount,
   parseCount,
   positiveAmount,
   positiveInteger,
   required,
-  stepCount,
 } from "@/domain/validation";
 import type { Validator } from "@/domain/validation";
 
@@ -53,18 +49,6 @@ describe("text rules (validators of AppResaAristide)", () => {
     ["positiveInteger, 0", positiveInteger("no"), "0", "no"],
     ["positiveInteger, 1.5", positiveInteger("no"), "1.5", "no"],
     ["positiveInteger, abc", positiveInteger("no"), "abc", "no"],
-    ["nonNegativeInteger, blank", nonNegativeInteger("no"), "", undefined],
-    ["nonNegativeInteger, 0", nonNegativeInteger("no"), "0", undefined],
-    ["nonNegativeInteger, -1", nonNegativeInteger("no"), "-1", "no"],
-    ["nonNegativeInteger, 2,5", nonNegativeInteger("no"), "2,5", "no"],
-    ["atLeast 3, 2", atLeast(3, "no"), "2", "no"],
-    ["atLeast 3, 3", atLeast(3, "no"), "3", undefined],
-    ["atLeast 3, blank", atLeast(3, "no"), "", undefined],
-    ["atLeast 3, x", atLeast(3, "no"), "x", undefined],
-    ["atMost 2, 3", atMost(2, "no"), "3", "no"],
-    ["atMost 2, 2", atMost(2, "no"), "2", undefined],
-    ["atMost 2, blank", atMost(2, "no"), "", undefined],
-    ["atMost 2, 1.5", atMost(2, "no"), "1.5", undefined],
     ["nonNegativeAmount, blank", nonNegativeAmount("no"), "", undefined],
     ["nonNegativeAmount, 4,95", nonNegativeAmount("no"), "4,95", undefined],
     ["nonNegativeAmount, 0", nonNegativeAmount("no"), "0", undefined],
@@ -83,11 +67,9 @@ describe("text rules (validators of AppResaAristide)", () => {
   });
 
   it("reports the first failing rule", () => {
-    const rule = compose(
-      required("blank"),
-      positiveInteger("not positive"),
-      atMost(20, "too many"),
-    );
+    const atMost20: Validator<string> = ({ value }) =>
+      Number(value) > 20 ? "too many" : undefined;
+    const rule = compose(required("blank"), positiveInteger("not positive"), atMost20);
     expect(check(rule, "")).toBe("blank");
     expect(check(rule, "0")).toBe("not positive");
     expect(check(rule, "21")).toBe("too many");
@@ -129,22 +111,4 @@ describe("number parsing (money.ts of AppResaAristide)", () => {
   ])("an empty number field counts 0: %s → %i", (value, expected) => {
     expect(countValue(value)).toBe(expected);
   });
-
-  it.each<{ raw: string; delta: number; min: number; max?: number; expected: string }>([
-    { raw: "", delta: 1, min: 0, expected: "1" },
-    { raw: " ", delta: -1, min: 0, expected: "0" },
-    { raw: "2", delta: 1, min: 0, max: 5, expected: "3" },
-    { raw: "2", delta: -1, min: 0, max: 5, expected: "1" },
-    { raw: "0", delta: -1, min: 0, max: 5, expected: "0" },
-    { raw: "5", delta: 1, min: 0, max: 5, expected: "5" },
-    { raw: "9", delta: -1, min: 0, max: 5, expected: "5" },
-    { raw: "-3", delta: 1, min: 0, expected: "0" },
-    { raw: "abc", delta: 1, min: 0, max: 5, expected: "1" },
-    { raw: "1.5", delta: -1, min: 0, expected: "0" },
-  ])(
-    "stepCount($raw, $delta, $min, $max) = $expected (D-17)",
-    ({ raw, delta, min, max, expected }) => {
-      expect(stepCount(raw, delta, min, max)).toBe(expected);
-    },
-  );
 });

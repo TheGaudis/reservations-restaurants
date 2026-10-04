@@ -123,12 +123,16 @@ export const DishSchema = v.pipe(
   })),
 );
 
-/** Public aggregates: seats per date (01 § 2.3), portions per dish (01 § 2.6). */
+/**
+ * Public aggregates: seats per date (01 § 2.3), portions per dish (01 § 2.6).
+ * @internal exported for its tests only (knip --production)
+ */
 export const SeatTotalSchema = v.pipe(
   v.object({ Date: IsoDateCell, Qte: NumberCell }),
   v.transform((total): SeatTotal => ({ date: total.Date, seats: total.Qte })),
 );
 
+/** @internal exported for its tests only (knip --production) */
 export const PortionTotalSchema = v.pipe(
   v.object({ ItemID: v.string(), Qte: NumberCell }),
   v.transform((total): PortionTotal => ({ dishId: total.ItemID, portions: total.Qte })),
@@ -156,7 +160,10 @@ function toPublicState(raw: v.InferOutput<typeof ApiPublicState>): PublicState {
   };
 }
 
-/** Public state (02 § 3.2): no personal data, bookings already summed by the script. */
+/**
+ * Public state (02 § 3.2): no personal data, bookings already summed by the script.
+ * @internal exported for its tests only (knip --production)
+ */
 export const PublicStateSchema = v.pipe(ApiPublicState, v.transform(toPublicState));
 
 /** Answer of a public read: a new state, or `unchanged` when `since` is the current etag (02 § 3.3, § 5.1). */
@@ -175,7 +182,10 @@ export const ReadResponseSchema = v.union([
   ),
 ]);
 
-/** `_emailStatus` (02 § 4.4): `{ sent: true }`, or `{ sent: false, reason }`, reason `'no-email'` or MailApp's. */
+/**
+ * `_emailStatus` (02 § 4.4): `{ sent: true }`, or `{ sent: false, reason }`, reason `'no-email'` or MailApp's.
+ * @internal exported for its tests only (knip --production)
+ */
 export const EmailStatusSchema = v.pipe(
   v.object({ sent: v.boolean(), reason: v.optional(v.string()) }),
   v.transform((status): EmailStatus => ({ sent: status.sent, reason: status.reason ?? null })),
@@ -206,7 +216,10 @@ const SkippedDishSchema = v.pipe(
   v.transform((dish): SkippedDish => ({ name: plainName(dish.nom) })),
 );
 
-/** `_bookingResult` (02 § 4.5): names without the voucher mark; `totalPrix` and `hasPriceGap` are dropped. */
+/**
+ * `_bookingResult` (02 § 4.5): names without the voucher mark; `totalPrix` and `hasPriceGap` are dropped.
+ * @internal exported for its tests only (knip --production)
+ */
 export const BookingResultSchema = v.pipe(
   v.object({
     confirmed: v.array(ConfirmedDishSchema),

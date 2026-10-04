@@ -12,6 +12,7 @@ export type Validator<M> = (field: { value: string }) => M | undefined;
 /** E-mail shape checked by the page (`emailError`, 00 § 3); the script uses a looser one (01 point 8). */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
 
+/** @internal exported for its tests and the fake script of src/mocks (knip --production) */
 export function isEmail(value: string): boolean {
   return EMAIL_RE.test(value.trim());
 }
@@ -37,21 +38,6 @@ export function countValue(value: number | null): number {
   return value ?? 0;
 }
 
-/**
- * The count `raw` moved by `delta` and kept between `min` and `max`, as the text of a count field (−/+ buttons,
- * D-17). An empty or invalid value counts as `min`.
- */
-export function stepCount(
-  raw: string,
-  delta: number,
-  min: number,
-  max = Number.POSITIVE_INFINITY,
-): string {
-  const n = parseCount(raw);
-  const from = Number.isNaN(n) ? min : n;
-  return String(Math.max(min, Math.min(max, from + delta)));
-}
-
 export function required<M>(message: M): Validator<M> {
   return ({ value }) => (value.trim() === "" ? message : undefined);
 }
@@ -66,30 +52,6 @@ export function positiveInteger<M>(message: M): Validator<M> {
   return ({ value }) => {
     const n = parseCount(value);
     return value.trim() !== "" && (Number.isNaN(n) || n < 1) ? message : undefined;
-  };
-}
-
-/** An integer of at least 0. */
-export function nonNegativeInteger<M>(message: M): Validator<M> {
-  return ({ value }) => {
-    const n = parseCount(value);
-    return Number.isNaN(n) || n < 0 ? message : undefined;
-  };
-}
-
-/** An integer of at least `min`; blank and non-integer values pass. */
-export function atLeast<M>(min: number, message: M): Validator<M> {
-  return ({ value }) => {
-    const n = parseCount(value);
-    return value.trim() !== "" && Number.isInteger(n) && n < min ? message : undefined;
-  };
-}
-
-/** An integer of at most `max`; non-integer values pass. */
-export function atMost<M>(max: number, message: M): Validator<M> {
-  return ({ value }) => {
-    const n = parseCount(value);
-    return Number.isInteger(n) && n > max ? message : undefined;
   };
 }
 

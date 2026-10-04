@@ -35,7 +35,10 @@ const priceRule = compose(
   nonNegativeAmount<SettingError>("invalidPrice"),
 );
 
-/** A price as its number input holds it: `4.95`, `6.10`; more than two decimals kept as stored. */
+/**
+ * A price as its number input holds it: `4.95`, `6.10`; more than two decimals kept as stored.
+ * @internal exported for its tests only (knip --production)
+ */
 export function priceText(price: number): string {
   const cents = price.toFixed(2);
   return Number(cents) === price ? cents : String(price);

@@ -7,7 +7,10 @@ import { APPS_SCRIPT_URL } from "@/config";
 // nothing else on a POST: any other header triggers a CORS preflight that Apps Script does not answer (R-07).
 // `redirect` and `credentials` keep their defaults: fetch follows the 302 to script.googleusercontent.com (R-08).
 
-/** Public read URL, with the etag of the displayed state when there is one (`stateUrl`, 02 § 1.2, § 5.1). */
+/**
+ * Public read URL, with the etag of the displayed state when there is one (`stateUrl`, 02 § 1.2, § 5.1).
+ * @internal exported for its tests only (knip --production)
+ */
 export function stateUrl(since: string): string {
   return since === "" ? APPS_SCRIPT_URL : `${APPS_SCRIPT_URL}?since=${encodeURIComponent(since)}`;
 }

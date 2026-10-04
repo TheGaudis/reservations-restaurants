@@ -6,10 +6,16 @@ import type { Dish, ServiceMode } from "@/domain/types";
 
 type VoucherFlag = Pick<Dish, "voucher">;
 
-/** `TICKET_MARK` (00 § 2.1): a normal space, then the mention. */
+/**
+ * `TICKET_MARK` (00 § 2.1): a normal space, then the mention.
+ * @internal exported for its tests and the E2E page objects (knip --production)
+ */
 export const VOUCHER_MARK = " (ticket restaurant)";
 
-/** `TICKET_RE` (00 § 2.1): the mention at the end of a name, any case, spaces around. */
+/**
+ * `TICKET_RE` (00 § 2.1): the mention at the end of a name, any case, spaces around.
+ * @internal exported for its tests only (knip --production)
+ */
 export const VOUCHER_MARK_RE = /\s*\(ticket restaurant\)\s*$/iu;
 
 /** The name without the voucher mark (`plainName`, 01 § 3.5). */

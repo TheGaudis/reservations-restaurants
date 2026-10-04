@@ -1,18 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": [
-    "scripts/*.ts",
-    // retirer après la vague 10 (P5 (b) à (e)) : fabrique et fichiers d'écritures collègue sans importeur avant elles
-    "src/mutations/staff/*.ts!"
-  ],
+  "entry": ["scripts/*.ts"],
   "project": [
     "src/**/*.{ts,tsx}!",
     "!src/mocks/**!",
     "!src/test/**!",
-    "!src/ui/**!", // retirer quand chaque composant de ui/ a un importeur de production (P7 (a) au plus tard)
-    "!src/domain/**!", // retirer en P6 (b) : domain/ (P2 (a)) attend ses importeurs de production (api/, features/)
-    // retirer après la vague 10 (P5 (b) à (e)) : actions et schémas du mode collègue sans importeur de production
-    "!src/api/{actions,errors,schemas,staff-schemas,transport}.ts!",
     "e2e/**/*.ts",
     "scripts/*.ts",
     ".storybook/*.{ts,tsx}"

@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   bookingR1Input,
-  canBookR1,
-  canOrderR2,
   editBookingR1Input,
   editBookingR2Input,
   emailFailed,
@@ -14,7 +12,7 @@ import {
 } from "@/domain/bookings";
 import type { BookingR1Values, OrderR2Values, SeatCountValues } from "@/domain/bookings";
 import type { BookingResult, EmailStatus, WriteResponse } from "@/domain/types";
-import { TEST_NOW, TODAY } from "@/test/clock";
+import { TODAY } from "@/test/clock";
 import { bookingR1, bookingR2, dayR1, dish, publicState, SETTINGS } from "@/test/domain-states";
 
 const lasagnes = dish("lasagnes", TODAY, { name: "Lasagnes", stock: 10, price: 4.5 });
@@ -64,29 +62,6 @@ function response(overrides: Partial<WriteResponse> = {}): WriteResponse {
     ...overrides,
   };
 }
-
-describe("bookable days (05 § 5.2, § 6.5)", () => {
-  it.each([
-    [TODAY, true],
-    ["2026-10-01", false],
-    ["2026-10-09", false],
-    ["2026-10-12", false],
-    ["2026-10-06", false],
-  ])("R1 on %s: %s", (iso, bookable) => {
-    expect(canBookR1(state, iso, TODAY)).toBe(bookable);
-  });
-
-  it.each([
-    [TODAY, TEST_NOW, true, "open before 10 a.m."],
-    [TODAY, Date.parse("2026-10-05T08:00:00.000Z"), false, "closed at 10 a.m."],
-    ["2026-10-11", TEST_NOW, false, "every dish sold out"],
-    ["2026-10-10", TEST_NOW, false, "a day without dish"],
-    ["2026-10-13", TEST_NOW, true, "one dish left of two"],
-    ["2026-10-06", TEST_NOW, false, "no R2 day"],
-  ])("R2 on %s at %i: %s (%s)", (iso, now, orderable, _why) => {
-    expect(canOrderR2(state, iso, now)).toBe(orderable);
-  });
-});
 
 describe("inputs of the booking actions (02 § 4.4, § 4.5, 04 § 6.2)", () => {
   it("trims the texts and sends empty counters as 0", () => {

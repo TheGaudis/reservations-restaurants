@@ -81,7 +81,6 @@ export function formatEuros(value: number | string): string {
 
 /**
  * « 0 couvert », « 1 couvert », « 2 couverts » (00 § 3).
- * @public read by the staff totals and the print documents from P5 (e) and P6
  */
 export function seatsText(count: number): string {
   return intl.formatMessage(messages.seats, { count });
@@ -89,7 +88,7 @@ export function seatsText(count: number): string {
 
 /**
  * « 1 ticket restaurant », « 2 tickets restaurant » (`ticketsText`, 04 § 8).
- * @public read by the staff totals and the print documents from P5 (e) and P6
+ * @internal exported for its tests only (knip --production)
  */
 export function vouchersText(count: number): string {
   return intl.formatMessage(messages.vouchers, { count });
@@ -97,7 +96,6 @@ export function vouchersText(count: number): string {
 
 /**
  * `amountsText` (01 § 3.5): « 12,00 € + 1 ticket restaurant », « 1 ticket restaurant », « 7,00 € » or empty.
- * @public read by the staff totals and the print documents from P5 (e) and P6
  */
 export function amountsText(amounts: Amounts): string {
   const euros = amounts.euros > 0 ? formatEuros(amounts.euros) : "";
@@ -114,7 +112,6 @@ export function dishPriceText(dish: DishLine["dish"]): string {
 
 /**
  * `itemAmountText` (01 § 3.5): amount of `portions` portions of one dish (« 7,00 € », « 2 tickets restaurant »).
- * @public read by the staff booking rows from P5 (d1)
  */
 export function dishAmountText(dish: DishLine["dish"], portions: number): string {
   return amountsText(r2Amounts([{ dish, portions }]));

@@ -84,7 +84,6 @@ export function formatWeekLabel(anchor: IsoDate): string {
 
 /**
  * « Octobre 2026 »: month of `anchor`, capitalised here as in the legacy code (05 § 2.3, 06 § 3.2).
- * @public read by ui/calendar/DatePickerPopover, outside the production mode of knip until P7 (a)
  */
 export function formatMonthLabel(anchor: IsoDate): string {
   const label = intl.formatDate(utcTime(anchor), { format: "monthYear" });
