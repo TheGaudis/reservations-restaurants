@@ -134,12 +134,12 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 
 | Écran `09` | Scénario(s) | Étiquette | `legacy` | `react` | Story ou test navigateur | Écart |
 | --- | --- | --- | --- | --- | --- | --- |
-| G-01 | REG-01, REG-03 | `@parity` | vert (P1 (b), 3 oct.) | à faire | story `PageSkeleton` | E-45 |
-| G-02 | REG-02, REG-05, REG-27 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | à faire | test de `useIsFromCache` | E-47 |
-| G-03 | REG-04, REG-05, REG-06 | `@parity` | vert (P1 (b), 3 oct.) | à faire | stories `LoadErrorBox` (en ligne, hors ligne, copie) | E-42 |
+| G-01 | REG-01, REG-03 | `@parity` | vert (P1 (b), 3 oct.) | partiel (P4 (a), 4 oct.) : REG-03 hors ligne vert ; REG-01 vert jusqu'au calendrier, REG-03 (6 s, 1,5 s, lecture sans réponse) verts jusqu'à la fiche (P4 (b)) | stories `PageSkeleton`, tests de `Page` et `-routes.test.tsx` ; S4 (`e2e/hydration.spec.ts`) | E-45 |
+| G-02 | REG-02, REG-05, REG-27 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | à faire (P4 (b) : fiche et « Réserver » ; S4 vert en P4 (a)) | test de `useIsFromCache` ; S4 | E-47 |
+| G-03 | REG-04, REG-05, REG-06 | `@parity` | vert (P1 (b), 3 oct.) | partiel (P4 (a), 4 oct.) : REG-06 vert ; REG-04 vert jusqu'à la fiche ; REG-05 s'arrête sur la fiche de la copie, avant l'encadré (P4 (b)) | stories et tests `LoadErrorBox` (en ligne, hors ligne, copie, « Réessayer »), stories `Page` | E-42 |
 | G-04 | REG-01, REG-08 et tous les scénarios publics ; `smoke.spec.ts` | `@parity` | vert (P1 (b), 3 oct.) | à faire | stories de `Page` | E-08 |
-| G-05 | REG-07 | `@legacy-only` | vert (P1 (b), 3 oct.) | sans objet | story et test Vitest de `ConfigBanner` | E-29 |
-| G-07 | REG-27, REG-17 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | à faire | stories et tests de `Toaster` | E-02 |
+| G-05 | REG-07 | `@legacy-only` | vert (P1 (b), 3 oct.) | sans objet ; variante `react` de REG-07 verte (P4 (a), 4 oct.) | stories et test Vitest de `ConfigBanner` (P4 (a)) | E-29 |
+| G-07 | REG-27, REG-17 | `@changed` | vert (P1 (b), 3 oct.) ; REG-27 : P1 (c) | à faire : `<Toaster/>` monté à la racine en P4 (a), aucun scénario étiqueté `@G-07` ; REG-17 en P4 (c), REG-27 en P5 (a) | stories et tests de `Toaster` | E-02 |
 | P-01 | REG-09, REG-11, REG-12 | `@changed` | vert (P1 (b), 3 oct.) | à faire | table des touches de `CalendarGrid` | E-05, E-07, E-21 |
 | P-01b | REG-09 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story « semaine » | E-06 |
 | P-02 | REG-10, REG-11 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story « mois » | E-23 |
@@ -158,7 +158,7 @@ Colonnes : écran de `09` ; scénarios ; étiquette dominante ; statut sur `lega
 | P-15 | REG-12, REG-25, REG-26 | `@changed` | vert (P1 (b), 3 oct.) | à faire | tests de `background/clock.ts` | E-01, E-09, E-43 |
 | P-16 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` épuisé | E-27 |
 | P-17 | REG-21 | `@changed` | vert (P1 (b), 3 oct.) | à faire | story `DayCardR2` passé | — |
-| `09` § 7 | REG-43 | `@parity` | vert (P1 (b), 3 oct.) | à faire | — | — |
+| `09` § 7 | REG-43 | `@parity` | vert (P1 (b), 3 oct.) | vert (P4 (a), 4 oct.) | test de `Header` | — |
 
 ### 5.2 Collègue (P1 (c), puis P5)
 
