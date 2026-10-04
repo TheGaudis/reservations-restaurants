@@ -171,7 +171,6 @@ test(
     await expect(seatsPill(page)).toHaveText("12 / 20 couverts");
     await expect(reserveButton(page, "r1")).toBeEnabled();
     expect(reads(fakeScript.requests)).toStrictEqual(["?since=E1"]);
-    await context.setOffline(false);
   },
 );
 

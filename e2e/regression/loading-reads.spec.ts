@@ -107,7 +107,6 @@ test(
     await page.clock.runFor(10_000);
     await settle(page);
     expect(reads(fakeScript.requests)).toStrictEqual([""]);
-    await context.setOffline(false);
   },
 );
 
