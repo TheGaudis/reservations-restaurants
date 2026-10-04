@@ -108,8 +108,8 @@ jobs:
       contents: read
     env:
       # Regression scenarios already green on the React build (PLAN § 3.1: filtered until P7), by id or title.
-      # Empty: the react project does not run. P4 (b): loading, calendars, day cards, midnight.
-      E2E_REACT_GREP: "REG-0[1-9]|REG-1[0-2]|REG-1[4-9]|REG-2[016]|REG-43|midnight (reaches|without|keeps)|publicPageFromFakeScript|@framework"
+      # Empty: the react project does not run. P4 (d): every scenario of P4 and the checks of the suite itself.
+      E2E_REACT_GREP: "@p4|@framework"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
