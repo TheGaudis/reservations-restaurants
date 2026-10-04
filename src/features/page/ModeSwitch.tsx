@@ -11,6 +11,7 @@ import { useLogin } from "@/mutations/login";
 import { useIsFromCache } from "@/queries/use-app-state";
 import { useSessionStore } from "@/session/session";
 import { showToast } from "@/ui/feedback/toast";
+import { focusOnMount, requestFocus } from "@/ui/pending-focus";
 import { ViewToggle } from "@/ui/toggle/ViewToggle";
 
 import styles from "@/features/page/ModeSwitch.module.css";
@@ -51,30 +52,31 @@ const messages = defineMessages({
 type Mode = "client" | "staff";
 
 /**
- * Segment that takes the focus when the next mode switch mounts: « Collègue » after a login, « Client » after a click
- * on « Client » (06 § 1.3 (5)). The page under the other route mounts a new switch.
+ * Focus keys (ui/pending-focus.ts): the segment that takes the focus when the next mode switch mounts, « Collègue »
+ * after a login, « Client » after a click on « Client » (06 § 1.3 (5)); the page under the other route mounts a new
+ * switch. The password field of a panel opened by « Collègue » (06 § 1.2), not one reopened by a link.
  */
-let pendingFocus: Mode | null = null;
+const FOCUS = {
+  client: "mode-switch:client",
+  staff: "mode-switch:staff",
+  password: "login-password",
+};
 
-/** Ref callback of the switch, stable: React calls it when a switch mounts, never on a new render. */
-function takePendingFocus(element: HTMLElement | null): void {
-  if (element === null || pendingFocus === null) return;
-  element
-    .querySelectorAll("button")
-    .item(pendingFocus === "client" ? 0 : 1)
-    .focus();
-  pendingFocus = null;
+const focusClient = focusOnMount(FOCUS.client, (box) =>
+  box.querySelectorAll("button").item(0).focus(),
+);
+const focusStaff = focusOnMount(FOCUS.staff, (box) =>
+  box.querySelectorAll("button").item(1).focus(),
+);
+
+function takePendingFocus(box: HTMLElement | null): void {
+  focusClient(box);
+  focusStaff(box);
 }
 
-/** The field of a panel opened by « Collègue » takes the focus (06 § 1.2), not one reopened by a link. */
-let focusPasswordField = false;
-
-/** Ref callback of the password field, stable like `takePendingFocus`. */
-function takeFieldFocus(input: HTMLInputElement | null): void {
-  if (input === null || !focusPasswordField) return;
-  focusPasswordField = false;
+const takeFieldFocus = focusOnMount(FOCUS.password, (input) => {
   input.focus();
-}
+});
 
 interface LoginSearch extends PageSearchParams {
   connexion?: boolean | undefined;
@@ -118,7 +120,7 @@ function useSubmitLogin(search: LoginSearch): (password: string) => Promise<void
       await login.mutateAsync(password, {
         onSuccess: () => {
           showToast(intl.formatMessage(messages.loggedIn), "success");
-          pendingFocus = "staff";
+          requestFocus(FOCUS.staff);
           if (search.retour === undefined) {
             void navigate({ to: "/collegue", search: publicSearch(search), replace: true });
           } else {
@@ -159,7 +161,7 @@ export function ModeSwitch() {
 
   const choose = (mode: Mode) => {
     if (mode === "staff") {
-      focusPasswordField = true;
+      requestFocus(FOCUS.password);
       loginPanelChunk.load();
       void navigate({
         to: ".",
@@ -168,7 +170,7 @@ export function ModeSwitch() {
       });
     } else if (loggedIn) {
       // The logout itself (purge, toast, back to /) belongs to background/logout.ts (PLAN § 3.3.4).
-      pendingFocus = "client";
+      requestFocus(FOCUS.client);
       useSessionStore.getState().close("logout");
     } else {
       closePanel();

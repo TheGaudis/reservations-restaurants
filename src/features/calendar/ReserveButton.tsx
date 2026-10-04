@@ -1,11 +1,12 @@
 import { useIntl } from "react-intl";
 
 import type { IsoDate, Restaurant } from "@/domain/types";
-import { useBookingColumns } from "@/features/booking/booking-columns";
+import { columnFocus, useBookingColumns } from "@/features/booking/booking-columns";
 import { DayActions } from "@/features/calendar/DayCard";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { commonMessages } from "@/intl/common-messages";
 import { Button } from "@/ui/button/Button";
+import { focusOnMount, requestFocus } from "@/ui/pending-focus";
 
 interface ReserveButtonProps {
   restaurant: Restaurant;
@@ -29,11 +30,7 @@ export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) 
   return (
     <DayActions>
       <Button
-        ref={(button) => {
-          if (button !== null && columns.takeFocusRequest("reserve", restaurant)) {
-            button.focus({ preventScroll: true });
-          }
-        }}
+        ref={focusOnMount(columnFocus.reserve(restaurant))}
         variant="primary"
         onPointerEnter={preload}
         onFocus={preload}
@@ -41,7 +38,7 @@ export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) 
         onClick={() => {
           const day = restaurant === "r1" ? { r1: iso } : { r2: iso };
           columns.clear(restaurant);
-          columns.requestFocus("form", restaurant);
+          requestFocus(columnFocus.form(restaurant));
           navigate({ ...search, ...day, reserver: restaurant }, { replace: false });
         }}
       >

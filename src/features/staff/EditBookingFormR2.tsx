@@ -1,4 +1,3 @@
-import type { RefObject } from "react";
 import { defineMessages } from "react-intl";
 
 import { editBookingR2Input, maxPortionsForEdit } from "@/domain/bookings";
@@ -99,8 +98,6 @@ interface EditBookingFormR2Props {
   booking: BookingR2;
   /** Dish of the booking line: names the −/+ buttons of the portions (D-17). */
   dish: Dish;
-  /** « Modifier » of the booking row: it takes the focus back when the form closes (E-48). */
-  opener: RefObject<HTMLButtonElement | null>;
 }
 
 /**
@@ -109,8 +106,8 @@ interface EditBookingFormR2Props {
  * itself does not change. Success: toast « Réservation modifiée. », form closed; failure: the script's message under
  * the portions (stock) or in a toast.
  */
-export function EditBookingFormR2({ booking, dish, opener }: EditBookingFormR2Props) {
-  const close = useCloseEditBooking(editResaValue("r2", booking.id), opener);
+export function EditBookingFormR2({ booking, dish }: EditBookingFormR2Props) {
+  const close = useCloseEditBooking(editResaValue("r2", booking.id));
   const { form, voucherDay, slowWrite } = useEditFormR2(booking, close);
   return (
     <Form form={form} className={styles["form"]}>

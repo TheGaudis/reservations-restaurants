@@ -20,7 +20,6 @@ import {
 } from "@/features/staff/add-booking";
 import { AddPersonButton } from "@/features/staff/AddBookingParts";
 import { modeOptions, portionsError } from "@/features/staff/booking-r2";
-import { focusFirstField } from "@/features/staff/dish-focus";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
@@ -31,6 +30,7 @@ import { showStaffError } from "@/mutations/staff/write";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
+import { focusFirstInput, focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/AddBookingForm.module.css";
 
@@ -154,7 +154,7 @@ function AddBookingFormR2Open({ dish }: AddBookingR2Props) {
   return (
     <div
       id={addFormId(ajout)}
-      ref={focusFirstField(addFormTarget(ajout))}
+      ref={focusOnMount(addFormTarget(ajout), focusFirstInput)}
       className={styles["reveal"]}
     >
       <Form form={form} className={styles["form"]}>

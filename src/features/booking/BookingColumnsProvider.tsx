@@ -1,10 +1,9 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
-import { flushSync } from "react-dom";
 
-import type { Restaurant } from "@/domain/types";
-import { BookingColumnsContext } from "@/features/booking/booking-columns";
+import { BookingColumnsContext, columnFocus } from "@/features/booking/booking-columns";
 import type { BookingColumns, BookingSummaryContent } from "@/features/booking/booking-columns";
+import { requestFocus } from "@/ui/pending-focus";
 
 /**
  * Holds the summary of each public column (D-11: one per restaurant) above the forms, which unmount once they have
@@ -15,31 +14,18 @@ export function BookingColumnsProvider({ children }: { children: ReactNode }) {
     r1: null,
     r2: null,
   });
-  const titles = useRef(new Map<Restaurant, HTMLElement>());
-  const focusRequests = useRef(new Set<string>());
   const value: BookingColumns = {
     summaries,
     show: (summary: BookingSummaryContent) => {
-      // The title must be in the DOM before it takes the focus (E-12): the form that called `show` unmounts next.
-      flushSync(() => {
-        setSummaries((current) => ({ ...current, [summary.restaurant]: summary }));
-      });
-      titles.current.get(summary.restaurant)?.focus();
+      // « Réserver » removed the previous summary: this one mounts, and its title takes the focus (E-12).
+      requestFocus(columnFocus.summary(summary.restaurant));
+      setSummaries((current) => ({ ...current, [summary.restaurant]: summary }));
     },
     clear: (restaurant) => {
       setSummaries((current) =>
         current[restaurant] === null ? current : { ...current, [restaurant]: null },
       );
     },
-    titleRef: (restaurant) => (element) => {
-      if (element === null) titles.current.delete(restaurant);
-      else titles.current.set(restaurant, element);
-    },
-    requestFocus: (target, restaurant) => {
-      focusRequests.current.add(`${target}:${restaurant}`);
-    },
-    takeFocusRequest: (target, restaurant) =>
-      focusRequests.current.delete(`${target}:${restaurant}`),
   };
   return <BookingColumnsContext value={value}>{children}</BookingColumnsContext>;
 }

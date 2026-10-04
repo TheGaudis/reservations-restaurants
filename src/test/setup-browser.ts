@@ -3,6 +3,7 @@ import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 
 import { useSessionStore } from "@/session/session";
 import { installFakeScript, removeFakeScript, worker } from "@/test/browser-fake-script";
+import { clearFocusRequest } from "@/ui/pending-focus";
 
 // Staff session closed at the start of each test: the store is a module singleton (R-25).
 const initialSession = useSessionStore.getState();
@@ -11,10 +12,12 @@ const initialSession = useSessionStore.getState();
 beforeAll(async () => {
   await worker.start({ quiet: true, onUnhandledFrame: "error" });
 });
-// One fake script per test (PLAN P1): tables, requests and failures never leak from a test to the next.
+// One fake script per test (PLAN P1): tables, requests and failures never leak from a test to the next; nor does a
+// focus request that the test ended before an element took (ui/pending-focus.ts).
 beforeEach(() => {
   installFakeScript();
   useSessionStore.setState(initialSession, true);
+  clearFocusRequest();
 });
 afterEach(() => {
   removeFakeScript();

@@ -1,5 +1,4 @@
 import { useId } from "react";
-import type { RefObject } from "react";
 import { defineMessages } from "react-intl";
 
 import { editBookingR1Input, maxSeatsForEdit } from "@/domain/bookings";
@@ -134,8 +133,6 @@ function useEditFormR1(booking: BookingR1, close: () => void) {
 
 interface EditBookingFormR1Props {
   booking: BookingR1;
-  /** « Modifier » of the booking row: it takes the focus back when the form closes (E-48). */
-  opener: RefObject<HTMLButtonElement | null>;
 }
 
 /**
@@ -144,8 +141,8 @@ interface EditBookingFormR1Props {
  * The values follow a refresh until a field changes, then stay as typed (03 § 5.4). Success: toast « Réservation
  * modifiée. », form closed; failure: the script's message under the counters (seats) or in a toast.
  */
-export function EditBookingFormR1({ booking, opener }: EditBookingFormR1Props) {
-  const close = useCloseEditBooking(editResaValue("r1", booking.id), opener);
+export function EditBookingFormR1({ booking }: EditBookingFormR1Props) {
+  const close = useCloseEditBooking(editResaValue("r1", booking.id));
   const { form, max, prices, slowWrite } = useEditFormR1(booking, close);
   const errorId = useId();
   const help = madeBeforePrices(booking)

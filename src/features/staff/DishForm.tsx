@@ -1,23 +1,17 @@
-import { useNavigate } from "@tanstack/react-router";
 import { defineMessages, useIntl } from "react-intl";
 
 import { portionsBooked } from "@/domain/capacity";
 import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
-import type { PageSearchParams } from "@/domain/navigation";
 import type { Dish, IsoDate } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { DayActions } from "@/features/calendar/DayCard";
-import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
+import { useCloseForm, usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import {
   ADD_BUTTON,
   ADD_FORM,
   editButtonId,
   editFormId,
   editTarget,
-  focusEditButton,
-  focusFirstField,
-  requestFocus,
-  takeFocusRequest,
 } from "@/features/staff/dish-focus";
 import { bookingsOfDish } from "@/features/staff/dish-rules";
 import { DishFields } from "@/features/staff/DishFields";
@@ -28,6 +22,7 @@ import { useAddDish, useDeleteDish, useEditDish } from "@/mutations/staff/dishes
 import { showStaffError } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
+import { focusById, focusFirstInput, focusOnMount, requestFocus } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/DishForm.module.css";
 
@@ -79,14 +74,6 @@ const messages = defineMessages<{
     description: "06 § 6.2 — bouton d'envoi de l'ajout d'un plat",
   },
 });
-
-/** Leaves the URL in `replace`, from the search params current when the answer comes, not those of the render. */
-function useCloseForm() {
-  const navigate = useNavigate();
-  return (close: (search: PageSearchParams) => PageSearchParams) => {
-    void navigate({ to: ".", search: close, replace: true, resetScroll: false });
-  };
-}
 
 /** « Supprimer ce plat » (06 § 6.4): two clicks; the armed button details the bookings left orphaned (D-21, E-38). */
 function DeleteDishButton({ dish }: { dish: Dish }) {
@@ -156,7 +143,7 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
   const booked = useStaffState((state) => portionsBooked(state, dish.id));
   const closeForm = useCloseForm();
   const close = () => {
-    focusEditButton(dish.id);
+    focusById(editButtonId(dish.id));
     closeForm((search) =>
       search.editPlat === dish.id ? { ...search, editPlat: undefined } : search,
     );
@@ -177,7 +164,7 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
         }
       }}
       cancel={close}
-      wrapperRef={focusFirstField(editTarget(dish.id))}
+      wrapperRef={focusOnMount(editTarget(dish.id), focusFirstInput)}
     />
   );
 }
@@ -217,7 +204,7 @@ function AddDishFormOpen({ iso }: { iso: IsoDate }) {
         }
       }}
       cancel={close}
-      wrapperRef={focusFirstField(ADD_FORM)}
+      wrapperRef={focusOnMount(ADD_FORM, focusFirstInput)}
     />
   );
 }
@@ -234,11 +221,7 @@ export function AddDish({ iso }: { iso: IsoDate }) {
   return (
     <DayActions>
       <Button
-        ref={(button) => {
-          if (button !== null && takeFocusRequest(ADD_BUTTON)) {
-            button.focus({ preventScroll: true });
-          }
-        }}
+        ref={focusOnMount(ADD_BUTTON)}
         size="small"
         onClick={() => {
           requestFocus(ADD_FORM);

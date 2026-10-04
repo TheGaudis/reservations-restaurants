@@ -1,14 +1,12 @@
-import { useNavigate } from "@tanstack/react-router";
 import { defineMessages, useIntl } from "react-intl";
 
 import { BusinessError, PasswordRejectedError } from "@/api/errors";
 import { seatsBooked } from "@/domain/capacity";
-import type { PageSearchParams } from "@/domain/navigation";
 import type { EditDayR1Input, StaffServiceDayR1 } from "@/domain/types";
 import { compose, parseCount, positiveInteger, required } from "@/domain/validation";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
+import { useCloseForm, usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { dayMessages } from "@/features/staff/day-messages";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
@@ -20,6 +18,7 @@ import { Button } from "@/ui/button/Button";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
+import { focusById } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/EditDayFormR1.module.css";
 
@@ -43,19 +42,8 @@ interface EditDayR1Values {
   menu: string;
 }
 
-// « Modifier ce jour » of the card, while it is in the page: the form gives it the focus back when it closes (E-48).
-let editButton: HTMLElement | null = null;
-
-function trackEditButton(button: HTMLElement | null) {
-  editButton = button;
-  return () => {
-    if (editButton === button) editButton = null;
-  };
-}
-
-function focusEditButton() {
-  editButton?.focus({ preventScroll: true });
-}
+// « Modifier ce jour » of the R1 card (one in the page): the form gives it the focus back when it closes (E-48).
+const EDIT_BUTTON_ID = "edit-day-r1";
 
 /**
  * « Modifier ce jour » in the actions of the R1 card, after « + Ajouter une personne » (05 § 5.3, C-13): opens the
@@ -67,7 +55,7 @@ export function EditDayButtonR1(_props: EditDayR1Props) {
   const open = search.editJour === "r1";
   return (
     <Button
-      ref={trackEditButton}
+      id={EDIT_BUTTON_ID}
       size="small"
       aria-expanded={open}
       onClick={() => {
@@ -90,16 +78,11 @@ function editDayR1Rules(value: EditDayR1Values, booked: number) {
 }
 
 /** `editJour` leaves the URL (`replace`); « Modifier ce jour » takes the focus first (E-48). */
-function useCloseForm() {
-  const navigate = useNavigate();
+function useCloseEditDay() {
+  const closeForm = useCloseForm();
   return () => {
-    focusEditButton();
-    void navigate({
-      to: ".",
-      search: (previous: PageSearchParams) => ({ ...previous, editJour: undefined }),
-      replace: true,
-      resetScroll: false,
-    });
+    focusById(EDIT_BUTTON_ID);
+    closeForm((previous) => ({ ...previous, editJour: undefined }));
   };
 }
 
@@ -110,7 +93,7 @@ function useCloseForm() {
 function useEditDayFormR1(day: StaffServiceDayR1) {
   const editDay = useEditDayR1();
   const slowWrite = useSlowWrite();
-  const close = useCloseForm();
+  const close = useCloseEditDay();
   const booked = useStaffState((state) => seatsBooked(state, day.date));
   const form = useAppForm({
     defaultValues: { capacity: String(day.capacity), theme: day.theme, menu: day.menu },

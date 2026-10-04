@@ -20,7 +20,6 @@ import {
   useCloseAddBooking,
 } from "@/features/staff/add-booking";
 import { AddPersonButton } from "@/features/staff/AddBookingParts";
-import { focusFirstField } from "@/features/staff/dish-focus";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
@@ -31,6 +30,7 @@ import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
+import { focusFirstInput, focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/AddBookingForm.module.css";
 
@@ -125,7 +125,7 @@ function AddBookingFormR1Open({ day }: AddBookingR1Props) {
   return (
     <div
       id={addFormId(AJOUT)}
-      ref={focusFirstField(addFormTarget(AJOUT))}
+      ref={focusOnMount(addFormTarget(AJOUT), focusFirstInput)}
       className={styles["reveal"]}
     >
       <Form form={form} className={styles["form"]}>

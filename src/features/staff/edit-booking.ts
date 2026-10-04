@@ -1,12 +1,10 @@
-import { useNavigate } from "@tanstack/react-router";
-import type { RefObject } from "react";
-
 import type { IdentityValues } from "@/domain/bookings";
-import type { PageSearchParams } from "@/domain/navigation";
 import type { BookingR1, BookingR2 } from "@/domain/types";
 import { required } from "@/domain/validation";
+import { useCloseForm } from "@/features/calendar/page-search";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
+import { focusById } from "@/ui/pending-focus";
 
 // Rules and closing shared by the two edit forms of a booking (06 § 7.2-7.4, E-48).
 
@@ -46,20 +44,21 @@ export function editIdentityErrors(
   return errors;
 }
 
+/** Id of « Modifier » of a booking (`editResa` value): the edit form gives it the focus back when it closes (E-48). */
+export function editBookingButtonId(editResa: string): string {
+  return `edit-booking-${editResa}`;
+}
+
 /**
  * Closes the edit form of `editResa` (`replace`) and gives the focus back to its « Modifier » (E-48). The focus moves
  * first: the button stays in the page while the form leaves it. Another form opened meanwhile stays open.
  */
-export function useCloseEditBooking(editResa: string, opener: RefObject<HTMLButtonElement | null>) {
-  const navigate = useNavigate();
+export function useCloseEditBooking(editResa: string) {
+  const closeForm = useCloseForm();
   return () => {
-    opener.current?.focus({ preventScroll: true });
-    void navigate({
-      to: ".",
-      search: (previous: PageSearchParams) =>
-        previous.editResa === editResa ? { ...previous, editResa: undefined } : previous,
-      replace: true,
-      resetScroll: false,
-    });
+    focusById(editBookingButtonId(editResa));
+    closeForm((previous) =>
+      previous.editResa === editResa ? { ...previous, editResa: undefined } : previous,
+    );
   };
 }

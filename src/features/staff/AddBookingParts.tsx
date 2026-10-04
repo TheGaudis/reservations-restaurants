@@ -1,9 +1,9 @@
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { addButtonId, addFormId, addFormTarget } from "@/features/staff/add-booking";
-import { requestFocus } from "@/features/staff/dish-focus";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
+import { requestFocus } from "@/ui/pending-focus";
 
 // Parts shared by the R1 and R2 forms « Ajouter une personne » (06 § 8).
 

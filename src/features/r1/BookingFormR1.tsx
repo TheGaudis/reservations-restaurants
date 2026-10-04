@@ -1,29 +1,26 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useId } from "react";
+import { useId } from "react";
 
 import { bookingR1Input, summaryR1 } from "@/domain/bookings";
 import type { BookingR1Values } from "@/domain/bookings";
 import { findDay, remainingSeats } from "@/domain/capacity";
-import type { BookingR1Input, IsoDate, WriteResponse } from "@/domain/types";
-import { useBookingColumns } from "@/features/booking/booking-columns";
+import type { IsoDate } from "@/domain/types";
+import { columnFocus, useBookingDone } from "@/features/booking/booking-columns";
 import { bookingErrorText } from "@/features/booking/booking-errors";
+import { BookingFormActions } from "@/features/booking/BookingFormActions";
 import { identityErrors } from "@/features/booking/identity-rules";
 import { IdentityFields, ObservationField } from "@/features/booking/IdentityFields";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useRequestId } from "@/features/booking/use-request-id";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { DayActions } from "@/features/calendar/DayCard";
 import { useShownState } from "@/features/calendar/use-shown-state";
 import { seatErrors } from "@/features/r1/seat-rules";
 import { SeatCountersR1 } from "@/features/r1/SeatCountersR1";
-import { commonMessages } from "@/intl/common-messages";
-import { intl } from "@/intl/intl";
 import { isSeatsRefusal, useBookR1 } from "@/mutations/bookings";
-import { Button } from "@/ui/button/Button";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
 import { Form } from "@/ui/form/Form";
+import { focusFirstInput, focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/r1/BookingFormR1.module.css";
 
@@ -54,51 +51,14 @@ function bookingR1Rules(value: BookingR1Values, max: number) {
 
 /**
  * Opened by « Réserver »: focuses « Nom et prénom » without scrolling, and brings the form up when it opens in the
- * bottom 40 % of the window (04 § 5.1). A form opened by a link or a reload leaves the focus alone. Stable: React
- * would call a new ref callback at each render.
+ * bottom 40 % of the window (04 § 5.1). A form opened by a link or a reload leaves the focus alone.
  */
-function useFocusOnOpen() {
-  const columns = useBookingColumns();
-  const { takeFocusRequest } = columns;
-  return useCallback(
-    (element: HTMLDivElement | null) => {
-      if (element === null || !takeFocusRequest("form", "r1")) return;
-      element.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
-      if (element.getBoundingClientRect().top > window.innerHeight * 0.6) {
-        element.scrollIntoView({ block: "start" });
-      }
-    },
-    [takeFocusRequest],
-  );
-}
-
-/** `reserver=r1` leaves the URL (`replace`), unless the visitor already moved to another form. */
-function useCloseForm() {
-  const navigate = useNavigate({ from: "/" });
-  return () => {
-    void navigate({
-      search: (previous) =>
-        previous.reserver === "r1" ? { ...previous, reserver: undefined } : previous,
-      replace: true,
-      resetScroll: false,
-    });
-  };
-}
-
-/** After the answer, if the form is still there: summary, toast, form closed (04 § 6.3, § 7, D-16, E-12). */
-function useDone() {
-  const columns = useBookingColumns();
-  const close = useCloseForm();
-  return (input: BookingR1Input, response: WriteResponse) => {
-    columns.show(summaryR1(input, response));
-    if (response.duplicate) {
-      showToast(intl.formatMessage(commonMessages.bookingDuplicate), "neutral");
-    } else {
-      showToast(intl.formatMessage(commonMessages.bookingConfirmed));
-    }
-    close();
-  };
-}
+const focusOnOpen = focusOnMount(columnFocus.form("r1"), (element) => {
+  focusFirstInput(element);
+  if (element.getBoundingClientRect().top > window.innerHeight * 0.6) {
+    element.scrollIntoView({ block: "start" });
+  }
+});
 
 /**
  * State and sending of the form. `requestId` is created at mount, kept for every new attempt and through the
@@ -108,7 +68,7 @@ function useBookingFormR1(date: IsoDate) {
   const requestId = useRequestId();
   const book = useBookR1();
   const slowWrite = useSlowWrite();
-  const done = useDone();
+  const done = useBookingDone("r1");
   const state = useShownState();
   const day = findDay(state.r1Days, date);
   const max = day === undefined ? 0 : remainingSeats(state, day);
@@ -123,7 +83,7 @@ function useBookingFormR1(date: IsoDate) {
       try {
         await book.mutateAsync(input, {
           onSuccess: (response) => {
-            done(input, response);
+            done(summaryR1(input, response), response.duplicate);
           },
         });
       } catch (error) {
@@ -160,32 +120,13 @@ interface BookingFormR1Props {
 export function BookingFormR1({ date }: BookingFormR1Props) {
   const { form, max, prices, slowWrite } = useBookingFormR1(date);
   const errorId = useId();
-  const columns = useBookingColumns();
-  const focusOnOpen = useFocusOnOpen();
-  const close = useCloseForm();
   return (
     <div ref={focusOnOpen} className={styles["reveal"]}>
       <Form form={form} className={styles["form"]}>
         <IdentityFields form={form} fields={IDENTITY} variant="public" />
         <SeatCountersR1 form={form} fields={SEATS} max={max} prices={prices} errorId={errorId} />
         <ObservationField form={form} fields={OBSERVATION} />
-        <DayActions>
-          <form.SubmitButton>{intl.formatMessage(commonMessages.confirmBooking)}</form.SubmitButton>
-          <form.Subscribe selector={(formState) => formState.isSubmitting}>
-            {(sending) => (
-              <Button
-                variant="ghost"
-                disabled={sending}
-                onClick={() => {
-                  columns.requestFocus("reserve", "r1");
-                  close();
-                }}
-              >
-                {intl.formatMessage(commonMessages.cancel)}
-              </Button>
-            )}
-          </form.Subscribe>
-        </DayActions>
+        <BookingFormActions restaurant="r1" />
         <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>

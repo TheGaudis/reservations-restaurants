@@ -1,5 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useId } from "react";
+import { useId } from "react";
 import { defineMessages } from "react-intl";
 
 import { syncClock } from "@/background/clock";
@@ -9,14 +8,14 @@ import { dishesForDay, remainingStock } from "@/domain/capacity";
 import { isR2OrderingClosed } from "@/domain/cutoff";
 import type { Dish, IsoDate, OrderR2Input, ServiceMode, WriteResponse } from "@/domain/types";
 import { dayHasVoucher, serviceMode } from "@/domain/vouchers";
-import { useBookingColumns } from "@/features/booking/booking-columns";
+import { columnFocus, useBookingDone } from "@/features/booking/booking-columns";
 import { bookingErrorText } from "@/features/booking/booking-errors";
+import { BookingFormActions } from "@/features/booking/BookingFormActions";
 import { identityErrors } from "@/features/booking/identity-rules";
 import { IdentityFields, ObservationField } from "@/features/booking/IdentityFields";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useRequestId } from "@/features/booking/use-request-id";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { DayActions } from "@/features/calendar/DayCard";
 import { useShownState } from "@/features/calendar/use-shown-state";
 import { DishQuantitiesR2 } from "@/features/r2/DishQuantitiesR2";
 import { dishErrors, orderablePortions } from "@/features/r2/order-rules";
@@ -24,10 +23,10 @@ import type { DishStock } from "@/features/r2/order-rules";
 import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { useOrderR2 } from "@/mutations/bookings";
-import { Button } from "@/ui/button/Button";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
+import { focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/r2/OrderFormR2.module.css";
 
@@ -77,36 +76,15 @@ function closedOnSending(date: IsoDate): boolean {
 
 /**
  * Opened by « Réserver »: focuses the first quantity without scrolling, and brings the card into view when its top
- * is above the window (04 § 5.1, 05 § 6.4). A form opened by a link or a reload leaves the focus alone. Stable: React
- * would call a new ref callback at each render.
+ * is above the window (04 § 5.1, 05 § 6.4). A form opened by a link or a reload leaves the focus alone.
  */
-function useFocusOnOpen() {
-  const { takeFocusRequest } = useBookingColumns();
-  return useCallback(
-    (element: HTMLDivElement | null) => {
-      if (element === null || !takeFocusRequest("form", "r2")) return;
-      element
-        .querySelector<HTMLInputElement>("[data-dishes] input[inputmode]")
-        ?.focus({ preventScroll: true });
-      const card = element.parentElement ?? element;
-      if (card.getBoundingClientRect().top < 0) card.scrollIntoView({ block: "start" });
-    },
-    [takeFocusRequest],
-  );
-}
-
-/** `reserver=r2` leaves the URL (`replace`), unless the visitor already moved to another form. */
-function useCloseForm() {
-  const navigate = useNavigate({ from: "/" });
-  return () => {
-    void navigate({
-      search: (previous) =>
-        previous.reserver === "r2" ? { ...previous, reserver: undefined } : previous,
-      replace: true,
-      resetScroll: false,
-    });
-  };
-}
+const focusOnOpen = focusOnMount(columnFocus.form("r2"), (element) => {
+  element
+    .querySelector<HTMLInputElement>("[data-dishes] input[inputmode]")
+    ?.focus({ preventScroll: true });
+  const card = element.parentElement ?? element;
+  if (card.getBoundingClientRect().top < 0) card.scrollIntoView({ block: "start" });
+});
 
 /**
  * After the answer, if the form is still there (04 § 6.3, § 7, D-16, E-11, E-12): nothing confirmed keeps the form
@@ -114,21 +92,14 @@ function useCloseForm() {
  * portions granted, toast, form closed.
  */
 function useDone() {
-  const columns = useBookingColumns();
-  const close = useCloseForm();
+  const done = useBookingDone("r2");
   return (input: OrderR2Input, response: WriteResponse, dishesOfDay: readonly Dish[]) => {
     const summary = summaryR2(input, response, dishesOfDay);
     if (summary === null) {
       showToast(intl.formatMessage(messages.nothingConfirmed), "error");
       return;
     }
-    columns.show(summary);
-    if (response.duplicate) {
-      showToast(intl.formatMessage(commonMessages.bookingDuplicate), "neutral");
-    } else {
-      showToast(intl.formatMessage(commonMessages.bookingConfirmed));
-    }
-    close();
+    done(summary, response.duplicate);
   };
 }
 
@@ -195,9 +166,6 @@ interface OrderFormR2Props {
 export function OrderFormR2({ date }: OrderFormR2Props) {
   const { form, stocks, voucherDay, slowWrite } = useOrderFormR2(date);
   const errorId = useId();
-  const columns = useBookingColumns();
-  const focusOnOpen = useFocusOnOpen();
-  const close = useCloseForm();
   return (
     <div ref={focusOnOpen} className={styles["reveal"]}>
       <Form form={form} className={styles["form"]}>
@@ -214,23 +182,7 @@ export function OrderFormR2({ date }: OrderFormR2Props) {
         <DishQuantitiesR2 form={form} fields={PORTIONS} dishes={stocks} errorId={errorId} />
         <IdentityFields form={form} fields={IDENTITY} variant="public" />
         <ObservationField form={form} fields={OBSERVATION} />
-        <DayActions>
-          <form.SubmitButton>{intl.formatMessage(commonMessages.confirmBooking)}</form.SubmitButton>
-          <form.Subscribe selector={(formState) => formState.isSubmitting}>
-            {(sending) => (
-              <Button
-                variant="ghost"
-                disabled={sending}
-                onClick={() => {
-                  columns.requestFocus("reserve", "r2");
-                  close();
-                }}
-              >
-                {intl.formatMessage(commonMessages.cancel)}
-              </Button>
-            )}
-          </form.Subscribe>
-        </DayActions>
+        <BookingFormActions restaurant="r2" />
         <SlowWriteNotice slow={slowWrite.slow} />
       </Form>
     </div>

@@ -1,13 +1,13 @@
-import { useNavigate } from "@tanstack/react-router";
 import { defineMessages } from "react-intl";
 
 import { emailFailed } from "@/domain/bookings";
-import type { PageSearchParams } from "@/domain/navigation";
 import type { Restaurant, WriteResponse } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
+import { useCloseForm } from "@/features/calendar/page-search";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import type { ToastKind } from "@/ui/feedback/toast";
+import { focusById } from "@/ui/pending-focus";
 
 // « + Ajouter une personne » (06 § 8): the form open is the search param `ajout` (`r1`, or `r2:{dish id}`, PLAN § 3.2),
 // one at a time in the page. Sent by the public actions without password (`useBookR1`, `useOrderR2`): the answer is
@@ -40,7 +40,7 @@ export function addFormId(ajout: string): string {
   return `add-person-form-${ajout.replace(":", "-")}`;
 }
 
-/** Focus target of `requestFocus` (dish-focus.ts): the first field of the form opened by its button. */
+/** Focus key (ui/pending-focus.ts) of the form opened by its button: its first field takes the focus. */
 export function addFormTarget(ajout: string): string {
   return `add:${ajout}`;
 }
@@ -51,19 +51,13 @@ export function addFormTarget(ajout: string): string {
  * opened meanwhile stays open.
  */
 export function useCloseAddBooking(ajout: string) {
-  const navigate = useNavigate();
+  const closeForm = useCloseForm();
   const restaurant: Restaurant = ajout === "r1" ? "r1" : "r2";
   return () => {
-    const button = document.querySelector<HTMLElement>(`#${CSS.escape(addButtonId(ajout))}`);
-    if (button === null) focusCardDate(restaurant);
-    else button.focus({ preventScroll: true });
-    void navigate({
-      to: ".",
-      search: (previous: PageSearchParams) =>
-        previous.ajout === ajout ? { ...previous, ajout: undefined } : previous,
-      replace: true,
-      resetScroll: false,
-    });
+    if (!focusById(addButtonId(ajout))) focusCardDate(restaurant);
+    closeForm((previous) =>
+      previous.ajout === ajout ? { ...previous, ajout: undefined } : previous,
+    );
   };
 }
 
