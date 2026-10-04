@@ -9,10 +9,12 @@ interface CounterFormProps {
   initial: number | null;
   max?: number | undefined;
   rule?: ((students: number) => string | undefined) | undefined;
+  /** Id of a message outside the field (row of counters, 04 § 5.2). */
+  errorShownBy?: string | undefined;
 }
 
 // An R1 counter (04 § 5.2, D-17); the value shown under the form is what the form holds.
-function CounterForm({ initial, max, rule }: CounterFormProps) {
+function CounterForm({ initial, max, rule, errorShownBy }: CounterFormProps) {
   const form = useAppForm({
     defaultValues: { students: initial },
     validators: {
@@ -31,9 +33,11 @@ function CounterForm({ initial, max, rule }: CounterFormProps) {
             decrementLabel="Diminuer : Élèves"
             incrementLabel="Augmenter : Élèves"
             max={max}
+            errorShownBy={errorShownBy}
           />
         )}
       </form.AppField>
+      <p id="row-error">Message de la rangée</p>
       <form.Subscribe selector={(state) => state.values.students}>
         {(students) => <output>{JSON.stringify(students)}</output>}
       </form.Subscribe>
@@ -156,5 +160,24 @@ describe("NumberField", () => {
     await expect.element(input).toHaveFocus();
     await userEvent.click(screen.getByRole("button", { name: "Augmenter : Élèves" }));
     await expect.element(input).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("leaves its error to an element outside the field (row of counters, 04 § 5.2)", async () => {
+    const { screen } = await renderWithProviders(
+      <CounterForm
+        initial={null}
+        errorShownBy="row-error"
+        rule={(students) => (students > 0 ? undefined : "Indiquez au moins une personne.")}
+      />,
+    );
+    const input = screen.getByRole("textbox", { name: "Élèves · 4,95 €" });
+    await expect.element(input).not.toHaveAttribute("aria-describedby");
+    await userEvent.click(screen.getByRole("button", { name: "Confirmer la réservation" }));
+    await expect.element(input).toHaveAttribute("aria-invalid", "true");
+    await expect.element(input).toHaveAccessibleDescription("Message de la rangée");
+    await expect.element(input).toHaveFocus();
+    await expect
+      .element(screen.getByText("Indiquez au moins une personne."))
+      .not.toBeInTheDocument();
   });
 });

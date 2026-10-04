@@ -56,6 +56,11 @@ export interface NumberFieldProps {
   /** Highest value (remaining stock of a dish, D-18); none for the R1 counters, checked as a total. */
   max?: number | undefined;
   disabled?: boolean | undefined;
+  /**
+   * Id of the element that shows the error of this field outside it (message under the row of the R1 counters,
+   * 04 § 5.2, § 5.4): the field turns red and is described by that element, without a message of its own.
+   */
+  errorShownBy?: string | undefined;
 }
 
 /**
@@ -72,10 +77,14 @@ export function NumberField({
   min = 0,
   max,
   disabled = false,
+  errorShownBy,
 }: NumberFieldProps) {
   const intl = useIntl();
   const field = useFieldContext<number | null>();
   const fieldMessages = useFieldMessages(field);
+  const shownHere = errorShownBy === undefined;
+  const describedBy =
+    fieldMessages.invalid && !shownHere ? errorShownBy : fieldMessages.describedBy;
   return (
     <Field.Root
       name={field.name}
@@ -111,7 +120,7 @@ export function NumberField({
             className={`${styles["control"]} ${numberStyles["input"]}`}
             placeholder={PLACEHOLDER}
             aria-roledescription={intl.formatMessage(messages.roleDescription)}
-            aria-describedby={fieldMessages.describedBy}
+            aria-describedby={describedBy}
             onBlur={field.handleBlur}
           />
           <BaseNumberField.Increment className={numberStyles["step"]} aria-label={incrementLabel}>
@@ -119,7 +128,10 @@ export function NumberField({
           </BaseNumberField.Increment>
         </BaseNumberField.Group>
       </BaseNumberField.Root>
-      <FieldMessages messages={fieldMessages} description={description} />
+      <FieldMessages
+        messages={{ ...fieldMessages, invalid: fieldMessages.invalid && shownHere }}
+        description={description}
+      />
     </Field.Root>
   );
 }
