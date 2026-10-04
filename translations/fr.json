@@ -1347,10 +1347,6 @@
     "defaultMessage": "Afficher le mot de passe",
     "description": "06 § 1.2 — bouton œil quand le mot de passe est masqué"
   },
-  "ui.spinner.label": {
-    "defaultMessage": "Chargement en cours",
-    "description": "08 § 4.15 — nom accessible de l'indicateur de chargement"
-  },
   "ui.submitButton.pending": {
     "defaultMessage": "Envoi en cours…",
     "description": "04 § 6.1 — libellé du bouton d'envoi pendant l'envoi"

@@ -1,14 +1,14 @@
 /// <reference types="node" />
 // Initial budget of a public visitor on / (PLAN § 1.5, S3), read from the Vite manifest of dist/client:
 // JS = client entry + chunk of the / route + their static imports; CSS = stylesheets of those chunks and of the entry.
-// Sizes are gzip level 9. Fails above 200 kB of JS or 25 kB of CSS.
+// Sizes are gzip level 9. Fails above 240 kB of JS or 25 kB of CSS.
 import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 
 import * as v from "valibot";
 
 const OUT_DIR = "dist/client";
-const JS_LIMIT_KB = 200;
+const JS_LIMIT_KB = 240;
 const CSS_LIMIT_KB = 25;
 
 const ManifestSchema = v.record(

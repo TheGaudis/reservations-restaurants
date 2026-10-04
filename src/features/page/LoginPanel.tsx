@@ -6,9 +6,6 @@ import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/page/ModeSwitch.module.css";
 
-// Login panel of the mode switch, in a chunk of its own (`lazy-chunks.ts`): TanStack Form and the fields of
-// `ui/form/` stay out of the initial path of a public visitor (S3, R-15).
-
 const messages = defineMessages({
   passwordLabel: {
     id: "staff.login.password.label",
@@ -22,7 +19,7 @@ const messages = defineMessages({
   },
 });
 
-export interface LoginPanelProps {
+interface LoginPanelProps {
   /** Sends the password as typed; resolves once the login succeeded or failed (`ModeSwitch`). */
   submit: (password: string) => Promise<void>;
   /** Échap in the field (06 § 1.2), with the field. */

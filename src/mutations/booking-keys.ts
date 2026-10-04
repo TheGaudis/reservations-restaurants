@@ -1,6 +1,6 @@
 /**
- * Mutation keys of the bookings (PLAN § 3.3). Apart from mutations/bookings.ts, so that the day card can watch a
- * booking in flight without bringing the API client into the initial path (S3).
+ * Mutation keys of the bookings (PLAN § 3.3), read by the booking mutations, the day cards and the clock. Apart from
+ * mutations/bookings.ts: the staff writes share `WRITE_SCOPE` without importing the public mutations.
  */
 export const bookingKeys = {
   r1: () => ["write", "booking", "r1"] as const,

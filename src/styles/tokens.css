@@ -126,7 +126,6 @@
   --toast-scale: 0.96;
 
   /* Sizes written in the legacy component rules (08 § 4), turned into tokens (PLAN § 3.6) */
-  --spinner-size: 48px; /* .spinner, 08 § 4.15 */
   --border-width: 1px; /* contour of fields, buttons and segments (08 § 4.2, 4.5, 4.6) */
   --control-height: 40px; /* fields, buttons, segments, icon buttons (08 § 4.2, 4.4, 4.5, 4.6) */
   --control-height-coarse: 44px; /* buttons on a touch screen (08 § 4.2) */

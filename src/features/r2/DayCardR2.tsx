@@ -14,9 +14,8 @@ import {
 import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
-import { orderFormR2Chunk } from "@/features/page/lazy-chunks";
 import { DishRow } from "@/features/r2/DishRow";
-import { OrderFormR2Slot } from "@/features/r2/OrderFormR2Slot";
+import { OrderFormR2 } from "@/features/r2/OrderFormR2";
 import { commonMessages } from "@/intl/common-messages";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { Alert } from "@/ui/feedback/Alert";
@@ -36,7 +35,8 @@ const messages = defineMessages({
  * gauge, then « Réserver » when orders are open (before 10:00 in Paris, 01 § 3.7) and a dish has portions left. From
  * 10:00 on the day itself the closing note replaces it; every dish sold out says so (D-02); a past day pales (E-56) and says
  * nothing. A day open without any dish shows its texts only. While the order form is open the dish list folds away:
- * the form shows each dish again (05 § 6.4).
+ * the form shows each dish again (05 § 6.4). The form is keyed by day: another day, or a new opening, starts an empty
+ * form with a new `requestId` (invariant 3) and reads its `defaultValues` again.
  */
 export function DayCardR2() {
   const intl = useIntl();
@@ -77,10 +77,8 @@ export function DayCardR2() {
           </Alert>
         </div>
       ) : null}
-      {orderable && !formOpen ? (
-        <ReserveButton restaurant="r2" iso={iso} preload={orderFormR2Chunk.load} />
-      ) : null}
-      {ordering ? <OrderFormR2Slot /> : null}
+      {orderable && !formOpen ? <ReserveButton restaurant="r2" iso={iso} /> : null}
+      {ordering ? <OrderFormR2 key={`r2:${iso}`} date={iso} /> : null}
       {soldOut && !closed && !ordering ? (
         <DayNote>
           <FormattedMessage
