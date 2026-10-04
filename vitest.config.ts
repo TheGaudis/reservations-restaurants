@@ -36,6 +36,8 @@ export default defineConfig({
       "react-intl",
       "@tanstack/react-query",
       "@tanstack/react-form",
+      // Stories of the calendars and day cards run in a memory router (src/test/story-router.tsx).
+      "@tanstack/react-router",
       "valibot",
       "msw/browser",
       "@base-ui/react/button",
