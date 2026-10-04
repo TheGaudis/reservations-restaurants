@@ -7,12 +7,14 @@ import {
   useClock,
   useIsR2OrderingClosed,
   useToday,
+  syncClock,
   watchR2Cutoff,
 } from "@/background/clock";
 import type { BackgroundDeps } from "@/background/deps";
 import { stopBackgroundTasks } from "@/background/start";
 import { isR2OrderingClosed } from "@/domain/cutoff";
 import { parisDate } from "@/domain/paris";
+import { bookingKeys } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
 import { getRouter } from "@/router";
 import { useSessionStore } from "@/session/session";
@@ -197,6 +199,44 @@ describe("watchR2Cutoff (03 § 5.3, a-7, E-09)", () => {
     ["the staff page", `/collegue?r2=${TODAY}&reserver=r2`],
   ])("leaves %s alone", async (_, url) => {
     const { navigate, showToast } = await watch(url, "2026-10-05T07:59:30.000Z");
+    vi.advanceTimersByTime(30_000);
+    expect(navigate).not.toHaveBeenCalled();
+    expect(showToast).not.toHaveBeenCalled();
+  });
+
+  it("acts at once when the form reads the time again on sending (04 § 5.3)", async () => {
+    const { navigate, showToast } = await watch(
+      `/?r2=${TODAY}&reserver=r2`,
+      "2026-10-05T07:59:30.000Z",
+    );
+    // 10:00:01 before the minute timer fires.
+    vi.setSystemTime(Date.parse("2026-10-05T08:00:01.000Z"));
+    syncClock();
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(showToast).toHaveBeenCalledOnce();
+  });
+
+  it("leaves the form of an order already sent: its answer closes it (04 § 6.3)", async () => {
+    const { router, navigate, showToast } = await watch(
+      `/?r2=${TODAY}&reserver=r2`,
+      "2026-10-05T07:59:30.000Z",
+    );
+    const { queryClient } = router.options.context;
+    queryClient.getMutationCache().build(
+      queryClient,
+      { mutationKey: bookingKeys.r2() },
+      {
+        context: undefined,
+        data: undefined,
+        error: null,
+        failureCount: 0,
+        failureReason: null,
+        isPaused: false,
+        status: "pending",
+        variables: undefined,
+        submittedAt: Date.now(),
+      },
+    );
     vi.advanceTimersByTime(30_000);
     expect(navigate).not.toHaveBeenCalled();
     expect(showToast).not.toHaveBeenCalled();
