@@ -71,12 +71,7 @@ export function useLoadedAppState<T>(select: (state: AppState) => T): T | undefi
  * the script: the mode switch of the header renders it with or without data.
  */
 export function useIsFromCache(): boolean {
-  const { data, dataUpdatedAt } = useQuery({
-    ...publicStateOptions,
-    enabled: false,
-    select: () => true,
-  });
-  return data === true && dataUpdatedAt < APP_START;
+  return usePublicReadStatus().fromCache;
 }
 
 /** Reads of the public state during this page load, for the load error box (G-03, 03 § 3). */

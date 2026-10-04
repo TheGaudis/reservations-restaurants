@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { deleteBookingR1, deleteBookingR2, editBookingR1, editBookingR2 } from "@/api/actions";
 import { BusinessError } from "@/api/errors";
-import type { EditBookingR1Input, EditBookingR2Input, Restaurant } from "@/domain/types";
+import type { Restaurant } from "@/domain/types";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
 import { staffWriteOptions } from "@/mutations/staff/write";
@@ -46,7 +46,7 @@ export function useEditBookingR1() {
     ...staffWriteOptions({
       domain: "bookings",
       action: "editBookingR1",
-      write: async (password: string, input: EditBookingR1Input) => editBookingR1(password, input),
+      write: editBookingR1,
       successToast: () => intl.formatMessage(staffCommonMessages.bookingEdited),
     }),
     onError,
@@ -60,7 +60,7 @@ export function useEditBookingR2() {
     ...staffWriteOptions({
       domain: "bookings",
       action: "editBookingR2",
-      write: async (password: string, input: EditBookingR2Input) => editBookingR2(password, input),
+      write: editBookingR2,
       successToast: () => intl.formatMessage(staffCommonMessages.bookingEdited),
     }),
     onError,
@@ -76,8 +76,7 @@ export function useDeleteBooking(restaurant: Restaurant) {
     staffWriteOptions({
       domain: "bookings",
       action: restaurant === "r1" ? "deleteBookingR1" : "deleteBookingR2",
-      write: async (password: string, id: string) =>
-        restaurant === "r1" ? deleteBookingR1(password, id) : deleteBookingR2(password, id),
+      write: restaurant === "r1" ? deleteBookingR1 : deleteBookingR2,
       successToast: () => intl.formatMessage(staffCommonMessages.bookingDeleted),
     }),
   );

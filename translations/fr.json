@@ -79,10 +79,6 @@
     "defaultMessage": "Réservations — Restaurants pédagogiques",
     "description": "03 § 2.1 — <title> de la page"
   },
-  "common.error.generic": {
-    "defaultMessage": "Erreur",
-    "description": "04 § 9, 06 § 4.1 — toast d'erreur sans message du script"
-  },
   "common.error.offline": {
     "defaultMessage": "Vous semblez hors ligne. Vérifiez votre connexion internet, puis réessayez.",
     "description": "D-14, 03 § 3.1 — écriture qui échoue hors ligne"
@@ -1026,10 +1022,6 @@
   "staff.openDay.date.label": {
     "defaultMessage": "Date",
     "description": "06 § 3.1, § 4.1, § 4.2 — champ Date de « Ouvrir un jour »"
-  },
-  "staff.openDay.date.required": {
-    "defaultMessage": "Choisissez une date.",
-    "description": "06 § 4.1, § 4.2 — aucune date choisie"
   },
   "staff.openDay.error.pastDate": {
     "defaultMessage": "Choisissez la date d'aujourd'hui ou une date ultérieure.",

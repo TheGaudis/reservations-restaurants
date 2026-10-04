@@ -1,5 +1,5 @@
 import { APPS_SCRIPT_URL, isConfigMissing, USE_MOCK_API } from "@/config";
-import { LOCAL_CACHE_MAX_AGE_MS } from "@/domain/constants";
+import { LOCAL_CACHE_KEY, LOCAL_CACHE_MAX_AGE_MS } from "@/domain/constants";
 
 /** Read started by the inline script of the `<head>` (03 § 2.1, PLAN § 3.3.1 step 2). */
 interface EarlyFetch {
@@ -15,9 +15,6 @@ declare global {
   // Written by `earlyFetchScript`, taken once by `takeEarlyFetch`.
   var __EARLY_FETCH__: EarlyFetch | undefined;
 }
-
-// Key of the local copy, a contract with the old site (03 § 1.1): queries/local-cache.ts reads the same key.
-const LOCAL_CACHE_KEY = "reservations-cache-v1";
 
 /**
  * Text of the inline script of the `<head>` (03 § 2.1, PLAN § 3.3.1 step 2): starts the first read with the

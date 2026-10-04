@@ -10,7 +10,8 @@ import {
   ServiceDayR2Schema,
   SettingsSchema,
 } from "@/api/schemas";
-import { LOCAL_CACHE_MAX_AGE_MS } from "@/domain/constants";
+import { sumBy } from "@/domain/capacity";
+import { LOCAL_CACHE_KEY, LOCAL_CACHE_MAX_AGE_MS } from "@/domain/constants";
 import type { IsoDate, PublicState, Settings } from "@/domain/types";
 import { publicStateOptions } from "@/queries/state";
 
@@ -19,7 +20,6 @@ import { publicStateOptions } from "@/queries/state";
 // storage access sits in a try/catch: private browsing, a full quota or a blocked storage leave the page working
 // without copy (03 § 1).
 
-const LOCAL_CACHE_KEY = "reservations-cache-v1";
 const FALLBACK_TEXTS_KEY = "reservations-textes";
 
 /** Exact v1 format, as `saveCache` writes it (03 § 1.1): no personal data, bookings summed per day and per dish. */
@@ -87,9 +87,7 @@ export function fromLocalCacheV1(copy: v.InferOutput<typeof LocalCacheV1Schema>)
 
 /** Sums per key, in order of first appearance, like `saveCache`. */
 function sums<T>(rows: readonly T[], key: (row: T) => string, count: (row: T) => number) {
-  const totals = new Map<string, number>();
-  for (const row of rows) totals.set(key(row), (totals.get(key(row)) ?? 0) + count(row));
-  return Object.fromEntries(totals);
+  return Object.fromEntries(sumBy(rows, key, count));
 }
 
 /** Settings as the script sends them: prices are strings in the sheet (`'4.95'`, 01 § 2.1). */

@@ -3,17 +3,14 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import { addBookingR1, addBookingR2Multi } from "@/api/actions";
 import { BusinessError } from "@/api/errors";
-import type { BookingR1Input, OrderR2Input, WriteResponse } from "@/domain/types";
-import { bookingKeys } from "@/mutations/booking-keys";
+import type { WriteResponse } from "@/domain/types";
+import { bookingKeys, WRITE_SCOPE } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
 import { useSessionStore } from "@/session/session";
 
 // Bookings sent by the public forms and by « + Ajouter une personne » of the staff mode, without password
 // (02 § 4.4, § 4.5; PLAN § 3.3.3). The cache is updated here, in `useMutation({ onSuccess })`, which runs even when
 // the form is gone; the summary, toast, closing and focus belong to the form (`mutateAsync(input, { onSuccess })`).
-
-// Writes go to the script one after the other (PLAN § 3.3).
-const WRITE_SCOPE = { id: "write" };
 
 /** Refusal of `addBookingR1` when the seats ran out (02 § 4.4, step 5): « Il ne reste que 2 couvert(s)… ». */
 const SEATS_REFUSAL = /^Il ne reste que -?\d+ couvert\(s\) pour ce jour\.$/u;
@@ -45,7 +42,7 @@ export function useBookR1() {
   return useMutation({
     mutationKey: bookingKeys.r1(),
     scope: WRITE_SCOPE,
-    mutationFn: async (input: BookingR1Input) => addBookingR1(input),
+    mutationFn: addBookingR1,
     onSuccess: async (response) => adoptBookingState(queryClient, response),
     onError: (error) => {
       if (isSeatsRefusal(error)) void queryClient.invalidateQueries({ queryKey: stateKeys.all() });
@@ -65,7 +62,7 @@ export function useOrderR2() {
   return useMutation({
     mutationKey: bookingKeys.r2(),
     scope: WRITE_SCOPE,
-    mutationFn: async (input: OrderR2Input) => addBookingR2Multi(input),
+    mutationFn: addBookingR2Multi,
     onSuccess: async (response) => adoptBookingState(queryClient, response),
   });
 }

@@ -56,7 +56,7 @@ export function useDeleteDish() {
     staffWriteOptions({
       domain: "dishes",
       action: "delete",
-      write: async (password, dishId: string) => deleteItemR2(password, dishId),
+      write: deleteItemR2,
       successToast: () => intl.formatMessage(messages.deleted),
     }),
   );

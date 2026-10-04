@@ -1,5 +1,8 @@
 // Client constants of 00 § 2.1, plus the delays the plan adds (E-45, D-15). Durations in milliseconds.
 
+/** Key of the local copy, shared with the old site (03 § 1.1): it never changes. */
+export const LOCAL_CACHE_KEY = "reservations-cache-v1";
+
 /** A local copy older than this is ignored (`CACHE_MAX_AGE`, 00 § 2.1): 14 days. */
 export const LOCAL_CACHE_MAX_AGE_MS = 14 * 24 * 3600 * 1000;
 

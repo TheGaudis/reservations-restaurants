@@ -50,46 +50,31 @@ export class SettingsPartialFailureError extends Error {
   }
 }
 
-interface Sending {
-  password: string;
-  changes: readonly SettingInput[];
-  /** `session.id` when the first request left (PLAN § 3.3.3). */
-  sessionIdAtCall: number;
-}
-
 /**
- * Sends `changes[index]`, then the next one once it answered (06 § 2.2 (4)): the requests never overlap. A failure on
- * the first field, or a refused password, rejects with the error of the request as is: the mutation cache closes the
- * session on a refused password (06 § 1.7).
+ * Sends the changed settings one after the other (06 § 2.2 (4)): the requests never overlap. A failure on the first
+ * field, or a refused password, rejects with the error of the request as is: the mutation cache closes the session on
+ * a refused password (06 § 1.7).
  */
-async function sendFrom(
-  sending: Sending,
-  index: number,
-  last: FullState | null,
-): Promise<FullState> {
-  const change = sending.changes[index];
-  if (change === undefined) {
-    if (last === null) throw new Error("No setting to save.");
-    return last;
-  }
-  let state: FullState;
-  try {
-    state = await setConfigField(sending.password, change);
-  } catch (error) {
-    if (last === null || error instanceof PasswordRejectedError) throw error;
-    const result = { state: last, sessionIdAtCall: sending.sessionIdAtCall };
-    throw new SettingsPartialFailureError(sending.changes, index, error, result);
-  }
-  return sendFrom(sending, index + 1, state);
-}
-
 async function saveInSequence(
   password: string,
   changes: readonly SettingInput[],
 ): Promise<FullState> {
   // Read in the same tick as `mutationFn` of write.ts reads it.
   const { id } = useSessionStore.getState();
-  return sendFrom({ password, changes, sessionIdAtCall: id }, 0, null);
+  let last: FullState | null = null;
+  for (const [index, change] of changes.entries()) {
+    try {
+      last = await setConfigField(password, change);
+    } catch (error) {
+      if (last === null || error instanceof PasswordRejectedError) throw error;
+      throw new SettingsPartialFailureError(changes, index, error, {
+        state: last,
+        sessionIdAtCall: id,
+      });
+    }
+  }
+  if (last === null) throw new Error("No setting to save.");
+  return last;
 }
 
 /**

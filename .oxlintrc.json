@@ -347,6 +347,12 @@
       "rules": { "react/hook-use-state": "off" }
     },
     {
+      // Paramètres envoyés un par un, chacun après la réponse du précédent (06 § 2.2 (4)) : un `Promise.all`
+      // ferait partir les requêtes ensemble.
+      "files": ["src/mutations/staff/settings.ts"],
+      "rules": { "no-await-in-loop": "off" }
+    },
+    {
       // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33) ; tests dorés qui exécutent legacy/js/
       // dans node:vm, test de la frontière de l'API qui lit src/ par node:fs (PLAN P2) et test S2 qui lit
       // translations/fr.json, docs/spec/ et l'annexe F par node:fs (PLAN § 1.5, P7 (a))

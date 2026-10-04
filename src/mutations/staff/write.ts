@@ -5,6 +5,7 @@ import { errorMessage, PasswordRejectedError } from "@/api/errors";
 import type { FullState } from "@/domain/types";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
+import { WRITE_SCOPE } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
 import { useSessionStore } from "@/session/session";
 import { showToast } from "@/ui/feedback/toast";
@@ -16,9 +17,6 @@ import { showToast } from "@/ui/feedback/toast";
 
 /** File of `mutations/staff/` that owns the action. */
 export type StaffWriteDomain = "days" | "dishes" | "bookings" | "settings";
-
-/** Writes go to the script one after the other, the public bookings included (PLAN § 3.3). */
-const WRITE_SCOPE = { id: "write" };
 
 /**
  * `['write', domain, action]` (PLAN § 3.3): never a password nor a name in it.
@@ -67,7 +65,7 @@ export interface StaffWriteConfig<TVariables> {
   /** Call of `api/actions.ts` (or a sequence of calls) with the password of the session; resolves the last full state. */
   write: (password: string, variables: TVariables) => Promise<FullState>;
   /** Success toast of 02 § 4.7 (« Jour ajouté. »…), formatted with `intl` of `intl/intl.ts`; shown only past the guard. */
-  successToast?: (variables: TVariables, state: FullState) => string;
+  successToast?: (variables: TVariables) => string;
 }
 
 /**
@@ -93,7 +91,7 @@ export function staffWriteOptions<TVariables>({
     onSuccess: async (result, variables, _onMutateResult, { client }) => {
       const adopted = await adoptStaffState(client, result);
       if (adopted && successToast !== undefined) {
-        showToast(successToast(variables, result.state), "success");
+        showToast(successToast(variables), "success");
       }
     },
   });

@@ -30,18 +30,27 @@ interface StateIndex {
   r2Dates: Set<IsoDate>;
 }
 
+/** Totals of `count` per `key`, in order of first appearance, like the aggregates of Code.gs (01 § 2.3, § 2.6). */
+export function sumBy<T, K>(rows: readonly T[], key: (row: T) => K, count: (row: T) => number) {
+  const totals = new Map<K, number>();
+  for (const row of rows) totals.set(key(row), (totals.get(key(row)) ?? 0) + count(row));
+  return totals;
+}
+
 // A state is never modified, only replaced (01 § 4.1): its index is built once, on first use.
 const indexes = new WeakMap<CapacityState, StateIndex>();
 
 function buildIndex(state: CapacityState): StateIndex {
-  const seats = new Map<IsoDate, number>();
-  for (const total of state.r1Booked) {
-    seats.set(total.date, (seats.get(total.date) ?? 0) + total.seats);
-  }
-  const portions = new Map<string, number>();
-  for (const total of state.r2Booked) {
-    portions.set(total.dishId, (portions.get(total.dishId) ?? 0) + total.portions);
-  }
+  const seats = sumBy(
+    state.r1Booked,
+    (total) => total.date,
+    (total) => total.seats,
+  );
+  const portions = sumBy(
+    state.r2Booked,
+    (total) => total.dishId,
+    (total) => total.portions,
+  );
   const dishesByDate = new Map<IsoDate, Dish[]>();
   for (const dish of state.dishes) {
     const list = dishesByDate.get(dish.date);

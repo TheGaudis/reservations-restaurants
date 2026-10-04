@@ -14,11 +14,11 @@ import {
   toDayR2,
   toSettings,
 } from "@/api/schemas";
+import { sumBy } from "@/domain/capacity";
 import type {
   BookingR1,
   BookingR2,
   FullState,
-  IsoDate,
   PortionTotal,
   SeatTotal,
   StaffServiceDayR1,
@@ -114,17 +114,21 @@ export const BookingR2Schema = v.pipe(
 
 /** Seats per date, in order of first appearance, like the public aggregate of Code.gs (01 § 2.3). */
 function seatTotals(bookings: readonly BookingR1[]): SeatTotal[] {
-  const seats = new Map<IsoDate, number>();
-  for (const { date, seats: count } of bookings) seats.set(date, (seats.get(date) ?? 0) + count);
+  const seats = sumBy(
+    bookings,
+    (booking) => booking.date,
+    (booking) => booking.seats,
+  );
   return [...seats].map(([date, count]) => ({ date, seats: count }));
 }
 
 /** Portions per dish, in order of first appearance, like the public aggregate of Code.gs (01 § 2.6). */
 function portionTotals(bookings: readonly BookingR2[]): PortionTotal[] {
-  const portions = new Map<string, number>();
-  for (const { dishId, portions: count } of bookings) {
-    portions.set(dishId, (portions.get(dishId) ?? 0) + count);
-  }
+  const portions = sumBy(
+    bookings,
+    (booking) => booking.dishId,
+    (booking) => booking.portions,
+  );
   return [...portions].map(([dishId, count]) => ({ dishId, portions: count }));
 }
 
