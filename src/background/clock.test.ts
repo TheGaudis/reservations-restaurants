@@ -10,6 +10,7 @@ import {
   watchR2Cutoff,
 } from "@/background/clock";
 import type { BackgroundDeps } from "@/background/deps";
+import { stopBackgroundTasks } from "@/background/start";
 import { isR2OrderingClosed } from "@/domain/cutoff";
 import { parisDate } from "@/domain/paris";
 import { stateKeys } from "@/queries/state";
@@ -126,6 +127,7 @@ describe("derived hooks (PLAN § 3.4)", () => {
 describe("watchR2Cutoff (03 § 5.3, a-7, E-09)", () => {
   async function routerAt(url: string) {
     const router = getRouter();
+    stopBackgroundTasks(); // this test drives its own task, with doubles
     router.update({ ...router.options, history: createMemoryHistory({ initialEntries: [url] }) });
     await router.load();
     return router;

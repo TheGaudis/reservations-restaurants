@@ -3,7 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 import { useClock } from "@/background/clock";
 import type { BackgroundDeps } from "@/background/deps";
-import { startBackgroundTasks } from "@/background/start";
+import { startBackgroundTasks, stopBackgroundTasks } from "@/background/start";
 import { INACTIVITY_MS } from "@/domain/constants";
 import { PUBLIC_STATE_CACHE, publicStateOptions } from "@/queries/state";
 import { getRouter } from "@/router";
@@ -29,6 +29,7 @@ afterEach(() => {
 
 async function deps(): Promise<BackgroundDeps> {
   const router = getRouter();
+  stopBackgroundTasks(); // started by getRouter() with the real toasts: this test starts its own
   router.update({ ...router.options, history: createMemoryHistory({ initialEntries: ["/"] }) });
   // A state in the cache, kept like the public state (no garbage-collection timer): the loader of / starts no
   // read, whose timers would be counted below.

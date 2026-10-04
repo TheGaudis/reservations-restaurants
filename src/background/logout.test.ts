@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { BackgroundDeps } from "@/background/deps";
 import { afterLogout, watchLogout } from "@/background/logout";
+import { stopBackgroundTasks } from "@/background/start";
 import { stateKeys } from "@/queries/state";
 import { getRouter } from "@/router";
 import { useSessionStore } from "@/session/session";
@@ -25,6 +26,7 @@ function purgeDouble(queryClient: QueryClient): void {
 
 async function depsAt(url: string) {
   const router = getRouter();
+  stopBackgroundTasks(); // this test drives its own task, with doubles
   router.update({ ...router.options, history: createMemoryHistory({ initialEntries: [url] }) });
   await router.load();
   const { queryClient } = router.options.context;

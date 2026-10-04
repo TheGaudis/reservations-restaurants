@@ -3,14 +3,17 @@ import { createRouter } from "@tanstack/react-router";
 import { RawIntlProvider } from "react-intl";
 
 import { listenPreloadError } from "@/background/preload-error";
+import { startBackgroundTasks } from "@/background/start";
 import { isConfigMissing } from "@/config";
 import { LoadErrorPage } from "@/features/page/LoadErrorPage";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { intl } from "@/intl/intl";
 import { createQueryClient } from "@/queries/client";
 import { persistLocalCache, restoreLocalCache } from "@/queries/local-cache";
+import { purgeStaffSession } from "@/queries/purge";
 import { routeTree } from "@/routeTree.gen";
 import { useSessionStore } from "@/session/session";
+import { showToast } from "@/ui/feedback/toast";
 
 export function getRouter() {
   // The script refused the password of the open session: it changed (06 § 1.7, PLAN § 3.3.4).
@@ -29,7 +32,7 @@ export function getRouter() {
       console.warn("VITE_APPS_SCRIPT_URL manque ou n'est pas une adresse /exec d'Apps Script.");
     }
   }
-  return createRouter({
+  const router = createRouter({
     routeTree,
     context: { queryClient, session: useSessionStore },
     defaultPreloadStaleTime: 0, // Query owns freshness
@@ -44,6 +47,17 @@ export function getRouter() {
       </QueryClientProvider>
     ),
   });
+  if (typeof window !== "undefined") {
+    // Clock (today, 10:00, midnight), inactivity and logout steps (PLAN § 3.4, § 3.3.4); idempotent (R-25).
+    startBackgroundTasks({
+      queryClient,
+      router,
+      session: useSessionStore,
+      purgeStaffSession,
+      showToast,
+    });
+  }
+  return router;
 }
 
 declare module "@tanstack/react-router" {
