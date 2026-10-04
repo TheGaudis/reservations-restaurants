@@ -1,4 +1,10 @@
-import { MutationCache, notifyManager, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  focusManager,
+  MutationCache,
+  notifyManager,
+  QueryCache,
+  QueryClient,
+} from "@tanstack/react-query";
 
 import { PasswordRejectedError } from "@/api/errors";
 import { retryRead } from "@/api/state";
@@ -19,6 +25,19 @@ export function createQueryClient({ onPasswordRejected }: QueryClientOptions = {
   // and the E2E scenarios on a paused page clock (REG-03) would never see a read that answers between two `runFor`.
   notifyManager.setScheduler((callback) => {
     queueMicrotask(callback);
+  });
+  // Catch-up when the tab comes back (03 § 5.1): Query listens to `visibilitychange` on `window`, where an event
+  // fired at `document` without bubbling never arrives (REG-08 hides and shows the tab that way); `document` hears both.
+  focusManager.setEventListener((handleFocus) => {
+    // Node: prerender of the shell, tests of the `node` project.
+    if (typeof document === "undefined") return;
+    const listener = () => {
+      handleFocus();
+    };
+    document.addEventListener("visibilitychange", listener);
+    return () => {
+      document.removeEventListener("visibilitychange", listener);
+    };
   });
   const onError = (error: unknown) => {
     if (error instanceof PasswordRejectedError) onPasswordRejected?.();

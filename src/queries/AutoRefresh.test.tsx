@@ -61,6 +61,25 @@ describe("AutoRefresh", () => {
     await expect.poll(reads).toBe(1);
   });
 
+  it("hears the tab come back from `document`, even when the event does not bubble (03 § 5.1)", async () => {
+    await mount();
+    vi.advanceTimersByTime(180_000);
+    await expect.poll(reads).toBe(1);
+    const hidden = (value: boolean) => {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => (value ? "hidden" : "visible"),
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    };
+    hidden(true);
+    vi.advanceTimersByTime(240_000);
+    expect(reads()).toBe(1);
+    hidden(false);
+    await expect.poll(reads).toBe(2);
+    Reflect.deleteProperty(document, "visibilityState");
+  });
+
   it("refreshes the full state while a staff session is open (06 § 1.8)", async () => {
     const queryClient = await mount();
     queryClient.setQueryData(stateKeys.staff(1), fullState());
