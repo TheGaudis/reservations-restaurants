@@ -3,6 +3,7 @@
 *Rédigé le 3 octobre 2026. Feuille de route des sessions d'implémentation (humaines ou agents). Branche d'intégration : `claude/frontend-react-migration-lw5zfz`.*
 
 **Journal du plan** (le plus récent en tête) :
+- Exécution, 4 octobre 2026 (orchestrateur) : P4 (a) fusionnée (`09247a6`), reprise après un redémarrage de la session. Reportés : loader de `/` qui n'attend jamais le script (§ 3.2, § 3.3.1 étape 4, § 3.9 G-03), ordre `stripSearchParams` puis `retainSearchParams` (§ 3.2), `Toaster` monté dans son propre élément après `.app-root` (prop `container`). Arbitrage sur REG-03 (d) (`@changed:E-45`) : la variante `react` clique sur « Réessayer » après l'encadré, puis attend la fiche ; la variante `legacy` ne change pas.
 - Exécution, 3 octobre 2026 (orchestrateur) : P0 (b) a réussi l'essai de la barrière client-only. Sur la route `/`, `useHydrated()` fait rendre exactement `PageSkeleton` pendant l'hydratation, ce qui permet `pendingMinMs: 0` sans erreur #418 (contenu à 127 ms, 628 ms avec CPU ×6, 10 chargements sans #418). La barrière est retenue (arbitrage 16 bis). `pendingMinMs: 0` **sans** barrière reste interdit, comme `onRecoverableError`. Sections mises à jour : § 0, § 3.2, § 3.3.1, § 3.9, E-47, P4, annexe C.
 - Révision du 3 octobre 2026 (relecture) : arbitrage 16 + synthèse des corrections C/F/X/faisabilité.
   - Arbitrage 16 : **TanStack Start conservé** malgré le résultat du spike R-01. Avec la copie locale, la coquille prérendue affiche le squelette environ 500 à 600 ms (`pendingMinMs` par défaut) avant le contenu ; ce délai est accepté. `pendingMinMs: 0` est interdit (erreur React #418 à chaque chargement) ; un `onRecoverableError` qui masquerait #418 est refusé. « Router seul » reste un repli documenté, seulement en cas de bogue bloquant d'hydratation (§ 1.4 invariant 2, S4, § 2.1, P0, R-01).
@@ -372,7 +373,7 @@ Les deux pages partagent `features/page/Page.tsx` ; la route fournit les blocs p
 | `ajoutPlat` | `/collegue` | `v.fallback(v.optional(v.boolean(), false), false)` | `false` | `false` | « + Ajouter un plat à ce jour » | jour = `r2` (C-21) |
 | `editPlat` | `/collegue` | `v.fallback(v.optional(v.pipe(v.string(), v.regex(/^[\w-]{1,64}$/u))), undefined)` | absent | `undefined` | « Modifier ce plat » | C-22 |
 
-Middlewares sur les deux routes : `retainSearchParams(['r1', 'r2', 'r1vue', 'r2vue', 'r1periode', 'r2periode'])` (on garde les calendriers en passant de `/` à `/collegue` et inversement) et `stripSearchParams` sur les valeurs par défaut. Jamais de donnée saisie dans l'URL (nom, contact, quantités) ; le récapitulatif reste un état local (`09` PA 5).
+Middlewares sur les deux routes : `retainSearchParams(['r1', 'r2', 'r1vue', 'r2vue', 'r1periode', 'r2periode'])` (on garde les calendriers en passant de `/` à `/collegue` et inversement) et `stripSearchParams` sur les valeurs par défaut, **dans l'ordre `stripSearchParams` puis `retainSearchParams`** (dans l'ordre inverse, un défaut retenu comme `r1vue=semaine` reste dans l'URL ; P4 (a)). Jamais de donnée saisie dans l'URL (nom, contact, quantités) ; le récapitulatif reste un état local (`09` PA 5).
 
 **Transformations pures** (`domain/navigation.ts`, testées par tables) : `selectDay(search, restaurant, iso)` pose `rX`, retire `rXperiode` (sauf un clic sur un jour hors du mois affiché en vue mois : l'ancre est gardée, `05` § 3.1, REG-10 ; `clickDay` de P2 (a)), et ferme ce qui dépend du jour **dans ce restaurant seulement** (`reserver` s'il vaut ce restaurant, `ouvrirDate` si `ouvrir` vaut ce restaurant, `editJour`, `editResa` et `ajout` de ce restaurant, `ajoutPlat` et `editPlat` pour R2) : c'est la correction de a-12. `shiftPeriod(search, restaurant, ±1, view)`, `goToToday(search, restaurant)` (retire `rX` et `rXperiode`, et ferme comme `selectDay` ce qui dépend du jour dans ce restaurant, `reserver` compris : le formulaire ouvert sur une autre date ne se rouvre pas sur aujourd'hui), `publicSearch(search)` (garde seulement `CALENDAR_KEYS`, déclarées dans ce même fichier). Le récapitulatif, état local de la colonne, est effacé par le gestionnaire qui appelle `selectDay`.
 
@@ -399,16 +400,22 @@ export const Route = createFileRoute("/")({
   validateSearch: HomeSearch,
   search: {
     middlewares: [
-      retainSearchParams(CALENDAR_KEYS),
+      // strip before retain: in the other order a retained default (r1vue=semaine) stays in the URL
       stripSearchParams({ r1vue: "semaine", r2vue: "semaine", connexion: false }),
+      retainSearchParams(CALENDAR_KEYS),
     ],
   },
-  // With the local cache: resolves at once (staleTime 'static'). pendingMinMs: 0 is safe only because PublicPage
-  // renders exactly PageSkeleton while hydrating (useHydrated); without that barrier, React error #418 (arbitrage 16).
-  // Without the cache: waits for the first read (skeleton, then errorComponent on failure).
-  loader: async ({ context: { queryClient } }) => queryClient.query({ ...publicStateOptions, staleTime: "static" }),
+  // Never waits for the script: starts the first read once (it picks up the early fetch) and returns.
+  // Page shows the skeleton, then the data or the load error box (G-01, G-03). pendingMinMs: 0 is safe only because
+  // Page renders exactly PageSkeleton while hydrating (useHydrated); without that barrier, React error #418 (arbitrage 16).
+  loader: ({ context: { queryClient } }) => {
+    if (queryClient.getQueryState(publicStateOptions.queryKey) === undefined) {
+      void queryClient.query(publicStateOptions).catch(noop);
+    }
+  },
   pendingMs: 0,
   pendingMinMs: 0,
+  pendingComponent: PageSkeleton,
   component: PublicPage,
 });
 ```
@@ -455,7 +462,7 @@ export const publicStateOptions = queryOptions({
 1. GitHub Pages sert `index.html` (ou `404.html` pour un lien profond) : la coquille prérendue au build contient les `<meta>` de `03` § 2.1 (charset, `viewport` avec `viewport-fit=cover`, `theme-color` `#FFFFFF`, description), le `<title>` `Réservations — Restaurants pédagogiques`, le favicon SVG en data-URI repris d'`index.html`, les `preconnect` vers `https://script.google.com` et `https://script.googleusercontent.com` avec `crossOrigin: 'anonymous'`, la CSS hachée, les `modulepreload`, et dans `<body>` le squelette (titres par défaut, calendriers `.sk` en `aria-hidden`).
 2. Le `<ScriptOnce>` de lecture anticipée s'exécute (React le place après la CSS, voir R-12) : il lit `reservations-cache-v1` dans un `try/catch`, retient l'`etag` s'il est non vide et si `savedAt` a moins de 14 jours, lance `fetch(URL + (etag ? '?since=' + encodeURIComponent(etag) : ''))`, ajoute `.catch(() => {})`, et expose `window.__EARLY_FETCH__ = { since, response, startedAt: performance.now() }`. Il garde la `Response`, pas `r.json()`, pour que le traitement d'erreur soit celui des autres lectures.
 3. Le bundle s'exécute. `getRouter()` (appelé aussi dans Node au build, d'où la garde `typeof window`) crée le `QueryClient`, puis côté navigateur : `restoreLocalCache()` valide la copie par `LocalCacheV1`, la convertit en `PublicState` et la pose par `setQueryData(['state','public'], state, { updatedAt: savedAt })` ; sans copie valide, `readFallbackTexts()` lit `reservations-textes` pour les titres du squelette ; `persistLocalCache()` s'abonne au cache ; le routeur est créé avec `context: { queryClient, session }` ; l'abonnement de session et les tâches de fond démarrent.
-4. `router.load()` exécute le loader de la route : avec la copie, `queryClient.query({ ..., staleTime: 'static' })` répond aussitôt ; sans copie, il lance la `queryFn` (qui reprend la lecture anticipée) et attend, le squelette reste affiché (G-01) ; un échec sans donnée affiche l'`errorComponent` de la route, c'est-à-dire la page avec l'encadré d'échec (G-03).
+4. `router.load()` exécute le loader de `/`, qui **n'attend jamais le script** : avec la copie, il ne fait rien ; sans copie, il lance une seule fois la première lecture (`queryClient.query(publicStateOptions)`, qui reprend la lecture anticipée) et rend aussitôt. `Page` montre le squelette jusqu'à la réponse, puis les données ou l'encadré d'échec (G-01, G-03). Un loader qui attend faisait monter deux fois l'en-tête et le logo (coquille cachée sous une seconde copie du squelette) ; décision de P4 (a), journal `p4a.md` décision 1.
 5. Hydratation puis rendu : le squelette de la coquille reste affiché jusqu'à la fin de l'hydratation (barrière `useHydrated()` de la route `/`, qui seule permet `pendingMinMs: 0` ; ailleurs `pendingMinMs` garde sa valeur par défaut, arbitrage 16), puis `useAppState()` renvoie la copie ; `useIsFromCache()` vaut `dataUpdatedAt < APP_START` (G-02 : « Réserver » actif, connexion collègue refusée avec le toast `Les données se chargent. Réessayez dans un instant.`).
 6. `<AutoRefresh/>` se monte : la donnée restaurée est périmée (`restoreLocalCache` l'invalide aussitôt : avec `updatedAt = savedAt` et `staleTime` 180 s, une copie de moins de 3 min serait sinon jugée fraîche, P2 (b2)), la `queryFn` part ; `takeEarlyFetch(since)` rend la lecture du `<head>` si son `since` est identique (une seule fois), sinon un nouveau `fetch` part ; la lecture doublée est armée pour le **temps restant** jusqu'à 6 s depuis `startedAt` ; un nouvel essai après 1,5 s si l'échec est transitoire et que le navigateur est en ligne.
 7. Réponse : `{ unchanged: true }` → même référence, la donnée redevient fraîche, la copie est réécrite avec un `savedAt` neuf ; nouvel état → validé, partage structurel (seuls les jours modifiés sont rendus de nouveau), copie réécrite ; échec → la donnée affichée est conservée et l'encadré d'échec apparaît, avec le suffixe « copie locale » si `useIsFromCache()`.
@@ -685,7 +692,7 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 | --- | --- | --- |
 | Premier chargement sans copie (G-01) | coquille prérendue + `pendingComponent` | squelette des deux calendriers (`aria-hidden`), titres par défaut ou de `reservations-textes`, aucun texte « Chargement » (`03` § 3) ; avec la copie locale aussi, le squelette reste jusqu'à la fin de l'hydratation (barrière `useHydrated()`, environ 130 ms mesurés, ≤ 600 ms exigés, E-47) |
 | Copie locale affichée, données pas encore confirmées (G-02) | `useIsFromCache()` | page complète interactive, « Réserver » actif ; connexion refusée : toast `Les données se chargent. Réessayez dans un instant.` |
-| Échec de lecture (G-03) | `errorComponent` de la route si aucune donnée ; sinon `error` de la requête | `LoadErrorBox` (`role="alert"`) : textes exacts de `03` § 3.1 (en ligne / hors ligne via `navigator.onLine`, suffixe « copie locale ») ; bouton `Réessayer` occupé `Nouvelle tentative…` → `reset()` puis `router.invalidate()` ou `refetch()` ; réannonce seulement si le texte change (a-21) ; le toast inatteignable de `03` § 3.2 n'est pas recréé |
+| Échec de lecture (G-03) | encadré dans `Page` quand la dernière lecture a échoué et qu'aucune n'a réussi depuis le chargement (`errorUpdatedAt > dataUpdatedAt` et `dataUpdatedAt < APP_START`) ; `LoadErrorPage` reste le composant d'erreur par défaut du routeur (erreur de rendu, loader de `/collegue`) | `LoadErrorBox` (`role="alert"`) : textes exacts de `03` § 3.1 (en ligne / hors ligne via `navigator.onLine`, suffixe « copie locale ») ; bouton `Réessayer` occupé `Nouvelle tentative…` → `reset()` puis `router.invalidate()` ou `refetch()` ; réannonce seulement si le texte change (a-21) ; le toast inatteignable de `03` § 3.2 n'est pas recréé |
 | Configuration manquante (G-05) | `isConfigMissing()` au build et à l'exécution | `ConfigBanner` si l'URL est absente, ne ressemble pas à `https://script.google.com/macros/s/…/exec` ou contient `COLLE_ICI` (a-25) ; texte selon D-05 ; couvert par une story et un test Vitest du composant (`isConfigMissing` simulé), pas par l'E2E (F-07) |
 | Erreur métier d'écriture | `BusinessError` | message exact du script (`02` § 4) sous le champ ou en toast d'erreur ; formulaire et `requestId` conservés ; relecture de l'état après une erreur de places (a-4) |
 | Erreur réseau, page HTML de Google, réponse illisible | `ServiceError` (et `TypeError` de `fetch`) | jamais de message anglais brut (a-3) : textes de D-14 |
@@ -956,7 +963,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | P1 | suite Playwright de régression contre l'ancien site (isolation réseau, faux script, fixtures, page objects, 43 scénarios) | 5 | 5 | (b), (c), (d) en parallèle après (a1) et (a2) | terminé le 3 oct. : (a1) `d56570a`, (a2) `00564a4`, (b) `2f8304a`, (c) `51e414a`, (d) `48d61c7` ; suite `legacy` complète verte |
 | P2 | domaine pur, client API, schémas et frontière de l'API, copie locale, session, horloge, tests dorés | 5 | 4 | avec P3 ; (b1) et (c) après le premier commit de (a) | terminé le 3 oct. : (a) `7aa65f1`, (b1) `e3acf36`, (c) `ef81bc7`, (b2) `3298501` |
 | P3 | `src/ui/` (Base UI stylé, calendrier, formulaires pré-liés) et Storybook | 5 | 4 | avec P2 ; (a) et (b) après (0) | terminé le 3 oct. : (0) `554fad8`, (a) `366502a`, (b) `ad7fa45`, (c) `ff8e301` |
-| P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | à faire |
+| P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | en cours : (a) `09247a6` le 4 oct. |
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | à faire |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | à faire |
 | P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | à faire |
