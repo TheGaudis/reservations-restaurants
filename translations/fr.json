@@ -299,6 +299,26 @@
     "defaultMessage": "Le service de réservation ne répond pas. Réessayez dans un instant : une même réservation n'est jamais enregistrée deux fois.",
     "description": "PLAN annexe F, D-14 — réservation publique : service muet ou réponse illisible"
   },
+  "public.form.className.required": {
+    "defaultMessage": "Indiquez votre classe ou votre service.",
+    "description": "04 § 5.2, § 9 — classe vide (formulaires publics R1 et R2)"
+  },
+  "public.form.email.help": {
+    "defaultMessage": "Pour vous envoyer la confirmation.",
+    "description": "04 § 5.2, § 9 — aide sous l'adresse email (formulaires publics R1 et R2)"
+  },
+  "public.form.email.label": {
+    "defaultMessage": "Adresse email",
+    "description": "04 § 5.2-5.3 — libellé de l'adresse email (formulaires publics R1 et R2)"
+  },
+  "public.form.email.required": {
+    "defaultMessage": "Indiquez votre adresse email.",
+    "description": "04 § 5.2, § 9 — adresse email vide (formulaires publics R1 et R2)"
+  },
+  "public.form.name.required": {
+    "defaultMessage": "Indiquez vos nom et prénom.",
+    "description": "04 § 5.2, § 9 — nom vide (formulaires publics R1 et R2)"
+  },
   "public.form.submit": {
     "defaultMessage": "Confirmer la réservation",
     "description": "00 § 2.3, 04 § 5.2-5.3 — bouton d'envoi des formulaires publics R1 et R2"
@@ -367,6 +387,42 @@
     "defaultMessage": "Total (hors plats sans prix indiqué) : {amounts}",
     "description": "04 § 5.3, D-03 — total en direct du formulaire R2 avec un plat sans prix"
   },
+  "public.summary.className": {
+    "defaultMessage": "Classe / service",
+    "description": "04 § 7 — libellé de la ligne de la classe du récapitulatif"
+  },
+  "public.summary.contact": {
+    "defaultMessage": "Pour annuler ou modifier, contactez {contact}.",
+    "description": "04 § 7, § 9 — note du récapitulatif (contact d'annulation des paramètres)"
+  },
+  "public.summary.defaultContact": {
+    "defaultMessage": "l'établissement",
+    "description": "04 § 7 — contact de la note du récapitulatif quand le paramètre est vide"
+  },
+  "public.summary.dishFallback": {
+    "defaultMessage": "Plat",
+    "description": "04 § 7 — libellé d'une ligne de plat sans nom du récapitulatif R2"
+  },
+  "public.summary.duplicateTitle": {
+    "defaultMessage": "Réservation déjà enregistrée",
+    "description": "PLAN annexe F, D-16 — titre du récapitulatif d'un doublon"
+  },
+  "public.summary.duplicateWarning": {
+    "defaultMessage": "Cette réservation était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.",
+    "description": "PLAN annexe F, D-16 — avertissement du récapitulatif d'un doublon"
+  },
+  "public.summary.mode": {
+    "defaultMessage": "Mode",
+    "description": "04 § 7 — libellé de la ligne du mode de service du récapitulatif R2"
+  },
+  "public.summary.name": {
+    "defaultMessage": "Nom",
+    "description": "04 § 7 — libellé de la ligne du nom du récapitulatif"
+  },
+  "public.summary.portions": {
+    "defaultMessage": "× {portions}",
+    "description": "04 § 7 — portions accordées d'un plat du récapitulatif R2 (« × 2 », signe U+00D7)"
+  },
   "public.summary.r1.total": {
     "defaultMessage": "{seats} — {total}",
     "description": "04 § 7 — total du récapitulatif R1 (« 3 couverts — 16,00 € », espaces normales)"
@@ -374,6 +430,22 @@
   "public.summary.r2.totalWithGap": {
     "defaultMessage": "{amounts} (hors plats sans prix indiqué)",
     "description": "04 § 7, D-03, E-28 — total du récapitulatif R2 avec un plat sans prix"
+  },
+  "public.summary.title": {
+    "defaultMessage": "Réservation enregistrée",
+    "description": "04 § 7, § 9 — titre du récapitulatif après une réservation"
+  },
+  "public.summary.total": {
+    "defaultMessage": "Total",
+    "description": "04 § 7, § 9 — libellé du total du récapitulatif"
+  },
+  "public.summary.warning.adjusted": {
+    "defaultMessage": "Certaines quantités ont été ajustées faute de stock. Vérifiez votre email pour le détail.",
+    "description": "04 § 7, § 9 — avertissement du récapitulatif R2 : plat ajusté ou écarté"
+  },
+  "public.summary.warning.emailFailed": {
+    "defaultMessage": "L'email de confirmation n'a pas pu être envoyé. Gardez ce récapitulatif.",
+    "description": "04 § 7, § 9 — avertissement du récapitulatif : e-mail de confirmation non parti"
   },
   "public.toast.bookingConfirmed": {
     "defaultMessage": "Réservation confirmée.",
