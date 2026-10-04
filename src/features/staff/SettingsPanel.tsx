@@ -1,7 +1,63 @@
-// Slot `settings` of `StaffPage`: panel « Paramètres », open while `parametres=true` (06 § 2.2, D-20, C-02). Empty
-// until P5 (e).
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useId } from "react";
+import { defineMessages, useIntl } from "react-intl";
 
-/** Panel « Paramètres », under « Demain » and above the load error box (06 § 2). */
+import { SettingsForm } from "@/features/staff/SettingsForm";
+import { ExpandMoreIcon, SettingsIcon } from "@/ui/icons";
+
+import styles from "@/features/staff/SettingsPanel.module.css";
+
+// Slot `settings` of `StaffPage` (journal p5a): panel « Paramètres », open while `parametres=true` (06 § 2.2, D-20,
+// C-02).
+
+const messages = defineMessages({
+  title: {
+    id: "staff.settings.title",
+    defaultMessage: "Paramètres",
+    description: "06 § 2.2 — titre du panneau dépliant des paramètres",
+  },
+});
+
+interface SettingsSearch {
+  parametres?: boolean | undefined;
+}
+
+/**
+ * Panel « Paramètres », under « Demain » and above the load error box (06 § 2): closed by default, open while the URL
+ * says `parametres=true` (PLAN § 3.2, E-23). The title is a disclosure button that writes `parametres` (`replace`);
+ * the logout leaves `/collegue`, so the panel is closed at the next login (E-24).
+ */
 export function SettingsPanel() {
-  return null;
+  const intl = useIntl();
+  const bodyId = useId();
+  const navigate = useNavigate();
+  const search: SettingsSearch = useSearch({ strict: false });
+  const open = search.parametres === true;
+  return (
+    <div className={styles["panel"]} data-open={open || undefined}>
+      <button
+        type="button"
+        className={styles["trigger"]}
+        aria-expanded={open}
+        aria-controls={open ? bodyId : undefined}
+        onClick={() => {
+          void navigate({
+            to: ".",
+            search: (previous) => ({ ...previous, parametres: !open }),
+            replace: true,
+            resetScroll: false,
+          });
+        }}
+      >
+        <SettingsIcon className={styles["icon"]} />
+        <span>{intl.formatMessage(messages.title)}</span>
+        <ExpandMoreIcon className={styles["chevron"]} />
+      </button>
+      {open ? (
+        <div id={bodyId} className={styles["body"]}>
+          <SettingsForm />
+        </div>
+      ) : null}
+    </div>
+  );
 }

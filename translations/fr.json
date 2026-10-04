@@ -1083,6 +1083,74 @@
     "defaultMessage": "Le mot de passe du mode collègue a changé. Reconnectez-vous.",
     "description": "06 § 1.7 — toast d'erreur quand le script refuse le mot de passe pendant une session"
   },
+  "staff.settings.error.invalidPrice": {
+    "defaultMessage": "Indiquez un tarif positif ou nul (ex. 4,95).",
+    "description": "PLAN annexe F, D-20 — tarif vide, négatif ou qui n'est pas un nombre"
+  },
+  "staff.settings.error.nameRequired": {
+    "defaultMessage": "Indiquez le nom du restaurant.",
+    "description": "PLAN annexe F, D-20 — nom d'un restaurant vidé"
+  },
+  "staff.settings.field.cancellationContact": {
+    "defaultMessage": "Contact à indiquer pour une annulation (affiché dans les emails)",
+    "description": "06 § 2.2 — libellé du champ du contact d'annulation"
+  },
+  "staff.settings.field.cancellationContact.placeholder": {
+    "defaultMessage": "Ex. le secrétariat au 03 00 00 00 00",
+    "description": "06 § 2.2 — exemple dans le champ du contact d'annulation"
+  },
+  "staff.settings.field.desc1": {
+    "defaultMessage": "Description du restaurant 1",
+    "description": "06 § 2.2 — libellé du champ de la description du restaurant 1"
+  },
+  "staff.settings.field.desc2": {
+    "defaultMessage": "Description du restaurant 2",
+    "description": "06 § 2.2 — libellé du champ de la description du restaurant 2"
+  },
+  "staff.settings.field.name1": {
+    "defaultMessage": "Nom du restaurant 1",
+    "description": "06 § 2.2 — libellé du champ du nom du restaurant 1"
+  },
+  "staff.settings.field.name2": {
+    "defaultMessage": "Nom du restaurant 2",
+    "description": "06 § 2.2 — libellé du champ du nom du restaurant 2"
+  },
+  "staff.settings.field.priceExternal": {
+    "defaultMessage": "Tarif extérieur (€)",
+    "description": "06 § 2.2 — libellé du champ du tarif extérieur"
+  },
+  "staff.settings.field.priceStaff": {
+    "defaultMessage": "Tarif professeur/personnel (€)",
+    "description": "06 § 2.2 — libellé du champ du tarif professeur ou personnel"
+  },
+  "staff.settings.field.priceStudent": {
+    "defaultMessage": "Tarif élève (€)",
+    "description": "06 § 2.2 — libellé du champ du tarif élève"
+  },
+  "staff.settings.noChange": {
+    "defaultMessage": "Aucune modification à enregistrer.",
+    "description": "06 § 2.2 (2) — toast quand aucun champ ne diffère des paramètres enregistrés"
+  },
+  "staff.settings.partialFailure": {
+    "defaultMessage": "Enregistré : {saved}. Non enregistré : {failed} ({message}).",
+    "description": "PLAN annexe F, D-20 — toast d'un échec partiel ; saved et failed : libellés des champs joints par « , »"
+  },
+  "staff.settings.save": {
+    "defaultMessage": "Enregistrer les paramètres",
+    "description": "06 § 2.2 — bouton d'envoi du panneau des paramètres"
+  },
+  "staff.settings.savedMany": {
+    "defaultMessage": "Paramètres enregistrés.",
+    "description": "06 § 2.2 (5) — toast de succès, plusieurs champs enregistrés"
+  },
+  "staff.settings.savedOne": {
+    "defaultMessage": "Paramètre enregistré.",
+    "description": "06 § 2.2 (5) — toast de succès, un seul champ enregistré"
+  },
+  "staff.settings.title": {
+    "defaultMessage": "Paramètres",
+    "description": "06 § 2.2 — titre du panneau dépliant des paramètres"
+  },
   "ui.calendar.nextMonth": {
     "defaultMessage": "Mois suivant",
     "description": "05 § 2.3, 06 § 3.2 — aria-label du bouton › en vue mois et du sélecteur de date"
