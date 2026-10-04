@@ -1,7 +1,23 @@
 {
+  "common.action.book": {
+    "defaultMessage": "Réserver",
+    "description": "00 § 2.3, 04 § 9 — bouton d'ouverture du formulaire (fiches R1 et R2)"
+  },
   "common.action.cancel": {
     "defaultMessage": "Annuler",
     "description": "00 § 2.3 — bouton de fermeture d'un formulaire"
+  },
+  "common.action.close": {
+    "defaultMessage": "Fermer",
+    "description": "00 § 2.3, 04 § 7 — bouton du récapitulatif"
+  },
+  "common.action.save": {
+    "defaultMessage": "Enregistrer",
+    "description": "06 § 5.1, § 6.3, § 7.3, § 7.4 — bouton d'envoi d'une modification"
+  },
+  "common.action.saving": {
+    "defaultMessage": "Enregistrement…",
+    "description": "08 § 4.2, 06 § 5.1, § 6.3, § 7.3 — libellé du bouton occupé d'une modification"
   },
   "common.amount.euroAndVouchers": {
     "defaultMessage": "{euros} + {vouchers}",
@@ -47,6 +63,78 @@
     "defaultMessage": "Réservations — Restaurants pédagogiques",
     "description": "03 § 2.1 — <title> de la page"
   },
+  "common.error.generic": {
+    "defaultMessage": "Erreur",
+    "description": "04 § 9, 06 § 4.1 — toast d'erreur sans message du script"
+  },
+  "common.error.offline": {
+    "defaultMessage": "Vous semblez hors ligne. Vérifiez votre connexion internet, puis réessayez.",
+    "description": "D-14, 03 § 3.1 — écriture qui échoue hors ligne"
+  },
+  "common.form.className.label": {
+    "defaultMessage": "Classe ou service",
+    "description": "04 § 5.2, 06 § 7.2, § 8.1 — libellé de la classe"
+  },
+  "common.form.className.placeholder": {
+    "defaultMessage": "Ex. TS2 ou vie scolaire",
+    "description": "04 § 5.2, 06 § 8.1 — exemple du champ classe"
+  },
+  "common.form.email.invalid": {
+    "defaultMessage": "Vérifiez votre adresse email (ex. Ariele.gsell@exemple.fr).",
+    "description": "04 § 5.2, § 9, 06 § 8.1 — adresse email mal formée"
+  },
+  "common.form.email.placeholder": {
+    "defaultMessage": "Ex. Ariele.gsell@exemple.fr",
+    "description": "04 § 5.2, 06 § 8.1 — exemple du champ email"
+  },
+  "common.form.name.label": {
+    "defaultMessage": "Nom et prénom",
+    "description": "04 § 5.2, 06 § 8.1 — libellé du nom (formulaires publics, ajout d'une personne)"
+  },
+  "common.form.name.placeholder": {
+    "defaultMessage": "Ex. Cyrille Ungerer",
+    "description": "04 § 5.2, 06 § 8.1 — exemple du champ nom"
+  },
+  "common.form.observation.label": {
+    "defaultMessage": "Observation (optionnel)",
+    "description": "04 § 5.2, 06 § 7.2, § 8.1 — libellé de l'observation"
+  },
+  "common.form.observation.placeholder": {
+    "defaultMessage": "Ex. table partagée, allergie…",
+    "description": "04 § 5.2, 06 § 8.1 — exemple du champ observation"
+  },
+  "common.form.portions.max": {
+    "defaultMessage": "{count, plural, one {# portion} other {# portions}} au maximum (stock restant).",
+    "description": "06 § 8.3, D-18 — quantité au-delà du stock restant (public et ajout d'une personne)"
+  },
+  "common.form.seats.counterLabel": {
+    "defaultMessage": "{label} · {price}",
+    "description": "04 § 5.2, 06 § 7.3 — libellé d'un compteur R1 avec son tarif (« Élèves · 4,95 € »)"
+  },
+  "common.form.seats.externals": {
+    "defaultMessage": "Extérieurs",
+    "description": "04 § 5.2, 06 § 7.3, § 8.2, D-17 — compteur R1 (libellé et boutons −/+)"
+  },
+  "common.form.seats.legend": {
+    "defaultMessage": "Nombre de personnes ({max} au maximum)",
+    "description": "04 § 5.2, 06 § 7.3, § 8.2 — légende des compteurs R1"
+  },
+  "common.form.seats.max": {
+    "defaultMessage": "{count, plural, one {# couvert} other {# couverts}} au maximum (places restantes ce jour-là).",
+    "description": "06 § 8.2, D-18 — total au-delà des places restantes (public et ajout d'une personne)"
+  },
+  "common.form.seats.required": {
+    "defaultMessage": "Indiquez au moins une personne.",
+    "description": "04 § 5.2, § 9, 06 § 7.3, § 8.2 — aucun couvert saisi"
+  },
+  "common.form.seats.staff": {
+    "defaultMessage": "Personnels",
+    "description": "04 § 5.2, 06 § 7.3, § 8.2, D-17 — compteur R1 (libellé et boutons −/+)"
+  },
+  "common.form.seats.students": {
+    "defaultMessage": "Élèves",
+    "description": "04 § 5.2, 06 § 7.3, § 8.2, D-17 — compteur R1 (libellé et boutons −/+)"
+  },
   "common.notFound.home": {
     "defaultMessage": "Revenir à l'accueil",
     "description": "PLAN annexe F — lien de la route attrape-tout vers la page publique"
@@ -54,6 +142,22 @@
   "common.notFound.title": {
     "defaultMessage": "Page introuvable",
     "description": "PLAN annexe F — titre de la route attrape-tout"
+  },
+  "common.serviceMode.dineIn": {
+    "defaultMessage": "Sur place",
+    "description": "04 § 5.3, § 9, 06 § 7.4, § 8.3 — mode de service R2"
+  },
+  "common.serviceMode.label": {
+    "defaultMessage": "Mode de service",
+    "description": "04 § 5.3, 06 § 7.4, § 8.3 — groupe « À emporter » / « Sur place »"
+  },
+  "common.serviceMode.takeaway": {
+    "defaultMessage": "À emporter",
+    "description": "04 § 5.3, § 9, 06 § 7.4, § 8.3 — mode de service R2"
+  },
+  "common.write.slow": {
+    "defaultMessage": "Le service met du temps à répondre. Gardez cette page ouverte : la confirmation s'affichera ici.",
+    "description": "PLAN annexe F, D-15 — sous le bouton occupé après 20 s, public et collègue"
   },
   "public.calendar.day.almostFull": {
     "defaultMessage": "bientôt complet",
@@ -83,6 +187,10 @@
     "defaultMessage": "commandes closes",
     "description": "annexe F, a-23, E-43 — suffixe de l'aria-label d'un jour R2 clos à 10 h"
   },
+  "public.dayCard.noService": {
+    "defaultMessage": "Aucune réservation possible ce jour-là.",
+    "description": "00 § 2.3, 04 § 4.1, § 9 — fiche d'un jour sans service (R1 et R2)"
+  },
   "public.dayCard.status.almostFull": {
     "defaultMessage": "Bientôt complet",
     "description": "D-02 — mot d'état à côté de la jauge, état orange"
@@ -91,6 +199,26 @@
     "defaultMessage": "Complet",
     "description": "D-02 — mot d'état à côté de la jauge, état rouge"
   },
+  "public.dish.soldOut": {
+    "defaultMessage": "Épuisé",
+    "description": "00 § 2.3, 04 § 5.3, D-02 — plat sans portion restante (formulaire R2 et fiche)"
+  },
+  "public.error.serviceUnavailable": {
+    "defaultMessage": "Le service de réservation ne répond pas. Réessayez dans un instant : une même réservation n'est jamais enregistrée deux fois.",
+    "description": "PLAN annexe F, D-14 — réservation publique : service muet ou réponse illisible"
+  },
+  "public.form.submit": {
+    "defaultMessage": "Confirmer la réservation",
+    "description": "00 § 2.3, 04 § 5.2-5.3 — bouton d'envoi des formulaires publics R1 et R2"
+  },
+  "public.r1.form.counter.decrement": {
+    "defaultMessage": "Diminuer : {label}",
+    "description": "PLAN annexe F, D-17 — bouton − d'un compteur R1"
+  },
+  "public.r1.form.counter.increment": {
+    "defaultMessage": "Augmenter : {label}",
+    "description": "PLAN annexe F, D-17 — bouton + d'un compteur R1"
+  },
   "public.r1.form.total": {
     "defaultMessage": "{seats, plural, one {# couvert} other {# couverts}} · Total : {total}",
     "description": "04 § 5.2 — total en direct du formulaire R1 (« 3 couverts · Total : 16,00 € »)"
@@ -98,6 +226,18 @@
   "public.r2.cutoff": {
     "defaultMessage": "Commandes en ligne clôturées à 10h. Venez au restaurant {name2} à partir de 12h pour commander sur place.",
     "description": "04 § 5.3, § 9, 01 § 3.7 — clôture des commandes R2 à 10 h (toast neutre, note de la fiche)"
+  },
+  "public.r2.form.dineInOnly": {
+    "defaultMessage": "Sur place uniquement ce jour-là : repas au prix d'un ticket restaurant.",
+    "description": "04 § 5.3, § 9 — aide sous le mode de service un jour au ticket restaurant"
+  },
+  "public.r2.form.quantity.decrement": {
+    "defaultMessage": "Retirer une portion : {name}",
+    "description": "PLAN annexe F, D-17 — bouton − d'une quantité R2"
+  },
+  "public.r2.form.quantity.increment": {
+    "defaultMessage": "Ajouter une portion : {name}",
+    "description": "PLAN annexe F, D-17 — bouton + d'une quantité R2"
   },
   "public.r2.form.total": {
     "defaultMessage": "Total : {amounts}",
@@ -114,6 +254,142 @@
   "public.summary.r2.totalWithGap": {
     "defaultMessage": "{amounts} (hors plats sans prix indiqué)",
     "description": "04 § 7, D-03, E-28 — total du récapitulatif R2 avec un plat sans prix"
+  },
+  "public.toast.bookingConfirmed": {
+    "defaultMessage": "Réservation confirmée.",
+    "description": "04 § 9 — toast de succès d'une réservation R1 ou R2"
+  },
+  "public.toast.duplicate": {
+    "defaultMessage": "Cette réservation était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.",
+    "description": "04 § 9, D-16 — toast neutre d'un doublon (_duplicate)"
+  },
+  "staff.action.adding": {
+    "defaultMessage": "Ajout en cours…",
+    "description": "08 § 4.2, 06 § 6.2, § 8.2, § 8.3 — libellé du bouton occupé d'un ajout"
+  },
+  "staff.addBooking.duplicate": {
+    "defaultMessage": "Cette personne était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.",
+    "description": "06 § 8.5 — toast neutre d'un ajout en doublon (_duplicate)"
+  },
+  "staff.addBooking.email.help": {
+    "defaultMessage": "Si elle est indiquée, la confirmation y est envoyée.",
+    "description": "06 § 8.1 — aide de l'email de l'ajout d'une personne"
+  },
+  "staff.addBooking.email.label": {
+    "defaultMessage": "Adresse email (optionnel)",
+    "description": "06 § 8.1 — libellé de l'email de l'ajout d'une personne"
+  },
+  "staff.addBooking.emailFailed": {
+    "defaultMessage": "L'email de confirmation n'a pas pu être envoyé.",
+    "description": "06 § 8.5 — suite du toast quand l'email de confirmation n'est pas parti"
+  },
+  "staff.addBooking.open": {
+    "defaultMessage": "+ Ajouter une personne",
+    "description": "06 § 8 — ouverture de l'ajout d'une personne (fiche R1, plat R2)"
+  },
+  "staff.addBooking.submit": {
+    "defaultMessage": "Ajouter cette personne",
+    "description": "06 § 8.2, § 8.3 — bouton d'envoi de l'ajout d'une personne"
+  },
+  "staff.addBooking.success": {
+    "defaultMessage": "Personne ajoutée.",
+    "description": "06 § 8.5 — toast de succès de l'ajout d'une personne"
+  },
+  "staff.booking.delete": {
+    "defaultMessage": "Supprimer",
+    "description": "06 § 7.1 — bouton de suppression d'une ligne de réservation (R1 et R2)"
+  },
+  "staff.booking.delete.confirm": {
+    "defaultMessage": "Confirmer la suppression de cette réservation",
+    "description": "06 § 5.2 — aria-label et title du bouton armé d'une réservation"
+  },
+  "staff.booking.deleted": {
+    "defaultMessage": "Réservation supprimée.",
+    "description": "06 § 5.2 — toast de succès d'une suppression de réservation"
+  },
+  "staff.booking.edit": {
+    "defaultMessage": "Modifier",
+    "description": "06 § 7.1 — bouton d'une ligne de réservation (R1 et R2)"
+  },
+  "staff.booking.edited": {
+    "defaultMessage": "Réservation modifiée.",
+    "description": "06 § 7.3, § 7.4 — toast de succès d'une modification de réservation"
+  },
+  "staff.day.delete": {
+    "defaultMessage": "Supprimer ce jour",
+    "description": "06 § 5.2 — bouton de suppression d'un jour (R1 et R2)"
+  },
+  "staff.day.delete.confirm": {
+    "defaultMessage": "Confirmer la suppression du jour et de toutes ses réservations",
+    "description": "06 § 5.2 — aria-label et title du bouton armé d'un jour sans réservation"
+  },
+  "staff.day.delete.confirmWithBookings": {
+    "defaultMessage": "Confirmer la suppression du jour et de ses {n, plural, one {# réservation} other {# réservations}} (les personnes ne seront pas prévenues)",
+    "description": "PLAN annexe F, D-21 — note et aria-label du bouton armé d'un jour qui a des réservations"
+  },
+  "staff.day.deleted": {
+    "defaultMessage": "Jour supprimé.",
+    "description": "06 § 5.2 — toast de succès d'une suppression de jour (R1 et R2)"
+  },
+  "staff.day.theme.label": {
+    "defaultMessage": "Thème du jour (optionnel)",
+    "description": "06 § 4.1, § 4.2, § 5.1 — libellé du thème"
+  },
+  "staff.editBooking.contact.label": {
+    "defaultMessage": "Téléphone ou email",
+    "description": "06 § 7.2 — libellé du contact d'une réservation modifiée (R1 et R2)"
+  },
+  "staff.editBooking.contact.required": {
+    "defaultMessage": "Indiquez un téléphone ou un email.",
+    "description": "06 § 7.2 — contact vide"
+  },
+  "staff.editBooking.name.label": {
+    "defaultMessage": "Nom",
+    "description": "06 § 7.2 — libellé du nom d'une réservation modifiée"
+  },
+  "staff.error.serviceUnavailable": {
+    "defaultMessage": "Le service ne répond pas. Réessayez dans un instant.",
+    "description": "PLAN annexe F, D-14 — écriture collègue (ajout d'une personne compris) sans réponse"
+  },
+  "staff.form.className.required": {
+    "defaultMessage": "Indiquez la classe ou le service.",
+    "description": "06 § 7.2, § 8.1 — classe vide (modification, ajout d'une personne)"
+  },
+  "staff.form.name.required": {
+    "defaultMessage": "Indiquez le nom.",
+    "description": "06 § 7.2, § 8.1 — nom vide (modification, ajout d'une personne)"
+  },
+  "staff.form.quantity.required": {
+    "defaultMessage": "Indiquez une quantité supérieure à 0.",
+    "description": "06 § 7.4, § 8.3 — portions vides ou nulles"
+  },
+  "staff.openDay.date.label": {
+    "defaultMessage": "Date",
+    "description": "06 § 3.1, § 4.1, § 4.2 — champ Date de « Ouvrir un jour »"
+  },
+  "staff.openDay.date.required": {
+    "defaultMessage": "Choisissez une date.",
+    "description": "06 § 4.1, § 4.2 — aucune date choisie"
+  },
+  "staff.openDay.error.pastDate": {
+    "defaultMessage": "Choisissez la date d'aujourd'hui ou une date ultérieure.",
+    "description": "PLAN annexe F, D-19 — date passée dans « Ouvrir un jour » (R1 et R2)"
+  },
+  "staff.openDay.openedBy.label": {
+    "defaultMessage": "Votre nom (collègue qui ouvre ce jour)",
+    "description": "06 § 4.1, § 4.2 — libellé du collègue qui ouvre le jour"
+  },
+  "staff.openDay.pending": {
+    "defaultMessage": "Ouverture en cours…",
+    "description": "08 § 4.2, 06 § 4.1, § 4.2 — libellé du bouton occupé de « Ouvrir un jour »"
+  },
+  "staff.openDay.submit": {
+    "defaultMessage": "Ouvrir ce jour",
+    "description": "06 § 4.1, § 4.2 — bouton d'envoi de « Ouvrir un jour »"
+  },
+  "staff.openDay.success": {
+    "defaultMessage": "Jour ajouté.",
+    "description": "06 § 4.1, § 4.2 — toast de succès de « Ouvrir un jour »"
   },
   "staff.session.inactivity": {
     "defaultMessage": "Déconnecté du mode collègue après 10 minutes d'inactivité.",

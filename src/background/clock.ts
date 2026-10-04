@@ -1,4 +1,3 @@
-import { defineMessages } from "react-intl";
 // Clock of the site (PLAN § 3.4, R-26): `now` changes on each minute, so at 10:00 and at midnight in Paris
 // within a few milliseconds, and again when the tab comes back. Components read derived values only: they render
 // again when the value changes, never on every tick, and never call Date.now() while rendering.
@@ -9,21 +8,11 @@ import type { BackgroundDeps } from "@/background/deps";
 import { isR2OrderingClosed } from "@/domain/cutoff";
 import { parisDate } from "@/domain/paris";
 import type { IsoDate, PublicState } from "@/domain/types";
+import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { stateKeys } from "@/queries/state";
 
 const MINUTE_MS = 60_000;
-
-// Value types of each message: react-intl types `formatMessage` from them (a descriptor without them takes no value).
-const messages = defineMessages<{ r2Closed: { name2: string } }>({
-  r2Closed: {
-    id: "public.r2.cutoff",
-    defaultMessage:
-      "Commandes en ligne clôturées à 10h. Venez au restaurant {name2} à partir de 12h pour commander sur place.",
-    description:
-      "04 § 5.3, § 9, 01 § 3.7 — clôture des commandes R2 à 10 h (toast neutre, note de la fiche)",
-  },
-});
 
 export const useClock = create<{ now: number }>()(() => ({ now: Date.now() }));
 
@@ -76,6 +65,6 @@ export function watchR2Cutoff({ router, queryClient, showToast }: BackgroundDeps
     if (isR2OrderingClosed(day, previous.now) || !isR2OrderingClosed(day, clock.now)) return;
     void router.navigate({ to: "/", search: { ...search, reserver: undefined }, replace: true });
     const name2 = queryClient.getQueryData<PublicState>(stateKeys.public())?.settings.name2 ?? "";
-    showToast(intl.formatMessage(messages.r2Closed, { name2 }), "neutral");
+    showToast(intl.formatMessage(commonMessages.r2Closed, { name2 }), "neutral");
   });
 }
