@@ -1,0 +1,27 @@
+/* .form-reveal and .booking-form of legacy/app.css (04 § 5.1): the form opens under the card's text, above a thin
+   rule, and rises in. */
+.reveal {
+  scroll-margin-top: var(--space-4);
+}
+
+.form {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--border-width) solid var(--border);
+  /* ANIM */
+}
+
+/* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
+  }
+}
+
+/* Stand-in while the form's chunk loads. */
+.pending {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-4);
+}

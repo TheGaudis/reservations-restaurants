@@ -160,6 +160,7 @@ interface BookingSummaryProps {
 /**
  * Summary of a booking (04 § 7, 08 § 6.1, P-06, P-14), an `<output>` (role `status`): title, long date, warnings (both when both
  * apply, E-14; « déjà enregistrée » for a duplicate, D-16), lines, total, cancellation contact, « Fermer ».
+ * @internal exported for the tests and stories; the page shows it through `ColumnSummary`
  */
 export function BookingSummary({ summary, onClose, titleRef }: BookingSummaryProps) {
   const intl = useIntl();

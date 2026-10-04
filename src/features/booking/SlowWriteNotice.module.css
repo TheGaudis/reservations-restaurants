@@ -1,0 +1,11 @@
+/* Note under the form's buttons (D-15), in the muted colour of the helps (08 § 4.6). The empty region stays in the
+   accessibility tree, so that its text is read when it appears. */
+.notice {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.notice:not(:empty) {
+  margin-top: var(--space-2);
+}

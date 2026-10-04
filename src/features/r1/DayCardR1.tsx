@@ -1,3 +1,4 @@
+import { useIsMutating } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -15,6 +16,8 @@ import {
 import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
+import { loadBookingFormR1 } from "@/features/r1/load-booking-form";
+import { bookingKeys } from "@/mutations/booking-keys";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 const messages = defineMessages<{
@@ -41,20 +44,26 @@ const messages = defineMessages<{
 });
 
 interface DayCardR1Props {
-  /** Booking form of P4 (c), shown in place of « Réserver » while `reserver=r1` and the day can be booked. */
+  /** Booking form (`BookingFormR1Slot`), shown in place of « Réserver » while `reserver=r1` and the day can be booked. */
   form?: ReactNode;
+}
+
+function preloadForm() {
+  void loadBookingFormR1();
 }
 
 /**
  * Public card of the selected R1 day (05 § 5, P-03, P-04, P-07, P-08): date and seat gauge, theme, menu, then
- * « Réserver » when seats are left and the day is not past (R1 has no time limit, 01 § 3.7). A full day says
- * « Complet. » (D-02); a past day pales (E-56) and says nothing.
+ * « Réserver » when seats are left and the day is not past (R1 has no time limit, 01 § 3.7), or the booking form
+ * while `reserver=r1`. A full day says « Complet. » (D-02); a past day pales (E-56) and says nothing.
  */
 export function DayCardR1({ form }: DayCardR1Props) {
   const intl = useIntl();
   const iso = useSelectedDay("r1");
   const past = isPast(iso, useToday());
   const formOpen = usePageSearch().reserver === "r1";
+  // A booking that takes the last seats keeps its form until its answer has been handled (summary, toast).
+  const sending = useIsMutating({ mutationKey: bookingKeys.r1() }) > 0;
   const state = useShownState();
   const day = findDay(state.r1Days, iso);
   if (day === undefined) return <NoServiceCard iso={iso} past={past} />;
@@ -75,9 +84,13 @@ export function DayCardR1({ form }: DayCardR1Props) {
     <DayCard iso={iso} past={past} gauge={gauge}>
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.menu)} text={day.menu} />
-      {!full && !past && !formOpen ? <ReserveButton restaurant="r1" iso={iso} /> : null}
-      {!full && !past && formOpen ? form : null}
-      {full && !past ? <DayNote>{intl.formatMessage(messages.fullNote)}</DayNote> : null}
+      {!full && !past && !formOpen ? (
+        <ReserveButton restaurant="r1" iso={iso} preload={preloadForm} />
+      ) : null}
+      {(!full || sending) && !past && formOpen ? form : null}
+      {full && !past && !(sending && formOpen) ? (
+        <DayNote>{intl.formatMessage(messages.fullNote)}</DayNote>
+      ) : null}
     </DayCard>
   );
 }

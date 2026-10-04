@@ -1,0 +1,70 @@
+/* .field-group, .row3, .field-error and .form-total of legacy/design-system.css and app.css (04 § 5.2, 08 § 4.6). */
+.group {
+  min-width: 0;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+
+/* Three counters side by side, aligned at the bottom when a label wraps. */
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--space-2);
+}
+
+/* Breakpoint of .row3 (08 § 7.2). */
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--danger);
+  animation: rise var(--dur) var(--ease) both;
+}
+
+.mark {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-error-mark);
+  height: var(--field-error-mark);
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  color: var(--text-on-accent);
+  font-size: var(--fs-error-mark);
+  font-weight: var(--fw-bold);
+}
+
+.total {
+  margin: var(--space-1) 0 var(--space-3);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-ink);
+}
+
+/* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
+  }
+}

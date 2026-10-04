@@ -7,8 +7,14 @@ import type { Restaurant } from "@/domain/types";
 export type BookingSummaryContent = SummaryR1 | SummaryR2;
 
 /**
+ * Element that takes the focus when it mounts: the first field of a form opened by « Réserver », « Réserver » again
+ * after « Annuler » (04 § 5.1). A form opened by a link or a reload leaves the focus alone.
+ */
+type FocusTarget = "form" | "reserve";
+
+/**
  * State of the public columns that outlives the booking form (D-11): one summary per column, kept in memory only
- * (09 PA 5), and the focus handed back to « Réserver » after « Annuler ».
+ * (09 PA 5), and the focus handed over between « Réserver » and its form.
  */
 export interface BookingColumns {
   /** Summary of each column; shown while its day stays selected (04 § 7). */
@@ -19,10 +25,10 @@ export interface BookingColumns {
   clear: (restaurant: Restaurant) => void;
   /** Ref of the title of a column's summary, the element that `show` focuses. */
   titleRef: (restaurant: Restaurant) => (element: HTMLElement | null) => void;
-  /** « Annuler » of a form: « Réserver » of that column takes the focus when it comes back (04 § 5.1). */
-  returnFocusToReserve: (restaurant: Restaurant) => void;
-  /** True once after `returnFocusToReserve`: read by « Réserver » when it mounts. */
-  takeReturnFocus: (restaurant: Restaurant) => boolean;
+  /** The next `target` of this column to mount takes the focus (« Réserver » → form, « Annuler » → « Réserver »). */
+  requestFocus: (target: FocusTarget, restaurant: Restaurant) => void;
+  /** True once after `requestFocus`: read by the element when it mounts. */
+  takeFocusRequest: (target: FocusTarget, restaurant: Restaurant) => boolean;
 }
 
 const noop = () => {
@@ -35,8 +41,8 @@ export const BookingColumnsContext = createContext<BookingColumns>({
   show: noop,
   clear: noop,
   titleRef: () => noop,
-  returnFocusToReserve: noop,
-  takeReturnFocus: () => false,
+  requestFocus: noop,
+  takeFocusRequest: () => false,
 });
 
 /** Summaries and focus hand-over of the public columns (`BookingColumnsProvider`). */

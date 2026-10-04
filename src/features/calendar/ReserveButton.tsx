@@ -1,6 +1,7 @@
 import { useIntl } from "react-intl";
 
 import type { IsoDate, Restaurant } from "@/domain/types";
+import { useBookingColumns } from "@/features/booking/booking-columns";
 import { DayActions } from "@/features/calendar/DayCard";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { commonMessages } from "@/intl/common-messages";
@@ -10,23 +11,37 @@ interface ReserveButtonProps {
   restaurant: Restaurant;
   /** Day of the card. */
   iso: IsoDate;
+  /** Starts loading the form's chunk before the click (R-31). */
+  preload?: (() => void) | undefined;
 }
 
 /**
  * « Réserver » (05 § 5.1, § 6.2): opens the booking form of this restaurant (`reserver`, `push`), the only public
  * form of the page (D-11). The day is written in the URL even when it is today: the form keeps its date past midnight
- * (PLAN § 3.2, § 3.4).
+ * (PLAN § 3.2, § 3.4). Opening a form removes the summary of its column (04 § 5.1, § 7) and gives the focus to
+ * its first field; after « Annuler », the button that comes back takes the focus (04 § 5.1).
  */
-export function ReserveButton({ restaurant, iso }: ReserveButtonProps) {
+export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) {
   const intl = useIntl();
   const search = usePageSearch();
   const navigate = usePageNavigate();
+  const columns = useBookingColumns();
   return (
     <DayActions>
       <Button
+        ref={(button) => {
+          if (button !== null && columns.takeFocusRequest("reserve", restaurant)) {
+            button.focus({ preventScroll: true });
+          }
+        }}
         variant="primary"
+        onPointerEnter={preload}
+        onFocus={preload}
+        onPointerDown={preload}
         onClick={() => {
           const day = restaurant === "r1" ? { r1: iso } : { r2: iso };
+          columns.clear(restaurant);
+          columns.requestFocus("form", restaurant);
           navigate({ ...search, ...day, reserver: restaurant }, { replace: false });
         }}
       >

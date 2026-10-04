@@ -16,7 +16,7 @@ export function BookingColumnsProvider({ children }: { children: ReactNode }) {
     r2: null,
   });
   const titles = useRef(new Map<Restaurant, HTMLElement>());
-  const returnFocus = useRef(new Set<Restaurant>());
+  const focusRequests = useRef(new Set<string>());
   const value: BookingColumns = {
     summaries,
     show: (summary: BookingSummaryContent) => {
@@ -35,10 +35,11 @@ export function BookingColumnsProvider({ children }: { children: ReactNode }) {
       if (element === null) titles.current.delete(restaurant);
       else titles.current.set(restaurant, element);
     },
-    returnFocusToReserve: (restaurant) => {
-      returnFocus.current.add(restaurant);
+    requestFocus: (target, restaurant) => {
+      focusRequests.current.add(`${target}:${restaurant}`);
     },
-    takeReturnFocus: (restaurant) => returnFocus.current.delete(restaurant),
+    takeFocusRequest: (target, restaurant) =>
+      focusRequests.current.delete(`${target}:${restaurant}`),
   };
   return <BookingColumnsContext value={value}>{children}</BookingColumnsContext>;
 }

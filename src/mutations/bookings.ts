@@ -4,18 +4,13 @@ import type { QueryClient } from "@tanstack/react-query";
 import { addBookingR1, addBookingR2Multi } from "@/api/actions";
 import { BusinessError } from "@/api/errors";
 import type { BookingR1Input, OrderR2Input, WriteResponse } from "@/domain/types";
+import { bookingKeys } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
 import { useSessionStore } from "@/session/session";
 
 // Bookings sent by the public forms and by « + Ajouter une personne » of the staff mode, without password
 // (02 § 4.4, § 4.5; PLAN § 3.3.3). The cache is updated here, in `useMutation({ onSuccess })`, which runs even when
 // the form is gone; the summary, toast, closing and focus belong to the form (`mutateAsync(input, { onSuccess })`).
-
-/** Mutation keys of the bookings (PLAN § 3.3). */
-export const bookingKeys = {
-  r1: () => ["write", "booking", "r1"] as const,
-  r2: () => ["write", "booking", "r2"] as const,
-};
 
 // Writes go to the script one after the other (PLAN § 3.3).
 const WRITE_SCOPE = { id: "write" };

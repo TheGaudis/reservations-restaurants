@@ -18,6 +18,7 @@ import {
 } from "@/domain/navigation";
 import type { CalendarView, PageSearchParams } from "@/domain/navigation";
 import type { IsoDate, Restaurant } from "@/domain/types";
+import { useBookingColumns } from "@/features/booking/booking-columns";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import type { CalendarTransition } from "@/features/calendar/page-search";
 import { useShownState } from "@/features/calendar/use-shown-state";
@@ -108,6 +109,7 @@ export function RestaurantCalendar({ restaurant }: { restaurant: Restaurant }) {
   const today = useToday();
   const todayClosed = useIsR2OrderingClosed(today);
   const state = useShownState();
+  const columns = useBookingColumns();
   const view = calendarView(search, restaurant);
   const anchor = calendarAnchor(search, restaurant, today);
   const selected = selectedDay(search, restaurant, today);
@@ -162,6 +164,8 @@ export function RestaurantCalendar({ restaurant }: { restaurant: Restaurant }) {
         labelledBy={labelId}
         transitionName={`${restaurant}-calendar-grid`}
         onSelect={(iso, { viaKeyboard }) => {
+          // A day chosen in this calendar closes the summary of this column only (04 § 7, D-11).
+          columns.clear(restaurant);
           if (viaKeyboard) {
             go(selectDay(search, restaurant, iso), true);
             return;
