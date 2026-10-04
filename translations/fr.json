@@ -1151,6 +1151,18 @@
     "defaultMessage": "Paramètres",
     "description": "06 § 2.2 — titre du panneau dépliant des paramètres"
   },
+  "staff.tomorrow.portions": {
+    "defaultMessage": "{name} : {count, plural, one {<b>#</b> portion réservée} other {<b>#</b> portions réservées}}",
+    "description": "06 § 2.1 — portions réservées pour demain au restaurant 2 ; name : nom du restaurant 2"
+  },
+  "staff.tomorrow.seats": {
+    "defaultMessage": "{name} : {count, plural, one {<b>#</b> couvert réservé} other {<b>#</b> couverts réservés}}",
+    "description": "06 § 2.1 — couverts réservés pour demain au restaurant 1 ; name : nom du restaurant 1"
+  },
+  "staff.tomorrow.title": {
+    "defaultMessage": "Demain ({date})",
+    "description": "06 § 2.1, D-07 — titre du panneau du lendemain ; date longue"
+  },
   "ui.calendar.nextMonth": {
     "defaultMessage": "Mois suivant",
     "description": "05 § 2.3, 06 § 3.2 — aria-label du bouton › en vue mois et du sélecteur de date"
