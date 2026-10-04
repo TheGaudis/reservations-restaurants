@@ -41,7 +41,6 @@ export function getRouter() {
     scrollRestoration: true,
     defaultPendingComponent: PageSkeleton,
     defaultErrorComponent: LoadErrorPage,
-    // defaultPendingMinMs keeps its default (500 ms): 0 triggers React error #418 on hydration (PLAN arbitrage 16)
     Wrap: ({ children }) => (
       <QueryClientProvider client={queryClient}>
         <RawIntlProvider value={intl}>{children}</RawIntlProvider>

@@ -13,7 +13,13 @@ import type { ReactNode } from "react";
 import { defineMessages } from "react-intl";
 
 import { earlyFetchScript } from "@/api/early-fetch";
+import { BrowserOnly } from "@/features/page/BrowserOnly";
+import { Header, HeaderMode } from "@/features/page/Header";
+import { ModeSwitch } from "@/features/page/ModeSwitch";
+import { PageLayout } from "@/features/page/PageLayout";
+import { ShellSkeleton } from "@/features/page/PageSkeleton";
 import { intl } from "@/intl/intl";
+import { AutoRefresh } from "@/queries/AutoRefresh";
 import type { SessionStore } from "@/session/session";
 import { Toaster } from "@/ui/feedback/Toaster";
 
@@ -70,7 +76,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: AppRoot,
 });
 
-// Stacking context of the app: Base UI portals, appended to <body>, stay above it (PLAN § 3.6).
+// Frame of every page (08 § 7.1), mounted once: the pending, error and content states of a route, and the move from /
+// to /collegue, change only what `<Outlet />` renders. The header, the logo and « Client / Collègue » stay the same
+// elements (03 § 2.3, § 5.4); `AutoRefresh` is the only refresh, for every route (PLAN § 3.3.2). What reads the
+// browser renders in `BrowserOnly`: the shell holds the header without the switch, and the skeleton of both columns.
+// `.app-root` is the stacking context of the app: Base UI portals, appended to <body>, stay above it (PLAN § 3.6).
 // Toasts of every page (G-07), in an element of their own after it: their portal renders nothing in the prerendered
 // shell nor while React hydrates. A portal straight into <body> blocks the route tests, where React renders the
 // <body> of the shell inside a test container.
@@ -79,10 +89,22 @@ function AppRoot() {
   return (
     <>
       <div className="app-root">
-        <Outlet />
+        <PageLayout>
+          <Header>
+            <BrowserOnly fallback={null}>
+              <HeaderMode>
+                <ModeSwitch />
+              </HeaderMode>
+            </BrowserOnly>
+          </Header>
+          <BrowserOnly fallback={<ShellSkeleton />}>
+            <Outlet />
+          </BrowserOnly>
+        </PageLayout>
       </div>
       <div ref={toasts} />
       <Toaster container={toasts} />
+      <AutoRefresh />
     </>
   );
 }

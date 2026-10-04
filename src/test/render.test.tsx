@@ -37,7 +37,7 @@ describe("renderRoute", () => {
   it("renders the route of the URL inside the app container", async () => {
     const { screen, router } = await renderRoute("/inconnue");
     await expect
-      .element(screen.getByRole("heading", { level: 1, name: "Page introuvable" }))
+      .element(screen.getByRole("heading", { level: 2, name: "Page introuvable" }))
       .toBeVisible();
     expect(router.state.location.pathname).toBe("/inconnue");
     expect(screen.container.querySelector(".app-root main")).not.toBeNull();

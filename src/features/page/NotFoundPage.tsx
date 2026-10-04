@@ -1,17 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { FormattedMessage } from "react-intl";
 
-/** Page of the catch-all route (PLAN § 3.2, annexe F). */
+import { Main } from "@/features/page/PageLayout";
+
+/** Page of the catch-all route (PLAN § 3.2, annexe F), under the header of the root. */
 export function NotFoundPage() {
   return (
-    <main>
-      <h1>
+    <Main busy={false}>
+      <h2>
         <FormattedMessage
           id="common.notFound.title"
           defaultMessage="Page introuvable"
           description="PLAN annexe F — titre de la route attrape-tout"
         />
-      </h1>
+      </h2>
       <p>
         <Link to="/">
           <FormattedMessage
@@ -21,6 +23,6 @@ export function NotFoundPage() {
           />
         </Link>
       </p>
-    </main>
+    </Main>
   );
 }

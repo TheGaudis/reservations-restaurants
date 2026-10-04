@@ -2,6 +2,7 @@ import type { AnyRouter } from "@tanstack/react-router";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { toLocalCacheV1 } from "@/queries/local-cache";
+import { publicStateOptions } from "@/queries/state";
 import { fakeScript } from "@/test/browser-fake-script";
 import { publicState, SETTINGS } from "@/test/domain-states";
 import { renderRoute } from "@/test/render";
@@ -49,10 +50,51 @@ it("keeps the skeleton on / without a local copy until the script answers (G-01)
   expect(fakeScript().requests.filter((request) => request.method === "GET")).toHaveLength(1);
 });
 
+it("keeps the header, « Client / Collègue » and the password typed from the skeleton to the page (03 § 2.3, § 5.4)", async () => {
+  const release = fakeScript().hold();
+  const { screen } = await renderRoute("/?connexion=true");
+  const field = screen.getByLabelText("Mot de passe collègue", { exact: true });
+  await expect.element(field).toBeVisible();
+  await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
+  await field.fill("secret");
+  const header = screen.container.querySelector("header");
+  const input = field.element();
+  release();
+  await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "false");
+  expect(screen.container.querySelector("header")).toBe(header);
+  expect(field.element()).toBe(input);
+  await expect.element(field).toHaveValue("secret");
+});
+
+it("shows the load error box under the same header after a failed first read, then the page (G-03, 03 § 3.2)", async () => {
+  fakeScript().failNext("error");
+  const { screen } = await renderRoute("/");
+  await expect
+    .poll(() => screen.container.querySelector('[role="alert"]')?.textContent)
+    .toMatch(/^Le service de réservation ne répond pas\./u);
+  await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "false");
+  expect(screen.container.querySelectorAll('[data-still="true"]').length).toBeGreaterThan(0);
+  const header = screen.container.querySelector("header");
+  await screen.getByRole("button", { name: "Réessayer" }).click();
+  await expect.element(screen.getByRole("grid").first()).toBeVisible();
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+  expect(screen.container.querySelector("header")).toBe(header);
+  // The first read, then « Réessayer »: nothing else read the script (03 § 3.2).
+  expect(fakeScript().requests.filter((request) => request.method === "GET")).toHaveLength(2);
+});
+
+it("mounts a single refreshing observer (PLAN § 3.3.2, R-18)", async () => {
+  const { screen, queryClient } = await renderRoute("/");
+  await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "false");
+  const publicQuery = queryClient.getQueryCache().find({ queryKey: publicStateOptions.queryKey });
+  const intervals = publicQuery?.observers.map((observer) => observer.options.refetchInterval);
+  expect(intervals?.filter((interval) => interval !== undefined)).toStrictEqual([180_000]);
+});
+
 it("shows the not-found page for an unknown path (PLAN § 3.2)", async () => {
   const { screen } = await renderRoute("/inconnue");
   await expect
-    .element(screen.getByRole("heading", { level: 1, name: "Page introuvable" }))
+    .element(screen.getByRole("heading", { level: 2, name: "Page introuvable" }))
     .toBeVisible();
   await expect.element(screen.getByRole("link", { name: "Revenir à l'accueil" })).toBeVisible();
 });
