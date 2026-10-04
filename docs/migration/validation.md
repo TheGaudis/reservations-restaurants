@@ -81,6 +81,7 @@ Le nouveau site utilise le mot de passe actuel du mode collègue. Vérifiez :
 - [ ] Les noms des personnes apparaissent sous les fiches du jour, comme sur le site actuel.
 - [ ] Le panneau « Demain » donne les mêmes nombres de couverts et de portions que le site actuel. Seule différence attendue : le nouveau site ne compte plus les portions d'un plat supprimé.
 - [ ] Un mot de passe faux affiche « Mot de passe incorrect. ».
+- [ ] **À faire en premier.** Si le bon mot de passe affiche un message d'erreur au lieu de « Mode collègue activé. », le script déployé est sans doute trop ancien : le nouveau site utilise l'action `getAdminState`, que l'ancien site contournait. Arrêtez la validation et prévenez le responsable : il publie la version actuelle de `Code.gs` (Apps Script, **Déployer > Gérer les déploiements**, crayon, **Version : Nouvelle version**, même URL `/exec`), puis vous reprenez cette partie.
 - [ ] « Client » vous déconnecte : les noms disparaissent de la page.
 - [ ] Après 10 minutes sans toucher la page, le site vous déconnecte avec le message « Déconnecté du mode collègue après 10 minutes d'inactivité. ».
 - [ ] Un rechargement de la page vous déconnecte, comme aujourd'hui ; sur une page collègue, le site redemande le mot de passe puis vous ramène à la même page.
