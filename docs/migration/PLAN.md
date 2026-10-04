@@ -986,7 +986,7 @@ P0 squelette ─> P1 régression sur l'ancien site ─┬─> P2 domaine, API, d
 | P4 | parcours public complet | 5 | 4 | non ((a) → (b) → (c) → (d)) | terminé le 4 oct. : (a) `09247a6`, (b) `5fd5baf`, (c) `5fbb0d1`, (d) `b0f7a69` ; 37 scénarios `@p4` verts sur `react` |
 | P5 | mode collègue | 6,5 | 6 | (b), (c), (d1), (e) après (a) ; (d2) après (d1) | terminé le 4 oct. : (a) `d102547`, (d1) `a79689d`, (c) `e6feb25`, (b) `32efb0c`, (d2) `66368aa`, (e) `409f371` ; 30 scénarios `@p5` verts sur `react` |
 | P6 | impression et panneau « Demain » | 2,5 | 2 | (a) avec P5 ; (b) après P5 (e) | terminé le 4 oct. : (a) `0eb411d`, (b) `7aa8b90` ; 6 scénarios `@p6` verts sur `react` |
-| P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | en cours : (b) `57ec5dc` le 4 oct. ; (a) en cours |
+| P7 | parité finale (suite de régression complète sur `react`), accessibilité, budget, test par les collègues sur un build local ou l'artefact CI | 2,5 (+ 1 à 2 semaines calendaires) | 2 | non | en cours : (b) `57ec5dc` le 4 oct. ; (a) branche `claude/p7a-parite` livrée le 4 oct. (suite entière verte trois fois sur `legacy`, `react`, `react-only`, journal `p7a.md`), à fusionner ; validation par les collègues (S9) à faire |
 | P8 | bascule et nettoyage | 1 | 1 | non | à faire |
 | **Total** | | **35,5** (43 avec 20 % de marge) | **31** | | |
 
