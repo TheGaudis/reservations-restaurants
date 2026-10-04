@@ -106,11 +106,6 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-    env:
-      # Regression scenarios already green on the React build (PLAN § 3.1: filtered until P7), by id or title.
-      # Empty: the react project does not run. P4 (d): every scenario of P4 and the checks of the suite itself;
-      # P5 (a): the login panel (REG-27, the only scenario tagged @L-01); P6 (b): every print scenario (REG-39 to REG-42).
-      E2E_REACT_GREP: "@p4|@p5|@p6|@framework"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -135,17 +130,11 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - run: pnpm exec playwright install --with-deps chromium
 
-      # react-only: new code (smoke, hydration); legacy: regression suite on the old site (P1).
-      # retries: 1 comes from playwright.config.ts when CI is set.
-      - name: E2E (react-only, legacy)
-        run: pnpm test:e2e --project=react-only --project=legacy
-        env:
-          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/react-only-legacy
-      - name: E2E (react, filtered by tags)
-        if: env.E2E_REACT_GREP != ''
-        run: pnpm test:e2e --project=react --grep "$E2E_REACT_GREP"
-        env:
-          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/react
+      # react-only: new code (smoke, hydration, PDF printing, session); legacy and react: the whole regression
+      # suite on the old site and on the React build (PLAN § 1.5 S1, P7). retries: 1 comes from playwright.config.ts
+      # when CI is set.
+      - name: E2E (react-only, legacy, react)
+        run: pnpm test:e2e --project=react-only --project=legacy --project=react
 
       # Production build, as the deploy job will publish it. Without the repository variable the build
       # still succeeds and the site shows the configuration banner (D-05, G-05).
