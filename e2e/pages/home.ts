@@ -48,10 +48,13 @@ export async function retryLoad(page: Page): Promise<void> {
 
 /**
  * Toast (G-07). Legacy: the `role="status"` outside the columns, whose text stays after it fades (check its
- * text, not its visibility). React: the « Notifications » viewport of Base UI (a-8).
+ * text, not its visibility). React: the « Notifications » viewport of Base UI (a-8), always in the page; hidden
+ * included, because print media hides everything but the printed document (styles/print.css, REG-40 I-00).
  */
 export function toast(page: Page): Locator {
-  if (currentTarget() === "react") return page.getByRole("region", { name: "Notifications" });
+  if (currentTarget() === "react") {
+    return page.getByRole("region", { name: "Notifications", includeHidden: true });
+  }
   // The booking summary is another status of the page, with a « Fermer » button; the loading veil (G-06) has one
   // too, exposed during a login or a deletion. Only the toast is a live region of its own (`aria-live`).
   return page
