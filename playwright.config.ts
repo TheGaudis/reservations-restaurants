@@ -24,16 +24,11 @@ export default defineConfig({
     // (docs/migration/parite.md, `legacy` column frozen at the switch); only `react` runs them.
     { name: "react", testDir: "e2e/regression", use: { baseURL: reactUrl } },
     // Tests of the new code only (smoke, hydration, PDF printing, accessibility), on the build:e2e output.
+    // smoke-production.spec.ts reads the published site: playwright.production.config.ts, run by hand.
     {
       name: "react-only",
       testIgnore: ["regression/**", "smoke-production.spec.ts"],
       use: { baseURL: reactUrl },
-    },
-    // Read-only checks of the public site after the switch (P8), started by hand.
-    {
-      name: "production",
-      testMatch: "smoke-production.spec.ts",
-      use: { baseURL: "https://thegaudis.github.io/reservations-restaurants/" },
     },
   ],
   // A server left by another worktree must never answer for this one.
