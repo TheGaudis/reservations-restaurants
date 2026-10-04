@@ -102,7 +102,7 @@ test.describe("logoutPurgeAndPanels (REG-29)", () => {
 
 test(
   "logoutPurgeAndPanels (REG-29) — write answered after the logout",
-  { tag: ["@parity", "@C-30", "@p5"] },
+  { tag: ["@changed:E-55", "@C-30", "@p5"] },
   async ({ page, fakeScript }) => {
     await loginAsStaff(page);
     const card = staffCard(page, "r1");
@@ -120,6 +120,11 @@ test(
       .poll(() => fakeScript.db.r1Days.find((day) => day.Date === TODAY)?.Capacite)
       .toBe(18);
     await settle(page);
+    // The legacy page announces the write it no longer shows; on React the session guard throws the answer away,
+    // toast included (E-55).
+    await (target(test.info()) === "legacy"
+      ? expect(toast(page)).toHaveText("Jour modifié.")
+      : expect(page.getByText("Jour modifié.", { exact: true })).toHaveCount(0));
     await expectNoPersonalData(page);
     await expect(modeButton(page, "client")).toHaveAttribute("aria-pressed", "true");
     expect(new URL(page.url()).pathname).toBe("/reservations-restaurants/");
