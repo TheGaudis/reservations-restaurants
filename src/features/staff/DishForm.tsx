@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { portionsBooked } from "@/domain/capacity";
+import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
 import type { PageSearchParams } from "@/domain/navigation";
 import type { Dish, IsoDate } from "@/domain/types";
 import { DayActions } from "@/features/calendar/DayCard";
@@ -20,7 +21,7 @@ import {
   requestFocus,
   takeFocusRequest,
 } from "@/features/staff/dish-focus";
-import { bookingsOfDish, dishValues, EMPTY_DISH } from "@/features/staff/dish-rules";
+import { bookingsOfDish } from "@/features/staff/dish-rules";
 import { DishFields } from "@/features/staff/DishFields";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { commonMessages } from "@/intl/common-messages";
@@ -32,6 +33,9 @@ import { ConfirmButton } from "@/ui/button/ConfirmButton";
 import { showToast } from "@/ui/feedback/toast";
 
 import styles from "@/features/staff/DishForm.module.css";
+
+// « Ajouter un plat » starts empty (06 § 6.1).
+const EMPTY_DISH = emptyDishDraft();
 
 // Dishes of the R2 staff card (06 § 6, 05 § 6.2-6.3, C-14, C-20 to C-22): « Modifier ce plat » and « Supprimer ce
 // plat » in the actions of each dish, its form under them, « + Ajouter un plat à ce jour » or its form under the list.
@@ -171,7 +175,7 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
   return (
     <DishFields
       id={editFormId(dish.id)}
-      initial={dishValues(dish)}
+      initial={dishDraftOf(dish)}
       booked={booked}
       adding={false}
       submitLabel={intl.formatMessage(commonMessages.save)}

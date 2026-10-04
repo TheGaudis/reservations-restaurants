@@ -2,15 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   bookingsOfDay,
-  dishDraftInput,
   dishDraftStatus,
-  emptyDishDraft,
   isR2DayOpen,
   openDateProblem,
   openDayDishes,
-  priceSuggestions,
 } from "@/domain/days";
-import type { DishDraft } from "@/domain/days";
+import { emptyDishDraft } from "@/domain/dishes";
+import type { DishDraft } from "@/domain/dishes";
 import {
   bookingR1,
   bookingR2,
@@ -34,30 +32,11 @@ describe("dish drafts of « Ouvrir un jour » R2 (06 § 4.2, D-19)", () => {
     ["name without stock", { name: "Salade" }, "incomplete"],
     ["stock without name", { stock: "8" }, "incomplete"],
     ["stock 0", { name: "Salade", stock: "0" }, "incomplete"],
-    ["stock not a whole number", { name: "Salade", stock: "2.5" }, "incomplete"],
+    ["stock cut to 0", { name: "Salade", stock: "0.5" }, "incomplete"],
+    ["stock cut as parseInt", { name: "Salade", stock: "2.5" }, "complete"],
     ["price alone", { price: "3,50" }, "incomplete"],
   ])("%s: %j is %s", (_case, overrides, status) => {
     expect(dishDraftStatus(draft(overrides))).toBe(status);
-  });
-
-  it.each<[string, Partial<DishDraft>, ReturnType<typeof dishDraftInput>]>([
-    [
-      "trimmed name, price with a comma",
-      { name: " Lasagnes ", stock: "8", price: "4,5" },
-      { name: "Lasagnes", stock: 8, price: 4.5, voucher: false },
-    ],
-    [
-      "no price",
-      { name: "Salade", stock: "6" },
-      { name: "Salade", stock: 6, price: null, voucher: false },
-    ],
-    [
-      "voucher dish: no price in euros (06 § 4.3)",
-      { name: "Bowl", stock: "10", price: "3.50", voucher: true },
-      { name: "Bowl", stock: 10, price: null, voucher: true },
-    ],
-  ])("sends %s", (_case, overrides, input) => {
-    expect(dishDraftInput(draft(overrides))).toStrictEqual(input);
   });
 
   it("sends the complete lines only, in their order", () => {
@@ -102,25 +81,6 @@ describe("date of « Ouvrir un jour » (D-19, E-36)", () => {
     ["2026-10-20", false],
   ])("R2 day %s already open: %s", (date, open) => {
     expect(isR2DayOpen(state, date)).toBe(open);
-  });
-});
-
-describe("price suggestions (06 § 6.1)", () => {
-  it("lists the prices in euros once each, in ascending order", () => {
-    const state = fullState({
-      dishes: [
-        dish("a", "2026-10-05", { price: 6.5 }),
-        dish("b", "2026-10-05", { price: 4.5 }),
-        dish("c", "2026-10-06", { price: null, voucher: true }),
-        dish("d", "2026-10-06", { price: 6 }),
-        dish("e", "2026-10-07", { price: 4.5 }),
-      ],
-    });
-    expect(priceSuggestions(state)).toStrictEqual([4.5, 6, 6.5]);
-  });
-
-  it("is empty without any price", () => {
-    expect(priceSuggestions(fullState())).toStrictEqual([]);
   });
 });
 

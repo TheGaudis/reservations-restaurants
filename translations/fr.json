@@ -711,6 +711,14 @@
     "defaultMessage": "Aucune réservation.",
     "description": "05 § 4.6 — liste des réservations vide (fiche R1, plat R2)"
   },
+  "staff.day.capacity.label": {
+    "defaultMessage": "Nombre de couverts disponibles",
+    "description": "06 § 4.1, § 5.1 — libellé de la capacité d'un jour R1"
+  },
+  "staff.day.capacity.required": {
+    "defaultMessage": "Indiquez un nombre de couverts supérieur à 0.",
+    "description": "06 § 4.1, § 5.1 — capacité vide, nulle ou négative"
+  },
   "staff.day.delete": {
     "defaultMessage": "Supprimer ce jour",
     "description": "06 § 5.2 — bouton de suppression d'un jour (R1 et R2)"
@@ -726,6 +734,10 @@
   "staff.day.deleted": {
     "defaultMessage": "Jour supprimé.",
     "description": "06 § 5.2 — toast de succès d'une suppression de jour (R1 et R2)"
+  },
+  "staff.day.menu.label": {
+    "defaultMessage": "Menu du jour (optionnel)",
+    "description": "06 § 4.1, § 5.1 — libellé du menu d'un jour R1"
   },
   "staff.day.theme.label": {
     "defaultMessage": "Thème du jour (optionnel)",
@@ -781,7 +793,7 @@
   },
   "staff.dish.error.zeroPrice": {
     "defaultMessage": "Indiquez un prix supérieur à 0, ou laissez le champ vide.",
-    "description": "PLAN annexe F, D-22 — champ Prix d'un plat à 0 (ou illisible)"
+    "description": "PLAN annexe F, D-22 — prix d'un plat à 0, négatif ou illisible (« Ouvrir un jour » R2, plats)"
   },
   "staff.dishForm.name.label": {
     "defaultMessage": "Nom du plat",
@@ -789,7 +801,7 @@
   },
   "staff.dishForm.name.placeholder": {
     "defaultMessage": "Ex. salade César",
-    "description": "06 § 6.1 — placeholder du nom du plat (ajout)"
+    "description": "06 § 4.2, § 6.1 — exemple de nom d'un plat (ligne de « Ouvrir un jour » R2, ajout d'un plat)"
   },
   "staff.dishForm.name.required": {
     "defaultMessage": "Indiquez le nom du plat.",
@@ -797,7 +809,7 @@
   },
   "staff.dishForm.price.label": {
     "defaultMessage": "Prix (optionnel)",
-    "description": "06 § 6.1 — libellé du prix du plat"
+    "description": "06 § 4.2, § 6.1 — prix d'un plat (en-tête des lignes de « Ouvrir un jour » R2, formulaire de plat)"
   },
   "staff.dishForm.price.placeholder": {
     "defaultMessage": "Ex. 3,50",
@@ -805,11 +817,11 @@
   },
   "staff.dishForm.price.voucherPlaceholder": {
     "defaultMessage": "Ticket",
-    "description": "06 § 4.3, § 6.1 — placeholder du prix désactivé d'un plat au ticket restaurant"
+    "description": "06 § 4.3 — exemple du prix désactivé d'un plat au ticket restaurant"
   },
   "staff.dishForm.stock.label": {
     "defaultMessage": "Stock",
-    "description": "06 § 6.1 — libellé du stock du plat"
+    "description": "06 § 4.2, § 6.1 — stock d'un plat (en-tête des lignes de « Ouvrir un jour » R2, formulaire de plat)"
   },
   "staff.dishForm.stock.placeholder": {
     "defaultMessage": "Ex. 10",
@@ -821,7 +833,7 @@
   },
   "staff.dishForm.voucher.label": {
     "defaultMessage": "Ticket restaurant",
-    "description": "06 § 4.3, § 6.1 — case du plat payé par un ticket restaurant"
+    "description": "06 § 4.2-4.3, § 6.1 — case du plat payé par un ticket restaurant"
   },
   "staff.editBooking.contact.label": {
     "defaultMessage": "Téléphone ou email",
@@ -846,6 +858,18 @@
   "staff.editBooking.r2.portions.label": {
     "defaultMessage": "Portions",
     "description": "06 § 7.4 — libellé des portions d'une réservation R2 modifiée"
+  },
+  "staff.editDay.capacity.belowBooked": {
+    "defaultMessage": "Impossible : {used} couvert(s) déjà réservé(s) pour ce jour, la capacité ne peut pas être inférieure.",
+    "description": "02 § 4.7, 06 § 5.1, D-19 — message du script repris avant l'envoi : capacité sous les couverts réservés"
+  },
+  "staff.editDay.open": {
+    "defaultMessage": "Modifier ce jour",
+    "description": "05 § 5.3, 06 § 5.1 — bouton de la fiche R1 collègue qui ouvre « Modifier ce jour »"
+  },
+  "staff.editDay.success": {
+    "defaultMessage": "Jour modifié.",
+    "description": "06 § 5.1, 02 § 4.7 — toast de succès de « Modifier ce jour »"
   },
   "staff.error.serviceUnavailable": {
     "defaultMessage": "Le service ne répond pas. Réessayez dans un instant.",
@@ -919,6 +943,94 @@
     "defaultMessage": "Ouverture en cours…",
     "description": "08 § 4.2, 06 § 4.1, § 4.2 — libellé du bouton occupé de « Ouvrir un jour »"
   },
+  "staff.openDay.r1.alreadyOpen": {
+    "defaultMessage": "Ce jour est déjà ouvert : utilisez « Modifier ce jour ».",
+    "description": "PLAN annexe F, D-19 — « Ouvrir un jour » R1 sur un jour déjà ouvert (envoi bloqué)"
+  },
+  "staff.openDay.r1.capacity.placeholder": {
+    "defaultMessage": "Ex. 20",
+    "description": "06 § 4.1 — exemple de capacité d'un jour R1"
+  },
+  "staff.openDay.r1.menu.placeholder": {
+    "defaultMessage": "Ex. menu gastronomique, classe TS2",
+    "description": "06 § 4.1 — exemple de menu d'un jour R1"
+  },
+  "staff.openDay.r1.openedBy.placeholder": {
+    "defaultMessage": "Ex. M. Dupont",
+    "description": "06 § 4.1 — exemple du collègue qui ouvre un jour R1"
+  },
+  "staff.openDay.r1.theme.placeholder": {
+    "defaultMessage": "Ex. cuisine italienne",
+    "description": "06 § 4.1 — exemple de thème d'un jour R1"
+  },
+  "staff.openDay.r2.alreadyOpen": {
+    "defaultMessage": "Ce jour est déjà ouvert : seuls les plats de nom nouveau seront ajoutés.",
+    "description": "PLAN annexe F, D-19 — « Ouvrir un jour » R2 sur un jour déjà ouvert (avertissement)"
+  },
+  "staff.openDay.r2.dish.name": {
+    "defaultMessage": "Plat {n} : nom",
+    "description": "06 § 4.2 — aria-label du nom de la ligne de plat n (numérotée à partir de 1)"
+  },
+  "staff.openDay.r2.dish.price": {
+    "defaultMessage": "Plat {n} : prix en euros (optionnel)",
+    "description": "06 § 4.2 — aria-label du prix de la ligne de plat n"
+  },
+  "staff.openDay.r2.dish.price.placeholder": {
+    "defaultMessage": "3,50",
+    "description": "06 § 4.2 — exemple de prix d'une ligne de plat"
+  },
+  "staff.openDay.r2.dish.remove": {
+    "defaultMessage": "Retirer le plat {n}",
+    "description": "06 § 4.2 — aria-label du bouton croix de la ligne de plat n"
+  },
+  "staff.openDay.r2.dish.stock": {
+    "defaultMessage": "Plat {n} : stock",
+    "description": "06 § 4.2 — aria-label du stock de la ligne de plat n"
+  },
+  "staff.openDay.r2.dish.stock.placeholder": {
+    "defaultMessage": "10",
+    "description": "06 § 4.2 — exemple de stock d'une ligne de plat"
+  },
+  "staff.openDay.r2.dish.voucher.name": {
+    "defaultMessage": "Plat {n} : au prix d'un ticket restaurant",
+    "description": "06 § 4.2 — aria-label de la case ticket de la ligne de plat n"
+  },
+  "staff.openDay.r2.dishes.add": {
+    "defaultMessage": "+ Ajouter un plat",
+    "description": "06 § 4.2 — bouton qui ajoute une ligne de plat vide"
+  },
+  "staff.openDay.r2.dishes.dishHead": {
+    "defaultMessage": "Plat",
+    "description": "06 § 4.2 — en-tête visuel (aria-hidden) de la colonne des noms"
+  },
+  "staff.openDay.r2.dishes.legend": {
+    "defaultMessage": "Plats disponibles ce jour-là",
+    "description": "06 § 4.2 — légende du groupe des lignes de plats de « Ouvrir un jour » R2"
+  },
+  "staff.openDay.r2.incompleteLine": {
+    "defaultMessage": "Indiquez le nom et le stock de ce plat, ou retirez la ligne.",
+    "description": "PLAN annexe F, D-19 — ligne de plat incomplète de « Ouvrir un jour » R2"
+  },
+  "staff.openDay.r2.noDish": {
+    "defaultMessage": "Ajoutez au moins un plat avec un nom et un stock.",
+    "description": "06 § 4.2 — aucune ligne de plat complète, message après la dernière ligne"
+  },
+  "staff.openDay.r2.note.label": {
+    "defaultMessage": "Note (optionnel)",
+    "description": "06 § 4.2 — libellé de la note d'un jour R2"
+  },
+  "staff.openDay.r2.note.placeholder": {
+    "defaultMessage": "Ex. semaine du menu bistrot",
+    "description": "06 § 4.2 — exemple de note d'un jour R2"
+  },
+  "staff.openDay.r2.openedBy.placeholder": {
+    "defaultMessage": "Ex. Cyrille Ungerer",
+    "description": "06 § 4.2 — exemple du collègue qui ouvre un jour R2"
+  },
+  "staff.openDay.r2.theme.placeholder": {
+    "defaultMessage": "Ex. semaine italienne",
+    "description": "06 § 4.2 — exemple de thème d'un jour R2"
+  },
   "staff.openDay.submit": {
     "defaultMessage": "Ouvrir ce jour",
     "description": "06 § 4.1, § 4.2 — bouton d'envoi de « Ouvrir un jour »"
@@ -926,6 +1038,10 @@
   "staff.openDay.success": {
     "defaultMessage": "Jour ajouté.",
     "description": "06 § 4.1, § 4.2 — toast de succès de « Ouvrir un jour »"
+  },
+  "staff.openDay.title": {
+    "defaultMessage": "Ouvrir un jour",
+    "description": "06 § 4 — titre du panneau dépliant « + Ouvrir un jour » (R1 et R2)"
   },
   "staff.print.list": {
     "defaultMessage": "Imprimer la liste",

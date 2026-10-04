@@ -3,18 +3,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { defineMessages, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
-import {
-  dishDraftStatus,
-  isR2DayOpen,
-  openDateProblem,
-  openDayDishes,
-  priceSuggestions,
-} from "@/domain/days";
-import type { DishDraft, OpenDateProblem } from "@/domain/days";
+import { dishDraftStatus, isR2DayOpen, openDateProblem, openDayDishes } from "@/domain/days";
+import type { OpenDateProblem } from "@/domain/days";
+import { isDishPriceRefused } from "@/domain/dishes";
+import type { DishDraft } from "@/domain/dishes";
 import { selectDay } from "@/domain/navigation";
 import type { PageSearchParams } from "@/domain/navigation";
 import type { FullState, IsoDate, OpenDayR2Input } from "@/domain/types";
-import { positiveAmount } from "@/domain/validation";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { newDishLine } from "@/features/staff/dish-lines";
@@ -23,6 +18,7 @@ import { DishDraftsR2 } from "@/features/staff/DishDraftsR2";
 import { useOpenDate } from "@/features/staff/open-date";
 import { OpenDatePicker } from "@/features/staff/OpenDatePicker";
 import { OpenDayPanel } from "@/features/staff/OpenDayPanel";
+import { usePriceSuggestions } from "@/features/staff/price-suggestions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
 import { staffCommonMessages } from "@/intl/staff-messages";
@@ -71,11 +67,6 @@ const messages = defineMessages({
     defaultMessage: "Ajoutez au moins un plat avec un nom et un stock.",
     description: "06 § 4.2 — aucune ligne de plat complète, message après la dernière ligne",
   },
-  zeroPrice: {
-    id: "staff.dish.error.zeroPrice",
-    defaultMessage: "Indiquez un prix supérieur à 0, ou laissez le champ vide.",
-    description: "PLAN annexe F, D-22 — champ Prix d'un plat",
-  },
 });
 
 interface OpenDayR2Values {
@@ -92,28 +83,23 @@ const DISHES = { dishes: "dishes" } as const;
 
 const whole = (state: FullState): FullState => state;
 
-/** `price-suggestions` of 06 § 6.1, written as a colleague types them (« 4,50 »), read back by `parseAmount`. */
-function priceTexts(state: FullState): string[] {
-  return priceSuggestions(state).map((price) =>
-    intl.formatNumber(price, { minimumFractionDigits: 2, useGrouping: false }),
-  );
-}
-
 /**
  * Rules of the dish lines (06 § 4.2, D-19, D-22): an incomplete line is refused under its missing name or stock, a
  * price in euros must be above 0, and without any complete line the message goes after the last one.
  */
 function dishRules(dishes: readonly DishDraft[]): Record<string, string> {
   const fields: Record<string, string> = {};
-  const zeroPrice = positiveAmount(intl.formatMessage(messages.zeroPrice));
   const statuses = dishes.map((dish) => dishDraftStatus(dish));
   for (const [index, dish] of dishes.entries()) {
     if (statuses[index] === "incomplete") {
       const missing = dish.name.trim() === "" ? "name" : "stock";
       fields[`dishes[${String(index)}].${missing}`] = intl.formatMessage(messages.incompleteLine);
     }
-    const price = dish.voucher ? undefined : zeroPrice({ value: dish.price });
-    if (price !== undefined) fields[`dishes[${String(index)}].price`] = price;
+    if (isDishPriceRefused(dish)) {
+      fields[`dishes[${String(index)}].price`] = intl.formatMessage(
+        staffCommonMessages.dishZeroPrice,
+      );
+    }
   }
   if (statuses.every((status) => status === "blank")) {
     fields[`dishes[${String(dishes.length - 1)}].name`] = intl.formatMessage(messages.noDish);
@@ -212,7 +198,7 @@ function OpenDayBodyR2() {
           />
         )}
       </form.AppField>
-      <DishDraftsR2 form={form} fields={DISHES} suggestions={priceTexts(state)} />
+      <DishDraftsR2 form={form} fields={DISHES} suggestions={usePriceSuggestions()} />
       <div className={styles["submit"]}>
         <form.SubmitButton pendingLabel={formatMessage(staffCommonMessages.opening)}>
           {formatMessage(staffCommonMessages.openDaySubmit)}

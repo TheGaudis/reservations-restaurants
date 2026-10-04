@@ -1,9 +1,10 @@
 import { defineMessages } from "react-intl";
 
-import type { DishDraft } from "@/domain/days";
+import type { DishDraft } from "@/domain/dishes";
 import { newDishLine } from "@/features/staff/dish-lines";
 import type { DishLine } from "@/features/staff/dish-lines";
 import { intl } from "@/intl/intl";
+import { staffCommonMessages } from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
 import { IconButton } from "@/ui/button/IconButton";
 import { withFieldGroup } from "@/ui/form/app-form";
@@ -14,17 +15,12 @@ import styles from "@/features/staff/OpenDayForm.module.css";
 const messages = defineMessages<{
   legend: Record<string, never>;
   dishHead: Record<string, never>;
-  stockHead: Record<string, never>;
-  priceHead: Record<string, never>;
   name: { n: number };
-  namePlaceholder: Record<string, never>;
   stock: { n: number };
   stockPlaceholder: Record<string, never>;
   price: { n: number };
   pricePlaceholder: Record<string, never>;
-  voucherPlaceholder: Record<string, never>;
   remove: { n: number };
-  voucher: Record<string, never>;
   voucherName: { n: number };
   add: Record<string, never>;
 }>({
@@ -38,25 +34,10 @@ const messages = defineMessages<{
     defaultMessage: "Plat",
     description: "06 § 4.2 — en-tête visuel (aria-hidden) de la colonne des noms",
   },
-  stockHead: {
-    id: "staff.openDay.r2.dishes.stockHead",
-    defaultMessage: "Stock",
-    description: "06 § 4.2 — en-tête visuel (aria-hidden) de la colonne des stocks",
-  },
-  priceHead: {
-    id: "staff.openDay.r2.dishes.priceHead",
-    defaultMessage: "Prix (optionnel)",
-    description: "06 § 4.2 — en-tête visuel (aria-hidden) de la colonne des prix",
-  },
   name: {
     id: "staff.openDay.r2.dish.name",
     defaultMessage: "Plat {n} : nom",
     description: "06 § 4.2 — aria-label du nom de la ligne de plat n (numérotée à partir de 1)",
-  },
-  namePlaceholder: {
-    id: "staff.openDay.r2.dish.name.placeholder",
-    defaultMessage: "Ex. salade César",
-    description: "06 § 4.2 — exemple de nom d'une ligne de plat",
   },
   stock: {
     id: "staff.openDay.r2.dish.stock",
@@ -78,20 +59,10 @@ const messages = defineMessages<{
     defaultMessage: "3,50",
     description: "06 § 4.2 — exemple de prix d'une ligne de plat",
   },
-  voucherPlaceholder: {
-    id: "staff.openDay.r2.dish.price.voucher",
-    defaultMessage: "Ticket",
-    description: "06 § 4.2-4.3 — exemple du prix désactivé d'un plat au ticket restaurant",
-  },
   remove: {
     id: "staff.openDay.r2.dish.remove",
     defaultMessage: "Retirer le plat {n}",
     description: "06 § 4.2 — aria-label du bouton croix de la ligne de plat n",
-  },
-  voucher: {
-    id: "staff.openDay.r2.dish.voucher",
-    defaultMessage: "Ticket restaurant",
-    description: "06 § 4.2-4.3 — case d'une ligne de plat au prix d'un ticket restaurant",
   },
   voucherName: {
     id: "staff.openDay.r2.dish.voucher.name",
@@ -139,7 +110,7 @@ const DishDraftLine = withFieldGroup({
           <field.TextField
             hideLabel
             label={intl.formatMessage(messages.name, { n })}
-            placeholder={intl.formatMessage(messages.namePlaceholder)}
+            placeholder={intl.formatMessage(staffCommonMessages.dishNamePlaceholder)}
           />
         )}
       </group.AppField>
@@ -161,7 +132,7 @@ const DishDraftLine = withFieldGroup({
             hideLabel
             label={intl.formatMessage(messages.price, { n })}
             placeholder={intl.formatMessage(
-              voucher ? messages.voucherPlaceholder : messages.pricePlaceholder,
+              voucher ? staffCommonMessages.dishVoucherPricePlaceholder : messages.pricePlaceholder,
             )}
             suggestions={suggestions}
             disabled={voucher}
@@ -187,7 +158,7 @@ const DishDraftLine = withFieldGroup({
       >
         {(field) => (
           <field.CheckboxField
-            label={intl.formatMessage(messages.voucher)}
+            label={intl.formatMessage(staffCommonMessages.dishVoucherLabel)}
             aria-label={intl.formatMessage(messages.voucherName, { n })}
           />
         )}
@@ -222,8 +193,8 @@ export const DishDraftsR2 = withFieldGroup({
       <legend className={styles["legend"]}>{intl.formatMessage(messages.legend)}</legend>
       <div className={styles["head"]} aria-hidden="true">
         <span>{intl.formatMessage(messages.dishHead)}</span>
-        <span>{intl.formatMessage(messages.stockHead)}</span>
-        <span>{intl.formatMessage(messages.priceHead)}</span>
+        <span>{intl.formatMessage(staffCommonMessages.dishStockLabel)}</span>
+        <span>{intl.formatMessage(staffCommonMessages.dishPriceLabel)}</span>
       </div>
       <group.AppField name="dishes" mode="array">
         {(dishes) => (

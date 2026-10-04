@@ -42,6 +42,12 @@ export const staffCommonMessages = defineMessages<{
   deleteDayWithBookings: { n: number };
   dayDeleted: NoValues;
   serviceUnavailable: NoValues;
+  dishNamePlaceholder: NoValues;
+  dishStockLabel: NoValues;
+  dishPriceLabel: NoValues;
+  dishVoucherLabel: NoValues;
+  dishVoucherPricePlaceholder: NoValues;
+  dishZeroPrice: NoValues;
 }>({
   edit: {
     id: "staff.booking.edit",
@@ -206,5 +212,39 @@ export const staffCommonMessages = defineMessages<{
     defaultMessage: "Le service ne répond pas. Réessayez dans un instant.",
     description:
       "PLAN annexe F, D-14 — écriture collègue (ajout d'une personne compris) sans réponse",
+  },
+  dishNamePlaceholder: {
+    id: "staff.dishForm.name.placeholder",
+    defaultMessage: "Ex. salade César",
+    description:
+      "06 § 4.2, § 6.1 — exemple de nom d'un plat (ligne de « Ouvrir un jour » R2, ajout d'un plat)",
+  },
+  dishStockLabel: {
+    id: "staff.dishForm.stock.label",
+    defaultMessage: "Stock",
+    description:
+      "06 § 4.2, § 6.1 — stock d'un plat (en-tête des lignes de « Ouvrir un jour » R2, formulaire de plat)",
+  },
+  dishPriceLabel: {
+    id: "staff.dishForm.price.label",
+    defaultMessage: "Prix (optionnel)",
+    description:
+      "06 § 4.2, § 6.1 — prix d'un plat (en-tête des lignes de « Ouvrir un jour » R2, formulaire de plat)",
+  },
+  dishVoucherLabel: {
+    id: "staff.dishForm.voucher.label",
+    defaultMessage: "Ticket restaurant",
+    description: "06 § 4.2-4.3, § 6.1 — case du plat payé par un ticket restaurant",
+  },
+  dishVoucherPricePlaceholder: {
+    id: "staff.dishForm.price.voucherPlaceholder",
+    defaultMessage: "Ticket",
+    description: "06 § 4.3 — exemple du prix désactivé d'un plat au ticket restaurant",
+  },
+  dishZeroPrice: {
+    id: "staff.dish.error.zeroPrice",
+    defaultMessage: "Indiquez un prix supérieur à 0, ou laissez le champ vide.",
+    description:
+      "PLAN annexe F, D-22 — prix d'un plat à 0, négatif ou illisible (« Ouvrir un jour » R2, plats)",
   },
 });
