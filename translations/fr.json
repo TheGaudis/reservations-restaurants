@@ -663,6 +663,18 @@
     "defaultMessage": "+ Ajouter une personne",
     "description": "06 § 8 — ouverture de l'ajout d'une personne (fiche R1, plat R2)"
   },
+  "staff.addBooking.r2.noneConfirmed": {
+    "defaultMessage": "Plus assez de portions disponibles pour ce plat.",
+    "description": "06 § 8.3, 02 § 4.5 — erreur quand le script n'accorde aucune portion (confirmed vide)"
+  },
+  "staff.addBooking.r2.partial": {
+    "defaultMessage": "Personne ajoutée avec {count, plural, one {# portion} other {# portions}} seulement (stock restant).",
+    "description": "06 § 8.3, § 8.5 — toast de succès quand le script accorde moins de portions que demandé"
+  },
+  "staff.addBooking.r2.portions.label": {
+    "defaultMessage": "Portions ({max} au maximum)",
+    "description": "06 § 8.3 — libellé des portions de l'ajout d'une personne R2 (stock restant du plat)"
+  },
   "staff.addBooking.submit": {
     "defaultMessage": "Ajouter cette personne",
     "description": "06 § 8.2, § 8.3 — bouton d'envoi de l'ajout d'une personne"
