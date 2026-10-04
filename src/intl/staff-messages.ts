@@ -1,7 +1,7 @@
 import { defineMessages } from "react-intl";
 
-// Texts shared by several files of the staff mode (06, PLAN annexe F), apart from intl/common-messages.ts so that the
-// public chunk does not carry them. Copied from docs/spec/ or PLAN annexe F, spaces and punctuation included.
+// Texts shared by several files of the staff mode (06, PLAN annexe F). Copied from docs/spec/ or PLAN annexe F, spaces
+// and punctuation included.
 
 type NoValues = Record<string, never>;
 
