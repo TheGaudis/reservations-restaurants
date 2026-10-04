@@ -39,6 +39,22 @@
     "defaultMessage": "{label} — {price}",
     "description": "00 § 3 (dash), 04 § 8 — séparateur insécable entre un libellé et son prix (« Lasagnes — 4,50 € »)"
   },
+  "common.calendar.today": {
+    "defaultMessage": "Aujourd'hui",
+    "description": "05 § 2.3 — bouton qui sélectionne et affiche aujourd'hui"
+  },
+  "common.calendar.view.label": {
+    "defaultMessage": "Affichage du calendrier",
+    "description": "05 § 2.2, § 2.3, 08 § 6.3 — nom du groupe « Semaine | Mois »"
+  },
+  "common.calendar.view.month": {
+    "defaultMessage": "Mois",
+    "description": "05 § 2.3 — segment de la vue mois"
+  },
+  "common.calendar.view.week": {
+    "defaultMessage": "Semaine",
+    "description": "05 § 2.3 — segment de la vue semaine"
+  },
   "common.calendar.week.sameMonth": {
     "defaultMessage": "{startDay} – {endDayMonth} {endYear}",
     "description": "05 § 2.3 — libellé d'une semaine dans un seul mois (« 5 – 11 oct. 2026 »)"
@@ -271,6 +287,10 @@
     "defaultMessage": "Complet",
     "description": "D-02 — mot d'état à côté de la jauge, état rouge"
   },
+  "public.dayCard.theme": {
+    "defaultMessage": "Thème du jour",
+    "description": "05 § 4.4, 04 § 4.2-4.3 — surtitre du bloc thème des fiches R1 et R2"
+  },
   "public.dish.soldOut": {
     "defaultMessage": "Épuisé",
     "description": "00 § 2.3, 04 § 5.3, D-02 — plat sans portion restante (formulaire R2 et fiche)"
@@ -287,6 +307,18 @@
     "defaultMessage": "Réservations des restaurants pédagogiques et {name2}",
     "description": "PLAN annexe F, D-24 — titre de la page, dérivé du nom du restaurant 2"
   },
+  "public.r1.dayCard.fullNote": {
+    "defaultMessage": "Complet.",
+    "description": "annexe F, D-02 — phrase sous la fiche R1 complète, à la place de « Réserver »"
+  },
+  "public.r1.dayCard.menu": {
+    "defaultMessage": "Menu du jour",
+    "description": "05 § 4.4, 04 § 4.2 — surtitre du bloc menu de la fiche R1"
+  },
+  "public.r1.dayCard.seats": {
+    "defaultMessage": "{remaining} / {capacity} couverts",
+    "description": "05 § 4.5, 04 § 4.2 — jauge de la fiche R1 (« 12 / 20 couverts », toujours au pluriel ; restant négatif possible)"
+  },
   "public.r1.form.counter.decrement": {
     "defaultMessage": "Diminuer : {label}",
     "description": "PLAN annexe F, D-17 — bouton − d'un compteur R1"
@@ -302,6 +334,18 @@
   "public.r2.cutoff": {
     "defaultMessage": "Commandes en ligne clôturées à 10h. Venez au restaurant {name2} à partir de 12h pour commander sur place.",
     "description": "04 § 5.3, § 9, 01 § 3.7 — clôture des commandes R2 à 10 h (toast neutre, note de la fiche)"
+  },
+  "public.r2.dayCard.allSoldOutNote": {
+    "defaultMessage": "Tous les plats sont épuisés.",
+    "description": "annexe F, D-02 — phrase sous la fiche R2 dont tous les plats sont épuisés, à la place de « Réserver »"
+  },
+  "public.r2.dayCard.note": {
+    "defaultMessage": "Note",
+    "description": "05 § 4.4, 04 § 4.3 — surtitre du bloc note de la fiche R2"
+  },
+  "public.r2.dish.stock": {
+    "defaultMessage": "{remaining} / {stock}",
+    "description": "05 § 4.5, § 6.3 — jauge d'un plat (« 4 / 10 », portions restantes sur le stock, sans unité)"
   },
   "public.r2.form.dineInOnly": {
     "defaultMessage": "Sur place uniquement ce jour-là : repas au prix d'un ticket restaurant.",

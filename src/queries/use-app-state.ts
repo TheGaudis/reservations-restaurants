@@ -52,7 +52,6 @@ export function useAppStateQuery(): AppStateQuery {
  * The state shown, through `select` (PLAN § 3.3.1, step 5). At login the full state is in the cache before the
  * session opens, and at logout the public state is still there (`gcTime: Infinity`): switching suspends nothing.
  * A component that mounts later never reads the script itself: `AutoRefresh` alone schedules the reads.
- * @public read by the calendars and cards from P4 (b)
  */
 export function useAppState<T>(select: (state: AppState) => T): T {
   return useSuspenseQuery({ ...useAppStateQuery(), select, refetchOnMount: false }).data;

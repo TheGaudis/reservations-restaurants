@@ -14,6 +14,10 @@ import { stateKeys } from "@/queries/state";
 
 const MINUTE_MS = 60_000;
 
+/**
+ * Time of the site, in ms. Components read `useToday` or `useIsR2OrderingClosed`, never this store directly.
+ * @internal exported for the tests
+ */
 export const useClock = create<{ now: number }>()(() => ({ now: Date.now() }));
 
 /** Today in Paris (D-12): calendars without `r1` / `r2` in the URL follow it at midnight. */

@@ -42,6 +42,7 @@ function toastOf(reason: SessionEnd): { message: string; type: ToastType } {
   }
 }
 
+/** @internal exported for the tests; `watchLogout` runs it. */
 export function afterLogout(deps: BackgroundDeps, reason: SessionEnd | null): void {
   const { queryClient, router } = deps;
   // 2. Names, contacts and the variables of past writes leave the cache, without waiting for the network.

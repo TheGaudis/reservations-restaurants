@@ -1,0 +1,313 @@
+/* View transitions of the calendars (05 § 3.4, legacy/app.css « Transitions Material 3 du calendrier »). Global
+   rules: the ::view-transition-* pseudo-elements hang from :root, out of reach of a CSS Module. The label, the grid
+   and the day card carry a view-transition-name of their restaurant (r1-calendar-label, r1-calendar-grid,
+   r1-day-card…); the router passes one type, « {restaurant}-{kind} » (features/calendar/page-search.ts). Only the
+   restaurant of the type moves: the other column keeps the default cross-fade of an unchanged picture, which shows
+   nothing. base.css cannot reach these pseudo-elements: every motion stays inside
+   prefers-reduced-motion: no-preference (P3 (c), decision 10). */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The rest of the page goes straight to its new state, without a cross-fade (no text shown twice). */
+  :root:active-view-transition-type(
+      r1-next, r1-prev, r1-zoom-in, r1-zoom-out, r1-day-next, r1-day-prev, r2-next, r2-prev, r2-zoom-in, r2-zoom-out, r2-day-next, r2-day-prev
+    )::view-transition-old(root) {
+    display: none;
+  }
+
+  :root:active-view-transition-type(
+      r1-next, r1-prev, r1-zoom-in, r1-zoom-out, r1-day-next, r1-day-prev, r2-next, r2-prev, r2-zoom-in, r2-zoom-out, r2-day-next, r2-day-prev
+    )::view-transition-new(root) {
+    animation: none;
+  }
+
+  /* Clicks go through a running transition: days can be chosen one after the other. */
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  ::view-transition-group(r1-calendar-label),
+  ::view-transition-group(r1-calendar-grid),
+  ::view-transition-group(r2-calendar-label),
+  ::view-transition-group(r2-calendar-grid) {
+    overflow: clip;
+    animation-duration: var(--dur-slow);
+    animation-timing-function: var(--ease-standard);
+  }
+
+  ::view-transition-old(r1-calendar-label),
+  ::view-transition-new(r1-calendar-label),
+  ::view-transition-old(r1-calendar-grid),
+  ::view-transition-new(r1-calendar-grid),
+  ::view-transition-old(r2-calendar-label),
+  ::view-transition-new(r2-calendar-label),
+  ::view-transition-old(r2-calendar-grid),
+  ::view-transition-new(r2-calendar-grid) {
+    mix-blend-mode: normal;
+    transform-origin: top center;
+    animation-duration: var(--dur-slow);
+    animation-timing-function: var(--ease-standard);
+    animation-fill-mode: both;
+  }
+
+  /* ‹ ›: shared X axis, 32 px. */
+  :root:active-view-transition-type(r1-next)::view-transition-old(r1-calendar-label),
+  :root:active-view-transition-type(r1-next)::view-transition-old(r1-calendar-grid),
+  :root:active-view-transition-type(r2-next)::view-transition-old(r2-calendar-label),
+  :root:active-view-transition-type(r2-next)::view-transition-old(r2-calendar-grid) {
+    animation-name: axis-x-out-next;
+  }
+
+  :root:active-view-transition-type(r1-next)::view-transition-new(r1-calendar-label),
+  :root:active-view-transition-type(r1-next)::view-transition-new(r1-calendar-grid),
+  :root:active-view-transition-type(r2-next)::view-transition-new(r2-calendar-label),
+  :root:active-view-transition-type(r2-next)::view-transition-new(r2-calendar-grid) {
+    animation-name: axis-x-in-next;
+  }
+
+  :root:active-view-transition-type(r1-prev)::view-transition-old(r1-calendar-label),
+  :root:active-view-transition-type(r1-prev)::view-transition-old(r1-calendar-grid),
+  :root:active-view-transition-type(r2-prev)::view-transition-old(r2-calendar-label),
+  :root:active-view-transition-type(r2-prev)::view-transition-old(r2-calendar-grid) {
+    animation-name: axis-x-out-prev;
+  }
+
+  :root:active-view-transition-type(r1-prev)::view-transition-new(r1-calendar-label),
+  :root:active-view-transition-type(r1-prev)::view-transition-new(r1-calendar-grid),
+  :root:active-view-transition-type(r2-prev)::view-transition-new(r2-calendar-label),
+  :root:active-view-transition-type(r2-prev)::view-transition-new(r2-calendar-grid) {
+    animation-name: axis-x-in-prev;
+  }
+
+  /* « Semaine » (zoom in) and « Mois » (zoom out): shared Z axis, 0.8 to 1.1. */
+  :root:active-view-transition-type(r1-zoom-in)::view-transition-old(r1-calendar-label),
+  :root:active-view-transition-type(r1-zoom-in)::view-transition-old(r1-calendar-grid),
+  :root:active-view-transition-type(r2-zoom-in)::view-transition-old(r2-calendar-label),
+  :root:active-view-transition-type(r2-zoom-in)::view-transition-old(r2-calendar-grid) {
+    animation-name: axis-z-out-in;
+  }
+
+  :root:active-view-transition-type(r1-zoom-in)::view-transition-new(r1-calendar-label),
+  :root:active-view-transition-type(r1-zoom-in)::view-transition-new(r1-calendar-grid),
+  :root:active-view-transition-type(r2-zoom-in)::view-transition-new(r2-calendar-label),
+  :root:active-view-transition-type(r2-zoom-in)::view-transition-new(r2-calendar-grid) {
+    animation-name: axis-z-in-in;
+  }
+
+  :root:active-view-transition-type(r1-zoom-out)::view-transition-old(r1-calendar-label),
+  :root:active-view-transition-type(r1-zoom-out)::view-transition-old(r1-calendar-grid),
+  :root:active-view-transition-type(r2-zoom-out)::view-transition-old(r2-calendar-label),
+  :root:active-view-transition-type(r2-zoom-out)::view-transition-old(r2-calendar-grid) {
+    animation-name: axis-z-out-out;
+  }
+
+  :root:active-view-transition-type(r1-zoom-out)::view-transition-new(r1-calendar-label),
+  :root:active-view-transition-type(r1-zoom-out)::view-transition-new(r1-calendar-grid),
+  :root:active-view-transition-type(r2-zoom-out)::view-transition-new(r2-calendar-label),
+  :root:active-view-transition-type(r2-zoom-out)::view-transition-new(r2-calendar-grid) {
+    animation-name: axis-z-in-out;
+  }
+
+  /* A day chosen with the mouse: only the card slides, 16 px, briefly; label and grid change at once. */
+  :root:active-view-transition-type(
+      r1-day-next, r1-day-prev
+    )::view-transition-old(r1-calendar-label),
+  :root:active-view-transition-type(
+      r1-day-next, r1-day-prev
+    )::view-transition-old(r1-calendar-grid),
+  :root:active-view-transition-type(
+      r2-day-next, r2-day-prev
+    )::view-transition-old(r2-calendar-label),
+  :root:active-view-transition-type(
+      r2-day-next, r2-day-prev
+    )::view-transition-old(r2-calendar-grid) {
+    display: none;
+  }
+
+  :root:active-view-transition-type(
+      r1-day-next, r1-day-prev
+    )::view-transition-new(r1-calendar-label),
+  :root:active-view-transition-type(
+      r1-day-next, r1-day-prev
+    )::view-transition-new(r1-calendar-grid),
+  :root:active-view-transition-type(
+      r2-day-next, r2-day-prev
+    )::view-transition-new(r2-calendar-label),
+  :root:active-view-transition-type(
+      r2-day-next, r2-day-prev
+    )::view-transition-new(r2-calendar-grid) {
+    animation: none;
+  }
+
+  ::view-transition-group(r1-day-card),
+  ::view-transition-group(r2-day-card) {
+    animation-duration: var(--dur);
+    animation-timing-function: var(--ease-standard);
+  }
+
+  /* Outside a day change, the card follows the height of the calendar without a cross-fade. */
+  ::view-transition-old(r1-day-card),
+  ::view-transition-old(r2-day-card) {
+    display: none;
+  }
+
+  ::view-transition-new(r1-day-card),
+  ::view-transition-new(r2-day-card) {
+    animation: none;
+  }
+
+  :root:active-view-transition-type(r1-day-next, r1-day-prev)::view-transition-old(r1-day-card),
+  :root:active-view-transition-type(r2-day-next, r2-day-prev)::view-transition-old(r2-day-card) {
+    display: block;
+    mix-blend-mode: normal;
+    animation: var(--dur) var(--ease-standard) both;
+  }
+
+  :root:active-view-transition-type(r1-day-next, r1-day-prev)::view-transition-new(r1-day-card),
+  :root:active-view-transition-type(r2-day-next, r2-day-prev)::view-transition-new(r2-day-card) {
+    mix-blend-mode: normal;
+    animation: var(--dur) var(--ease-standard) both;
+  }
+
+  :root:active-view-transition-type(r1-day-next)::view-transition-old(r1-day-card),
+  :root:active-view-transition-type(r2-day-next)::view-transition-old(r2-day-card) {
+    animation-name: day-out-next;
+  }
+
+  :root:active-view-transition-type(r1-day-next)::view-transition-new(r1-day-card),
+  :root:active-view-transition-type(r2-day-next)::view-transition-new(r2-day-card) {
+    animation-name: day-in-next;
+  }
+
+  :root:active-view-transition-type(r1-day-prev)::view-transition-old(r1-day-card),
+  :root:active-view-transition-type(r2-day-prev)::view-transition-old(r2-day-card) {
+    animation-name: day-out-prev;
+  }
+
+  :root:active-view-transition-type(r1-day-prev)::view-transition-new(r1-day-card),
+  :root:active-view-transition-type(r2-day-prev)::view-transition-new(r2-day-card) {
+    animation-name: day-in-prev;
+  }
+}
+
+/* The old content fades out within the first 35 % of the animation (05 § 3.4). */
+@keyframes axis-x-out-next {
+  35% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--space-8)));
+  }
+}
+
+@keyframes axis-x-in-next {
+  from {
+    opacity: 0;
+    transform: translateX(var(--space-8));
+  }
+  35% {
+    opacity: 0;
+  }
+}
+
+@keyframes axis-x-out-prev {
+  35% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(var(--space-8));
+  }
+}
+
+@keyframes axis-x-in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--space-8)));
+  }
+  35% {
+    opacity: 0;
+  }
+}
+
+/* Zoom in (month to week): the old picture grows, the new one comes from a little smaller. */
+@keyframes axis-z-out-in {
+  35% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes axis-z-in-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  35% {
+    opacity: 0;
+  }
+}
+
+/* Zoom out (week to month): the old picture shrinks, the new one comes from a little bigger. */
+@keyframes axis-z-out-out {
+  35% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes axis-z-in-out {
+  from {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  35% {
+    opacity: 0;
+  }
+}
+
+@keyframes day-out-next {
+  35% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--space-4)));
+  }
+}
+
+@keyframes day-in-next {
+  from {
+    opacity: 0;
+    transform: translateX(var(--space-4));
+  }
+  35% {
+    opacity: 0;
+  }
+}
+
+@keyframes day-out-prev {
+  35% {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(var(--space-4));
+  }
+}
+
+@keyframes day-in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--space-4)));
+  }
+  35% {
+    opacity: 0;
+  }
+}

@@ -16,6 +16,7 @@ interface ReloadDeps {
 /**
  * Reloads the page unless it already did so less than a minute ago. Returns true when it reloads: the caller then
  * stops the error (`preventDefault`), the new page loads the chunk.
+ * @internal exported for the tests
  */
 export function reloadOnce({ storage, reload, now }: ReloadDeps): boolean {
   try {

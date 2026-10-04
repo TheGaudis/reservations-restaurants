@@ -58,6 +58,7 @@ export function formatLongDate(iso: IsoDate): string {
 /**
  * Label of the week of `anchor`, Monday to Sunday (05 § 2.3): « 5 – 11 oct. 2026 » ; the Monday's month when it
  * differs, and its year when that differs too (a-23, E-06).
+ * @internal exported for the tests; pages use `formatPeriodLabel`
  */
 export function formatWeekLabel(anchor: IsoDate): string {
   const monday = mondayOf(anchor);
@@ -81,7 +82,10 @@ export function formatWeekLabel(anchor: IsoDate): string {
   return intl.formatMessage(messages.weekSameMonth, { startDay: dayOfMonth(monday), ...end });
 }
 
-/** « Octobre 2026 »: month of `anchor`, capitalised here as in the legacy code (05 § 2.3, 06 § 3.2). */
+/**
+ * « Octobre 2026 »: month of `anchor`, capitalised here as in the legacy code (05 § 2.3, 06 § 3.2).
+ * @public read by ui/calendar/DatePickerPopover, outside the production mode of knip until P7 (a)
+ */
 export function formatMonthLabel(anchor: IsoDate): string {
   const label = intl.formatDate(utcTime(anchor), { format: "monthYear" });
   return label.charAt(0).toLocaleUpperCase("fr-FR") + label.slice(1);
