@@ -1,4 +1,4 @@
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { MutationCache, notifyManager, QueryCache, QueryClient } from "@tanstack/react-query";
 
 import { PasswordRejectedError } from "@/api/errors";
 import { retryRead } from "@/api/state";
@@ -15,6 +15,11 @@ interface QueryClientOptions {
 
 /** Query defaults of PLAN § 3.3. */
 export function createQueryClient({ onPasswordRejected }: QueryClientOptions = {}): QueryClient {
+  // Components hear of new data in a microtask, not in a setTimeout(0): a tab in the background slows timers down,
+  // and the E2E scenarios on a paused page clock (REG-03) would never see a read that answers between two `runFor`.
+  notifyManager.setScheduler((callback) => {
+    queueMicrotask(callback);
+  });
   const onError = (error: unknown) => {
     if (error instanceof PasswordRejectedError) onPasswordRejected?.();
   };
