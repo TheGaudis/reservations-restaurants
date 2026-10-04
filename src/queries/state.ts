@@ -67,6 +67,7 @@ export const publicStateOptions = queryOptions({
 /**
  * Full state of staff session `id` (02 § 4.3). The session opens with a new `id` and a new password together
  * (PLAN § 3.4): a key never serves two passwords.
+ * @public used by the login from P5 (a)
  */
 export function staffStateOptions(id: number, password: string) {
   return queryOptions({

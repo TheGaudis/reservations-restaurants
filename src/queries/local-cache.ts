@@ -190,7 +190,6 @@ export function persistLocalCache(queryClient: QueryClient, now: () => number = 
 
 /**
  * `reservations-textes` (03 § 1.2): titles of the last visit, read when there is no valid copy, never written.
- * @public read by the skeleton from P4 (a)
  */
 export type FallbackTexts = Partial<Pick<Settings, "name1" | "name2" | "desc1" | "desc2">>;
 
@@ -203,7 +202,6 @@ const FallbackTextsSchema = v.object({
 
 /**
  * The stored titles, or null when there are none or they cannot be read (03 § 1.2, E-18).
- * @public read by the skeleton from P4 (a)
  */
 export function readFallbackTexts(): FallbackTexts | null {
   const parsed = v.safeParse(FallbackTextsSchema, readStorage(FALLBACK_TEXTS_KEY));

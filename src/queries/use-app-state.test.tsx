@@ -6,9 +6,16 @@ import { renderHook } from "vitest-browser-react";
 
 import { createQueryClient } from "@/queries/client";
 import { publicStateOptions, stateKeys } from "@/queries/state";
-import { APP_START, useAppState, useIsFromCache } from "@/queries/use-app-state";
+import {
+  APP_START,
+  useAppState,
+  useIsFromCache,
+  useLoadedAppState,
+  usePublicReadStatus,
+} from "@/queries/use-app-state";
 import type { AppState } from "@/queries/use-app-state";
 import { useSessionStore } from "@/session/session";
+import { fakeScript } from "@/test/browser-fake-script";
 import { bookingR1, fullState, publicState, SETTINGS } from "@/test/domain-states";
 import { TestProviders } from "@/test/providers";
 
@@ -29,6 +36,24 @@ function wrapperOf(queryClient: QueryClient) {
 }
 
 const shownName = (state: AppState) => state.settings.name1;
+
+/** A read of the script outside any observer (as AutoRefresh does); a failure stays in the query. */
+async function read(queryClient: QueryClient): Promise<void> {
+  await queryClient.query({ ...publicStateOptions, staleTime: 0 }).catch(() => null);
+}
+
+/** The local copy as restoreLocalCache leaves it: dated before the page load, stale. */
+function restoredCopy(): QueryClient {
+  const queryClient = createQueryClient();
+  queryClient.setQueryData(publicStateOptions.queryKey, publicState({ etag: "ancien" }), {
+    updatedAt: APP_START - 60_000,
+  });
+  void queryClient.invalidateQueries({
+    queryKey: publicStateOptions.queryKey,
+    refetchType: "none",
+  });
+  return queryClient;
+}
 const isFull = (state: AppState) => "r1Bookings" in state;
 
 describe("useAppState (PLAN § 3.3)", () => {
@@ -69,20 +94,95 @@ describe("useAppState (PLAN § 3.3)", () => {
 
 describe("useIsFromCache (G-02)", () => {
   it("is true for a restored copy, false once a read of the script succeeds", async () => {
-    const queryClient = createQueryClient();
-    queryClient.setQueryData(publicStateOptions.queryKey, publicState({ etag: "ancien" }), {
-      updatedAt: APP_START - 60_000,
-    });
-    void queryClient.invalidateQueries({
-      queryKey: publicStateOptions.queryKey,
-      refetchType: "none",
-    });
+    const queryClient = restoredCopy();
     const { result } = await renderHook(() => useIsFromCache(), {
       wrapper: wrapperOf(queryClient),
     });
     expect(result.current).toBe(true);
-    // The stale copy is read again at mount: the fake script answers with the seed.
+    // AutoRefresh reads the script (here, by hand): the fake script answers with the seed.
+    await queryClient.refetchQueries({ queryKey: publicStateOptions.queryKey });
     await expect.poll(() => result.current).toBe(false);
     expect(queryClient.getQueryData(publicStateOptions.queryKey)?.etag).toBe("E1");
+  });
+});
+
+describe("reads (PLAN § 3.3.2)", () => {
+  it("never reads the script when a component mounts: AutoRefresh alone schedules the reads", async () => {
+    const queryClient = restoredCopy();
+    await renderHook(
+      () => [useAppState(shownName), useIsFromCache(), useLoadedAppState(shownName)],
+      {
+        wrapper: wrapperOf(queryClient),
+      },
+    );
+    await new Promise((resolve) => {
+      setTimeout(resolve, 300);
+    });
+    expect(fakeScript().requests).toStrictEqual([]);
+  });
+
+  it("gives nothing before any data, without suspending nor reading", async () => {
+    const queryClient = createQueryClient();
+    const { result } = await renderHook(() => useLoadedAppState(shownName), {
+      wrapper: wrapperOf(queryClient),
+    });
+    expect(result.current).toBeUndefined();
+    expect(fakeScript().requests).toStrictEqual([]);
+  });
+});
+
+describe("usePublicReadStatus (G-03, 03 § 3, § 5.2)", () => {
+  it("reports a failure before any success, over the local copy, and keeps it while reading again", async () => {
+    const queryClient = restoredCopy();
+    queryClient.setQueryDefaults(publicStateOptions.queryKey, { retry: false });
+    const { result } = await renderHook(() => usePublicReadStatus(), {
+      wrapper: wrapperOf(queryClient),
+    });
+    expect(result.current).toMatchObject({ failed: false, fromCache: true });
+    fakeScript().failNext("error");
+    await read(queryClient);
+    await expect.poll(() => result.current.failed).toBe(true);
+    expect(result.current.fromCache).toBe(true);
+    // « Réessayer »: the box stays during the read, then goes with the first success.
+    const release = fakeScript().hold();
+    const retried = result.current.retry();
+    await expect.poll(() => queryClient.isFetching()).toBe(1);
+    expect(result.current.failed).toBe(true);
+    release();
+    await retried;
+    await expect.poll(() => result.current).toMatchObject({ failed: false, fromCache: false });
+  });
+
+  it("keeps the failure while reading again without data (TanStack Query goes back to pending)", async () => {
+    const queryClient = createQueryClient();
+    queryClient.setQueryDefaults(publicStateOptions.queryKey, { retry: false });
+    fakeScript().failNext("error");
+    await read(queryClient);
+    const { result } = await renderHook(() => usePublicReadStatus(), {
+      wrapper: wrapperOf(queryClient),
+    });
+    expect(result.current).toMatchObject({ failed: true, fromCache: false });
+    const release = fakeScript().hold();
+    const retried = result.current.retry();
+    await expect
+      .poll(() => queryClient.getQueryState(publicStateOptions.queryKey)?.status)
+      .toBe("pending");
+    expect(result.current.failed).toBe(true);
+    release();
+    await retried;
+    await expect.poll(() => result.current.failed).toBe(false);
+  });
+
+  it("stays silent after a first success (03 § 5.2)", async () => {
+    const queryClient = createQueryClient();
+    queryClient.setQueryDefaults(publicStateOptions.queryKey, { retry: false });
+    queryClient.setQueryData(publicStateOptions.queryKey, publicState());
+    const { result } = await renderHook(() => usePublicReadStatus(), {
+      wrapper: wrapperOf(queryClient),
+    });
+    fakeScript().failNext("error");
+    await read(queryClient);
+    expect(queryClient.getQueryState(publicStateOptions.queryKey)?.status).toBe("error");
+    expect(result.current).toMatchObject({ failed: false, fromCache: false });
   });
 });
