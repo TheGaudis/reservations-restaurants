@@ -6,6 +6,7 @@ import { Page } from "@/features/page/Page";
 import { BookingFormR1Slot } from "@/features/r1/BookingFormR1Slot";
 import { DayCardR1 } from "@/features/r1/DayCardR1";
 import { DayCardR2 } from "@/features/r2/DayCardR2";
+import { OrderFormR2Slot } from "@/features/r2/OrderFormR2Slot";
 
 /**
  * Public page (G-01 to G-05, P-*): in each column the calendar, then the summary of the column's last booking and
@@ -30,7 +31,7 @@ export function PublicPage() {
           card: (
             <DayDetail restaurant="r2">
               <ColumnSummary restaurant="r2" />
-              <DayCardR2 />
+              <DayCardR2 form={<OrderFormR2Slot />} />
             </DayDetail>
           ),
         }}

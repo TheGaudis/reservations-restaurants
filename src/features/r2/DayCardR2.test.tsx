@@ -112,6 +112,15 @@ describe("« Réserver » (05 § 6.2, PLAN § 3.2)", () => {
     expect(router.history.length).toBe(before + 1);
   });
 
+  it("folds the dish list while the order form is open (05 § 6.4)", async () => {
+    await renderPublicPage("/?reserver=r2");
+    await expect
+      .element(column().getByRole("group", { name: "Choisissez vos plats et quantités" }))
+      .toBeVisible();
+    await expect.element(text("4 / 10")).not.toBeInTheDocument();
+    await expect.element(reserve()).not.toBeInTheDocument();
+  });
+
   it("opens no form on a day whose orders are closed", async () => {
     await renderPublicPage("/?r2=2026-10-01&reserver=r2");
     await expect.element(reserve()).not.toBeInTheDocument();

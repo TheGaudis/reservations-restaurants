@@ -1,3 +1,4 @@
+import { useIsMutating } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
@@ -15,7 +16,9 @@ import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
 import { DishRow } from "@/features/r2/DishRow";
+import { loadOrderFormR2 } from "@/features/r2/load-order-form";
 import { commonMessages } from "@/intl/common-messages";
+import { bookingKeys } from "@/mutations/booking-keys";
 import { Alert } from "@/ui/feedback/Alert";
 
 import styles from "@/features/r2/DayCardR2.module.css";
@@ -35,15 +38,20 @@ const messages = defineMessages({
 });
 
 interface DayCardR2Props {
-  /** Order form of P4 (d), shown in place of « Réserver » while `reserver=r2` and the day can be ordered. */
+  /** Order form (`OrderFormR2Slot`), shown in place of the dishes and « Réserver » while `reserver=r2` and the day can be ordered. */
   form?: ReactNode;
+}
+
+function preloadForm() {
+  void loadOrderFormR2();
 }
 
 /**
  * Public card of the selected R2 day (05 § 6, P-10 to P-12, P-15 to P-17): date, theme, note, dishes with their
  * gauge, then « Réserver » when orders are open (before 10:00 in Paris, 01 § 3.7) and a dish has portions left. From
  * 10:00 on the day itself the closing note replaces it; every dish sold out says so (D-02); a past day pales (E-56) and says
- * nothing. A day open without any dish shows its texts only.
+ * nothing. A day open without any dish shows its texts only. While the order form is open the dish list folds away:
+ * the form shows each dish again (05 § 6.4).
  */
 export function DayCardR2({ form }: DayCardR2Props) {
   const intl = useIntl();
@@ -51,6 +59,8 @@ export function DayCardR2({ form }: DayCardR2Props) {
   const past = isPast(iso, useToday());
   const closed = useIsR2OrderingClosed(iso);
   const formOpen = usePageSearch().reserver === "r2";
+  // An order that takes the last portions keeps its form until its answer has been handled (summary, toast).
+  const sending = useIsMutating({ mutationKey: bookingKeys.r2() }) > 0;
   const state = useShownState();
   const day = findDay(state.r2Days, iso);
   if (day === undefined) return <NoServiceCard iso={iso} past={past} />;
@@ -60,27 +70,32 @@ export function DayCardR2({ form }: DayCardR2Props) {
   }));
   const soldOut = dishes.length > 0 && dishes.every(({ remaining }) => remaining <= 0);
   const orderable = !closed && dishes.length > 0 && !soldOut;
+  const ordering = formOpen && (orderable || sending);
   return (
     <DayCard iso={iso} past={past}>
       <ThemeBlock text={day.theme} />
       <TextBlock label={intl.formatMessage(messages.note)} text={day.note} />
-      {dishes.length > 0 ? (
+      {dishes.length > 0 && !ordering ? (
         <div className={styles["dishes"]}>
           {dishes.map(({ dish, remaining }) => (
             <DishRow key={dish.id} dish={dish} remaining={remaining} past={past} />
           ))}
         </div>
       ) : null}
-      {closed && !past ? (
+      {closed && !past && !ordering ? (
         <div className={styles["closed"]}>
           <Alert variant="note" tone="warning">
             {intl.formatMessage(commonMessages.r2Closed, { name2: state.settings.name2 })}
           </Alert>
         </div>
       ) : null}
-      {orderable && !formOpen ? <ReserveButton restaurant="r2" iso={iso} /> : null}
-      {orderable && formOpen ? form : null}
-      {soldOut && !closed ? <DayNote>{intl.formatMessage(messages.allSoldOut)}</DayNote> : null}
+      {orderable && !formOpen ? (
+        <ReserveButton restaurant="r2" iso={iso} preload={preloadForm} />
+      ) : null}
+      {ordering ? form : null}
+      {soldOut && !closed && !ordering ? (
+        <DayNote>{intl.formatMessage(messages.allSoldOut)}</DayNote>
+      ) : null}
     </DayCard>
   );
 }

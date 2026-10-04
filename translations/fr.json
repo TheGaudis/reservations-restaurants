@@ -371,6 +371,18 @@
     "defaultMessage": "Sur place uniquement ce jour-là : repas au prix d'un ticket restaurant.",
     "description": "04 § 5.3, § 9 — aide sous le mode de service un jour au ticket restaurant"
   },
+  "public.r2.form.dish.available": {
+    "defaultMessage": "{count, plural, one {# disponible} other {# disponibles}}",
+    "description": "04 § 5.3, § 8 — portions restantes d'un plat dans le formulaire R2 (« 3 disponibles »)"
+  },
+  "public.r2.form.dishes.legend": {
+    "defaultMessage": "Choisissez vos plats et quantités",
+    "description": "04 § 5.3 — légende du groupe des plats du formulaire R2"
+  },
+  "public.r2.form.dishes.required": {
+    "defaultMessage": "Choisissez au moins un plat.",
+    "description": "04 § 5.3, § 9 — aucun plat choisi dans le formulaire R2 (message sous les plats)"
+  },
   "public.r2.form.quantity.decrement": {
     "defaultMessage": "Retirer une portion : {name}",
     "description": "PLAN annexe F, D-17 — bouton − d'une quantité R2"
@@ -379,6 +391,10 @@
     "defaultMessage": "Ajouter une portion : {name}",
     "description": "PLAN annexe F, D-17 — bouton + d'une quantité R2"
   },
+  "public.r2.form.quantity.label": {
+    "defaultMessage": "Quantité : {name}",
+    "description": "04 § 5.3, § 10 — nom accessible du champ quantité d'un plat (sans libellé visible)"
+  },
   "public.r2.form.total": {
     "defaultMessage": "Total : {amounts}",
     "description": "04 § 5.3 — total en direct du formulaire R2 (« Total : 9,00 € + 1 ticket restaurant »)"
@@ -386,6 +402,10 @@
   "public.r2.form.totalWithGap": {
     "defaultMessage": "Total (hors plats sans prix indiqué) : {amounts}",
     "description": "04 § 5.3, D-03 — total en direct du formulaire R2 avec un plat sans prix"
+  },
+  "public.r2.toast.nothingConfirmed": {
+    "defaultMessage": "Aucun des plats choisis n'est disponible en quantité suffisante.",
+    "description": "04 § 6.3, § 9 — toast d'erreur : le script n'a accordé aucun plat (confirmed vide)"
   },
   "public.summary.className": {
     "defaultMessage": "Classe / service",

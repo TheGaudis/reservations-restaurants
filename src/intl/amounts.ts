@@ -79,17 +79,26 @@ export function formatEuros(value: number | string): string {
   return intl.formatNumber(Number(value), { format: "euro" });
 }
 
-/** « 0 couvert », « 1 couvert », « 2 couverts » (00 § 3). */
+/**
+ * « 0 couvert », « 1 couvert », « 2 couverts » (00 § 3).
+ * @public read by the staff totals and the print documents from P5 (e) and P6
+ */
 export function seatsText(count: number): string {
   return intl.formatMessage(messages.seats, { count });
 }
 
-/** « 1 ticket restaurant », « 2 tickets restaurant » (`ticketsText`, 04 § 8). */
+/**
+ * « 1 ticket restaurant », « 2 tickets restaurant » (`ticketsText`, 04 § 8).
+ * @public read by the staff totals and the print documents from P5 (e) and P6
+ */
 export function vouchersText(count: number): string {
   return intl.formatMessage(messages.vouchers, { count });
 }
 
-/** `amountsText` (01 § 3.5): « 12,00 € + 1 ticket restaurant », « 1 ticket restaurant », « 7,00 € » or empty. */
+/**
+ * `amountsText` (01 § 3.5): « 12,00 € + 1 ticket restaurant », « 1 ticket restaurant », « 7,00 € » or empty.
+ * @public read by the staff totals and the print documents from P5 (e) and P6
+ */
 export function amountsText(amounts: Amounts): string {
   const euros = amounts.euros > 0 ? formatEuros(amounts.euros) : "";
   const vouchers = amounts.vouchers > 0 ? vouchersText(amounts.vouchers) : "";
@@ -103,7 +112,10 @@ export function dishPriceText(dish: DishLine["dish"]): string {
   return dish.price === null || dish.price === 0 ? "" : formatEuros(dish.price);
 }
 
-/** `itemAmountText` (01 § 3.5): amount of `portions` portions of one dish (« 7,00 € », « 2 tickets restaurant »). */
+/**
+ * `itemAmountText` (01 § 3.5): amount of `portions` portions of one dish (« 7,00 € », « 2 tickets restaurant »).
+ * @public read by the staff booking rows from P5 (d1)
+ */
 export function dishAmountText(dish: DishLine["dish"], portions: number): string {
   return amountsText(r2Amounts([{ dish, portions }]));
 }

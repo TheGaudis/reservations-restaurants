@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { renderHook } from "vitest-browser-react";
 
 import { BusinessError } from "@/api/errors";
-import type { BookingR1Input, PublicState } from "@/domain/types";
+import type { BookingR1Input, OrderR2Input, PublicState } from "@/domain/types";
 import { isSeatsRefusal, useBookR1, useOrderR2 } from "@/mutations/bookings";
 import { createQueryClient } from "@/queries/client";
 import { stateKeys } from "@/queries/state";
@@ -113,24 +113,81 @@ describe("isSeatsRefusal (02 § 4.4)", () => {
   });
 });
 
+const ORDER: OrderR2Input = {
+  date: "2026-10-05",
+  name: "Léa Martin",
+  contact: "lea.martin@exemple.fr",
+  className: "BTS1",
+  serviceMode: "takeaway",
+  items: [{ dishId: "r2i-d0-lasagnes", portions: 1 }],
+  observation: "",
+  requestId: "req-2",
+};
+
+async function renderOrderR2() {
+  const queryClient = createQueryClient();
+  queryClient.setQueryData(stateKeys.public(), publicState({ etag: "avant" }));
+  const { result } = await renderHook(() => useOrderR2(), { wrapper: wrapperOf(queryClient) });
+  return { result, queryClient };
+}
+
+/** Portions booked of a dish in the public state of the cache (01 § 3.2). */
+function bookedOf(queryClient: QueryClient, dishId: string): number {
+  const state = queryClient.getQueryData<PublicState>(stateKeys.public());
+  return state?.r2Booked.find((total) => total.dishId === dishId)?.portions ?? 0;
+}
+
 describe("useOrderR2 (02 § 4.5)", () => {
   it("sends the order and puts the public state of the answer in the cache", async () => {
-    const queryClient = createQueryClient();
-    queryClient.setQueryData(stateKeys.public(), publicState({ etag: "avant" }));
-    const { result } = await renderHook(() => useOrderR2(), { wrapper: wrapperOf(queryClient) });
-    const response = await result.current.mutateAsync({
-      date: "2026-10-05",
-      name: "Léa Martin",
-      contact: "",
-      className: "BTS1",
-      serviceMode: "takeaway",
-      items: [{ dishId: "r2i-d0-lasagnes", portions: 1 }],
-      observation: "",
-      requestId: "req-2",
-    });
+    const { result, queryClient } = await renderOrderR2();
+    const response = await result.current.mutateAsync(ORDER);
     expect(posts()).toStrictEqual([
       expect.objectContaining({ action: "addBookingR2Multi", requestId: "req-2" }),
     ]);
     expect(queryClient.getQueryData<PublicState>(stateKeys.public())).toStrictEqual(response.state);
+    expect(response.bookingResult?.confirmed).toStrictEqual([
+      { dishId: "r2i-d0-lasagnes", name: "Lasagnes", portions: 1, price: 4.5, voucher: false },
+    ]);
+    expect(response.emailStatus).toStrictEqual({ sent: true, reason: null });
+  });
+
+  it("reads the portions granted and the e-mail failure of the answer (a-20)", async () => {
+    fakeScript().db.mailError = "Service invoked too many times for one day: email.";
+    const { result } = await renderOrderR2();
+    // 4 Lasagnes left in the seed.
+    const response = await result.current.mutateAsync({
+      ...ORDER,
+      items: [{ dishId: "r2i-d0-lasagnes", portions: 6 }],
+    });
+    expect(response.bookingResult?.confirmed[0]?.portions).toBe(4);
+    expect(response.bookingResult?.adjusted).toStrictEqual([
+      { name: "Lasagnes", requested: 6, granted: 4 },
+    ]);
+    expect(response.emailStatus).toStrictEqual({
+      sent: false,
+      reason: "Service invoked too many times for one day: email.",
+    });
+  });
+
+  it("resolves when nothing was granted, with the state read again; the requestId stays usable (E-11)", async () => {
+    const { result, queryClient } = await renderOrderR2();
+    const soldOut = await result.current.mutateAsync({
+      ...ORDER,
+      requestId: "req-other",
+      items: [{ dishId: "r2i-d0-wrap", portions: 5 }],
+    });
+    expect(soldOut.bookingResult?.confirmed).toHaveLength(1);
+    const nothing = await result.current.mutateAsync({
+      ...ORDER,
+      items: [{ dishId: "r2i-d0-wrap", portions: 2 }],
+    });
+    expect(nothing.duplicate).toBe(false);
+    expect(nothing.bookingResult?.confirmed).toStrictEqual([]);
+    expect(nothing.bookingResult?.skipped).toStrictEqual([{ name: "Wrap" }]);
+    expect(bookedOf(queryClient, "r2i-d0-wrap")).toBe(5);
+    // The script recorded nothing for this requestId (02 § 4.5): the next attempt is not a duplicate.
+    const retry = await result.current.mutateAsync(ORDER);
+    expect(retry.duplicate).toBe(false);
+    expect(retry.bookingResult?.confirmed).toHaveLength(1);
   });
 });

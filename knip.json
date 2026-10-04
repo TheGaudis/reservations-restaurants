@@ -10,7 +10,6 @@
     "!src/domain/**!", // retirer en P6 (b) : domain/ (P2 (a)) attend ses importeurs de production (api/, features/)
     // retirer en P5 : actions et schémas du mode collègue (P2 (b1), P2 (b2)), sans importeur de production avant P5
     "!src/api/{actions,errors,schemas,staff-schemas,transport}.ts!",
-    "!src/intl/amounts.ts!", // retirer en P4 (d) : totaux et récapitulatifs des formulaires (P4 (c), P4 (d))
     "e2e/**/*.ts",
     "scripts/*.ts",
     ".storybook/*.{ts,tsx}"

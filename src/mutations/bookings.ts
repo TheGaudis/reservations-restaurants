@@ -54,9 +54,11 @@ export function useBookR1() {
 }
 
 /**
- * `addBookingR2Multi` (02 § 4.5), public order and person added by a colleague: same cache update as R1. The form
- * reads the outcome (`orderOutcome`: duplicate, nothing confirmed, confirmed) from the answer.
- * @public used by the R2 order form from P4 (d)
+ * `addBookingR2Multi` (02 § 4.5), public order and person added by a colleague: same cache update as R1. The answer
+ * resolves with `bookingResult` (portions granted, adjusted, skipped) and `emailStatus`, which the summary reads
+ * (`summaryR2`, a-20). Nothing granted (`confirmed` empty) is not an error for the script: the mutation resolves, the
+ * state of the answer already shows the dishes sold out (E-11), and the form decides (`orderOutcome`). The script
+ * records the `requestId` only when it granted something, so the same form can send again.
  */
 export function useOrderR2() {
   const queryClient = useQueryClient();
