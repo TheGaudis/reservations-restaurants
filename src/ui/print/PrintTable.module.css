@@ -1,0 +1,84 @@
+/* Tables of the printed documents (07 § 2.4): `printTable` and the `.pb-grid` variant of legacy PRINT_CSS. */
+.table {
+  width: 100%;
+  font-size: var(--print-fs-table);
+  border-collapse: collapse;
+}
+
+/* Header repeated on each page; a row never split across two pages. */
+.table thead {
+  display: table-header-group;
+}
+
+.table tr {
+  break-inside: avoid;
+}
+
+.table th {
+  padding: var(--print-space-3) var(--print-space-4);
+  font-size: var(--print-fs-caps);
+  font-weight: var(--fw-semibold);
+  text-align: left;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--print-ink);
+  border-bottom: var(--print-rule-strong) solid var(--print-accent);
+}
+
+.table td {
+  padding: var(--print-space-3) var(--print-space-4);
+  vertical-align: top;
+  border-bottom: var(--print-rule) solid var(--border);
+}
+
+.table [data-align="end"] {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table [data-align="center"] {
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.empty {
+  font-style: italic;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Grid: every cell framed, cells centred vertically, header on a tinted background. */
+.table[data-variant="grid"] {
+  font-size: var(--print-fs-grid);
+  border: var(--print-rule) solid var(--border-strong);
+}
+
+.table[data-variant="grid"] th,
+.table[data-variant="grid"] td {
+  padding: var(--print-space-3);
+  vertical-align: middle;
+  border: var(--print-rule) solid var(--border-strong);
+}
+
+.table[data-variant="grid"] thead th {
+  background: var(--surface-alt);
+  border-bottom: var(--print-rule-strong) solid var(--print-accent);
+}
+
+.table thead .groups th {
+  font-size: var(--print-fs-groups);
+  color: var(--text-muted);
+  border-bottom: var(--print-rule) solid var(--border-strong);
+}
+
+/* Cell tones, after the grid rules so that the rule on the left of a marked cell wins (07 § 3). */
+.table td[data-tone="muted"] {
+  color: var(--text-muted);
+}
+
+.table td[data-tone="marked"] {
+  font-weight: var(--fw-medium);
+  background: var(--surface-alt);
+  border-left: var(--print-bar) solid var(--print-accent);
+}

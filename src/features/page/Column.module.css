@@ -1,0 +1,63 @@
+/* .col, .col-head, .desc of legacy/app.css and .slash-mark of legacy/design-system.css (08 § 4.18, § 7.3). */
+.column {
+  position: relative;
+  min-width: 0;
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  overflow: hidden;
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+/* Top edge: green then blue for R1 (72 %), blue then magenta for R2 (28 %). */
+.column::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--stripe-height);
+}
+
+.column[data-accent="r1"]::before {
+  background: linear-gradient(100deg, var(--ab-green) 0 72%, var(--ab-blue) 72%);
+}
+
+.column[data-accent="r2"]::before {
+  background: linear-gradient(100deg, var(--ab-blue) 0 28%, var(--ab-magenta) 28%);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-ink);
+}
+
+/* Oblique mark, only before the name of a restaurant (08 § 4.18). */
+.title::before {
+  content: "";
+  flex: 0 0 auto;
+  width: var(--slash-width);
+  height: var(--slash-height);
+  border-radius: var(--mark-radius);
+  background: var(--accent-mark, var(--accent));
+  transform: skewX(var(--slash-skew));
+}
+
+.description {
+  max-width: var(--measure-desc);
+  margin: 0 0 var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .column {
+    padding: var(--space-6) var(--space-4) var(--space-4);
+  }
+}

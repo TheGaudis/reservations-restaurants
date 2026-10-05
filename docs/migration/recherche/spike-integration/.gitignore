@@ -1,0 +1,12 @@
+node_modules
+dist
+.output
+coverage
+*.local
+.tanstack
+playwright-report
+test-results
+storybook-static
+dist-router*
+router-only/routeTree.gen.ts
+out

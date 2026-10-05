@@ -1,0 +1,122 @@
+/* .panel.card-top-accent.confirm-card and .confirm-* of legacy/app.css and design-system.css (04 § 7, 08 § 6.1). */
+.card {
+  display: block;
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-top: var(--space-1) solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  animation: rise var(--dur-slow) var(--ease-enter) both;
+}
+
+/* A warning turns the top rule orange (08 § 6.1). */
+.card[data-warning] {
+  border-top-color: var(--warning);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+/* Round green check, 36 px, shown after the card (08 § 6.1). */
+.check {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--space-8) + var(--space-1));
+  height: calc(var(--space-8) + var(--space-1));
+  border-radius: var(--radius-full);
+  background: var(--success);
+  color: var(--text-on-accent);
+  animation: check-pop var(--dur-slow) var(--ease-enter) var(--dur-fast) both;
+}
+
+.check svg {
+  width: var(--space-5);
+  height: var(--space-5);
+  stroke-width: 2.6;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+}
+
+.date {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.date::first-letter {
+  text-transform: uppercase;
+}
+
+.warning {
+  margin: 0 0 var(--space-2);
+}
+
+.lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-width) dashed var(--border);
+  font-size: var(--fs-md);
+}
+
+.lines span {
+  color: var(--text-muted);
+}
+
+.lines b {
+  font-weight: var(--fw-semibold);
+  text-align: right;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) 0 var(--space-1);
+  font-size: var(--fs-lg);
+  font-variant-numeric: tabular-nums;
+}
+
+.total b {
+  color: var(--accent-ink);
+}
+
+.note {
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
+  }
+}
+
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}

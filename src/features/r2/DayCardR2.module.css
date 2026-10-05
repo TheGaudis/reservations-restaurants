@@ -1,0 +1,9 @@
+/* .menu-list and .closed-note of legacy/app.css (05 § 6.2). */
+
+.dishes {
+  min-width: 0;
+}
+
+.closed {
+  margin-top: var(--space-3);
+}

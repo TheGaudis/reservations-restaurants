@@ -1,0 +1,138 @@
+/* .btn and its variants of legacy/design-system.css (08 § 4.2, § 7.6, § 8): data-variant, data-size, Base UI's
+   data-disabled; data-armed for the second click of a deletion (ConfirmButton). */
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  margin: 0;
+  padding: 0 var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-title);
+  color: var(--text);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+/* Icons next to the label (« Imprimer la liste »): the svg keeps its own size. */
+.button svg {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.button[data-variant="primary"] {
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  /* 0, 6, 14 and -8 px in legacy/design-system.css */
+  box-shadow: 0 calc(var(--space-2) - var(--space-1) / 2) calc(var(--space-3) + var(--space-1) / 2)
+    calc(-1 * var(--space-2)) var(--accent);
+}
+
+.button[data-variant="ghost"] {
+  color: var(--text-muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+.button[data-variant="danger"] {
+  color: var(--danger);
+  background: transparent;
+  border-color: var(--danger-border);
+}
+
+/* Armed: a single wave, no loop (08 § 4.2, keyframes pulse-armed of base.css). */
+.button[data-variant="danger"][data-armed] {
+  color: var(--text-on-accent);
+  background: var(--danger);
+  border-color: var(--danger);
+  animation: pulse-armed var(--dur-slow) var(--ease-enter);
+}
+
+.button[data-size="small"] {
+  min-height: var(--space-8);
+  padding: 0 var(--space-3);
+  font-size: var(--fs-xs);
+}
+
+@media (hover: hover) {
+  .button:hover:not([data-disabled]) {
+    background: var(--surface-alt);
+    border-color: var(--border-hover);
+  }
+
+  .button[data-variant="primary"]:hover:not([data-disabled]) {
+    background: var(--accent-ink);
+    border-color: var(--accent-ink);
+  }
+
+  .button[data-variant="ghost"]:hover:not([data-disabled]) {
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border-color: transparent;
+  }
+
+  .button[data-variant="danger"]:hover:not([data-disabled]) {
+    background: var(--danger-soft);
+    border-color: var(--danger);
+  }
+
+  .button[data-variant="danger"][data-armed]:hover:not([data-disabled]) {
+    background: var(--danger);
+  }
+}
+
+/* Pressed: sinks by 1 px; neutral and ghost take a tint, primary its ink colour: the only feedback on a touch
+   screen (08 § 4.2, § 8). */
+.button:active:not([data-disabled]) {
+  transform: translateY(var(--border-width)) scale(0.985);
+}
+
+.button:not([data-variant="primary"], [data-variant="danger"]):active:not([data-disabled]) {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+}
+
+.button[data-variant="primary"]:active:not([data-disabled]) {
+  background: var(--accent-ink);
+  border-color: var(--accent-ink);
+}
+
+/* Disabled and busy (08 § 4.2): 38 % opacity, no shadow, no movement. */
+.button[data-disabled] {
+  opacity: 0.38;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Touch screen (08 § 4.2, § 7.4): 44 px buttons; a small one keeps 36 px and an invisible 48 px target. */
+@media (pointer: coarse) {
+  .button {
+    min-height: var(--control-height-coarse);
+  }
+
+  .button[data-size="small"] {
+    min-height: calc(var(--space-8) + var(--space-1));
+  }
+
+  .button[data-size="small"]::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * (var(--space-1) + var(--space-1) / 2)) 0;
+  }
+}

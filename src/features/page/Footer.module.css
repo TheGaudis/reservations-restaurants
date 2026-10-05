@@ -1,0 +1,32 @@
+/* .foot-note, .foot-brand of legacy/app.css and .brand-signature of legacy/design-system.css (08 § 4.17). */
+.footer {
+  margin-top: var(--space-8);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--fs-xs);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.signature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-signature);
+  color: var(--text-muted);
+}
+
+/* Tricolour strokes on both sides. */
+.signature::before,
+.signature::after {
+  content: "";
+  width: var(--signature-bar-width);
+  height: var(--signature-bar-height);
+  border-radius: var(--mark-radius);
+  background: linear-gradient(90deg, var(--ab-green), var(--ab-blue), var(--ab-magenta));
+}

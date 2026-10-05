@@ -1,0 +1,53 @@
+/* Body of « Ouvrir un jour » (06 § 4.1-4.2): the fields one under the other, the button below. */
+.form {
+  min-width: 0;
+}
+
+/* .field-group of legacy/design-system.css: « Plats disponibles ce jour-là » (06 § 4.2). */
+.dishes {
+  min-width: 0;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+
+/* .draft-item-row: name, stock, price, then the remove button; the voucher box under them, on the whole width. */
+.line {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target);
+  gap: 0 var(--space-2);
+  align-items: start;
+  margin-bottom: var(--space-2);
+}
+
+.line > :last-child {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.remove {
+  align-self: start;
+}
+
+/* .draft-head: visual column titles, hidden from assistive technologies (each field has its own name). */
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) var(--touch-target);
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.submit {
+  margin-top: var(--space-3);
+}

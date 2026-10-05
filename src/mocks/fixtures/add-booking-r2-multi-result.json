@@ -1,0 +1,13 @@
+{
+  "_bookingResult": {
+    "confirmed": [
+      { "itemId": "3f1c2a9e-…", "nom": "Lasagnes", "qte": 2, "prix": 4.5 },
+      { "itemId": "8b7d0c11-…", "nom": "Bowl (ticket restaurant)", "qte": 1, "prix": "" }
+    ],
+    "adjusted": [{ "nom": "Lasagnes", "demande": 3, "accorde": 2 }],
+    "skipped": [{ "nom": "Tiramisu" }],
+    "totalPrix": 9,
+    "hasPriceGap": true
+  },
+  "_emailStatus": { "sent": true }
+}

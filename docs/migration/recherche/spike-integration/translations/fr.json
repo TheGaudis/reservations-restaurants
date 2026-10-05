@@ -1,0 +1,58 @@
+{
+  "common.action.book": {
+    "defaultMessage": "Réserver",
+    "description": "bouton d'envoi"
+  },
+  "common.action.close": {
+    "defaultMessage": "Fermer",
+    "description": "bouton de fermeture d'une fenêtre"
+  },
+  "common.date.long": {
+    "defaultMessage": "{weekday} {day, selectordinal, one {#er} other {#}} {month} {year}",
+    "description": "00 § 3 — date longue avec ordinal"
+  },
+  "common.notFound": {
+    "defaultMessage": "Page introuvable",
+    "description": "route attrape-tout"
+  },
+  "loading.title": {
+    "defaultMessage": "Chargement…",
+    "description": "03 § 3 — squelette"
+  },
+  "public.r1.bookLink": {
+    "defaultMessage": "Réserver",
+    "description": "lien qui ouvre le formulaire"
+  },
+  "public.r1.form.name.label": {
+    "defaultMessage": "Nom",
+    "description": "04 § 5 — libellé du nom"
+  },
+  "public.r1.form.seats.label": {
+    "defaultMessage": "Couverts",
+    "description": "04 § 5 — nombre de couverts"
+  },
+  "public.r1.menu": {
+    "defaultMessage": "Voir le menu",
+    "description": "ouvre le menu"
+  },
+  "public.r1.menuTitle": {
+    "defaultMessage": "Menu du jour",
+    "description": "titre"
+  },
+  "public.r1.remaining": {
+    "defaultMessage": "{rem, plural, one {# place restante} other {# places restantes}}",
+    "description": "05 § 4 — places restantes"
+  },
+  "ui.numberField.decrement": {
+    "defaultMessage": "Diminuer",
+    "description": "bouton −"
+  },
+  "ui.numberField.increment": {
+    "defaultMessage": "Augmenter",
+    "description": "bouton +"
+  },
+  "ui.numberField.role": {
+    "defaultMessage": "champ numérique",
+    "description": "rôle du champ"
+  }
+}

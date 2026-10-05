@@ -1,0 +1,110 @@
+/* Printing in the same document (PLAN § 3.8, E-15): `ui/print/print.ts` renders the document into .print-root, a
+   child of <body> hidden on screen. While it holds a document, printing shows that document alone. Empty, it
+   leaves Ctrl+P to the whole page, as on the legacy site (07 § 10.9). */
+
+/* Print tokens (07 § 2): sizes in pt and mm, from the legacy PRINT_CSS. The colours come from tokens.css. */
+:root {
+  --print-fs-body: 10pt;
+  --print-lh-body: 1.45;
+  --print-lh-school: 1.5;
+  --print-fs-caps: 7.5pt;
+  --print-fs-date: 8pt;
+  --print-fs-h1: 20pt;
+  --print-fs-subtitle: 11pt;
+  --print-fs-h2: 13pt;
+  --print-fs-h3: 10.5pt;
+  --print-fs-table: 9.5pt;
+  --print-fs-grid: 9pt;
+  --print-fs-groups: 7pt;
+  --print-fs-big: 12pt;
+  --print-space-1: 0.8mm;
+  --print-space-2: 1.5mm;
+  --print-space-3: 2mm;
+  --print-space-4: 2.5mm;
+  --print-space-5: 3mm;
+  --print-space-6: 4mm;
+  --print-space-7: 5mm;
+  --print-space-8: 6mm;
+  --print-space-9: 8mm;
+  --print-space-10: 10mm;
+  --print-stripe: 4px;
+  --print-logo-height: 13mm;
+  --print-mark-width: 1.6mm;
+  --print-mark-height: 0.95em;
+  --print-mark-radius: 0.5mm;
+  --print-mark-skew: -22deg;
+  --print-rule: 1px;
+  --print-rule-strong: 2px;
+  --print-bar: 3px;
+  --print-bar-strong: 4px;
+  --print-meta-basis: 35mm;
+  --print-meta-wide-basis: 90mm;
+  --print-col-count: 14mm;
+  --print-col-table: 16mm;
+  --print-col-seats: 18mm;
+  --print-col-price: 19mm;
+  --print-col-name: 30mm;
+  --print-col-contact: 38mm;
+  --print-row-writable: 11mm;
+  --print-sign-line: 8mm;
+  /* Screen preview of a document (stories): 07 § 2.1. */
+  --print-screen-width: 269mm;
+}
+
+/* Colours of each restaurant (07 § 2.3, PRINT_ACCENTS): mark of the title, rules, coloured texts. */
+[data-print-accent="r1"] {
+  --print-mark: var(--ab-green);
+  --print-accent: var(--ab-green-ink);
+  --print-ink: var(--ab-green-deep);
+}
+
+[data-print-accent="r2"] {
+  --print-mark: var(--ab-magenta);
+  --print-accent: var(--ab-magenta);
+  --print-ink: var(--ab-magenta-ink);
+}
+
+.print-root {
+  display: none;
+}
+
+@media print {
+  body:has(> .print-root:not(:empty)) {
+    margin: 0;
+    background: none;
+  }
+
+  body:has(> .print-root:not(:empty)) > :not(.print-root) {
+    display: none;
+  }
+
+  .print-root {
+    display: block;
+    /* Named page: a global @page would also format a Ctrl+P of the site (R-27). */
+    page: list;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* A4 landscape, margins 12 / 14 / 14 mm, footer repeated in the bottom margin (07 § 2.1-2.2). Margin boxes see no
+   custom property: font and colour are written out (PLAN § 3.8), the values of --font-body and --text-muted. Margin
+   boxes print in Chromium 131+ only (R-27). */
+@page list {
+  size: A4 landscape;
+  margin: 12mm 14mm 14mm;
+
+  @bottom-left {
+    content: "Lycée professionnel Aristide Briand · Restaurants pédagogiques";
+    font-family: "Work Sans", system-ui, sans-serif;
+    font-size: 7.5pt;
+    color: #646a70;
+  }
+
+  @bottom-right {
+    content: "Page " counter(page) " / " counter(pages);
+    font-family: "Work Sans", system-ui, sans-serif;
+    font-size: 8pt;
+    color: #646a70;
+  }
+}

@@ -1,0 +1,195 @@
+/* Design tokens: legacy/design-system.css § 1-2 with unchanged values (docs/spec/08 § 1-2).
+   Rule of the charter: no colour written outside a token; "-ink" variants for text on white (AA contrast). */
+
+:root {
+  /* Logo colours */
+  --ab-green: #a9c23f;
+  --ab-green-ink: #4e6614;
+  --ab-green-deep: #3b4f0d;
+  --ab-blue: #1f4e9e;
+  --ab-blue-ink: #173d7d;
+  --ab-magenta: #a3237f;
+  --ab-magenta-ink: #86196a;
+  --ab-grey: #8c8c8c;
+  --ab-gradient: linear-gradient(
+    100deg,
+    var(--ab-green) 0 33.4%,
+    var(--ab-blue) 33.4% 66.7%,
+    var(--ab-magenta) 66.7% 100%
+  );
+
+  /* Surfaces */
+  --bg: #f3f4f0; /* page background ("paper") */
+  --surface: #ffffff; /* cards, panels, fields */
+  --surface-alt: #f8f9f6; /* secondary surface, hovers */
+  --tint: var(--surface-alt); /* background tint of a theme */
+
+  /* Borders */
+  --border: #e2e4dd;
+  --border-strong: #d6d9d1;
+  --border-hover: #c4c8be;
+  --outline: #8a8f84; /* meaningful outline (fields, segmented buttons): 3.3:1 on white */
+
+  /* Text */
+  --text: #1f2328;
+  --text-muted: #646a70;
+  --text-subtle: #6e7378; /* placeholders (4.8:1 on white) */
+  --text-on-accent: #ffffff;
+
+  /* Accent (main action, overridden by the themes) */
+  --accent: var(--ab-blue);
+  --accent-ink: var(--ab-blue-ink);
+  --accent-soft: rgba(31, 78, 158, 0.08);
+  --accent-container: rgba(31, 78, 158, 0.14);
+
+  /* States */
+  --success: #4e7a12;
+  --success-soft: rgba(78, 122, 18, 0.12);
+  --warning: #9a600a;
+  --warning-soft: rgba(154, 96, 10, 0.12);
+  --danger: #b7372f;
+  --danger-soft: rgba(183, 55, 47, 0.1);
+  --danger-border: rgba(183, 55, 47, 0.32);
+
+  /* Typography */
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+  --fs-2xs: 0.7rem;
+  --fs-xs: 0.76rem;
+  --fs-sm: 0.84rem;
+  --fs-md: 0.88rem;
+  --fs-lg: 0.94rem;
+  --fs-xl: 1.05rem;
+  --fs-2xl: 1.3rem;
+  --fs-3xl: 1.75rem;
+  --fs-3xl-sm: 1.5rem;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --lh-title: 1.25;
+  --lh-body: 1.55;
+  --tracking-caps: 0.1em;
+
+  /* Spacing (4 px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 9px;
+  --radius: 14px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  /* Shadows */
+  --shadow: 0 1px 2px rgba(31, 40, 30, 0.05), 0 8px 24px -12px rgba(31, 40, 30, 0.14);
+  --shadow-pop: 0 12px 30px -10px rgba(31, 40, 30, 0.3);
+
+  /* Motion (Material 3 curves) */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --dur-fast: 0.12s;
+  --dur: 0.2s;
+  --dur-slow: 0.35s;
+
+  /* Interaction (Material 3) */
+  --touch-target: 48px;
+  --state-hover: 0.08;
+  --state-press: 0.12;
+  --focus-width: 3px;
+  --past-opacity: 0.55;
+  --outside-opacity: 0.35;
+  --dot-size: 6px;
+
+  /* Layers */
+  --z-toast: 50;
+  --z-loader: 60;
+
+  /* Alerts and notifications */
+  --alert-bar: 6px;
+  --alert-icon: 28px;
+  --alert-tint: 9%;
+  --alert-edge: 35%;
+  --alert-ink: 75%;
+  --note-ink: 70%;
+  --note-bar: 4px;
+  --icon-glyph: 70%;
+  --toast-scale: 0.96;
+
+  /* Sizes written in the legacy component rules (08 § 4), turned into tokens (PLAN § 3.6) */
+  --border-width: 1px; /* contour of fields, buttons and segments (08 § 4.2, 4.5, 4.6) */
+  --control-height: 40px; /* fields, buttons, segments, icon buttons (08 § 4.2, 4.4, 4.5, 4.6) */
+  --control-height-coarse: 44px; /* buttons on a touch screen (08 § 4.2) */
+  --icon-size: 24px; /* glyph of an icon button (08 § 4.4) */
+  --check-size: 18px; /* check box, check of a selected segment (08 § 4.5, 4.6) */
+  --field-error-halo: 3px; /* halo around a field in error (08 § 4.6) */
+  --field-error-mark: 15px; /* round « ! » before a field error (08 § 4.6) */
+  --fs-error-mark: 0.66rem; /* « ! » inside that mark */
+  --fs-field-touch: 16px; /* fields on a touch screen: iOS zooms into a smaller one (08 § 4.6) */
+  --qty-input-width: calc(var(--space-10) + var(--space-8)); /* .qty-input, legacy/app.css */
+  --icon-size-stroke: 20px; /* stroke icon (print, settings) in an icon button (08 § 4.4) */
+  --check-size-small: 16px; /* check of a selected compact segment (08 § 4.5) */
+  --capacity-pill-min-width: 76px; /* .capacity-pill (08 § 4.8) */
+  --skeleton-line: 14px; /* .sk-line (08 § 4.16) */
+  --skeleton-card: 120px; /* .sk-card (08 § 4.16) */
+  --dur-toast-enter: 0.3s; /* entry of a toast (08 § 1.7, § 4.14) */
+  --dur-shimmer: 1.3s; /* loop of the skeleton gradient (08 § 1.7, § 4.16) */
+
+  /* Page layout: sizes written in legacy/app.css and legacy/design-system.css (08 § 4.1, § 4.17, § 4.18, § 7) */
+  --page-max-width: 1040px; /* .wrap (08 § 7.1) */
+  --stripe-height: 6px; /* .ab-stripe, top edge of a column (08 § 4.1, § 7.3) */
+  --logo-height: 96px; /* .brand-logo (08 § 7.2) */
+  --logo-height-small: 64px; /* .brand-logo under 640 px (08 § 7.4) */
+  --brand-basis: 420px; /* flex basis of .brand (08 § 7.2) */
+  --header-watermark-width: 260px; /* oblique strokes behind the header (08 § 7.2) */
+  --header-watermark-height: 220px;
+  --header-watermark-right: -30px;
+  --header-watermark-top: -40px;
+  --measure-title: 26ch; /* .brand h1 (08 § 7.2) */
+  --measure-subtitle: 60ch; /* #page-subtitle (08 § 7.2) */
+  --measure-desc: 52ch; /* .desc of a column (08 § 7.3) */
+  --tracking-brand: 0.12em; /* .brand-kicker (08 § 7.2) */
+  --tracking-signature: 0.04em; /* .brand-signature (08 § 4.17) */
+  --signature-bar-width: 34px; /* strokes around .brand-signature (08 § 4.17) */
+  --signature-bar-height: 3px;
+  --slash-width: 7px; /* .slash-mark before a restaurant name (08 § 4.18) */
+  --slash-height: 1.05em;
+  --slash-skew: -22deg;
+  --mark-radius: 2px; /* .slash-mark, .brand-signature strokes */
+  --mode-switch-segment-width: 108px; /* .mode-switch .seg-btn (08 § 4.5): ModeSwitch sets --segment-min-width to it */
+  --login-field-width: 170px; /* .admin-login input (06 § 1.1): password field of the login panel */
+}
+
+/* Restaurant accents, set on a container (docs/spec/08 § 2); blue keeps the :root values. */
+.accent-green,
+[data-accent="r1"] {
+  --accent: var(--ab-green-ink);
+  --accent-ink: var(--ab-green-deep);
+  --accent-soft: rgba(169, 194, 63, 0.18);
+  --accent-container: rgba(169, 194, 63, 0.32);
+  --accent-mark: var(--ab-green);
+  --tint: #f6f9ec;
+  --border: #e4e8d6;
+  --text-muted: #5e6653;
+}
+
+.accent-magenta,
+[data-accent="r2"] {
+  --accent: var(--ab-magenta);
+  --accent-ink: var(--ab-magenta-ink);
+  --accent-soft: rgba(163, 35, 127, 0.1);
+  --accent-container: rgba(163, 35, 127, 0.16);
+  --accent-mark: var(--ab-magenta);
+  --tint: #fbf2f8;
+  --border: #eedde8;
+  --text-muted: #6a5a65;
+}

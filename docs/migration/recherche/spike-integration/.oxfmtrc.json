@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  // Valeurs par défaut d'oxfmt explicitées (≈ Prettier 3.8 sauf printWidth 100)
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "jsxSingleQuote": false,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "insertFinalNewline": true,
+  // Tri des imports (algorithme eslint-plugin-perfectionist) ; "#/..." = subpath/internal
+  "sortImports": {
+    "groups": [
+      "builtin",
+      "external",
+      ["internal", "subpath"],
+      ["parent", "sibling", "index"],
+      "style",
+      "unknown"
+    ],
+    "newlinesBetween": true
+  },
+  // package.json trié (défaut), scripts laissés dans l'ordre logique
+  "sortPackageJson": { "sortScripts": false },
+  "ignorePatterns": [
+    "src/routeTree.gen.ts",
+    "dist/**",
+    ".output/**",
+    "coverage/**",
+    "legacy/**",
+    "public/mockServiceWorker.js",
+    "storybook-static/**",
+    "dist-router*/**",
+    "out/**",
+    "router-only/routeTree.gen.ts"
+  ]
+}

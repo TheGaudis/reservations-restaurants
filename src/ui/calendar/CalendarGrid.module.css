@@ -1,0 +1,218 @@
+/* Days of a calendar (05 § 2.5, legacy/app.css « Calendrier ») and of the date picker (06 § 3.2,
+   legacy/design-system.css « Sélecteur de date »). A real table: its rows and cells keep their roles. */
+
+.grid {
+  width: calc(100% + 2 * var(--space-1));
+  margin: calc(-1 * var(--space-1));
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: var(--space-1);
+}
+
+.grid[data-variant="calendar"] {
+  margin-bottom: var(--space-3);
+}
+
+.weekday {
+  padding: 0 0 var(--space-1);
+  font-size: var(--fs-2xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-caps);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.square {
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.number {
+  font-weight: var(--fw-semibold);
+  line-height: 1;
+}
+
+.dot {
+  width: var(--dot-size);
+  height: var(--dot-size);
+  margin-top: var(--space-1);
+  border-radius: var(--radius-full);
+}
+
+.dot[data-dot="available"] {
+  background: var(--success);
+}
+
+.dot[data-dot="almostFull"] {
+  background: var(--warning);
+}
+
+.dot[data-dot="full"] {
+  background: var(--danger);
+}
+
+.dot[data-dot="marked"] {
+  background: var(--accent);
+}
+
+/* ---- Calendar (05 § 2.5) ---- */
+
+.grid[data-variant="calendar"] .day {
+  aspect-ratio: 1 / 1;
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
+  transition:
+    background-color var(--dur) var(--ease-standard),
+    border-color var(--dur) var(--ease-standard),
+    transform var(--dur-fast) var(--ease);
+}
+
+.grid[data-variant="calendar"] .day:focus-visible {
+  z-index: 1;
+}
+
+.grid[data-variant="calendar"] .day:active {
+  transform: scale(0.96);
+}
+
+/* Service day: the square that has a dot. */
+.grid[data-variant="calendar"] .day:has(.dot) {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+@media (hover: hover) {
+  .grid[data-variant="calendar"] .day:hover {
+    background: var(--tint);
+    border-color: var(--accent);
+  }
+}
+
+/* Two levels of paleness; a day both past and outside the month takes the second. The selected day stays sharp. */
+.grid[data-variant="calendar"] .day[data-past]:not([data-selected]) {
+  opacity: var(--past-opacity);
+}
+
+.grid[data-variant="calendar"] .day[data-outside]:not([data-selected]) {
+  opacity: var(--outside-opacity);
+}
+
+.grid[data-variant="calendar"] .day[data-today]:not([data-selected]) {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 var(--border-width) var(--accent);
+}
+
+.grid[data-variant="calendar"] .day[data-selected] {
+  color: var(--text-on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.grid[data-variant="calendar"] .day[data-selected] .dot {
+  box-shadow: 0 0 0 calc(2 * var(--border-width)) var(--text-on-accent);
+}
+
+/* On a touch screen, a narrow square keeps a 48 px height. */
+@media (pointer: coarse) {
+  .grid[data-variant="calendar"] .day {
+    aspect-ratio: auto;
+    min-height: var(--touch-target);
+  }
+}
+
+/* ---- Date picker (06 § 3.2): round 40 px days, Material 3 state layer ---- */
+
+.grid[data-variant="picker"] .day {
+  isolation: isolate;
+  max-width: var(--control-height);
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  background: transparent;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-full);
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.grid[data-variant="picker"] .day::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--dur-fast) linear;
+}
+
+@media (hover: hover) {
+  .grid[data-variant="picker"] .day:hover::before {
+    opacity: var(--state-hover);
+  }
+}
+
+.grid[data-variant="picker"] .day:is(:focus-visible, :active)::before {
+  opacity: var(--state-press);
+}
+
+.grid[data-variant="picker"] .number {
+  font-weight: inherit;
+}
+
+.grid[data-variant="picker"] .dot {
+  position: absolute;
+  bottom: var(--space-1);
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+.grid[data-variant="picker"] .day[data-today] {
+  font-weight: var(--fw-semibold);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+.grid[data-variant="picker"] .day[data-selected] {
+  font-weight: var(--fw-semibold);
+  color: var(--text-on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.grid[data-variant="picker"] .day[data-selected] .dot {
+  background: var(--text-on-accent);
+}
+
+.grid[data-variant="picker"] .day[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.38; /* 08 § 4.2: inactive */
+}
+
+.grid[data-variant="picker"] .day[aria-disabled="true"]::before {
+  display: none;
+}

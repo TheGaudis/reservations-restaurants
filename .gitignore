@@ -1,0 +1,10 @@
+node_modules
+dist
+.output
+coverage
+.tanstack
+playwright-report
+test-results
+storybook-static
+.vitest
+*.local

@@ -1,0 +1,32 @@
+/* .cal-header and .cal-toggle of legacy/app.css (05 § 2.2); .dp-head and .dp-label of the date picker (06 § 3.2). */
+
+.navigation,
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.label {
+  flex: 1;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  text-align: center;
+}
+
+.label::first-letter {
+  text-transform: uppercase;
+}
+
+.header[data-variant="picker"] .navigation {
+  margin-bottom: var(--space-2);
+}
+
+.header[data-variant="picker"] .label {
+  font-size: var(--fs-md);
+}

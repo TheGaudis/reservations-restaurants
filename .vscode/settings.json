@@ -1,0 +1,33 @@
+{
+  // --- Formatage : oxfmt (via l'extension Oxc) ---
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.format.oxc": "always", // 1. formate
+    "source.fixAll.oxc": "always" // 2. puis corrections oxlint sûres
+  },
+  "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[css]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+
+  // --- Lint : oxlint (lit options.typeAware dans .oxlintrc.json) ---
+  "oxc.enable": true,
+  "oxc.requireConfig": true,
+  "oxc.lint.run": "onType",
+
+  // --- TypeScript 7 natif (extension "TypeScript 7" / TypeScriptTeam.native-preview) ---
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "node_modules/typescript",
+
+  // --- Neutraliser les autres outils ---
+  "prettier.enable": false,
+  "eslint.enable": false,
+  "biome.enabled": false,
+
+  // --- Fichiers générés ---
+  "files.readonlyInclude": { "**/routeTree.gen.ts": true },
+  "files.watcherExclude": { "**/routeTree.gen.ts": true },
+  "search.exclude": { "**/routeTree.gen.ts": true, "dist": true, ".output": true }
+}

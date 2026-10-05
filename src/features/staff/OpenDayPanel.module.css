@@ -1,0 +1,77 @@
+/* .panel.add-day, .add-day-summary, .add-day-plus, .add-day-body of legacy/app.css (06 § 4): dashed and tinted while
+   closed, solid with a shadow once open. */
+.panel {
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+  background: var(--tint);
+  border: var(--border-width) dashed color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-radius: var(--radius);
+}
+
+.panel[data-open] {
+  background: var(--surface);
+  border-style: solid;
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--touch-target);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--accent-ink);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  transition: background-color var(--dur) var(--ease);
+}
+
+.trigger:focus-visible {
+  outline-offset: calc(-1 * var(--focus-width));
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    background: var(--accent-soft);
+  }
+}
+
+.plus {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  font-size: var(--fs-xl);
+  line-height: 1;
+  color: var(--text-on-accent);
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: transform var(--dur) var(--ease-standard);
+}
+
+.trigger[aria-expanded="true"] .plus {
+  transform: rotate(45deg);
+}
+
+.body {
+  padding: var(--space-1) var(--space-4) var(--space-4);
+  animation: rise var(--dur-slow) var(--ease-enter) both;
+}
+
+/* Same steps as "rise" in base.css: CSS Modules scope animation names to this file. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
+  }
+}

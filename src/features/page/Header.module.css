@@ -1,0 +1,112 @@
+/* header.top, .brand*, .mode-box of legacy/app.css (08 § 7.2, § 7.4). */
+.header {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+  padding: var(--space-6);
+  overflow: hidden;
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+/* Oblique strokes of the logo, as a watermark. */
+.header::before {
+  content: "";
+  position: absolute;
+  top: var(--header-watermark-top);
+  right: var(--header-watermark-right);
+  width: var(--header-watermark-width);
+  height: var(--header-watermark-height);
+  pointer-events: none;
+  opacity: 0.1;
+  background:
+    linear-gradient(115deg, transparent 46%, var(--ab-green) 46% 54%, transparent 54%),
+    linear-gradient(115deg, transparent 60%, var(--ab-blue) 60% 66%, transparent 66%),
+    linear-gradient(160deg, transparent 58%, var(--ab-magenta) 58% 66%, transparent 66%);
+}
+
+.brand {
+  position: relative;
+  display: flex;
+  flex: 1 1 var(--brand-basis);
+  align-items: center;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.logo {
+  display: block;
+  flex: 0 0 auto;
+  width: auto;
+  height: var(--logo-height);
+}
+
+.text {
+  min-width: 0;
+  padding-left: var(--space-5);
+  border-left: var(--border-width) solid var(--border);
+}
+
+.kicker {
+  margin-bottom: var(--space-1);
+  letter-spacing: var(--tracking-brand);
+}
+
+.title {
+  max-width: var(--measure-title);
+  margin: 0 0 var(--space-2);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-title);
+}
+
+.subtitle {
+  max-width: var(--measure-subtitle);
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--text-muted);
+}
+
+.mode {
+  position: relative;
+  flex: 0 0 auto;
+  margin-left: auto;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--space-4);
+  }
+
+  .brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .logo {
+    height: var(--logo-height-small);
+  }
+
+  .text {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .title {
+    font-size: var(--fs-3xl-sm);
+  }
+
+  .mode {
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+}
