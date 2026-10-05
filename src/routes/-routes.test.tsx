@@ -89,6 +89,7 @@ it("keeps the load error box, without reading, when the login panel opens (03 §
   await expect
     .poll(() => screen.container.querySelector('[role="alert"]')?.textContent)
     .toMatch(/^Le service de réservation ne répond pas\./u);
+  const box = screen.container.querySelector('[role="alert"]');
   const reads = () => fakeScript().requests.filter((request) => request.method === "GET").length;
   expect(reads()).toBe(1);
   await screen.getByRole("button", { name: "Collègue", exact: true }).click();
@@ -98,9 +99,8 @@ it("keeps the load error box, without reading, when the login panel opens (03 §
   expect(router.state.location.search).toMatchObject({ connexion: true, r1: "2026-10-06" });
   await router.navigate({ to: "/", search: (previous) => ({ ...previous, r1vue: "mois" }) });
   await expect.poll(() => router.state.location.searchStr).toContain("r1vue=mois");
-  expect(screen.container.querySelector('[role="alert"]')?.textContent).toMatch(
-    /^Le service de réservation ne répond pas\./u,
-  );
+  // The same element: the alert is not announced again (E-42).
+  expect(screen.container.querySelector('[role="alert"]')).toBe(box);
   expect(screen.container.querySelector('main[aria-busy="true"]')).toBeNull();
   expect(reads()).toBe(1);
 });

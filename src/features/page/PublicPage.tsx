@@ -6,15 +6,13 @@ import { PageColumn, PageLoadError } from "@/features/page/Page";
 import { Columns, Main } from "@/features/page/PageLayout";
 import { DayCardR1 } from "@/features/r1/DayCardR1";
 import { DayCardR2 } from "@/features/r2/DayCardR2";
-import { useFirstReadOrThrow } from "@/queries/first-read";
 
 /**
  * Public page (G-02 to G-04, P-*, L-01), under the header of the root: in each column the calendar, then the summary of
  * the column's last booking and the card of the selected day with its form (05 § 1, 04 § 7). Rendered once the first
- * read has answered or failed (loader of /); without state, `LoadErrorPage` takes its place (G-03).
+ * read has answered or failed (loader of /).
  */
 export function PublicPage() {
-  useFirstReadOrThrow();
   return (
     <BookingColumnsProvider>
       <Main busy={false}>
