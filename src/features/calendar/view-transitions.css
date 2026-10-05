@@ -1,10 +1,51 @@
 /* View transitions of the calendars (05 § 3.4, legacy/app.css « Transitions Material 3 du calendrier »). Global
-   rules: the ::view-transition-* pseudo-elements hang from :root, out of reach of a CSS Module. The label, the grid
-   and the day card carry a view-transition-name of their restaurant (r1-calendar-label, r1-calendar-grid,
-   r1-day-card…); the router passes one type, « {restaurant}-{kind} » (features/calendar/page-search.ts). Only the
-   restaurant of the type moves: the other column keeps the default cross-fade of an unchanged picture, which shows
-   nothing. base.css cannot reach these pseudo-elements: every motion stays inside
-   prefers-reduced-motion: no-preference (P3 (c), decision 10). */
+   rules: the ::view-transition-* pseudo-elements hang from :root, out of reach of a CSS Module. The router passes one
+   type, « {restaurant}-{kind} » (features/calendar/page-search.ts). base.css cannot reach these pseudo-elements:
+   every motion stays inside prefers-reduced-motion: no-preference (P3 (c), decision 10). */
+
+/* Only the label, the grid and the day card of the restaurant of the type carry a view-transition-name (05 § 3.4):
+   the other column stays in the root picture, which changes at once, and never cross-fades. */
+:root:active-view-transition-type(
+    r1-next, r1-prev, r1-zoom-in, r1-zoom-out, r1-day-next, r1-day-prev
+  )
+  [data-transition-name="r1-calendar-label"] {
+  view-transition-name: r1-calendar-label;
+}
+
+:root:active-view-transition-type(
+    r1-next, r1-prev, r1-zoom-in, r1-zoom-out, r1-day-next, r1-day-prev
+  )
+  [data-transition-name="r1-calendar-grid"] {
+  view-transition-name: r1-calendar-grid;
+}
+
+:root:active-view-transition-type(
+    r1-next, r1-prev, r1-zoom-in, r1-zoom-out, r1-day-next, r1-day-prev
+  )
+  [data-transition-name="r1-day-card"] {
+  view-transition-name: r1-day-card;
+}
+
+:root:active-view-transition-type(
+    r2-next, r2-prev, r2-zoom-in, r2-zoom-out, r2-day-next, r2-day-prev
+  )
+  [data-transition-name="r2-calendar-label"] {
+  view-transition-name: r2-calendar-label;
+}
+
+:root:active-view-transition-type(
+    r2-next, r2-prev, r2-zoom-in, r2-zoom-out, r2-day-next, r2-day-prev
+  )
+  [data-transition-name="r2-calendar-grid"] {
+  view-transition-name: r2-calendar-grid;
+}
+
+:root:active-view-transition-type(
+    r2-next, r2-prev, r2-zoom-in, r2-zoom-out, r2-day-next, r2-day-prev
+  )
+  [data-transition-name="r2-day-card"] {
+  view-transition-name: r2-day-card;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   /* The rest of the page goes straight to its new state, without a cross-fade (no text shown twice). */

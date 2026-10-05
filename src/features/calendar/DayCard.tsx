@@ -22,7 +22,7 @@ interface DayDetailProps {
 }
 
 /**
- * Space under a calendar (`#detail-rX`, 05 § 1): its view-transition-name lets the card slide when a day is chosen
+ * Space under a calendar (`#detail-rX`, 05 § 1): `data-transition-name` lets the card slide when a day is chosen
  * with the mouse (05 § 3.4, view-transitions.css). `data-day-detail` lets `focusCardDate` find the card of the
  * restaurant.
  */
@@ -31,7 +31,7 @@ export function DayDetail({ restaurant, children }: DayDetailProps) {
     <div
       className={styles["detail"]}
       data-day-detail={restaurant}
-      style={{ viewTransitionName: `${restaurant}-day-card` }}
+      data-transition-name={`${restaurant}-day-card`}
     >
       {children}
     </div>
