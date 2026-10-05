@@ -1,10 +1,11 @@
 import { useRouter } from "@tanstack/react-router";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 
-import { ColumnSkeleton } from "@/features/page/ColumnSkeleton";
+import { Header } from "@/features/page/Header";
 import { LoadErrorBox } from "@/features/page/LoadErrorBox";
 import { useSkeletonTexts } from "@/features/page/page-texts";
-import { PageLayout } from "@/features/page/PageLayout";
+import { Main, PageLayout } from "@/features/page/PageLayout";
+import { SkeletonColumns } from "@/features/page/PageSkeleton";
 
 /**
  * Error component of the routes (PLAN § 3.9): the page without data, its skeleton stopped, and the load error box
@@ -18,12 +19,12 @@ export function LoadErrorPage({ reset }: ErrorComponentProps) {
     await router.invalidate();
   };
   return (
-    <PageLayout
-      texts={texts}
-      busy={false}
-      alert={<LoadErrorBox fromCache={false} onRetry={retry} />}
-      r1={<ColumnSkeleton still />}
-      r2={<ColumnSkeleton still />}
-    />
+    <PageLayout>
+      <Header texts={texts} />
+      <Main busy={false}>
+        <LoadErrorBox fromCache={false} onRetry={retry} />
+        <SkeletonColumns texts={texts} still />
+      </Main>
+    </PageLayout>
   );
 }

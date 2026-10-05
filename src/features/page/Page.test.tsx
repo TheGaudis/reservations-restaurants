@@ -1,8 +1,17 @@
+import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { Page } from "@/features/page/Page";
+import {
+  Page,
+  PageColumn,
+  PageHeader,
+  PageLoadError,
+  PageMain,
+  WhenLoaded,
+} from "@/features/page/Page";
+import { Columns } from "@/features/page/PageLayout";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { createQueryClient } from "@/queries/client";
 import { publicStateOptions } from "@/queries/state";
@@ -34,6 +43,29 @@ function alertText(container: HTMLElement): string {
   return container.querySelector('[role="alert"]')?.textContent ?? "";
 }
 
+interface TestPageProps {
+  panels?: ReactNode;
+  r1?: ReactNode;
+  r2?: ReactNode;
+}
+
+/** The page composed as `StaffPage` composes it, placeholders in place of the panels and the columns' content. */
+function TestPage({ panels, r1, r2 }: TestPageProps) {
+  return (
+    <Page>
+      <PageHeader />
+      <PageMain>
+        <WhenLoaded>{panels}</WhenLoaded>
+        <PageLoadError />
+        <Columns>
+          <PageColumn restaurant="r1">{r1}</PageColumn>
+          <PageColumn restaurant="r2">{r2}</PageColumn>
+        </Columns>
+      </PageMain>
+    </Page>
+  );
+}
+
 function titles(container: HTMLElement): string[] {
   return [...container.querySelectorAll("h2")].map((title) => title.textContent);
 }
@@ -41,7 +73,7 @@ function titles(container: HTMLElement): string[] {
 describe("Page before any data (G-01, 03 § 3)", () => {
   it("shows the default titles and the skeleton, without any text about loading", async () => {
     const release = fakeScript().hold();
-    const { screen } = await renderWithProviders(<Page />);
+    const { screen } = await renderWithProviders(<TestPage />);
     await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
     expect(titles(screen.container)).toStrictEqual(["Restaurant Pédagogique", "Aristide"]);
     await expect
@@ -58,7 +90,7 @@ describe("Page before any data (G-01, 03 § 3)", () => {
       JSON.stringify({ name1: "Resto Test", name2: "", desc1: "Description mémorisée" }),
     );
     const release = fakeScript().hold();
-    const { screen } = await renderWithProviders(<Page />);
+    const { screen } = await renderWithProviders(<TestPage />);
     // An empty value keeps the default (04 § 2).
     expect(titles(screen.container)).toStrictEqual(["Resto Test", "Aristide"]);
     await expect.element(screen.getByText("Description mémorisée")).toBeVisible();
@@ -78,7 +110,7 @@ describe("Page with data (G-02, G-04, D-24)", () => {
       publicStateOptions.queryKey,
       publicState({ settings: { ...SETTINGS, name1: "Le Gourmet", name2: "Bistrot", desc2: "" } }),
     );
-    const { screen } = await renderWithProviders(<Page />, { queryClient });
+    const { screen } = await renderWithProviders(<TestPage />, { queryClient });
     await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "false");
     expect(titles(screen.container)).toStrictEqual(["Le Gourmet", "Bistrot"]);
     await expect
@@ -102,28 +134,43 @@ describe("Page with data (G-02, G-04, D-24)", () => {
       .toBeVisible();
   });
 
-  it("puts the slots of each column after its title and description (05 § 1)", async () => {
+  it("puts the content of each column after its title and description (05 § 1)", async () => {
     const queryClient = createQueryClient();
     queryClient.setQueryData(publicStateOptions.queryKey, publicState());
     const { screen } = await renderWithProviders(
-      <Page
-        r1={{ calendar: <p>Calendrier R1</p>, card: <p>Fiche R1</p> }}
-        r2={{ admin: <p>Ouvrir R2</p>, calendar: <p>Calendrier R2</p> }}
+      <TestPage
+        r1={<p>Calendrier R1</p>}
+        r2={
+          <>
+            <p>Ouvrir R2</p>
+            <p>Calendrier R2</p>
+          </>
+        }
       />,
       { queryClient },
     );
     const [r1, r2] = screen.container.querySelectorAll("section");
-    expect(r1?.textContent).toMatch(/Calendrier R1Fiche R1$/u);
+    expect(r1?.textContent).toMatch(/Calendrier R1$/u);
     expect(r2?.textContent).toMatch(/Ouvrir R2Calendrier R2$/u);
     expect(r1?.dataset["accent"]).toBe("r1");
     expect(r2?.dataset["accent"]).toBe("r2");
+  });
+
+  it("shows the staff panels once the state is there, above the columns (06 § 2)", async () => {
+    const release = fakeScript().hold();
+    const { screen } = await renderWithProviders(<TestPage panels={<p>Panneau</p>} />);
+    expect(screen.container.textContent).not.toMatch(/Panneau/u);
+    release();
+    await expect.element(screen.getByText("Panneau")).toBeVisible();
+    const main = screen.getByRole("main").element();
+    expect(main.firstElementChild?.textContent).toBe("Panneau");
   });
 });
 
 describe("Page after a failed read (G-03, 03 § 3, § 5.2)", () => {
   it("shows the load error box and stops the skeleton, then the data after « Réessayer »", async () => {
     fakeScript().failNext("error");
-    const { screen } = await renderWithProviders(<Page r1={{ card: <p>Fiche R1</p> }} />, {
+    const { screen } = await renderWithProviders(<TestPage r1={<p>Fiche R1</p>} />, {
       queryClient: clientWithoutRetry(),
     });
     await expect.poll(() => alertText(screen.container)).toMatch(ONLINE_TITLE);
@@ -144,7 +191,7 @@ describe("Page after a failed read (G-03, 03 § 3, § 5.2)", () => {
       refetchType: "none",
     });
     fakeScript().failNext("error");
-    const { screen } = await renderWithProviders(<Page r1={{ card: <p>Fiche R1</p> }} />, {
+    const { screen } = await renderWithProviders(<TestPage r1={<p>Fiche R1</p>} />, {
       queryClient,
     });
     await expect.poll(() => alertText(screen.container)).toMatch(FROM_CACHE);
@@ -154,7 +201,7 @@ describe("Page after a failed read (G-03, 03 § 3, § 5.2)", () => {
   it("stays silent when a read fails after a first success (03 § 5.2)", async () => {
     const queryClient = clientWithoutRetry();
     queryClient.setQueryData(publicStateOptions.queryKey, publicState());
-    const { screen } = await renderWithProviders(<Page />, { queryClient });
+    const { screen } = await renderWithProviders(<TestPage />, { queryClient });
     fakeScript().failNext("error");
     await queryClient.refetchQueries({ queryKey: publicStateOptions.queryKey });
     expect(queryClient.getQueryState(publicStateOptions.queryKey)?.status).toBe("error");
@@ -188,7 +235,7 @@ describe("Page and hydration (arbitrage 16)", () => {
     const root = hydrateRoot(
       container,
       <TestProviders queryClient={queryClient}>
-        <Page />
+        <TestPage />
       </TestProviders>,
       { onRecoverableError: (error) => mismatches.push(error) },
     );
@@ -201,7 +248,7 @@ describe("Page and hydration (arbitrage 16)", () => {
   it("mounts a single refreshing observer (PLAN § 3.3.2, R-18)", async () => {
     const queryClient = createQueryClient();
     queryClient.setQueryData(publicStateOptions.queryKey, publicState());
-    await renderWithProviders(<Page />, { queryClient });
+    await renderWithProviders(<TestPage />, { queryClient });
     const query = queryClient.getQueryCache().find({ queryKey: publicStateOptions.queryKey });
     const intervals = query?.observers.map((observer) => observer.options.refetchInterval);
     expect(intervals?.filter((interval) => interval !== undefined)).toStrictEqual([180_000]);

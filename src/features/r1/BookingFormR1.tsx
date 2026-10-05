@@ -111,7 +111,7 @@ interface BookingFormR1Props {
 }
 
 /**
- * R1 booking form under the day card (04 § 5.2, P-05), loaded on demand and mounted with `key={`r1:${date}`}`.
+ * R1 booking form under the day card (04 § 5.2, P-05), mounted by `DayCardR1` with `key={`r1:${date}`}`.
  * Success: summary with the focus on its title, toast, form closed; a duplicate gets the summary « déjà
  * enregistrée » (D-16). Failure: message under the counters for lack of seats, with the state read again (E-35),
  * else a toast; input and `requestId` kept (04 § 6.1). « Annuler » is disabled while sending (E-13) and gives the

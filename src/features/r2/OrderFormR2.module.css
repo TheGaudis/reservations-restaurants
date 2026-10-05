@@ -18,10 +18,3 @@
     transform: translateY(calc(var(--space-1) + var(--space-1) / 2));
   }
 }
-
-/* Stand-in while the form's chunk loads. */
-.pending {
-  display: flex;
-  justify-content: center;
-  margin-top: var(--space-4);
-}

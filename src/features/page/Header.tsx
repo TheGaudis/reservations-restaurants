@@ -34,11 +34,11 @@ function useEasterEgg(): () => void {
 interface HeaderProps {
   texts: PageTexts;
   /** « Client / Collègue » and the login panel (06 § 1.1), on the right of the header. */
-  modeSwitch?: ReactNode;
+  children?: ReactNode;
 }
 
 /** Header of the page (04 § 2, 08 § 7.2): logo, school, title derived from `name2` (D-24), subtitle. */
-export function Header({ texts, modeSwitch }: HeaderProps) {
+export function Header({ texts, children }: HeaderProps) {
   const intl = useIntl();
   const onLogoClick = useEasterEgg();
   return (
@@ -78,7 +78,9 @@ export function Header({ texts, modeSwitch }: HeaderProps) {
           </p>
         </div>
       </div>
-      {modeSwitch === undefined ? null : <div className={styles["mode"]}>{modeSwitch}</div>}
+      {children === undefined || children === null ? null : (
+        <div className={styles["mode"]}>{children}</div>
+      )}
     </header>
   );
 }

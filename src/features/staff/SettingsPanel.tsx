@@ -7,8 +7,7 @@ import { ExpandMoreIcon, SettingsIcon } from "@/ui/icons";
 
 import styles from "@/features/staff/SettingsPanel.module.css";
 
-// Slot `settings` of `StaffPage` (journal p5a): panel « Paramètres », open while `parametres=true` (06 § 2.2, D-20,
-// C-02).
+// Panel « Paramètres » of `StaffPage`, open while `parametres=true` (06 § 2.2, D-20, C-02).
 
 interface SettingsSearch {
   parametres?: boolean | undefined;

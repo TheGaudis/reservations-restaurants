@@ -157,7 +157,7 @@ interface OrderFormR2Props {
 }
 
 /**
- * R2 order form under the day card (04 § 5.3, P-13), loaded on demand and mounted with `key={`r2:${date}`}`: service
+ * R2 order form under the day card (04 § 5.3, P-13), mounted by `DayCardR2` with `key={`r2:${date}`}`: service
  * mode, dishes and quantities with the live total, identity, observation. Success: summary with the portions granted
  * and both warnings when both apply (E-14), focus on its title, toast, form closed; a duplicate gets the summary
  * « déjà enregistrée » (D-16); nothing granted keeps the form (E-11). Failure: toast, input and `requestId` kept

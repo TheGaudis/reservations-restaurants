@@ -5,8 +5,7 @@ import { defineMessages, useIntl } from "react-intl";
 import { PasswordRejectedError } from "@/api/errors";
 import { publicSearch } from "@/domain/navigation";
 import type { PageSearchParams } from "@/domain/navigation";
-import { loginPanelChunk, useChunk } from "@/features/page/lazy-chunks";
-import type { LoginPanelProps } from "@/features/page/LoginPanel";
+import { LoginPanel } from "@/features/page/LoginPanel";
 import { useLogin } from "@/mutations/login";
 import { useIsFromCache } from "@/queries/use-app-state";
 import { useSessionStore } from "@/session/session";
@@ -83,13 +82,6 @@ interface LoginSearch extends PageSearchParams {
   retour?: string | undefined;
 }
 
-/** The login panel once its chunk is there (TanStack Form and the fields stay out of the initial path, S3). */
-function LoginPanelSlot(props: Omit<LoginPanelProps, "takeFocus">) {
-  const module = useChunk(loginPanelChunk);
-  if (module === null) return null;
-  return <module.LoginPanel {...props} takeFocus={takeFieldFocus} />;
-}
-
 /** The chunk of the staff page loads while the script checks the password (R-31). */
 async function preloadStaffPage(load: () => Promise<void> | undefined): Promise<void> {
   try {
@@ -162,7 +154,6 @@ export function ModeSwitch() {
   const choose = (mode: Mode) => {
     if (mode === "staff") {
       requestFocus(FOCUS.password);
-      loginPanelChunk.load();
       void navigate({
         to: ".",
         search: (previous) => ({ ...previous, connexion: true }),
@@ -201,7 +192,7 @@ export function ModeSwitch() {
         ]}
       />
       <div id={panelId} className={styles["panel"]} data-open={open || undefined} inert={!open}>
-        {open ? <LoginPanelSlot submit={submit} onEscape={escape} /> : null}
+        {open ? <LoginPanel submit={submit} onEscape={escape} takeFocus={takeFieldFocus} /> : null}
       </div>
     </div>
   );

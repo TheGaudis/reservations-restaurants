@@ -34,10 +34,23 @@ export async function renderWithProviders(ui: ReactNode, options: RenderOptions 
   return { screen, queryClient };
 }
 
+/**
+ * Stops `selectionchange` at the test container (R-36). Chromium fires it at a focused `<input>` and lets it bubble to
+ * `document`, where React 19 listens for it. React then climbs from the input to its root, whose container (the test
+ * `<div>`) is not `document`, then up the DOM to the shell's `<body>`, a fiber of the same root: an endless loop that
+ * freezes the tab. The app's root is `document` itself, so the loop happens only in a test container.
+ */
+function stopSelectionChange(container: HTMLElement): void {
+  container.addEventListener("selectionchange", (event) => {
+    event.stopPropagation();
+  });
+}
+
 /** Renders the whole app at `url` (path and search) with a memory history: routes, loaders and the router's `Wrap`. */
 export async function renderRoute(url: string) {
   const router = getRouter();
   router.update({ ...router.options, history: createMemoryHistory({ initialEntries: [url] }) });
   const screen = await render(<RouterProvider router={router} />);
+  stopSelectionChange(screen.container);
   return { router, screen, queryClient: router.options.context.queryClient };
 }

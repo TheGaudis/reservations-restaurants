@@ -12,8 +12,6 @@ interface ReserveButtonProps {
   restaurant: Restaurant;
   /** Day of the card. */
   iso: IsoDate;
-  /** Starts loading the form's chunk before the click (R-31). */
-  preload?: (() => void) | undefined;
 }
 
 /**
@@ -22,7 +20,7 @@ interface ReserveButtonProps {
  * (PLAN § 3.2, § 3.4). Opening a form removes the summary of its column (04 § 5.1, § 7) and gives the focus to
  * its first field; after « Annuler », the button that comes back takes the focus (04 § 5.1).
  */
-export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) {
+export function ReserveButton({ restaurant, iso }: ReserveButtonProps) {
   const search = usePageSearch();
   const navigate = usePageNavigate();
   const columns = useBookingColumns();
@@ -31,9 +29,6 @@ export function ReserveButton({ restaurant, iso, preload }: ReserveButtonProps) 
       <Button
         ref={focusOnMount(columnFocus.reserve(restaurant))}
         variant="primary"
-        onPointerEnter={preload}
-        onFocus={preload}
-        onPointerDown={preload}
         onClick={() => {
           const day = restaurant === "r1" ? { r1: iso } : { r2: iso };
           columns.clear(restaurant);

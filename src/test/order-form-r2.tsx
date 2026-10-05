@@ -4,7 +4,6 @@ import { page, userEvent } from "vitest/browser";
 import { addBookingR2Multi } from "@/api/actions";
 import { useClock, watchR2Cutoff } from "@/background/clock";
 import { DayCardR2 } from "@/features/r2/DayCardR2";
-import { OrderFormR2Slot } from "@/features/r2/OrderFormR2Slot";
 import { purgeStaffSession } from "@/queries/purge";
 import { useSessionStore } from "@/session/session";
 import { fakeScript } from "@/test/browser-fake-script";
@@ -38,8 +37,7 @@ export function setUpOrderFormTests() {
 }
 
 export const column = () => page;
-export const renderPage = async (url: string) =>
-  renderColumn(url, "r2", <DayCardR2 form={<OrderFormR2Slot />} />);
+export const renderPage = async (url: string) => renderColumn(url, "r2", <DayCardR2 />);
 export const field = (name: string | RegExp) => column().getByRole("textbox", { name });
 export const quantity = (dish: string) => field(`Quantité : ${dish}`);
 export const button = (name: string) => column().getByRole("button", { name, exact: true });
