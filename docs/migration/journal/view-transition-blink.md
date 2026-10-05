@@ -8,6 +8,8 @@
 - **Correctif** : `CalendarHeader`, `CalendarGrid` et `DayDetail` posent `data-transition-name` au lieu du style en ligne. `view-transitions.css` en fait un `view-transition-name` sous `:root:active-view-transition-type(r1-…)` ou `(r2-…)` seulement. L'autre colonne reste dans l'image racine, qui change d'un coup.
 - **Vérifié dans Chromium** (sonde sur `document.startViewTransition`, `pnpm dev`) : un clic sur un jour de R1 ne crée plus que les pseudo-éléments `r1-*` ; ‹ › (`r1-next`), « Mois » (`r2-zoom-out`) et ‹ en vue mois (`r2-prev`) gardent leurs animations, donc le nom est posé à la capture de l'image « avant ».
 
+- **Story `OrderFormR2 › Sending` rouge en CI** (job `browser`, projet `storybook`), sans lien avec ce correctif : `closedOnSending` relit `Date.now()` à l'envoi (04 § 5.3), alors que `clockAt` ne fixait que l'horloge du site. Le 5 octobre 2026 après 10 h à Paris, la vraie date tombe sur le jour de la story et l'envoi est refusé ; à partir du 6, ce jour serait passé. `clockAt` (`src/test/story-router.tsx`) fait maintenant partir `Date.now()` de la même heure pendant la story. Projet `storybook` : 187 sur 187.
+
 ## Reste
 
 - Vérifier sur Safari : WebKit n'est pas installé dans les sessions cloud.
