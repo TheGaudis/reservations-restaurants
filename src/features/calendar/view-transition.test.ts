@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { cdp } from "vitest/browser";
 
 import { startViewTransition } from "@/features/calendar/view-transition";
 
@@ -10,8 +11,15 @@ function recordUnhandled(event: PromiseRejectionEvent): void {
 }
 window.addEventListener("unhandledrejection", recordUnhandled);
 
-afterEach(() => {
+async function emulateReducedMotion(reduce: boolean): Promise<void> {
+  await cdp().send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-reduced-motion", value: reduce ? "reduce" : "no-preference" }],
+  });
+}
+
+afterEach(async () => {
   unhandled.length = 0;
+  await emulateReducedMotion(false);
 });
 
 /** Update of a navigation, like the router's: `step` changes the page, then the update ends. */
@@ -47,6 +55,19 @@ describe("startViewTransition", () => {
         updated = true;
       }),
       transition,
+    );
+    expect(updated).toBe(true);
+    await navigation;
+  });
+
+  it("navigates without a transition when the visitor asks for less motion (05 § 3.4)", async () => {
+    await emulateReducedMotion(true);
+    let updated = false;
+    const navigation = startViewTransition(
+      updateBy(() => {
+        updated = true;
+      }),
+      { types: ["r1-next"] },
     );
     expect(updated).toBe(true);
     await navigation;

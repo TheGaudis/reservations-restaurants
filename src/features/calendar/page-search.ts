@@ -27,15 +27,9 @@ export function useSelectedDay(restaurant: Restaurant): IsoDate {
   return selectedDay(usePageSearch(), restaurant, useToday());
 }
 
-/**
- * View transition types of the router (`:active-view-transition-type(r1-next)`), or none: the motion is an extra,
- * left out when the visitor asks for less motion or the browser lacks transition types (05 § 3.4). Called from an
- * event handler, never while rendering.
- */
+/** View transition types of the router (`:active-view-transition-type(r1-next)`), or none (05 § 3.4). */
 function viewTransition(transition: PageNavigation["transition"]): { types: string[] } | false {
   if (transition === undefined) return false;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  if (!CSS.supports("selector(:active-view-transition-type(a))")) return false;
   return { types: [`${transition.restaurant}-${transition.kind}`] };
 }
 
