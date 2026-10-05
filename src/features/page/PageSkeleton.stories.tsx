@@ -4,7 +4,7 @@ import { PageSkeleton } from "@/features/page/PageSkeleton";
 
 import preview from "../../../.storybook/preview";
 
-// G-01 (09 § 2, 03 § 3): the page before any data, prerendered in the shell.
+// G-01 (09 § 2, 03 § 3): `<main>` before any data, pending component of the routes.
 
 const meta = preview.meta({ component: PageSkeleton });
 
@@ -29,8 +29,6 @@ export const StoredTitles = meta.story({
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("heading", { name: "Le Gourmet" })).toBeVisible();
-    await expect(canvas.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Réservations des restaurants pédagogiques et Bistrot",
-    );
+    await expect(canvas.getByRole("heading", { name: "Bistrot" })).toBeVisible();
   },
 });

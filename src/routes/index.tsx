@@ -16,7 +16,14 @@ const HomeSearch = v.object({
   retour: v.fallback(v.optional(v.pipe(v.string(), v.startsWith("/collegue"))), undefined),
 });
 
+/**
+ * The first read of this page load (03 § 2.4): started here, or taken from `AutoRefresh` when it started it first; it
+ * reuses the early fetch of the <head>. Nothing to wait for with the local copy, nor once the first read is over: later
+ * reads belong to `AutoRefresh` and « Réessayer » (03 § 3.2, § 5.2).
+ */
 async function firstRead(queryClient: QueryClient): Promise<void> {
+  const state = queryClient.getQueryState(publicStateOptions.queryKey);
+  if (state?.data !== undefined || state?.status === "error") return;
   try {
     await queryClient.query(publicStateOptions);
   } catch {
@@ -33,19 +40,12 @@ export const Route = createFileRoute("/")({
       retainSearchParams(CALENDAR_KEYS),
     ],
   },
-  // Never waits for the script (PLAN § 3.3.1, step 4): with the local copy the page shows it at once and AutoRefresh
-  // reads the script after the first render; without it this starts the first read (it takes the early fetch of the
-  // <head>) and the page keeps its skeleton until the answer, or shows the load error box (G-01, G-03, 03 § 2.4).
-  loader: ({ context: { queryClient } }) => {
-    // Once only: a later navigation never reads again (AutoRefresh and « Réessayer » do).
-    if (queryClient.getQueryState(publicStateOptions.queryKey) === undefined) {
-      void firstRead(queryClient);
-    }
+  // Waits for the first read without a local copy: the skeleton until it answers or fails (G-01, G-03); with the copy,
+  // the page shows it at once (G-02, PLAN § 3.3.1).
+  loader: async ({ context: { queryClient } }) => {
+    await firstRead(queryClient);
   },
-  // pendingMinMs: 0 is safe only because the page renders exactly PageSkeleton while hydrating (useHydrated in Page);
-  // without that barrier, React error #418 (PLAN § 2.1, arbitrage 16).
   pendingMs: 0,
-  pendingMinMs: 0,
   pendingComponent: PageSkeleton,
   component: PublicPage,
 });

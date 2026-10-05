@@ -3,11 +3,8 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-  useLocation,
 } from "@tanstack/react-router";
 import type { AnyRouter } from "@tanstack/react-router";
-import { Fragment } from "react";
-import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
@@ -27,12 +24,7 @@ import { TestToaster } from "@/test/TestToaster";
 
 // « Client / Collègue » and the login panel (06 § 1.1-1.3, 09 L-01, E-04, E-23), in a memory router with the paths
 // / and /collegue but without the HTML shell: a focused field in `renderRoute` blocks the test page (journal p4c).
-
-/** The switch mounts again on a new path, as the page of each route mounts its own. */
-function KeyedByPath({ children }: { children: ReactNode }) {
-  const pathname = useLocation({ select: (location) => location.pathname });
-  return <Fragment key={pathname}>{children}</Fragment>;
-}
+// Like the root, the router keeps the same switch from one path to the other.
 
 function memoryRouter(url: string): AnyRouter {
   const root = createRootRoute({ component: StoryRoot });
@@ -55,9 +47,7 @@ async function renderSwitch(url = "/", { fromCache = false } = {}) {
   const screen = await render(
     <TestProviders queryClient={queryClient}>
       <StoryRouter router={router}>
-        <KeyedByPath>
-          <ModeSwitch />
-        </KeyedByPath>
+        <ModeSwitch />
         <TestToaster />
       </StoryRouter>
     </TestProviders>,

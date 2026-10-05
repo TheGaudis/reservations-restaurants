@@ -1,9 +1,8 @@
 import { Column } from "@/features/page/Column";
 import { ColumnSkeleton } from "@/features/page/ColumnSkeleton";
-import { Header } from "@/features/page/Header";
-import { columnTexts, useSkeletonTexts } from "@/features/page/page-texts";
+import { columnTexts, useDefaultTexts, useSkeletonTexts } from "@/features/page/page-texts";
 import type { PageTexts } from "@/features/page/page-texts";
-import { Columns, Main, PageLayout } from "@/features/page/PageLayout";
+import { Columns, Main } from "@/features/page/PageLayout";
 
 interface SkeletonColumnsProps {
   texts: PageTexts;
@@ -26,19 +25,22 @@ export function SkeletonColumns({ texts, still = false }: SkeletonColumnsProps) 
 }
 
 /**
- * The page before any data (G-01, 03 § 3): header, titles and descriptions, a skeleton in each column, no
- * « Chargement » text. Prerendered in the shell (pending component): while React hydrates it renders exactly the
- * prerendered markup, with the default titles; then the titles of the last visit (03 § 1.2). `Page` renders the same
- * markup while React hydrates (arbitrage 16).
+ * `<main>` before any data (G-01, 03 § 3): titles and descriptions of the last visit (03 § 1.2) or the defaults, a
+ * skeleton in each column, no « Chargement » text. Pending component of the routes, under the header of the root.
  */
 export function PageSkeleton() {
-  const texts = useSkeletonTexts();
   return (
-    <PageLayout>
-      <Header texts={texts} />
-      <Main busy>
-        <SkeletonColumns texts={texts} />
-      </Main>
-    </PageLayout>
+    <Main busy>
+      <SkeletonColumns texts={useSkeletonTexts()} />
+    </Main>
+  );
+}
+
+/** The same `<main>` in the prerendered shell, with the default titles: Node has no storage to read. */
+export function ShellSkeleton() {
+  return (
+    <Main busy>
+      <SkeletonColumns texts={useDefaultTexts()} />
+    </Main>
   );
 }

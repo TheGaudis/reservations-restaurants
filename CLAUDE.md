@@ -53,9 +53,10 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Écritures jamais doublées, rejouées ni interrompues ; `requestId` créé au montage du formulaire, gardé pour un nouvel essai.
 - POST en `Content-Type: text/plain;charset=utf-8`, aucun autre en-tête ; GET sans en-tête.
 - Heure de référence : Europe/Paris (`domain/paris.ts`) ; jours métier = chaînes ISO ; jamais `new Date()` ni `Date.now()` au rendu.
-- Hydratation (arbitrage 16) : `pendingMinMs` garde sa valeur par défaut, sauf sur une route dont le composant rend exactement
-  `PageSkeleton` tant que `useHydrated()` (`features/page/use-hydrated.ts`) vaut `false` (route `/`, essai validé en P0 (b)) ;
-  jamais `pendingMinMs: 0` sans cette barrière, jamais de `onRecoverableError` pour masquer l'erreur #418.
+- Hydratation (arbitrage 16) : la racine (`routes/__root.tsx`) monte le cadre, l'en-tête et le sélecteur une seule fois et
+  rend les routes dans `BrowserOnly` (`features/page/BrowserOnly.tsx`, `use(browser())`) : aucune route n'est hydratée.
+  Dans la racine, ce qui lit l'URL, la session, `localStorage` ou l'horloge se rend dans `BrowserOnly`, avec en `fallback`
+  le balisage de la coquille. `defaultPendingMinMs: 0`. Jamais de `onRecoverableError` pour masquer l'erreur #418.
 
 ## Où vit l'état
 

@@ -40,8 +40,11 @@ export function getRouter() {
     defaultStructuralSharing: true,
     scrollRestoration: true,
     defaultPendingComponent: PageSkeleton,
+    // The root renders the routes in `BrowserOnly`: React never hydrates them, so the pending component needs no
+    // minimum time to keep the prerendered shell (arbitrage 16). With 500 ms, the router would hold the first render of
+    // / after the shell that long, local copy or not.
+    defaultPendingMinMs: 0,
     defaultErrorComponent: LoadErrorPage,
-    // defaultPendingMinMs keeps its default (500 ms): 0 triggers React error #418 on hydration (PLAN arbitrage 16)
     Wrap: ({ children }) => (
       <QueryClientProvider client={queryClient}>
         <RawIntlProvider value={intl}>{children}</RawIntlProvider>
