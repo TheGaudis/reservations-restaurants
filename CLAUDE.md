@@ -56,8 +56,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Hydratation (arbitrage 16) : la racine (`routes/__root.tsx`) monte le cadre, l'en-tête et le sélecteur une seule fois et
   rend les routes dans `BrowserOnly` (`features/page/BrowserOnly.tsx`, `use(browser())`) : aucune route n'est hydratée.
   Dans la racine, ce qui lit l'URL, la session, `localStorage` ou l'horloge se rend dans `BrowserOnly`, avec en `fallback`
-  le balisage de la coquille. `defaultPendingMinMs: 0`. Jamais de `onRecoverableError` pour masquer l'erreur #418 ;
-  `onCaughtError` (`client.tsx`) ne tait que `FirstReadError`, affichée par `LoadErrorPage`.
+  le balisage de la coquille. `defaultPendingMinMs: 0`. Jamais de `onRecoverableError` pour masquer l'erreur #418.
 
 ## Où vit l'état
 

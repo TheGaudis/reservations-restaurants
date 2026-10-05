@@ -3,7 +3,7 @@
 *Rédigé le 3 octobre 2026. Feuille de route des sessions d'implémentation (humaines ou agents). Branche d'intégration : `claude/frontend-react-migration-lw5zfz`.*
 
 **Journal du plan** (le plus récent en tête) :
-- Exécution, 5 octobre 2026 (session `start-browser`, autorisée à modifier ce plan) : architecture A retenue par le responsable. La racine monte une seule fois le cadre, l'en-tête, le sélecteur « Client / Collègue », `AutoRefresh` et les toasts ; `BrowserOnly` (`use(browser())`, React 19.3) rend dans le navigateur seulement les titres de l'en-tête, le sélecteur et les routes, si bien qu'aucune route n'est hydratée. `useHydrated()`, `usePageStatus`, `Page`, `PageHeader`, `PageMain` et `WhenLoaded` disparaissent ; `defaultPendingMinMs: 0` pour toutes les routes. Le loader de `/` attend la première lecture sans copie locale et ne rejette jamais ; après un échec, `PublicPage` lance une `FirstReadError` que `LoadErrorPage`, composant d'erreur de la route, affiche sous l'en-tête ; la page revient dès qu'une lecture réussit. Mesures (S4, médiane de 7) : 171 ms avec la copie, un seul `<header>` et un seul `<main>`, logo demandé une fois. Sections mises à jour : § 0, § 2.1, § 3.1, § 3.2, § 3.3.1, § 3.3.2, § 3.9, § 3.11, E-47, § 5.0, P0, P4, R-01, annexes C et E (journal `start-browser.md`).
+- Exécution, 5 octobre 2026 (session `start-browser`, autorisée à modifier ce plan) : architecture A retenue par le responsable. La racine monte une seule fois le cadre, l'en-tête, le sélecteur « Client / Collègue », `AutoRefresh` et les toasts ; `BrowserOnly` (`use(browser())`, React 19.3) rend dans le navigateur seulement les titres de l'en-tête, le sélecteur et les routes, si bien qu'aucune route n'est hydratée. `useHydrated()`, `usePageStatus`, `Page`, `PageHeader`, `PageMain` et `WhenLoaded` disparaissent ; `defaultPendingMinMs: 0` pour toutes les routes. Le loader de `/` attend la première lecture sans copie locale et attrape son échec ; la page observe la requête et affiche l'encadré et les colonnes au squelette arrêté, puis les données dès qu'une lecture réussit. Variante essayée puis écartée par le responsable : l'échec lancé vers le composant d'erreur de la route (`errorComponent`). Le routeur réinitialise cette frontière à chaque navigation (nouveau match) et React remonte alors le composant d'erreur, ce qui réinsère l'alerte à l'ouverture du panneau de connexion, contre E-42 ; elle demandait aussi un `onCaughtError` et un `useEffect`. Mesures (S4, médiane de 7) : 171 ms avec la copie, un seul `<header>` et un seul `<main>`, logo demandé une fois. Sections mises à jour : § 0, § 2.1, § 3.1, § 3.2, § 3.3.1, § 3.3.2, § 3.9, § 3.11, E-47, § 5.0, P0, P4, R-01, annexes C et E (journal `start-browser.md`).
 - Exécution, 4 octobre 2026 (orchestrateur) : PR #3 (`claude/page-composition`) : `Page` se compose par enfants (`PageHeader`, `PageMain`, `WhenLoaded`, `PageLoadError`, `PageColumn`, qui lisent l'état par `usePageStatus`) ; les emplacements `ReactNode` (`modeSwitch`, `panels`, `r1={{ admin, calendar, card }}`) disparaissent, et `DayCardR1` et `DayCardR2` rendent leur formulaire (plus de prop `form`). Trois décisions du responsable, même PR : (1) formulaires publics et `LoginPanel` importés statiquement, `lazy-chunks.ts`, les `*Slot`, le préchargement de « Réserver » et `Spinner` supprimés, budget S3 porté à 240 kB (220,5 kB mesurés, § 1.5) ; (2) pas de prop `ReactNode` de mise en page dans les composants métier : `DayCardTop` porte la date et la jauge, `DishFieldset` reçoit ses lignes en `children` ; (3) ce plan mis à jour (§ 1.5, § 3.1, § 3.2, § 5.0, R-06, R-15, R-31, R-36). R-36 : cause trouvée et corrigée dans `renderRoute`. Essai en cours dans une session à part (`claude/router-loading`) : le loader de la route attend la lecture et `usePageStatus` disparaît.
 - Exécution, 4 octobre 2026 (orchestrateur) : P7 (a) fusionnée (`ec0b57f`) : suite de régression entière, sans filtre, verte trois fois sur `legacy`, `react` et `react-only` (516 sur 516, deux fois) ; aucun écart non listé, aucun correctif du site nécessaire ; `E2E_REACT_GREP` retiré de la CI ; exclusions knip retirées, code mort supprimé, `@internal` pour les exports lus par leurs seuls tests ; test S2 `src/test/message-sources.test.ts` (342 messages retrouvés dans la spec ou l'annexe F) ; S4 : squelette 208 à 247 ms. Écart E-59 (animations de sortie). Annexe D rétablie : les mises à jour de statut de P5 à P7 avaient aussi réécrit ses lignes (erreur de l'orchestrateur). REG-40 a dépassé une fois 30 s sous charge, non reproduit : à surveiller en CI.
 - Exécution, 4 octobre 2026 (orchestrateur) : P7 (b) fusionnée (`57ec5dc`) : `e2e/a11y.spec.ts` (8 écrans, 0 violation, aucune règle coupée) et 185 stories sous axe sans exception ; écart E-58 (niveaux de titres du panneau « Demain » et du document D) ; build de validation `pnpm exec vite build --mode real` (lit `.env.real.local`, § 3.11) ; `PrintLayout` reçoit `subtitleHeading` (§ 3.8) ; option `--host` de `scripts/serve-pages.ts` (orchestrateur) ; budget inchangé (180,4 kB JS, 10,9 kB CSS, rapport par morceau dans `journal/p7b.md`). `docs/migration/validation.md` relu par l'orchestrateur, complété par la vérification de `getAdminState` sur le script déployé.
@@ -256,14 +256,13 @@ reservations-restaurants/
 └── src/
     ├── router.tsx              getRouter() : QueryClient, restauration de la copie locale, routeur, abonnement de session, tâches de fond
     ├── client.tsx              point d'entrée client : celui de Start, plus le démarrage du worker msw quand `pnpm dev` tourne sur le faux script
-    │                           (code éliminé du build de production) ; aucun onRecoverableError (arbitrage 16) ; onCaughtError
-    │                           qui tait seulement FirstReadError (affichée par LoadErrorPage)
+    │                           (code éliminé du build de production) ; aucun onRecoverableError (arbitrage 16)
     ├── routeTree.gen.ts        GÉNÉRÉ par le plugin Start, commité, ignoré par oxlint, oxfmt et knip
     ├── config.ts               APPS_SCRIPT_URL (import.meta.env.VITE_APPS_SCRIPT_URL), isConfigMissing(), USE_MOCK_API (DEV et VITE_MOCK_API=1)
     ├── routes/
     │   ├── __root.tsx          shellComponent (html, head, ScriptOnce de lecture anticipée, body), head(), contexte typé ; AUCUN loader ni beforeLoad ;
     │   │                       composant : cadre persistant (PageLayout, Header, ModeSwitch, AutoRefresh, toasts) autour de <Outlet /> dans BrowserOnly
-    │   ├── index.tsx           page publique : validateSearch, loader qui attend la première lecture (waitForFirstRead), composant < 40 lignes
+    │   ├── index.tsx           page publique : validateSearch, loader qui attend la première lecture et attrape son échec, composant < 40 lignes
     │   ├── collegue.tsx        mode collègue (nom imposé par l'URL /collegue) : validateSearch, beforeLoad (garde), loader (état complet), composant < 40 lignes
     │   ├── index[.]html.tsx    redirection des anciens favoris …/index.html vers /
     │   └── $.tsx               attrape-tout « Page introuvable » (limite aussi l'issue #8473)
@@ -311,7 +310,6 @@ reservations-restaurants/
     │   ├── local-cache.ts      LocalCacheV1 (schéma du format v1, champs tels quels), restoreLocalCache, persistLocalCache, readFallbackTexts,
     │   │                       conversions v1 ↔ PublicState dans les deux sens
     │   ├── use-app-state.ts    useAppState(select), useIsFromCache(), usePublicReadStatus(), APP_START
-    │   ├── first-read.ts       FirstReadError, waitForFirstRead (loader de /), useFirstReadOrThrow (PublicPage), logCaughtError (client.tsx)
     │   ├── AutoRefresh.tsx     <AutoRefresh/> (seul observateur avec refetchInterval)
     │   └── purge.ts            purgeStaffSession(queryClient)
     ├── mutations/
@@ -405,6 +403,7 @@ Exemple (route publique) :
 
 ```tsx
 // src/routes/index.tsx
+import type { QueryClient } from "@tanstack/react-query";
 import { createFileRoute, retainSearchParams, stripSearchParams } from "@tanstack/react-router";
 import * as v from "valibot";
 
@@ -412,7 +411,7 @@ import { CALENDAR_KEYS } from "@/domain/navigation";
 import { CalendarSearch } from "@/features/calendar/search";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { PublicPage } from "@/features/page/PublicPage";
-import { waitForFirstRead } from "@/queries/first-read";
+import { publicStateOptions } from "@/queries/state";
 
 const HomeSearch = v.object({
   ...CalendarSearch.entries,
@@ -420,6 +419,18 @@ const HomeSearch = v.object({
   connexion: v.fallback(v.optional(v.boolean(), false), false),
   retour: v.fallback(v.optional(v.pipe(v.string(), v.startsWith("/collegue"))), undefined),
 });
+
+// The first read of this page load, started here or by AutoRefresh; nothing to wait for with the local copy, nor once
+// the first read is over (later reads belong to AutoRefresh and « Réessayer »).
+async function firstRead(queryClient: QueryClient): Promise<void> {
+  const state = queryClient.getQueryState(publicStateOptions.queryKey);
+  if (state?.data !== undefined || state?.status === "error") return;
+  try {
+    await queryClient.query(publicStateOptions);
+  } catch {
+    // The failure stays in the query: the page shows the load error box (G-03).
+  }
+}
 
 export const Route = createFileRoute("/")({
   validateSearch: HomeSearch,
@@ -430,10 +441,10 @@ export const Route = createFileRoute("/")({
       retainSearchParams(CALENDAR_KEYS),
     ],
   },
-  // Waits for the first read without a local copy: the skeleton until it answers (G-01); with the copy, the page shows
-  // it at once (G-02). Never rejects: after a failure, PublicPage throws it to LoadErrorPage (G-03).
+  // Waits for the first read without a local copy: the skeleton until it answers or fails (G-01, G-03); with the copy,
+  // the page shows it at once (G-02).
   loader: async ({ context: { queryClient } }) => {
-    await waitForFirstRead(queryClient);
+    await firstRead(queryClient);
   },
   pendingMs: 0,
   pendingComponent: PageSkeleton,
@@ -485,7 +496,7 @@ export const publicStateOptions = queryOptions({
 1. GitHub Pages sert `index.html` (ou `404.html` pour un lien profond) : la coquille prérendue au build contient les `<meta>` de `03` § 2.1 (charset, `viewport` avec `viewport-fit=cover`, `theme-color` `#FFFFFF`, description), le `<title>` `Réservations — Restaurants pédagogiques`, le favicon SVG en data-URI repris d'`index.html`, les `preconnect` vers `https://script.google.com` et `https://script.googleusercontent.com` avec `crossOrigin: 'anonymous'`, la CSS hachée, les `modulepreload`, et dans `<body>` le squelette (titres par défaut, calendriers `.sk` en `aria-hidden`).
 2. Le `<ScriptOnce>` de lecture anticipée s'exécute (React le place après la CSS, voir R-12) : il lit `reservations-cache-v1` dans un `try/catch`, retient l'`etag` s'il est non vide et si `savedAt` a moins de 14 jours, lance `fetch(URL + (etag ? '?since=' + encodeURIComponent(etag) : ''))`, ajoute `.catch(() => {})`, et expose `window.__EARLY_FETCH__ = { since, response, startedAt: performance.now() }`. Il garde la `Response`, pas `r.json()`, pour que le traitement d'erreur soit celui des autres lectures.
 3. Le bundle s'exécute. `getRouter()` (appelé aussi dans Node au build, d'où la garde `typeof window`) crée le `QueryClient`, puis côté navigateur : `restoreLocalCache()` valide la copie par `LocalCacheV1`, la convertit en `PublicState` et la pose par `setQueryData(['state','public'], state, { updatedAt: savedAt })` ; sans copie valide, `readFallbackTexts()` lit `reservations-textes` pour les titres du squelette ; `persistLocalCache()` s'abonne au cache ; le routeur est créé avec `context: { queryClient, session }` ; l'abonnement de session et les tâches de fond démarrent.
-4. `router.load()` exécute le loader de `/` (`waitForFirstRead`) : avec la copie, ou une fois la première lecture terminée, il rend aussitôt ; sans copie, il attend la première lecture (`queryClient.query(publicStateOptions)`, qui reprend la lecture anticipée, ou la lecture déjà lancée par `<AutoRefresh/>`). Il attrape l'échec : le match reste chargé, si bien qu'une navigation ne relance pas le loader (`router-core/src/load-client.ts` l. 785 relance celui d'un match en erreur). Le squelette (`PageSkeleton`, composant d'attente) reste sous l'en-tête jusqu'à la réponse (G-01) ; après un échec sans copie, `PublicPage` lance une `FirstReadError` que `LoadErrorPage` affiche (G-03).
+4. `router.load()` exécute le loader de `/` (`firstRead`) : avec la copie, ou une fois la première lecture terminée, il rend aussitôt ; sans copie, il attend la première lecture (`queryClient.query(publicStateOptions)`, qui reprend la lecture anticipée, ou la lecture déjà lancée par `<AutoRefresh/>`). Il attrape l'échec : le match reste chargé, si bien qu'une navigation ne relance pas le loader (`router-core/src/load-client.ts` l. 785 relance celui d'un match en erreur). Le squelette (`PageSkeleton`, composant d'attente) reste sous l'en-tête jusqu'à la réponse (G-01) ; après un échec sans copie, `PublicPage` affiche l'encadré et les colonnes au squelette arrêté, et passe aux données dès qu'une lecture réussit, puisqu'elle observe la requête (G-03). L'échec ne passe pas par le composant d'erreur de la route : le routeur réinitialise cette frontière à chaque navigation, React remonterait l'encadré et réannoncerait l'alerte (E-42).
 5. Hydratation puis rendu : React hydrate la racine (cadre, en-tête, logo) ; les frontières `BrowserOnly` (titres, sélecteur, `<Outlet />`) se rendent ensuite dans le navigateur, sans hydratation, et le contenu de la route remplace le squelette de la coquille (`defaultPendingMinMs: 0`, arbitrage 16). `useAppState()` renvoie la copie ; `useIsFromCache()` vaut `dataUpdatedAt < APP_START` (G-02 : « Réserver » actif, connexion collègue refusée avec le toast `Les données se chargent. Réessayez dans un instant.`).
 6. `<AutoRefresh/>` se monte : la donnée restaurée est périmée (`restoreLocalCache` l'invalide aussitôt : avec `updatedAt = savedAt` et `staleTime` 180 s, une copie de moins de 3 min serait sinon jugée fraîche, P2 (b2)), la `queryFn` part ; `takeEarlyFetch(since)` rend la lecture du `<head>` si son `since` est identique (une seule fois), sinon un nouveau `fetch` part ; la lecture doublée est armée pour le **temps restant** jusqu'à 6 s depuis `startedAt` ; un nouvel essai après 1,5 s si l'échec est transitoire et que le navigateur est en ligne.
 7. Réponse : `{ unchanged: true }` → même référence, la donnée redevient fraîche, la copie est réécrite avec un `savedAt` neuf ; nouvel état → validé, partage structurel (seuls les jours modifiés sont rendus de nouveau), copie réécrite ; échec → la donnée affichée est conservée et l'encadré d'échec apparaît, avec le suffixe « copie locale » si `useIsFromCache()`.
@@ -715,7 +726,7 @@ Repris du tableau de `recherche/ui-forms.md` § 9, adapté aux décisions. Chaqu
 | --- | --- | --- |
 | Premier chargement sans copie (G-01) | coquille prérendue (`ShellSkeleton`) + loader de `/` qui attend + `pendingComponent` (`PageSkeleton`), sous l'en-tête de la racine | squelette des deux calendriers (`aria-hidden`), titres par défaut ou de `reservations-textes`, aucun texte « Chargement » (`03` § 3), sélecteur « Client / Collègue » affiché dès l'hydratation (`03` § 2.3) ; avec la copie locale aussi, le squelette de la coquille reste jusqu'au rendu de la route par le navigateur (environ 170 ms mesurés, ≤ 600 ms exigés, E-47) |
 | Copie locale affichée, données pas encore confirmées (G-02) | `useIsFromCache()` | page complète interactive, « Réserver » actif ; connexion refusée : toast `Les données se chargent. Réessayez dans un instant.` |
-| Échec de lecture (G-03) | « échec » = la dernière lecture a échoué et aucune n'a réussi depuis le chargement (`errorUpdatedAt > dataUpdatedAt` et `dataUpdatedAt < APP_START`, `usePublicReadStatus`). Sans état : `PublicPage` lance une `FirstReadError` (`useFirstReadOrThrow`) vers `LoadErrorPage`, composant d'erreur de la route, qui remplit le `<main>` (encadré, colonnes au squelette arrêté) sous l'en-tête ; un `useEffect` y appelle le `reset()` du routeur dès qu'une lecture réussit (« Réessayer » ou `<AutoRefresh/>`). Avec la copie locale : `PageLoadError` au-dessus des colonnes. `onCaughtError` (`client.tsx`) tait seulement `FirstReadError`. `LoadErrorPage` reste aussi le composant d'erreur par défaut (erreur de rendu, état complet de `/collegue`) | `LoadErrorBox` (`role="alert"`) : textes exacts de `03` § 3.1 (en ligne / hors ligne via `navigator.onLine`, suffixe « copie locale ») ; bouton `Réessayer` occupé `Nouvelle tentative…` → `refetch()` après un premier échec (une lecture, encadré gardé, REG-04), `reset()` puis `router.invalidate()` après une autre erreur ; réannonce seulement si le texte change (a-21), sauf à une navigation pendant l'échec : la frontière d'erreur du routeur se réinitialise (nouveau match), React remonte `LoadErrorPage` et réinsère l'alerte (journal `start-browser.md`) ; le toast inatteignable de `03` § 3.2 n'est pas recréé |
+| Échec de lecture (G-03) | « échec » = la dernière lecture a échoué et aucune n'a réussi depuis le chargement (`errorUpdatedAt > dataUpdatedAt` et `dataUpdatedAt < APP_START`, `usePublicReadStatus`). La page de la route observe la requête : `PageLoadError` au-dessus des colonnes, et `PageColumn` rend le squelette arrêté tant qu'il n'y a pas d'état ; avec la copie locale, les colonnes gardent la copie. Le même encadré reste d'une navigation à l'autre et disparaît dès qu'une lecture réussit (« Réessayer » ou `<AutoRefresh/>`), sans `useEffect`. `LoadErrorPage` reste le composant d'erreur par défaut du routeur, pour les vraies erreurs (erreur de rendu, état complet de `/collegue`) | `LoadErrorBox` (`role="alert"`) : textes exacts de `03` § 3.1 (en ligne / hors ligne via `navigator.onLine`, suffixe « copie locale ») ; bouton `Réessayer` occupé `Nouvelle tentative…` → `refetch()` dans la page (une lecture, encadré gardé, REG-04), `reset()` puis `router.invalidate()` dans `LoadErrorPage` ; réannonce seulement si le texte change (a-21) ; le toast inatteignable de `03` § 3.2 n'est pas recréé |
 | Configuration manquante (G-05) | `isConfigMissing()` au build et à l'exécution | `ConfigBanner` si l'URL est absente, ne ressemble pas à `https://script.google.com/macros/s/…/exec` ou contient `COLLE_ICI` (a-25) ; texte selon D-05 ; couvert par une story et un test Vitest du composant (`isConfigMissing` simulé), pas par l'E2E (F-07) |
 | Erreur métier d'écriture | `BusinessError` | message exact du script (`02` § 4) sous le champ ou en toast d'erreur ; formulaire et `requestId` conservés ; relecture de l'état après une erreur de places (a-4) |
 | Erreur réseau, page HTML de Google, réponse illisible | `ServiceError` (et `TypeError` de `fetch`) | jamais de message anglais brut (a-3) : textes de D-14 |
@@ -838,7 +849,7 @@ export function getRouter() {
 
 Le shell : `<html lang="fr"><head><ScriptOnce>{earlyFetchScript}</ScriptOnce><HeadContent /></head><body>{children}<Scripts /></body></html>` (`children=` en prop est refusé par `react/no-children-prop`) ; `head()` porte les `meta`, le titre, le favicon et les `preconnect` (`crossOrigin: 'anonymous'`). Aucun code de niveau module qui touche `window`, `document` ou `localStorage` dans `__root.tsx`, `router.tsx` et leurs imports (le prérendu échouerait). Le build ne prouve pas la garde `typeof window` de `getRouter()` quand la lecture du stockage est dans un `try/catch` (l'erreur est avalée) : un test Vitest `node` appelle `getRouter()` sans `window` et vérifie que `persistLocalCache` n'est pas abonné (R-02).
 
-Point d'entrée client (`src/client.tsx`, pris en compte par Start) : celui de Start (`hydrateRoot(document, <StrictMode><StartClient /></StrictMode>)` dans un `startTransition`), précédé, seulement quand `USE_MOCK_API` est vrai (`pnpm dev`), de `await (await import("@/mocks/browser")).startDevWorker()` ; Vite élimine ce code du build de production. Aucun `onRecoverableError` (arbitrage 16). `onCaughtError: logCaughtError` (`queries/first-read.ts`) tait la seule `FirstReadError`, que `LoadErrorPage` affiche (G-03), et journalise toute autre erreur attrapée par une frontière ; sans lui, React l'écrit en console à chaque échec de la première lecture et REG-03, REG-04 et REG-06 échouent sur la console stricte de l'E2E. `api/early-fetch.ts` rend un script vide quand `USE_MOCK_API` est vrai, pour que la lecture anticipée ne parte pas avant le worker.
+Point d'entrée client (`src/client.tsx`, pris en compte par Start) : celui de Start (`hydrateRoot(document, <StrictMode><StartClient /></StrictMode>)` dans un `startTransition`), précédé, seulement quand `USE_MOCK_API` est vrai (`pnpm dev`), de `await (await import("@/mocks/browser")).startDevWorker()` ; Vite élimine ce code du build de production. Aucun `onRecoverableError` (arbitrage 16), aucun `onCaughtError` : l'échec de la première lecture n'atteint aucune frontière d'erreur. `api/early-fetch.ts` rend un script vide quand `USE_MOCK_API` est vrai, pour que la lecture anticipée ne parte pas avant le worker.
 
 Environnements : `pnpm dev` lit `.env.development` (faux script, `VITE_MOCK_API=1`) ; `pnpm dev:real` (`--mode real`) lit `.env.real.local`, non versionné, avec l'URL réelle, et affiche le bandeau « Données réelles » (`DevDataBanner`, développement seulement) ; Vitest, Storybook et `pnpm build:e2e` (`--mode test`) lisent `.env.test` (URL factice) ; `pnpm build` en CI reçoit `VITE_APPS_SCRIPT_URL` de la variable de dépôt (artefact de validation, puis déploiement après P8) et ne contient ni msw ni `mockServiceWorker.js`.
 
@@ -1053,7 +1064,7 @@ La colonne « Statut » est tenue par l'orchestrateur (à faire / en cours / ter
 | `src/intl/common-messages.ts` | P4 (a) (remplissage complet depuis `04` § 9 et `06`) | ajouts demandés à l'orchestrateur |
 | `ui/icons.tsx`, `ui/feedback/toast.ts`, `.storybook/`, `src/test/render.tsx` | P3 (0) (`toast.ts` : P3 (a)) | — |
 | `features/page/Page.tsx` (briques `PageLoadError`, `PageColumn`), `PublicPage.tsx` | P4 (a) | P4 (b) ajoute calendriers et fiches dans l'arbre de `PublicPage` |
-| `routes/__root.tsx` (cadre persistant), `features/page/BrowserOnly.tsx`, `queries/first-read.ts`, `features/page/LoadErrorPage.tsx` | session `start-browser` (5 octobre 2026) | demandes à l'orchestrateur |
+| `routes/__root.tsx` (cadre persistant), `features/page/BrowserOnly.tsx` | session `start-browser` (5 octobre 2026) | demandes à l'orchestrateur |
 | `features/booking/*`, `mutations/bookings.ts` | P4 (c) | P4 (d) pour le corps de `useOrderR2` |
 | `routes/collegue.tsx`, `features/page/StaffPage.tsx`, `features/page/ModeSwitch.tsx`, `mutations/login.ts`, `mutations/staff/write.ts` | P5 (a) | chaque session de P5 écrit son panneau ou son bloc dans son propre fichier ; `StaffPage` et les fiches collègue le rendent |
 | `mutations/staff/{days,dishes,bookings,settings}.ts` | P5 (b), (c), (d1), (e) respectivement | P5 (d2) ne touche pas `bookings.ts` |
@@ -1461,8 +1472,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Hydratation (arbitrage 16) : la racine (`routes/__root.tsx`) monte le cadre, l'en-tête et le sélecteur une seule fois et
   rend les routes dans `BrowserOnly` (`features/page/BrowserOnly.tsx`, `use(browser())`) : aucune route n'est hydratée.
   Dans la racine, ce qui lit l'URL, la session, `localStorage` ou l'horloge se rend dans `BrowserOnly`, avec en `fallback`
-  le balisage de la coquille. `defaultPendingMinMs: 0`. Jamais de `onRecoverableError` pour masquer l'erreur #418 ;
-  `onCaughtError` (`client.tsx`) ne tait que `FirstReadError`, affichée par `LoadErrorPage`.
+  le balisage de la coquille. `defaultPendingMinMs: 0`. Jamais de `onRecoverableError` pour masquer l'erreur #418.
 
 ## Où vit l'état
 - URL (search params valibot + `v.fallback`) : jours, vues, formulaire ouvert, panneaux collègue.
@@ -1654,7 +1664,7 @@ Vocabulaire imposé pour le code (arbitrage 12) : un terme métier de la spec se
 | lecture anticipée | early fetch (`api/early-fetch.ts`, `takeEarlyFetch`) | lecture lancée par le script inline du `<head>` |
 | lecture doublée | hedged read (`hedgedRead`) | seconde lecture à 6 s |
 | actualisation automatique | auto refresh (`AutoRefresh`) | |
-| première lecture, échec de la première lecture | first read (`waitForFirstRead`, `useFirstReadOrThrow`), `FirstReadError` | lecture attendue par le loader de `/` ; son échec sans copie va à `LoadErrorPage` |
+| première lecture | first read (`firstRead` du loader de `/`) | lecture attendue par le loader de `/` ; son échec reste dans la requête, que la page observe |
 | erreur métier / service muet | `BusinessError` / `ServiceError` | |
 | identifiant de requête | `requestId` (`newRequestId`) | |
 | doublon | `duplicate` | `_duplicate` pour le script |
