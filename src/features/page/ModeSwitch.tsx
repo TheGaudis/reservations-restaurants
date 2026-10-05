@@ -1,5 +1,5 @@
-import { useNavigate, useRouter, useSearch } from "@tanstack/react-router";
-import { useId } from "react";
+import { useMatch, useNavigate, useRouter } from "@tanstack/react-router";
+import { useId, useRef } from "react";
 import { defineMessages, useIntl } from "react-intl";
 
 import { PasswordRejectedError } from "@/api/errors";
@@ -50,32 +50,20 @@ const messages = defineMessages({
 
 type Mode = "client" | "staff";
 
-/**
- * Focus keys (ui/pending-focus.ts): the segment that takes the focus when the next mode switch mounts, « Collègue »
- * after a login, « Client » after a click on « Client » (06 § 1.3 (5)); the page under the other route mounts a new
- * switch. The password field of a panel opened by « Collègue » (06 § 1.2), not one reopened by a link.
- */
-const FOCUS = {
-  client: "mode-switch:client",
-  staff: "mode-switch:staff",
-  password: "login-password",
-};
+/** The password field takes the focus in a panel opened by « Collègue » (06 § 1.2), not in one reopened by a link. */
+const PASSWORD_FOCUS = "login-password";
 
-const focusClient = focusOnMount(FOCUS.client, (box) =>
-  box.querySelectorAll("button").item(0).focus(),
-);
-const focusStaff = focusOnMount(FOCUS.staff, (box) =>
-  box.querySelectorAll("button").item(1).focus(),
-);
-
-function takePendingFocus(box: HTMLElement | null): void {
-  focusClient(box);
-  focusStaff(box);
-}
-
-const takeFieldFocus = focusOnMount(FOCUS.password, (input) => {
+const takeFieldFocus = focusOnMount(PASSWORD_FOCUS, (input) => {
   input.focus();
 });
+
+/** Focuses the segment of `mode` (06 § 1.3 (5)): the switch stays mounted from / to /collegue. */
+function focusSegment(box: HTMLElement | null, mode: Mode): void {
+  box
+    ?.querySelectorAll("button")
+    .item(mode === "client" ? 0 : 1)
+    .focus();
+}
 
 interface LoginSearch extends PageSearchParams {
   connexion?: boolean | undefined;
@@ -96,7 +84,10 @@ async function preloadStaffPage(load: () => Promise<void> | undefined): Promise<
  * `retour` (the URL kept by the guard of /collegue) or /collegue with the calendars (PLAN § 3.3.3); on failure the
  * script's « Mot de passe incorrect. » or « Erreur de connexion. Réessayez. ». The mutation forgets the password after.
  */
-function useSubmitLogin(search: LoginSearch): (password: string) => Promise<void> {
+function useSubmitLogin(
+  search: LoginSearch,
+  focusStaff: () => void,
+): (password: string) => Promise<void> {
   const intl = useIntl();
   const navigate = useNavigate();
   const router = useRouter();
@@ -112,7 +103,7 @@ function useSubmitLogin(search: LoginSearch): (password: string) => Promise<void
       await login.mutateAsync(password, {
         onSuccess: () => {
           showToast(intl.formatMessage(messages.loggedIn), "success");
-          requestFocus(FOCUS.staff);
+          focusStaff();
           if (search.retour === undefined) {
             void navigate({ to: "/collegue", search: publicSearch(search), replace: true });
           } else {
@@ -131,21 +122,26 @@ function useSubmitLogin(search: LoginSearch): (password: string) => Promise<void
 
 /**
  * « Client / Collègue » and the login panel, on the right of the header (06 § 1.1-1.2, L-01). The panel is open while
- * `?connexion=true` (E-23); closing it empties the field and hides the password again (06 § 1.1). A busy « Valider »
- * replaces the veil (E-04). « Client » during a session logs out (06 § 1.5).
+ * `?connexion=true` on / (E-23); closing it empties the field and hides the password again (06 § 1.1). A busy
+ * « Valider » replaces the veil (E-04). « Client » during a session logs out (06 § 1.5). Mounted once by the root,
+ * it reads the search params of / only: elsewhere the panel stays closed.
  */
 export function ModeSwitch() {
   const intl = useIntl();
   const navigate = useNavigate();
   const panelId = useId();
+  const box = useRef<HTMLDivElement>(null);
   const loggedIn = useSessionStore((session) => session.password !== null);
-  const search: LoginSearch = useSearch({ strict: false });
+  const search: LoginSearch =
+    useMatch({ from: "/", shouldThrow: false, select: (match) => match.search }) ?? {};
   const open = search.connexion === true && !loggedIn;
-  const submit = useSubmitLogin(search);
+  const submit = useSubmitLogin(search, () => {
+    focusSegment(box.current, "staff");
+  });
 
   const closePanel = () => {
     void navigate({
-      to: ".",
+      to: "/",
       search: (previous) => ({ ...previous, connexion: undefined, retour: undefined }),
       replace: true,
     });
@@ -153,29 +149,29 @@ export function ModeSwitch() {
 
   const choose = (mode: Mode) => {
     if (mode === "staff") {
-      requestFocus(FOCUS.password);
+      requestFocus(PASSWORD_FOCUS);
       void navigate({
-        to: ".",
+        to: "/",
         search: (previous) => ({ ...previous, connexion: true }),
         replace: true,
       });
     } else if (loggedIn) {
       // The logout itself (purge, toast, back to /) belongs to background/logout.ts (PLAN § 3.3.4).
-      requestFocus(FOCUS.client);
+      focusSegment(box.current, "client");
       useSessionStore.getState().close("logout");
     } else {
       closePanel();
     }
   };
 
-  // Back to the client mode, focus on « Client » (06 § 1.2): the first segment of this switch.
-  const escape = (input: HTMLInputElement) => {
-    input.closest(`.${styles["box"]}`)?.querySelector("button")?.focus();
+  // Back to the client mode, focus on « Client » (06 § 1.2).
+  const escape = () => {
+    focusSegment(box.current, "client");
     closePanel();
   };
 
   return (
-    <div ref={takePendingFocus} className={styles["box"]}>
+    <div ref={box} className={styles["box"]}>
       <ViewToggle<Mode>
         aria-label={intl.formatMessage(messages.group)}
         className={styles["switch"]}

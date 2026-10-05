@@ -7,7 +7,7 @@ import { Footer } from "@/features/page/Footer";
 import styles from "@/features/page/PageLayout.module.css";
 
 // Frame of every page (08 § 7.1): banners, tricolour stripe, then the header and `Main` given as children, foot.
-// `PageSkeleton`, `LoadErrorPage` and `Page` compose the same pieces, in the same order.
+// The root route mounts it once, around the routes (routes/__root.tsx).
 
 /** Banners, tricolour stripe, then `children` (header, main) and the foot. */
 export function PageLayout({ children }: { children: ReactNode }) {

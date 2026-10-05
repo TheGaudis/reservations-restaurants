@@ -1,7 +1,6 @@
 import { defineMessages, useIntl } from "react-intl";
 
 import type { Restaurant, Settings } from "@/domain/types";
-import { useHydrated } from "@/features/page/use-hydrated";
 import { readFallbackTexts } from "@/queries/local-cache";
 import type { FallbackTexts } from "@/queries/local-cache";
 import { useLoadedAppState } from "@/queries/use-app-state";
@@ -49,7 +48,8 @@ function withDefaults(texts: FallbackTexts | null, defaults: PageTexts): PageTex
   return { name1: pick("name1"), name2: pick("name2"), desc1: pick("desc1"), desc2: pick("desc2") };
 }
 
-function useDefaultTexts(): PageTexts {
+/** Names before any data, also those of the prerendered shell (G-01, 01 § 4.1). */
+export function useDefaultTexts(): PageTexts {
   const intl = useIntl();
   return {
     name1: intl.formatMessage(messages.name1),
@@ -60,22 +60,16 @@ function useDefaultTexts(): PageTexts {
 }
 
 /**
- * Texts before any data (G-01): the defaults while React hydrates, since the prerendered shell holds them, then the
- * titles stored by the old site at the last visit (`reservations-textes`, 03 § 1.2, E-18).
+ * Texts before any data (G-01): the titles stored by the old site at the last visit (`reservations-textes`, 03 § 1.2,
+ * E-18), otherwise the defaults. Reads the storage: render it inside `BrowserOnly` or a route.
  */
 export function useSkeletonTexts(): PageTexts {
-  const defaults = useDefaultTexts();
-  const hydrated = useHydrated();
-  return withDefaults(hydrated ? readFallbackTexts() : null, defaults);
+  return withDefaults(readFallbackTexts(), useDefaultTexts());
 }
 
-/**
- * Texts of the page: the settings of the state shown (local copy or script), otherwise those of the skeleton. While
- * React hydrates, the defaults of the prerendered shell, even with a local copy (arbitrage 16).
- */
+/** Texts of the page: the settings of the state shown (local copy or script), otherwise those of the skeleton. */
 export function usePageTexts(): PageTexts {
   const settings = useLoadedAppState((state) => state.settings);
   const skeleton = useSkeletonTexts();
-  const hydrated = useHydrated();
-  return settings === undefined || !hydrated ? skeleton : withDefaults(settings, skeleton);
+  return settings === undefined ? skeleton : withDefaults(settings, skeleton);
 }

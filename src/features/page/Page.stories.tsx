@@ -1,43 +1,45 @@
 import { expect } from "storybook/test";
 
-import { Page, PageColumn, PageHeader, PageLoadError, PageMain } from "@/features/page/Page";
-import { Columns } from "@/features/page/PageLayout";
+import { Header } from "@/features/page/Header";
+import { PageColumn, PageLoadError } from "@/features/page/Page";
+import { Columns, Main } from "@/features/page/PageLayout";
 import { createFakeAppsScript } from "@/mocks/apps-script";
+import { AutoRefresh } from "@/queries/AutoRefresh";
 
 import preview from "../../../.storybook/preview";
 
-// Page of both modes (G-01 to G-04): it reads the fake script of the story. Placeholders stand in for the calendars
-// and the cards.
+// Header and `<main>` of both modes (G-02 to G-04), as the root and a route compose them: `AutoRefresh` reads the fake
+// script of the story. Placeholders stand in for the calendars and the cards.
 
-const meta = preview.meta({
-  component: Page,
-  args: {
-    children: (
-      <>
-        <PageHeader />
-        <PageMain>
-          <PageLoadError />
-          <Columns>
-            <PageColumn restaurant="r1">
-              <p>Calendrier R1</p>
-              <p>Fiche du jour R1</p>
-            </PageColumn>
-            <PageColumn restaurant="r2">
-              <p>Calendrier R2</p>
-              <p>Fiche du jour R2</p>
-            </PageColumn>
-          </Columns>
-        </PageMain>
-      </>
-    ),
-  },
-});
+/** The header, then `<main>` as `PublicPage` composes it. */
+function TestPage() {
+  return (
+    <>
+      <Header />
+      <Main busy={false}>
+        <PageLoadError />
+        <Columns>
+          <PageColumn restaurant="r1">
+            <p>Calendrier R1</p>
+            <p>Fiche du jour R1</p>
+          </PageColumn>
+          <PageColumn restaurant="r2">
+            <p>Calendrier R2</p>
+            <p>Fiche du jour R2</p>
+          </PageColumn>
+        </Columns>
+      </Main>
+      <AutoRefresh />
+    </>
+  );
+}
+
+const meta = preview.meta({ component: TestPage });
 
 /** G-04: the first read answers; the columns show their content. */
 export const Loaded = meta.story({
   play: async ({ canvas }) => {
     await expect(await canvas.findByText("Fiche du jour R1")).toBeVisible();
-    await expect(canvas.getByRole("main")).toHaveAttribute("aria-busy", "false");
   },
 });
 

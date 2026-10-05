@@ -60,8 +60,8 @@ it("restores the local copy, then writes each new public state, when window exis
   expect(setItem).toHaveBeenCalledOnce();
 });
 
-it("keeps the default pendingMinMs of the router (PLAN arbitrage 16)", () => {
-  expect(getRouter().options.defaultPendingMinMs).toBe(500);
+it("sets no minimum time on the pending component: no route is hydrated (PLAN arbitrage 16)", () => {
+  expect(getRouter().options.defaultPendingMinMs).toBe(0);
 });
 
 it("puts the staff session store in the router context (PLAN § 3.4)", () => {
