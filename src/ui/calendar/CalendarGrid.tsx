@@ -46,7 +46,10 @@ export interface CalendarGridProps {
   /** Date picker: a key reached a day that is not shown; the parent shows its month and the day takes the focus. */
   onShowDay?: ((iso: IsoDate) => void) | undefined;
   id?: string | undefined;
-  /** `view-transition-name` of the grid, unique in the page (05 § 3.4). */
+  /**
+   * Name of the grid in a view transition, unique in the page: the page's stylesheet turns it into a
+   * `view-transition-name` only while its restaurant moves (05 § 3.4).
+   */
   transitionName?: string | undefined;
 }
 
@@ -192,7 +195,7 @@ export function CalendarGrid({
       aria-labelledby={labelledBy}
       data-variant={variant}
       className={styles["grid"]}
-      style={transitionName === undefined ? undefined : { viewTransitionName: transitionName }}
+      data-transition-name={transitionName}
     >
       <WeekdayHeader />
       <tbody>

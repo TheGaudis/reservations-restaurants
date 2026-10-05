@@ -43,7 +43,10 @@ export interface CalendarHeaderProps {
   variant?: "calendar" | "picker" | undefined;
   /** Second row of a column calendar (`.cal-toggle`, 05 § 2.2): « Semaine | Mois » and « Aujourd'hui ». */
   children?: ReactNode;
-  /** `view-transition-name` of the label, unique in the page (05 § 3.4). */
+  /**
+   * Name of the label in a view transition, unique in the page: the page's stylesheet turns it into a
+   * `view-transition-name` only while its restaurant moves (05 § 3.4).
+   */
   transitionName?: string | undefined;
 }
 
@@ -79,7 +82,7 @@ export function CalendarHeader({
           id={labelId}
           aria-live="polite"
           className={styles["label"]}
-          style={transitionName === undefined ? undefined : { viewTransitionName: transitionName }}
+          data-transition-name={transitionName}
         >
           {label}
         </div>
