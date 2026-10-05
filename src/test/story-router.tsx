@@ -33,12 +33,20 @@ export function atUrl(url: string) {
   );
 }
 
-/** `beforeEach` of a story: the site's clock at `now` (TEST_NOW by default), put back afterwards. */
+/**
+ * `beforeEach` of a story: the site's clock at `now` (TEST_NOW by default), put back afterwards. `Date.now()` starts
+ * from `now` too and runs on: event handlers read it again (R2 cut-off on sending, 04 § 5.3), and the real date must
+ * not decide whether a story passes.
+ */
 export function clockAt(now: number = TEST_NOW): () => () => void {
   return () => {
     const previous = useClock.getState();
+    const realNow = Date.now;
+    const offset = now - realNow();
+    Date.now = () => realNow() + offset;
     useClock.setState({ now });
     return () => {
+      Date.now = realNow;
       useClock.setState(previous, true);
     };
   };
