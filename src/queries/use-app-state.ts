@@ -76,16 +76,20 @@ export function useIsFromCache(): boolean {
 
 /** Reads of the public state during this page load, for the load error box (G-03, 03 § 3). */
 export interface PublicReadStatus {
+  /** The public state is in the cache: local copy or script (G-02, G-04). */
+  loaded: boolean;
   /** The last read failed and none has succeeded since the page loaded: later failures stay silent (03 § 5.2). */
   failed: boolean;
   /** The page shows the local copy of the last visit (suffix of 03 § 3.1). */
   fromCache: boolean;
+  /** Error of the last failed read, null without one. */
+  error: Error | null;
   /** Reads the script again, with the single new attempt of reads (« Réessayer », 03 § 3.2). */
   retry: () => Promise<unknown>;
 }
 
 export function usePublicReadStatus(): PublicReadStatus {
-  const { data, dataUpdatedAt, errorUpdatedAt, refetch } = useQuery({
+  const { data, dataUpdatedAt, error, errorUpdatedAt, refetch } = useQuery({
     ...publicStateOptions,
     enabled: false,
     select: () => true,
@@ -94,5 +98,11 @@ export function usePublicReadStatus(): PublicReadStatus {
   // Not `isError`: without data, TanStack Query puts the query back to `pending` while it reads again, and the box
   // must stay (and not be announced again) during a new attempt (03 § 3.2, E-42).
   const failed = noReadYet && errorUpdatedAt > dataUpdatedAt;
-  return { failed, fromCache: data === true && noReadYet, retry: refetch };
+  return {
+    loaded: data === true,
+    failed,
+    fromCache: data === true && noReadYet,
+    error,
+    retry: refetch,
+  };
 }

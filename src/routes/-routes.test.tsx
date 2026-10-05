@@ -83,6 +83,40 @@ it("shows the load error box under the same header after a failed first read, th
   expect(fakeScript().requests.filter((request) => request.method === "GET")).toHaveLength(2);
 });
 
+it("keeps the load error box, without reading, when the login panel opens (03 § 3.2, § 5.2)", async () => {
+  fakeScript().failNext("error");
+  const { screen, router } = await renderRoute("/?r1=2026-10-06");
+  await expect
+    .poll(() => screen.container.querySelector('[role="alert"]')?.textContent)
+    .toMatch(/^Le service de réservation ne répond pas\./u);
+  const reads = () => fakeScript().requests.filter((request) => request.method === "GET").length;
+  expect(reads()).toBe(1);
+  await screen.getByRole("button", { name: "Collègue", exact: true }).click();
+  await expect
+    .element(screen.getByLabelText("Mot de passe collègue", { exact: true }))
+    .toBeVisible();
+  expect(router.state.location.search).toMatchObject({ connexion: true, r1: "2026-10-06" });
+  await router.navigate({ to: "/", search: (previous) => ({ ...previous, r1vue: "mois" }) });
+  await expect.poll(() => router.state.location.searchStr).toContain("r1vue=mois");
+  expect(screen.container.querySelector('[role="alert"]')?.textContent).toMatch(
+    /^Le service de réservation ne répond pas\./u,
+  );
+  expect(screen.container.querySelector('main[aria-busy="true"]')).toBeNull();
+  expect(reads()).toBe(1);
+});
+
+it("gives the page back when a background read succeeds after a failed first read (03 § 5.2)", async () => {
+  fakeScript().failNext("error");
+  const { screen, queryClient } = await renderRoute("/");
+  await expect
+    .poll(() => screen.container.querySelector('[role="alert"]')?.textContent)
+    .toMatch(/^Le service de réservation/u);
+  // What AutoRefresh does every 3 minutes, or when the tab comes back.
+  await queryClient.refetchQueries({ queryKey: publicStateOptions.queryKey });
+  await expect.element(screen.getByRole("grid").first()).toBeVisible();
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+});
+
 it("mounts a single refreshing observer (PLAN § 3.3.2, R-18)", async () => {
   const { screen, queryClient } = await renderRoute("/");
   await expect.element(screen.getByRole("main")).toHaveAttribute("aria-busy", "false");

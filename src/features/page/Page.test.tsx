@@ -15,7 +15,6 @@ import { renderWithProviders } from "@/test/render";
 
 // Header and `<main>` of both modes (04 § 2, 03 § 3, 08 § 7), on a real QueryClient and the fake script.
 
-const ONLINE_TITLE = /^Le service de réservation ne répond pas\./u;
 const FROM_CACHE = /Le calendrier affiché date de votre dernière visite/u;
 
 afterEach(() => {
@@ -146,19 +145,7 @@ describe("page with data (G-02, G-04, D-24)", () => {
   });
 });
 
-describe("page after a failed read (G-03, 03 § 3, § 5.2)", () => {
-  it("shows the load error box and stops the skeleton, then the data after « Réessayer »", async () => {
-    fakeScript().failNext("error");
-    const { screen } = await renderWithProviders(<TestPage r1={<p>Fiche R1</p>} />, {
-      queryClient: clientWithoutRetry(),
-    });
-    await expect.poll(() => alertText(screen.container)).toMatch(ONLINE_TITLE);
-    expect(screen.container.querySelector('[data-still="true"]')).not.toBeNull();
-    await screen.getByRole("button", { name: "Réessayer" }).click();
-    await expect.element(screen.getByText("Fiche R1")).toBeVisible();
-    expect(screen.container.querySelector('[role="alert"]')).toBeNull();
-  });
-
+describe("page after a failed read, with the local copy (G-02, G-03, 03 § 3, § 5.2)", () => {
   it("keeps the local copy on screen and says so (G-02, 03 § 3.1)", async () => {
     const queryClient = clientWithoutRetry();
     queryClient.setQueryData(publicStateOptions.queryKey, publicState(), {
