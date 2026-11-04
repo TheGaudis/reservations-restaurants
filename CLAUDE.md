@@ -20,7 +20,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - `pnpm dev` : serveur de développement sur le **faux script** (msw, `.env.development`). `pnpm dev:real` (vrai script,
   `.env.real.local`, bandeau « Données réelles ») est réservé au responsable, jamais lancé par un agent.
 - `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert (port 4311). Jamais `vite preview` (il fait du SSR).
-- `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node` et `node-ny`.
+- `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node`.
 - `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et une passe de knip. Puis `pnpm build:e2e`,
   `git diff --exit-code src/routeTree.gen.ts translations/fr.json` et les E2E de ton périmètre.
 - `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`), `pnpm test:e2e:legacy`,
@@ -106,10 +106,9 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Tests
 
-- Écrits avec le code. Logique pure : tables `it.each` tirées de la spec (projet `node` ; `node-ny` relance sous
-  `TZ=America/New_York` les tests de dates sensibles au fuseau). Composants, routes et tâches de fond : Vitest Browser
-  Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Une story CSF Next par composant et par état, testée avec
-  axe (projet `storybook`).
+- Écrits avec le code. Logique pure : tables `it.each` tirées de la spec (projet `node`). Composants, routes et tâches
+  de fond : Vitest Browser Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Une story CSF Next par composant
+  et par état, testée avec axe (projet `storybook`).
 - Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`).
 - E2E : `e2e/regression/` (projets `legacy` et `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
   `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, hydratation, impression PDF,

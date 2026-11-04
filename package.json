@@ -17,7 +17,7 @@
     "format:check": "oxfmt --disable-nested-config --check",
     "i18n:extract": "formatjs extract 'src/**/*.{ts,tsx}' --ignore 'src/**/*.test.{ts,tsx}' --ignore 'src/**/*.stories.tsx' --ignore 'src/test/**' --throws --preserve-whitespace --out-file translations/fr.json",
     "test": "vitest run",
-    "test:node": "vitest run --project node --project node-ny",
+    "test:node": "vitest run --project node",
     "test:browser": "vitest run --project browser",
     "test:e2e": "playwright test",
     "test:e2e:legacy": "playwright test --project=legacy",
