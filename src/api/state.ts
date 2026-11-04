@@ -3,7 +3,6 @@ import { BusinessError } from "@/api/errors";
 import { hedgedRead } from "@/api/hedged-read";
 import { ReadResponseSchema } from "@/api/schemas";
 import type { ReadResponse } from "@/api/schemas";
-import { abortable } from "@/api/signals";
 import { FullStateSchema } from "@/api/staff-schemas";
 import { getState, parseAnswer, postAction, readJson, rejectScriptError } from "@/api/transport";
 import type { FullState } from "@/domain/types";
@@ -12,21 +11,12 @@ import type { FullState } from "@/domain/types";
  * Public read (02 § 1.5, § 3, 03 § 2.4): takes the early fetch when it was sent with the same `since`, otherwise
  * reads anew; hedged at 6 s, 30 s per attempt. `{ error }` is a `BusinessError`, never retried.
  */
-export async function fetchPublicState({
-  since,
-  signal,
-}: {
-  since: string;
-  signal?: AbortSignal;
-}): Promise<ReadResponse> {
+export async function fetchPublicState({ since }: { since: string }): Promise<ReadResponse> {
   const early = takeEarlyFetch(since);
-  const json = await hedgedRead(async (attemptSignal) => getState(since, attemptSignal), {
-    signal,
-    first: early && {
-      attempt: async (attemptSignal) => readJson(abortable(early.response, attemptSignal)),
-      elapsedMs: performance.now() - early.startedAt,
-    },
-  });
+  const json = await hedgedRead(
+    async () => getState(since),
+    early && { response: readJson(early.response), startedAt: early.startedAt },
+  );
   return parseAnswer(ReadResponseSchema, rejectScriptError(json));
 }
 

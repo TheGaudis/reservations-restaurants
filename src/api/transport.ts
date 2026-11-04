@@ -41,8 +41,8 @@ export function rejectScriptError(json: unknown): unknown {
 }
 
 /** One public read: `GET` without header (02 § 1.2). The answer may still be `{ error }`. */
-export async function getState(since: string, signal: AbortSignal): Promise<unknown> {
-  return readJson(fetch(stateUrl(since), { signal }));
+export async function getState(since: string): Promise<unknown> {
+  return readJson(fetch(stateUrl(since)));
 }
 
 /**

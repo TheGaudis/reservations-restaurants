@@ -40,10 +40,9 @@ export const STAFF_STATE_CACHE = { gcTime: 0, retry: false } as const;
 export async function readPublicState({
   client,
   queryKey,
-  signal,
 }: QueryFunctionContext): Promise<PublicState> {
   const previous = client.getQueryData<PublicState>(queryKey);
-  const response = await fetchPublicState({ since: previous?.etag ?? "", signal });
+  const response = await fetchPublicState({ since: previous?.etag ?? "" });
   if (response.type === "state") return response.state;
   if (previous !== undefined) return previous;
   // The script answers `unchanged` only to a `since`, and `since` comes from `previous`: a query never resolves to

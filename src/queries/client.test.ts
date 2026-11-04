@@ -38,7 +38,7 @@ function readPublicState() {
     try {
       await queryClient.query({
         queryKey: KEY,
-        queryFn: async ({ signal }) => fetchPublicState({ since: "", signal }),
+        queryFn: async () => fetchPublicState({ since: "" }),
       });
     } catch (error) {
       outcome.error = error;

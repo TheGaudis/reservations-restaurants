@@ -10,7 +10,6 @@ import publicStateExample from "@/mocks/fixtures/public-state.json" with { type:
 import { fakeScriptPerTest, SCRIPT_URL } from "@/test/fake-script-server";
 
 const start = fakeScriptPerTest();
-const signal = () => new AbortController().signal;
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -35,7 +34,7 @@ describe("requests (02 § 1.2, § 1.3, R-07)", () => {
   it("sends a GET without any header of its own", async () => {
     const fakeScript = start({ seed: exampleDb() });
     const runtime = await runtimeHeaders(fakeScript);
-    expect(await getState("", signal())).toStrictEqual(publicStateExample);
+    expect(await getState("")).toStrictEqual(publicStateExample);
     expect(fakeScript.requests).toHaveLength(2);
     expect(fakeScript.requests[1]).toMatchObject({ method: "GET", url: SCRIPT_URL });
     expect(fakeScript.requests[1]?.headers).toStrictEqual(runtime);
@@ -76,20 +75,20 @@ describe("failures (02 § 1.4, § 1.6, § 2, R-09)", () => {
   it("returns the { error } of a read as is: the read decides (02 § 1.5)", async () => {
     const fakeScript = start();
     fakeScript.failNext("error", "Erreur");
-    expect(await getState("", signal())).toStrictEqual({ error: "Erreur" });
+    expect(await getState("")).toStrictEqual({ error: "Erreur" });
   });
 
   it.each(["html", "network"] as const)("throws a ServiceError on a %s failure", async (kind) => {
     const fakeScript = start();
     fakeScript.failNext(kind);
-    await expect(getState("", signal())).rejects.toThrow(ServiceError);
+    await expect(getState("")).rejects.toThrow(ServiceError);
     fakeScript.failNext(kind);
     await expect(postAction("getAdminState", { password: "secret" })).rejects.toThrow(ServiceError);
   });
 
   it("throws a ServiceError on the TypeError of fetch (Google error page without CORS)", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
-    const pending = getState("", signal());
+    const pending = getState("");
     await expect(pending).rejects.toThrow(ServiceError);
     await expect(pending).rejects.toHaveProperty("cause", new TypeError("Failed to fetch"));
   });

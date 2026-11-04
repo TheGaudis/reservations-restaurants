@@ -1,78 +1,48 @@
-import { asError } from "@/api/errors";
-import { abortReason, anySignal, timeoutSignal } from "@/api/signals";
+import { asError, ServiceError } from "@/api/errors";
 import { HEDGE_DELAY_MS, READ_TIMEOUT_MS } from "@/domain/constants";
 
-/** One read attempt; it must stop when `signal` aborts. */
-export type ReadAttempt<T> = (signal: AbortSignal) => Promise<T>;
-
-export interface HedgeOptions<T> {
-  /** Signal of the caller (TanStack Query): aborting it rejects the read and aborts every attempt. */
-  signal?: AbortSignal | undefined;
-  /** Attempt started earlier (early fetch, 03 § 2.1) and its age: the hedge and its timeout count from its start. */
-  first?: { attempt: ReadAttempt<T>; elapsedMs: number } | null | undefined;
+/** `response`, or a `ServiceError` once `ms` have passed (E-45). */
+async function capped<T>(response: Promise<T>, ms: number): Promise<T> {
+  const timeout = new Promise<never>((_resolve, reject) => {
+    setTimeout(() => {
+      reject(new ServiceError("The read took too long."));
+    }, ms);
+  });
+  return Promise.race([response, timeout]);
 }
 
 /**
- * `hedgedRead` of 02 § 1.5, for reads only: when the first attempt has not answered after 6 s, a second,
- * identical attempt starts; the first answer wins and the other attempt is aborted; the read fails only when
- * every attempt started has failed, with the last error. Each attempt is abandoned after 30 s (E-45).
- * The single retry after 1.5 s belongs to TanStack Query (`retryRead`, PLAN § 3.3).
+ * `hedgedRead` of 02 § 1.5, for reads only: when the first attempt has not answered after 6 s, a second, identical
+ * attempt starts; the first answer wins, and the read fails only when every attempt started has failed, with the last
+ * error. An attempt fails after 30 s (E-45). `early` (03 § 2.4) is the first attempt, its 6 s and 30 s counted from
+ * its start. Nothing is aborted: an attempt that lost, or whose query was cancelled, runs to its end unseen. The
+ * retry after 1.5 s belongs to TanStack Query (`retryRead`, PLAN § 3.3).
  */
 export async function hedgedRead<T>(
-  attempt: ReadAttempt<T>,
-  { signal, first }: HedgeOptions<T> = {},
+  attempt: () => Promise<T>,
+  early?: { response: Promise<T>; startedAt: number } | null,
 ): Promise<T> {
-  if (signal?.aborted === true) throw abortReason(signal);
-  const elapsedMs = first?.elapsedMs ?? 0;
+  const elapsed = early ? performance.now() - early.startedAt : 0;
   return new Promise<T>((resolve, reject) => {
-    // Aborted when the read settles: stops the losing attempt, the hedge and the listener on `signal`.
-    const over = new AbortController();
     let running = 0;
-    const settle = (outcome: () => void) => {
-      if (over.signal.aborted) return;
-      over.abort();
-      outcome();
-    };
-    const launch = async (run: ReadAttempt<T>, timeoutMs: number) => {
+    let over = false;
+    const watch = async (response: Promise<T>, ms: number) => {
       running += 1;
-      const signals = [over.signal, timeoutSignal(timeoutMs)];
-      if (signal !== undefined) signals.push(signal);
       try {
-        const value = await run(anySignal(...signals));
-        settle(() => {
-          resolve(value);
-        });
+        const value = await capped(response, ms);
+        over = true;
+        resolve(value);
       } catch (error) {
         running -= 1;
-        if (running === 0) {
-          settle(() => {
-            reject(asError(error));
-          });
-        }
+        if (running > 0) return;
+        over = true;
+        reject(asError(error));
       }
     };
-
-    if (signal !== undefined) {
-      signal.addEventListener(
-        "abort",
-        () => {
-          settle(() => {
-            reject(abortReason(signal));
-          });
-        },
-        { once: true, signal: over.signal },
-      );
-    }
-    const hedge = setTimeout(
-      () => {
-        if (!over.signal.aborted) void launch(attempt, READ_TIMEOUT_MS);
-      },
-      Math.max(0, HEDGE_DELAY_MS - elapsedMs),
-    );
-    over.signal.addEventListener("abort", () => {
-      clearTimeout(hedge);
-    });
-    if (first) void launch(first.attempt, Math.max(0, READ_TIMEOUT_MS - elapsedMs));
-    else void launch(attempt, READ_TIMEOUT_MS);
+    // Set first: with an early fetch older than 30 s, the second attempt starts before the first one fails.
+    setTimeout(() => {
+      if (!over) void watch(attempt(), READ_TIMEOUT_MS);
+    }, HEDGE_DELAY_MS - elapsed);
+    void watch(early?.response ?? attempt(), READ_TIMEOUT_MS - elapsed);
   });
 }
