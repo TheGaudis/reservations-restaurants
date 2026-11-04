@@ -1,0 +1,38 @@
+{
+  "etag": "Xq3v0Gk1bWq9u2yYc5n3tA",
+  "r1Days": [
+    {
+      "Date": "2026-10-01",
+      "Capacite": 20,
+      "Menu": "Velouté, suprême de volaille, tarte fine",
+      "Theme": "Automne"
+    },
+    {
+      "Date": "2026-10-05",
+      "Capacite": 20,
+      "Menu": "Salade, pavé de saumon, crème brûlée",
+      "Theme": ""
+    }
+  ],
+  "r1Bookings": [{ "Date": "2026-10-01", "Qte": 19 }],
+  "r2Days": [{ "Date": "2026-10-06", "Note": "", "Theme": "Semaine italienne" }],
+  "r2Items": [
+    { "ID": "3f1c2a9e", "Date": "2026-10-06", "Nom": "Lasagnes", "Stock": 15, "Prix": 4.5 },
+    {
+      "ID": "8b7d0c11",
+      "Date": "2026-10-06",
+      "Nom": "Bowl (ticket restaurant)",
+      "Stock": 10,
+      "Prix": ""
+    }
+  ],
+  "r2Bookings": [{ "ItemID": "3f1c2a9e", "Qte": 3 }],
+  "name1": "Restaurant Pédagogique",
+  "name2": "Aristide",
+  "desc1": "Table réservée par nombre de couverts, avec le menu du jour.",
+  "desc2": "Plats à emporter ou sur place, chacun avec son propre stock.",
+  "contactAnnulation": "l'établissement",
+  "priceEleve": "4.95",
+  "priceProf": "6.10",
+  "priceExterieur": "9.90"
+}

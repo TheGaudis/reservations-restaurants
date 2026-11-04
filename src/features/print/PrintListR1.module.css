@@ -1,0 +1,42 @@
+/* Columns of document A (07 § 3): widths and cell styles of the framed table. */
+.name,
+.className,
+.headWaiter {
+  width: var(--print-col-name);
+}
+
+.count {
+  width: var(--print-col-count);
+}
+
+.seats {
+  width: var(--print-col-seats);
+}
+
+.price {
+  width: var(--print-col-price);
+}
+
+.contact {
+  width: var(--print-col-contact);
+}
+
+.tableNumber {
+  width: var(--print-col-table);
+}
+
+td.name {
+  font-weight: var(--fw-semibold);
+}
+
+td.seats {
+  font-family: var(--font-display);
+  font-size: var(--print-fs-big);
+  font-weight: var(--fw-semibold);
+  color: var(--print-ink);
+}
+
+/* Rows tall enough to write in (07 § 3). */
+td.headWaiter {
+  height: var(--print-row-writable);
+}

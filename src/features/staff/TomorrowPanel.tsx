@@ -1,0 +1,68 @@
+import { useId } from "react";
+import { FormattedMessage } from "react-intl";
+
+import { useToday } from "@/background/clock";
+import { portionsBookedForDay, seatsBooked } from "@/domain/capacity";
+import { addDays } from "@/domain/dates";
+import type { FullState, IsoDate } from "@/domain/types";
+import { TomorrowBlocks } from "@/features/staff/TomorrowBlocks";
+import { useStaffState } from "@/features/staff/use-staff-state";
+import { formatLongDate } from "@/intl/dates";
+
+import styles from "@/features/staff/TomorrowPanel.module.css";
+
+// Panel « Demain ({date}) » of `StaffPage`, first of the staff mode, which merges the old « Demain » and « Résumé pour
+// demain » panels (06 § 2.1, 07 § 5, D-07, E-30, C-01, C-03). The totals row is here; the blocks per restaurant and
+// their print buttons are in `TomorrowBlocks`.
+
+/** Seats and portions booked for `tomorrow`; bookings of a deleted dish are left out (D-07, b-3, E-30). */
+function totalsOf(state: FullState, tomorrow: IsoDate) {
+  return {
+    name1: state.settings.name1,
+    name2: state.settings.name2,
+    seats: seatsBooked(state, tomorrow),
+    portions: portionsBookedForDay(state, tomorrow),
+  };
+}
+
+/**
+ * Panel « Demain ({date}) », above « Paramètres » (06 § 2): tomorrow in Paris (D-12), then the seats booked in
+ * restaurant 1 and the portions booked in restaurant 2, numbers in bold (06 § 2.1). A region named by its title.
+ */
+export function TomorrowPanel() {
+  const titleId = useId();
+  const tomorrow = addDays(useToday(), 1);
+  const { name1, name2, seats, portions } = useStaffState((state) => totalsOf(state, tomorrow));
+  return (
+    <section className={styles["panel"]} aria-labelledby={titleId}>
+      {/* h2 right under the page's h1, before the column titles (axe `heading-order`, PLAN § 1.5, S5). */}
+      <h2 id={titleId} className={styles["title"]}>
+        <FormattedMessage
+          id="staff.tomorrow.title"
+          defaultMessage="Demain ({date})"
+          description="06 § 2.1, D-07 — titre du panneau du lendemain ; date longue"
+          values={{ date: formatLongDate(tomorrow) }}
+        />
+      </h2>
+      <div className={styles["totals"]}>
+        <p className={styles["total"]}>
+          <FormattedMessage
+            id="staff.tomorrow.seats"
+            defaultMessage="{name} : {count, plural, one {<b>#</b> couvert réservé} other {<b>#</b> couverts réservés}}"
+            description="06 § 2.1 — couverts réservés pour demain au restaurant 1 ; name : nom du restaurant 1"
+            values={{ name: name1, count: seats }}
+          />
+        </p>
+        <p className={styles["total"]}>
+          <FormattedMessage
+            id="staff.tomorrow.portions"
+            defaultMessage="{name} : {count, plural, one {<b>#</b> portion réservée} other {<b>#</b> portions réservées}}"
+            description="06 § 2.1 — portions réservées pour demain au restaurant 2 ; name : nom du restaurant 2"
+            values={{ name: name2, count: portions }}
+          />
+        </p>
+      </div>
+      <TomorrowBlocks tomorrow={tomorrow} />
+    </section>
+  );
+}

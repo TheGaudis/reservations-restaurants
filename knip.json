@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["scripts/*.ts"],
+  "project": [
+    "src/**/*.{ts,tsx}!",
+    "!src/mocks/**!",
+    "!src/test/**!",
+    "e2e/**/*.ts",
+    "scripts/*.ts",
+    ".storybook/*.{ts,tsx}"
+  ],
+  // Le plugin Vitest de knip lirait les tests des projets copiés dans docs/migration/recherche/
+  "ignore": ["docs/**"],
+  "ignoreDependencies": [
+    // Lues par url() dans src/styles/base.css, que knip n'analyse pas
+    "@fontsource-variable/outfit",
+    "@fontsource-variable/work-sans"
+  ]
+}

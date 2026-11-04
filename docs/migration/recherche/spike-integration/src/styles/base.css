@@ -1,0 +1,16 @@
+:root {
+  --color-bg: #fff;
+  --color-text: #1a1a1a;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.popup {
+  position: fixed;
+  inset: 20% auto auto 20%;
+  background: var(--color-bg);
+  padding: 1rem;
+}

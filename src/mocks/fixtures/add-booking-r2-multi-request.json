@@ -1,0 +1,14 @@
+{
+  "action": "addBookingR2Multi",
+  "date": "2026-10-06",
+  "nom": "Ariele Gsell",
+  "contact": "a.gsell@exemple.fr",
+  "classe": "Vie scolaire",
+  "mode": "surplace",
+  "items": [
+    { "itemId": "3f1c2a9e-…", "qte": 2 },
+    { "itemId": "8b7d0c11-…", "qte": 1 }
+  ],
+  "observation": "",
+  "requestId": "6fa459ea-ee8a-3ca4-894e-db77e160355e"
+}

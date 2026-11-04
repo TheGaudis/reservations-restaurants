@@ -1,0 +1,110 @@
+{
+  // Oxlint 1.91 (JSONC). Correction et code suspect seulement ; le format relève d'oxfmt, les types de `tsc`.
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "options": { "reportUnusedDisableDirectives": "error", "denyWarnings": true },
+  "plugins": ["typescript", "react", "jsx-a11y", "import", "promise", "unicorn", "vitest"],
+  "env": { "browser": true, "es2024": true },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn",
+    "pedantic": "off",
+    "style": "off",
+    "nursery": "off",
+    "restriction": "off"
+  },
+  "settings": { "react": { "version": "19.3" } },
+  "rules": {
+    // Règles des hooks (CLAUDE.md « React ») : `rules-of-hooks` est rangée dans pedantic.
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    // Aucune donnée personnelle dans un log (CLAUDE.md « Règles absolues ») : seuls warn et error, pour les pannes.
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    // `event`, `name` ou `length` lus par erreur comme globales du navigateur.
+    "no-restricted-globals": ["error", "event", "name", "length"],
+    // Code navigateur : aucun module Node (PLAN § 3.1) ; exceptions dans les overrides.
+    "import/no-nodejs-modules": "error",
+    // Exports nommés, pas de barrels, alias `@/` (CLAUDE.md « Conventions de code »).
+    "import/no-default-export": "error",
+    "oxc/no-barrel-file": "error",
+    "import/no-relative-parent-imports": "error",
+    // Pas de `test.only` ni de `test.skip` (CLAUDE.md « Tests »).
+    "vitest/no-focused-tests": "error",
+    "vitest/no-disabled-tests": "error",
+
+    // Règles des catégories retenues qui contredisent le projet.
+    "react/react-in-jsx-scope": "off", // runtime JSX automatique
+    "no-await-in-loop": "off", // envois un par un voulus (06 § 2.2 (4)) et gestes successifs des E2E
+    "no-underscore-dangle": "off", // champs du script (`_bookingResult`, 02 § 5.4) et `__EARLY_FETCH__`
+    "import/no-unassigned-import": "off", // feuilles de style et `setupFiles` importés pour leur effet
+    "unicorn/consistent-function-scoping": "off", // aides locales des tests, près de leur cas
+    "vitest/require-mock-type-parameters": "off", // `tsc` infère le type des `vi.fn()`
+    "vitest/require-to-throw-message": "off" // `toThrow(ServiceError)` nomme déjà l'erreur
+  },
+  "overrides": [
+    {
+      // Configurations d'outils et scripts : Node, `export default` exigé par Vite, Vitest, Playwright et Storybook.
+      "files": ["*.config.ts", "scripts/**", ".storybook/**", "**/*.stories.tsx"],
+      "env": { "node": true },
+      "rules": {
+        "import/no-default-export": "off",
+        "import/no-nodejs-modules": "off",
+        "no-console": "off"
+      }
+    },
+    {
+      // Playwright tourne dans Node ; ses fixtures `async ({ page }, use) => …` ressemblent à un hook.
+      "files": ["e2e/**"],
+      "rules": { "import/no-nodejs-modules": "off", "react/rules-of-hooks": "off" }
+    },
+    {
+      // Garde réseau de Node (node:net, R-33).
+      "files": ["src/test/setup-node.ts"],
+      "rules": { "import/no-nodejs-modules": "off" }
+    },
+    {
+      // Cases « N° table » et « Chef de rang » de la liste R1, laissées vides pour être remplies à la main (07 § 3).
+      // Un <td> d'un <table> sans rôle a le rôle `cell` : ce n'est pas une commande à étiqueter.
+      "files": ["src/features/print/PrintListR1.tsx"],
+      "rules": { "jsx-a11y/control-has-associated-label": ["error", { "ignoreElements": ["td"] }] }
+    },
+    {
+      // Grille du calendrier : <table role="grid"> du motif « Date Picker Dialog » de l'APG (PLAN § 3.5, E-05).
+      "files": ["src/ui/calendar/*.tsx"],
+      "rules": {
+        "jsx-a11y/no-noninteractive-element-to-interactive-role": [
+          "error",
+          { "table": ["grid"], "td": ["gridcell"] }
+        ]
+      }
+    },
+    {
+      // Easter egg du logo (D-01) : cinq clics de souris sur une image, sans équivalent clavier, comme l'ancien site.
+      "files": ["src/features/page/Header.tsx"],
+      "rules": {
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off"
+      }
+    },
+    {
+      // Tests, E2E et stories importent leurs voisins hors de `src/` (`../fixtures`, `../../.storybook/preview`).
+      "files": ["**/*.test.{ts,tsx}", "src/test/**", "e2e/**", "**/*.stories.tsx", ".storybook/**"],
+      "rules": { "import/no-relative-parent-imports": "off" }
+    }
+  ],
+  // Identiques dans .oxfmtrc.json et knip.json (PLAN P0).
+  "ignorePatterns": [
+    "docs/**",
+    ".claude/**",
+    "translations/**",
+    "Code.gs",
+    "public/mockServiceWorker.js",
+    "src/routeTree.gen.ts",
+    "dist/**",
+    "coverage/**",
+    "storybook-static/**",
+    "playwright-report/**",
+    "test-results/**",
+    ".vitest/**"
+  ]
+}

@@ -1,0 +1,144 @@
+$ pnpm i18n:extract && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm knip && pnpm knip --production && pnpm build && node scripts/check-budget.ts && pnpm test:e2e && pnpm build-storybook
+$ formatjs extract 'src/**/*.{ts,tsx}' --ignore 'src/**/*.test.{ts,tsx}' --ignore 'src/**/*.stories.tsx' --ignore 'src/test/**' --throws --preserve-whitespace --out-file translations/fr.json && oxfmt translations/fr.json
+Finished in 1ms on 1 files using 4 threads.
+$ oxfmt --check
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 197ms on 68 files using 4 threads.
+$ oxlint
+$ tsc
+$ vitest run
+
+ RUN  v5.0.3 <spike>
+
+
+ Test Files  8 passed (8)
+      Tests  13 passed (13)
+   Start at  17:44:19
+   Duration  6.56s (worker 35%, setup 32%, tests 25%, import 6%, transform 1%)
+
+$ knip
+$ knip --production
+$ vite build && node scripts/post-build.ts
+vite v8.3.2 building client environment for production...
+transforming...
+✓ 411 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.vite/manifest.json          1.90 kB │ gzip:   0.49 kB
+dist/client/assets/base-BwzwRzUx.css     0.22 kB │ gzip:   0.16 kB
+dist/client/assets/_-7L38LrxJ.js         0.35 kB │ gzip:   0.29 kB │ map:     1.11 kB
+dist/client/assets/routes-Nw62UkaV.js  148.93 kB │ gzip:  45.12 kB │ map:   826.83 kB
+dist/client/assets/index-C9ZaOyjr.js   402.28 kB │ gzip: 127.63 kB │ map: 2,243.23 kB
+
+✓ built in 1.09s
+vite v8.3.2 building ssr environment for production...
+transforming...
+✓ 140 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/.vite/manifest.json                              2.86 kB │ gzip:  0.56 kB
+dist/server/assets/start-Dcr0KyNJ.js                         0.33 kB │ gzip:  0.24 kB │ map:   0.39 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js         0.34 kB │ gzip:  0.21 kB │ map:   0.55 kB
+dist/server/assets/_-CxDu2sMm.js                             0.43 kB │ gzip:  0.30 kB │ map:   0.74 kB
+dist/server/assets/_tanstack-start-manifest_v-BKCALkdj.js    1.02 kB │ gzip:  0.40 kB
+dist/server/assets/routes-DZgja20Y.js                        8.30 kB │ gzip:  2.28 kB │ map:  14.41 kB
+dist/server/assets/router-DQ6XQUSo.js                        9.42 kB │ gzip:  3.59 kB │ map:  21.24 kB
+dist/server/server.js                                      245.10 kB │ gzip: 56.89 kB │ map: 712.46 kB
+
+✓ built in 357ms
+[prerender] Prerendering pages...
+[prerender] Concurrency: 4
+[prerender] Crawling: /
+[prerender] Prerendered 1 pages:
+[prerender] - /
+    0.2 kB  assets/base-BwzwRzUx.css
+  123.1 kB  assets/index-C9ZaOyjr.js
+   43.6 kB  assets/routes-Nw62UkaV.js
+  166.9 kB  total (limit 200 kB)
+$ playwright test
+
+Running 12 tests using 2 workers
+
+  -   1 [legacy] › e2e/hydration.spec.ts:5:1 › first render from the local copy, no hydration error
+  -   3 [legacy] › e2e/hydration.spec.ts:31:1 › deep link and index.html
+  -   4 [legacy] › e2e/hydration.spec.ts:39:1 › a11y of the public page (axe)
+  -   5 [legacy] › e2e/hydration.spec.ts:47:1 › search params: fallback, strip and retain
+  ✓   2 [legacy] › e2e/regression/legacy-smoke.spec.ts:13:1 › public state: GET intercepted, calendar rendered @parity (612ms)
+  ✓   6 [legacy] › e2e/regression/legacy-smoke.spec.ts:35:1 › colleague login: POST text/plain intercepted, print popup captured (1.3s)
+  ✓   7 [react] › e2e/hydration.spec.ts:5:1 › first render from the local copy, no hydration error (1.1s)
+  -   8 [react] › e2e/regression/legacy-smoke.spec.ts:13:1 › public state: GET intercepted, calendar rendered @parity
+  -  10 [react] › e2e/regression/legacy-smoke.spec.ts:35:1 › colleague login: POST text/plain intercepted, print popup captured
+  ✓   9 [react] › e2e/hydration.spec.ts:31:1 › deep link and index.html (1.1s)
+  ✓  11 [react] › e2e/hydration.spec.ts:39:1 › a11y of the public page (axe) (610ms)
+  ✓  12 [react] › e2e/hydration.spec.ts:47:1 › search params: fallback, strip and retain (1.1s)
+
+  6 skipped
+  6 passed (7.7s)
+$ storybook build
+
+T  Building storybook v10.6.1
+|
+o  Cleaning outputDir: storybook-static
+|
+o  Loading presets
+|
+o  Building manager..
+|
+•  Building open services..
+|
+•  Building preview..
+|
+•  Copying static files: public at storybook-static
+|  Vite vite v8.3.2 building client environment for production...
+transforming...
+✓ 374 modules transformed.
+rendering chunks...
+computing gzip size...
+|  Vite storybook-static/iframe.html
+|  18.81 kB │ gzip:   5.32 kB
+|  storybook-static/assets/iframe-Cg5SxmD5.js                       0.04
+|  kB │ gzip:   0.06 kB
+|  storybook-static/assets/rolldown-runtime-DkW27tQK.js             1.19
+|  kB │ gzip:   0.67 kB
+|  storybook-static/assets/preload-helper-BVscJdOD.js               1.50
+|  kB │ gzip:   0.82 kB
+|  storybook-static/assets/react-dom-un_fvGLF.js                    3.90
+|  kB │ gzip:   1.42 kB
+|  storybook-static/assets/useTimeout-BQHVs9rm.js                  12.60
+|  kB │ gzip:   5.10 kB
+|  storybook-static/assets/A11yViolation.stories-NDklrmow.js       20.54
+|  kB │ gzip:   8.56 kB
+|  storybook-static/vite-inject-mocker-entry.js                    27.84
+|  kB │ gzip:   9.66 kB
+|  storybook-static/assets/matchers-JIUQ3HVY-C789_MAK.js           28.79
+|  kB │ gzip:   9.68 kB
+|  storybook-static/assets/Dialog.stories-B2l_iZ5q.js              55.68
+|  kB │ gzip:  19.06 kB
+|  storybook-static/assets/browser-BswY9cEH.js                     58.44
+|  kB │ gzip:  17.47 kB
+|  storybook-static/assets/react-18-KcuFIeWb.js                   207.62
+|  kB │ gzip:  65.13 kB
+|  storybook-static/assets/is-common-asset-request-BxHQi_pX.js    331.10
+|  kB │ gzip: 135.28 kB
+|  storybook-static/assets/axe-pQGJbW0T.js                        586.90
+|  kB │ gzip: 160.19 kB
+|  storybook-static/assets/iframe-VSV5xHpO.js                   1,440.61
+|  kB │ gzip: 424.22 kB
+
+|
+!  Vite [plugin builtin:vite-reporter]
+|  (!) Some chunks are larger than 500 kB after minification. Consider:
+|  - Using dynamic import() to code-split the application
+|  - Use build.rolldownOptions.output.codeSplitting to improve chunking:
+|  ]8;;https://rolldown.rs/reference/OutputOptions.codeSplittinghttps://rolldown.rs/reference/OutputOptions.codeSplitting]8;;
+|  - Adjust chunk size limit for this warning via
+|  build.chunkSizeWarningLimit.
+|  Vite ✓ built in 1.93s
+|
+o  Output directory:
+|  <spike>/storybook-static
+|
+—  Storybook build completed successfully
+

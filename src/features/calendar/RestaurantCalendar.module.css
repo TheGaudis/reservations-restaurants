@@ -1,0 +1,5 @@
+/* Calendar of a column (05 § 2-3); its view transitions are in view-transitions.css. */
+
+.calendar {
+  min-width: 0;
+}

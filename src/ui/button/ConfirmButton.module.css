@@ -1,0 +1,9 @@
+/* Visible detail of an armed deletion that has bookings (D-21, E-38), on its own line under the button. */
+.note {
+  display: block;
+  flex-basis: 100%;
+  margin-top: var(--space-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--danger);
+}

@@ -1,0 +1,21 @@
+/* Segmented buttons of segmented.module.css taking the width of the field (.seg-group.block, 08 § 4.5), state from
+   Base UI's data-checked. */
+.fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.group {
+  composes: group from "../segmented.module.css";
+  display: flex;
+}
+
+.segment {
+  composes: segment from "../segmented.module.css";
+}
+
+.check {
+  composes: check from "../segmented.module.css";
+}

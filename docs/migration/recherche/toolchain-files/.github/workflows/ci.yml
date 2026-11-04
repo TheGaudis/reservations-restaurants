@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: Format, lint, types, tests, build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Installe pnpm (version lue dans package.json#packageManager) + Node (.node-version),
+      # met en cache le store et lance `pnpm install --frozen-lockfile`.
+      - uses: pnpm/setup@v3
+        with:
+          runtime: node
+          cache: true
+          require-lockfile: true
+
+      - run: pnpm run format:check
+      - run: pnpm exec oxlint --format github
+      - run: pnpm run typecheck
+      - run: pnpm run test
+      - run: pnpm run knip
+
+      - name: Build (SPA, base = /<repo>/)
+        run: pnpm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      # GitHub Pages : deep-linking SPA -> 404.html = copie du shell
+      - run: cp dist/client/index.html dist/client/404.html && touch dist/client/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/client
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

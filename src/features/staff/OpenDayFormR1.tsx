@@ -1,0 +1,199 @@
+import { useSelector } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
+
+import { addDayR1 } from "@/api/actions";
+import { useToday } from "@/background/clock";
+import { openDateProblem } from "@/domain/days";
+import type { OpenDateProblem } from "@/domain/days";
+import { selectDay } from "@/domain/navigation";
+import type { PageSearchParams } from "@/domain/navigation";
+import type { OpenDayR1Input } from "@/domain/types";
+import { compose, parseCount, positiveInteger, required } from "@/domain/validation";
+import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
+import { useSlowWrite } from "@/features/booking/use-slow-write";
+import { OpenDatePicker, useOpenDate } from "@/features/staff/OpenDatePicker";
+import { OpenDayPanel } from "@/features/staff/OpenDayPanel";
+import { useFullState } from "@/features/staff/use-staff-state";
+import { intl } from "@/intl/intl";
+import {
+  capacityLabel,
+  capacityRequiredMessage,
+  menuLabel,
+  pastDateMessage,
+  openedByLabel,
+  themeLabel,
+  openingLabel,
+  openDaySubmitAction,
+} from "@/intl/staff-messages";
+import { showStaffError, useStaffWrite } from "@/mutations/staff/write";
+import { useAppForm } from "@/ui/form/app-form";
+import { Form } from "@/ui/form/Form";
+
+import styles from "@/features/staff/OpenDayForm.module.css";
+
+const dayAddedMessage = defineMessage({
+  id: "staff.openDay.success",
+  defaultMessage: "Jour ajouté.",
+  description: "06 § 4.1, § 4.2 — toast de succès de « Ouvrir un jour »",
+});
+
+const openedByPlaceholder = defineMessage({
+  id: "staff.openDay.r1.openedBy.placeholder",
+  defaultMessage: "Ex. M. Dupont",
+  description: "06 § 4.1 — exemple du collègue qui ouvre un jour R1",
+});
+
+const capacityPlaceholder = defineMessage({
+  id: "staff.openDay.r1.capacity.placeholder",
+  defaultMessage: "Ex. 20",
+  description: "06 § 4.1 — exemple de capacité d'un jour R1",
+});
+
+const themePlaceholder = defineMessage({
+  id: "staff.openDay.r1.theme.placeholder",
+  defaultMessage: "Ex. cuisine italienne",
+  description: "06 § 4.1 — exemple de thème d'un jour R1",
+});
+
+const menuPlaceholder = defineMessage({
+  id: "staff.openDay.r1.menu.placeholder",
+  defaultMessage: "Ex. menu gastronomique, classe TS2",
+  description: "06 § 4.1 — exemple de menu d'un jour R1",
+});
+
+const alreadyOpenMessage = defineMessage({
+  id: "staff.openDay.r1.alreadyOpen",
+  defaultMessage: "Ce jour est déjà ouvert : utilisez « Modifier ce jour ».",
+  description: "PLAN annexe F, D-19 — « Ouvrir un jour » R1 sur un jour déjà ouvert (envoi bloqué)",
+});
+
+interface OpenDayR1Values {
+  openedBy: string;
+  capacity: string;
+  theme: string;
+  menu: string;
+}
+
+const EMPTY: OpenDayR1Values = { openedBy: "", capacity: "", theme: "", menu: "" };
+
+/** 06 § 4.1: the capacity is the only field to check; the date has its own rules (`openDateProblem`). */
+function openDayR1Rules(value: OpenDayR1Values) {
+  const message = intl.formatMessage(capacityRequiredMessage);
+  const capacity = compose(required(message), positiveInteger(message))({ value: value.capacity });
+  return capacity === undefined ? undefined : { fields: { capacity } };
+}
+
+/** Message of a refused date (D-19). */
+function problemText(problem: OpenDateProblem): string {
+  return problem === "past"
+    ? intl.formatMessage(pastDateMessage)
+    : intl.formatMessage(alreadyOpenMessage);
+}
+
+/**
+ * Content of the open panel: the date, then the fields of 06 § 4.1 in their order. A refused date sends nothing (D-19). After « Jour ajouté. », the panel
+ * stays open on the date, the other fields are emptied and the R1 calendar selects the day opened (collegue.js
+ * l. 276-277); `selectDay` keeps `ouvrir`.
+ */
+function OpenDayBodyR1() {
+  const { formatMessage } = useIntl();
+  const date = useOpenDate("r1");
+  const problem = openDateProblem(useFullState(), "r1", date, useToday());
+  const openDay = useStaffWrite(addDayR1, { success: dayAddedMessage });
+  const slowWrite = useSlowWrite();
+  const navigate = useNavigate();
+  const form = useAppForm({
+    defaultValues: EMPTY,
+    validators: { onDynamic: ({ value }: { value: OpenDayR1Values }) => openDayR1Rules(value) },
+    onSubmit: async ({ value, formApi }) => {
+      if (problem !== null) return;
+      const input: OpenDayR1Input = {
+        date,
+        capacity: parseCount(value.capacity),
+        menu: value.menu.trim(),
+        theme: value.theme.trim(),
+        openedBy: value.openedBy.trim(),
+      };
+      slowWrite.start();
+      try {
+        await openDay.mutateAsync(input, {
+          onSuccess: () => {
+            formApi.reset();
+            void navigate({
+              to: ".",
+              search: (previous: PageSearchParams) => selectDay(previous, "r1", date),
+              replace: true,
+              resetScroll: false,
+            });
+          },
+        });
+      } catch (error) {
+        showStaffError(error);
+      } finally {
+        slowWrite.stop();
+      }
+    },
+  });
+  const sent = useSelector(form.store, (state) => state.submissionAttempts > 0);
+  return (
+    <Form form={form} className={styles["form"]}>
+      <OpenDatePicker
+        restaurant="r1"
+        date={date}
+        error={sent && problem !== null ? problemText(problem) : null}
+      />
+      <form.AppField name="openedBy">
+        {(field) => (
+          <field.TextField
+            label={formatMessage(openedByLabel)}
+            placeholder={formatMessage(openedByPlaceholder)}
+            autoComplete="name"
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="capacity">
+        {(field) => (
+          <field.TextField
+            label={formatMessage(capacityLabel)}
+            placeholder={formatMessage(capacityPlaceholder)}
+            type="number"
+            min={1}
+            inputMode="numeric"
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="theme">
+        {(field) => (
+          <field.TextField
+            label={formatMessage(themeLabel)}
+            placeholder={formatMessage(themePlaceholder)}
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="menu">
+        {(field) => (
+          <field.TextField
+            label={formatMessage(menuLabel)}
+            placeholder={formatMessage(menuPlaceholder)}
+          />
+        )}
+      </form.AppField>
+      <form.SubmitButton pendingLabel={formatMessage(openingLabel)}>
+        <FormattedMessage {...openDaySubmitAction} />
+      </form.SubmitButton>
+      <SlowWriteNotice slow={slowWrite.slow} />
+    </Form>
+  );
+}
+
+/**
+ * « + Ouvrir un jour » above the R1 calendar of `StaffPage` (06 § 4.1, C-04, C-05), its form while `ouvrir=r1`.
+ */
+export function OpenDayFormR1() {
+  return (
+    <OpenDayPanel restaurant="r1">
+      <OpenDayBodyR1 />
+    </OpenDayPanel>
+  );
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": ["scripts/*.ts"],
+  "project": [
+    "src/**/*.{ts,tsx}!",
+    "!src/mocks/**!",
+    "!src/test/**!",
+    "e2e/**/*.ts",
+    "scripts/*.ts",
+    ".storybook/*.{ts,tsx}"
+  ],
+  "ignoreDependencies": ["@tanstack/router-plugin"]
+}

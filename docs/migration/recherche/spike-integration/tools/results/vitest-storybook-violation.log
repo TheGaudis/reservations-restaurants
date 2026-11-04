@@ -1,0 +1,149 @@
+
+ RUN  v5.0.3 <spike>
+
+ ✓ |node| src/intl/dates.test.ts > selectordinal « 1er » and euro format (node project) 5ms
+ ✓ |browser (chromium)| src/api/transport.test.tsx > msw service worker intercepts GET and POST text/plain to script.google.com 62ms
+ ✓ |browser (chromium)| src/ui/Dialog.test.tsx > FormattedMessage (plural) and Base UI Dialog in a real browser 250ms
+ ✓ |browser (chromium)| src/ui/Dialog.test.tsx > NumberField: French labels override Base UI defaults 76ms
+ ✓ |storybook (chromium)| src/ui/Dialog.stories.tsx > Closed 950ms
+ × |storybook (chromium)| src/ui/Dialog.stories.tsx > Opened 51ms
+   → 
+[34mClick to debug the error directly in Storybook: http://localhost:6006/?path=/story/ui-dialog--opened&addonPanel=storybook/interactions/panel[39m
+
+Unable to find an element with the text: Velouté, suprême de volaille. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<div
+  aria-hidden="true"
+  data-base-ui-inert=""
+>
+  <button
+    aria-controls="_r_2_"
+    aria-expanded="true"
+    aria-haspopup="dialog"
+    class="button"
+    data-base-ui-click-trigger=""
+    data-popup-open=""
+    id="base-ui-_r_3_"
+    tabindex="0"
+    type="button"
+  >
+    Voir le menu
+  </button>
+</div>
+ ✓ |storybook (chromium)| src/ui/Dialog.stories.tsx > Fetches Fake Script 64ms
+ ✓ |storybook (chromium)| src/ui/A11yViolation.stories.tsx > Accessible 1173ms
+ × |storybook (chromium)| src/ui/A11yViolation.stories.tsx > Deliberate Violation 80ms
+   → 
+[34mClick to debug the error directly in Storybook: http://localhost:6006/?path=/story/ui-a11yviolation--deliberate-violation&addonPanel=storybook/interactions/panel[39m
+
+[2mexpect([22m[31mreceived[39m[2m).toHaveNoViolations([22m[32mexpected[39m[2m)[22m
+
+Expected the HTML found at $('div:nth-child(5) > div > button[type="button"]') to have no violations:
+
+[90m<button type="button"></button>[39m
+
+Received:
+
+[31m"Buttons must have discernible text (button-name)"[39m
+
+[33mFix any of the following:[39m
+[33m  Element does not have inner text that is visible to screen readers[39m
+[33m  aria-label attribute does not exist or is empty[39m
+[33m  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+[33m  Element has no title attribute[39m
+[33m  Element does not have an implicit (wrapped) <label>[39m
+[33m  Element does not have an explicit <label>[39m
+[33m  Element's default semantics were not overridden with role="none" or role="presentation"[39m
+
+You can find more information on this issue here: 
+[34mhttps://dequeuniversity.com/rules/axe/4.13/button-name?application=axeAPI[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |storybook (chromium)| src/ui/A11yViolation.stories.tsx > Deliberate Violation
+Error: 
+[34mClick to debug the error directly in Storybook: http://localhost:6006/?path=/story/ui-a11yviolation--deliberate-violation&addonPanel=storybook/interactions/panel[39m
+
+[2mexpect([22m[31mreceived[39m[2m).toHaveNoViolations([22m[32mexpected[39m[2m)[22m
+
+Expected the HTML found at $('div:nth-child(5) > div > button[type="button"]') to have no violations:
+
+[90m<button type="button"></button>[39m
+
+Received:
+
+[31m"Buttons must have discernible text (button-name)"[39m
+
+[33mFix any of the following:[39m
+[33m  Element does not have inner text that is visible to screen readers[39m
+[33m  aria-label attribute does not exist or is empty[39m
+[33m  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+[33m  Element has no title attribute[39m
+[33m  Element does not have an implicit (wrapped) <label>[39m
+[33m  Element does not have an explicit <label>[39m
+[33m  Element's default semantics were not overridden with role="none" or role="presentation"[39m
+
+You can find more information on this issue here: 
+[34mhttps://dequeuniversity.com/rules/axe/4.13/button-name?application=axeAPI[39m
+ ❯ Proxy.expectWrapper node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:25981:49
+ ❯ Proxy.<anonymous> node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:25523:101
+ ❯ Proxy.methodWrapper node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:21126:23
+ ❯ Instrumenter.invoke node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2551:20
+ ❯ Instrumenter.intercept node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2454:138
+ ❯ Instrumenter.track node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2445:83
+ ❯ Proxy.toHaveNoViolations node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2423:151
+ ❯ Object.applyAfterEach node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/csf-B_gGKjIT.js?v=153e30b4:6525:4
+ ❯ runStory node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/csf-B_gGKjIT.js?v=153e30b4:6843:100
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |storybook (chromium)| src/ui/Dialog.stories.tsx > Opened
+TestingLibraryElementError: 
+[34mClick to debug the error directly in Storybook: http://localhost:6006/?path=/story/ui-dialog--opened&addonPanel=storybook/interactions/panel[39m
+
+Unable to find an element with the text: Velouté, suprême de volaille. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<div
+  aria-hidden="true"
+  data-base-ui-inert=""
+>
+  <button
+    aria-controls="_r_2_"
+    aria-expanded="true"
+    aria-haspopup="dialog"
+    class="button"
+    data-base-ui-click-trigger=""
+    data-popup-open=""
+    id="base-ui-_r_3_"
+    tabindex="0"
+    type="button"
+  >
+    Voir le menu
+  </button>
+</div>
+ ❯ Object.getElementError node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:12033:17
+ ❯ node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:12605:38
+ ❯ node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:12590:15
+ ❯ node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:12621:18
+ ❯ Instrumenter.invoke node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2551:20
+ ❯ Instrumenter.track node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2445:83
+ ❯ Object.getByText node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/test-C4tqZWCP.js?v=153e30b4:2423:151
+ ❯ getByText src/ui/Dialog.stories.tsx:16:25
+     14|   play: async ({ canvas, userEvent }) => {
+     15|     await userEvent.click(canvas.getByRole("button", { name: "Voir le …
+     16|     const body = canvas.getByText("Velouté, suprême de volaille", {}, …
+       |                         ^
+     17|     await expect(body).toBeVisible();
+     18|   },
+ ❯ runStory node_modules/.cache/storybook/10.6.1/8b3d5066d94f46e7f32d660e95826cd9405fea85bf94864b9e6ce69508bd8ff1/sb-vitest/vitest/f8437193862b78daa12ee0660971b8b868a1e776/deps/csf-B_gGKjIT.js?v=153e30b4:6841:6
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  2 failed | 7 passed (9)
+   Start at  17:10:28
+   Duration  7.19s (worker 39%, setup 34%, tests 16%, transform 7%, import 3%)
+

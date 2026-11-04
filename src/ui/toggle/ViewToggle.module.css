@@ -1,0 +1,53 @@
+/* Segmented buttons of segmented.module.css (08 § 4.5): exclusive choice between views, state from Base UI's
+   data-pressed. --segment-min-width: set by the parent (« Client / Collègue » of the header). */
+.group {
+  composes: group from "../segmented.module.css";
+  display: inline-flex;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.group[data-full-width] {
+  display: flex;
+}
+
+.segment {
+  composes: segment from "../segmented.module.css";
+  min-width: var(--segment-min-width, 0);
+}
+
+.check {
+  composes: check from "../segmented.module.css";
+}
+
+/* .seg-pop: the segment just chosen bounces once; a plain new render does not animate (08 § 4.5). */
+.segment[data-pressed][data-pop] {
+  animation: segment-select var(--dur-slow) var(--ease-enter);
+}
+
+/* Compact variant (M3 density -2): 32 px, touch target kept at 48 px (08 § 4.5). */
+.group[data-size="small"] .segment {
+  min-height: var(--space-8);
+  padding: 0 var(--space-3);
+  font-size: var(--fs-xs);
+}
+
+.group[data-size="small"] .segment::after {
+  inset: calc(-1 * var(--space-2)) 0;
+}
+
+.group[data-size="small"] .check svg {
+  width: var(--check-size-small);
+  height: var(--check-size-small);
+}
+
+.group[data-size="small"] .segment[data-pressed] .check {
+  width: var(--check-size-small);
+}
+
+@keyframes segment-select {
+  from {
+    transform: scale(0.96);
+  }
+}
