@@ -27,10 +27,10 @@ export function useSelectedDay(restaurant: Restaurant): IsoDate {
   return selectedDay(usePageSearch(), restaurant, useToday());
 }
 
-/** View transition types of the router (`:active-view-transition-type(r1-next)`), or none (05 § 3.4). */
+/** View transition types of the router, restaurant and kind (`:active-view-transition-type(next)`), or none (05 § 3.4). */
 function viewTransition(transition: PageNavigation["transition"]): { types: string[] } | false {
   if (transition === undefined) return false;
-  return { types: [`${transition.restaurant}-${transition.kind}`] };
+  return { types: [transition.restaurant, transition.kind] };
 }
 
 /**

@@ -44,7 +44,6 @@
 
   /* States */
   --success: #4e7a12;
-  --success-soft: rgba(78, 122, 18, 0.12);
   --warning: #9a600a;
   --warning-soft: rgba(154, 96, 10, 0.12);
   --danger: #b7372f;

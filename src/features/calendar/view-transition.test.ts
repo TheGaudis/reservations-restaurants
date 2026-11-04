@@ -41,9 +41,11 @@ describe("startViewTransition", () => {
   it("starts a transition with the types of the navigation", async () => {
     let typed = false;
     const update = updateBy(() => {
-      typed = document.documentElement.matches(":active-view-transition-type(r1-next)");
+      typed = document.documentElement.matches(
+        ":active-view-transition-type(r1):active-view-transition-type(next)",
+      );
     });
-    await startViewTransition(update, { types: ["r1-next"] });
+    await startViewTransition(update, { types: ["r1", "next"] });
     expect(typed).toBe(true);
   });
 
@@ -67,7 +69,7 @@ describe("startViewTransition", () => {
       updateBy(() => {
         updated = true;
       }),
-      { types: ["r1-next"] },
+      { types: ["r1", "next"] },
     );
     expect(updated).toBe(true);
     await navigation;
@@ -77,11 +79,11 @@ describe("startViewTransition", () => {
     const updated: string[] = [];
     const first = startViewTransition(
       updateBy(() => updated.push("first")),
-      { types: ["r1-day-next"] },
+      { types: ["r1", "day-next"] },
     );
     const second = startViewTransition(
       updateBy(() => updated.push("second")),
-      { types: ["r1-day-prev"] },
+      { types: ["r1", "day-prev"] },
     );
     await Promise.all([first, second]);
     await nextFrame();
