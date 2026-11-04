@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 import type { Restaurant } from "@/domain/types";
 import { columnFocus, useCloseBookingForm } from "@/features/booking/booking-columns";
 import { DayActions } from "@/features/calendar/DayCard";
-import { commonMessages } from "@/intl/common-messages";
+import { cancelAction } from "@/intl/common-messages";
 import { Button } from "@/ui/button/Button";
 import { useFormContext } from "@/ui/form/form-context";
 import { SubmitButton } from "@/ui/form/SubmitButton";
@@ -21,7 +21,11 @@ export function BookingFormActions({ restaurant }: { restaurant: Restaurant }) {
   return (
     <DayActions>
       <SubmitButton>
-        <FormattedMessage {...commonMessages.confirmBooking} />
+        <FormattedMessage
+          id="public.form.submit"
+          defaultMessage="Confirmer la réservation"
+          description="00 § 2.3, 04 § 5.2-5.3 — bouton d'envoi des formulaires publics R1 et R2"
+        />
       </SubmitButton>
       <Button
         variant="ghost"
@@ -31,7 +35,7 @@ export function BookingFormActions({ restaurant }: { restaurant: Restaurant }) {
           close();
         }}
       >
-        <FormattedMessage {...commonMessages.cancel} />
+        <FormattedMessage {...cancelAction} />
       </Button>
     </DayActions>
   );

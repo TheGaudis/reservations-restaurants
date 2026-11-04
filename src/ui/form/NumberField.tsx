@@ -1,7 +1,7 @@
 import { Field } from "@base-ui/react/field";
 import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { FieldMessages } from "@/ui/form/FieldMessages";
 import { useFieldContext } from "@/ui/form/form-context";
@@ -10,13 +10,11 @@ import { useFieldMessages } from "@/ui/form/use-field-messages";
 import styles from "@/ui/form/Field.module.css";
 import numberStyles from "@/ui/form/NumberField.module.css";
 
-const messages = defineMessages({
-  roleDescription: {
-    id: "ui.numberField.roleDescription",
-    defaultMessage: "champ numérique",
-    description:
-      "D-17, R-16 — aria-roledescription du champ numérique (remplace « Number field » de Base UI)",
-  },
+const roleDescriptionMessage = defineMessage({
+  id: "ui.numberField.roleDescription",
+  defaultMessage: "champ numérique",
+  description:
+    "D-17, R-16 — aria-roledescription du champ numérique (remplace « Number field » de Base UI)",
 });
 
 // Glyphs of the −/+ buttons (D-17); the buttons are named by `decrementLabel` and `incrementLabel`.
@@ -119,7 +117,7 @@ export function NumberField({
           <BaseNumberField.Input
             className={`${styles["control"]} ${numberStyles["input"]}`}
             placeholder={PLACEHOLDER}
-            aria-roledescription={intl.formatMessage(messages.roleDescription)}
+            aria-roledescription={intl.formatMessage(roleDescriptionMessage)}
             aria-describedby={describedBy}
             onBlur={field.handleBlur}
           />

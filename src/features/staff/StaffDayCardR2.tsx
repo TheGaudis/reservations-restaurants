@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { dishesForDay, findDay, remainingStock } from "@/domain/capacity";
@@ -23,12 +23,10 @@ import { useStaffState } from "@/features/staff/use-staff-state";
 
 import styles from "@/features/staff/StaffDayCard.module.css";
 
-const messages = defineMessages({
-  note: {
-    id: "staff.r2.dayCard.note",
-    defaultMessage: "Note",
-    description: "05 § 4.4 — surtitre du bloc note de la fiche R2 collègue",
-  },
+const noteMessage = defineMessage({
+  id: "staff.r2.dayCard.note",
+  defaultMessage: "Note",
+  description: "05 § 4.4 — surtitre du bloc note de la fiche R2 collègue",
 });
 
 const whole = (state: FullState): FullState => state;
@@ -51,7 +49,7 @@ export function StaffDayCardR2() {
     <DayCard past={past}>
       <DayCardTop iso={iso} />
       <ThemeBlock text={day.theme} />
-      <TextBlock label={intl.formatMessage(messages.note)} text={day.note} />
+      <TextBlock label={intl.formatMessage(noteMessage)} text={day.note} />
       <OpenedBy name={day.openedBy} />
       {dishes.length > 0 ? (
         <div className={styles["dishes"]}>

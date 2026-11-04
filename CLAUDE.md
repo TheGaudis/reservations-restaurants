@@ -83,14 +83,18 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Textes et formats (react-intl, fr-FR seul)
 
-- Aucun texte en dur dans le JSX ni dans un attribut. Deux formes seulement : `<FormattedMessage id defaultMessage description />`
-  écrit littéralement, ou `defineMessages({ … })` passé à `intl.formatMessage(messages.x)`. Un descripteur rangé dans une
-  variable ordinaire n'est pas précompilé et s'affiche en ICU brut en production.
+- Aucun texte en dur dans le JSX ni dans un attribut. Un message qui ne sert qu'à un fichier y reste : `<FormattedMessage id
+  defaultMessage description />` écrit littéralement quand il est rendu dans le JSX, sinon (attribut, toast, `document.title`,
+  chaîne) une constante locale `const x = defineMessage({ … })` passée à `intl.formatMessage(x)`. Un message partagé par
+  plusieurs fichiers s'exporte seul, `export const cancelAction = defineMessage({ … })`, dans `intl/common-messages.ts`,
+  `intl/staff-messages.ts` ou près de la fonctionnalité qui le partage. `defineMessages` n'est pas utilisé ; une table indexée
+  par une clé est un objet de `defineMessage(…)`. Valeurs typées en argument : `defineMessage<{ count: number }>({ … })`. Un descripteur
+  rangé dans une variable ordinaire, sans `defineMessage`, n'est pas précompilé et s'affiche en ICU brut en production.
 - Id explicite en anglais par zone (`public.r1.form.name.label`, `staff.settings.save`, `common.action.cancel`, `ui.confirm`),
   `defaultMessage` recopié **mot pour mot** de `docs/spec/` (ou de l'annexe F du plan pour un texte nouveau), `description`
   qui cite la section (« 04 § 9 — … »).
 - Pluriels et ordinaux en ICU ; montants au format `euro` ; dates par `intl/dates.ts` ; jamais d'espace codée en dur autour d'un montant.
-- Espace insécable écrite `\u00A0` dans une chaîne JavaScript : `defineMessages`, ou `defaultMessage={"…"}` entre accolades
+- Espace insécable écrite `\u00A0` dans une chaîne JavaScript : `defineMessage`, ou `defaultMessage={"…"}` entre accolades
   en JSX, jamais dans un attribut entre guillemets ; apostrophe suivie de `{` ou `}` doublée (`''`) ; attributs par `intl.formatMessage`.
 - Messages du script (`{ error }`) affichés tels quels.
 

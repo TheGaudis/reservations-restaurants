@@ -1,7 +1,7 @@
 import { Field } from "@base-ui/react/field";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { IconButton } from "@/ui/button/IconButton";
 import { FieldMessages } from "@/ui/form/FieldMessages";
@@ -13,17 +13,16 @@ import { VisibilityIcon, VisibilityOffIcon } from "@/ui/icons";
 import styles from "@/ui/form/Field.module.css";
 import passwordStyles from "@/ui/form/PasswordField.module.css";
 
-const messages = defineMessages({
-  show: {
-    id: "ui.passwordField.show",
-    defaultMessage: "Afficher le mot de passe",
-    description: "06 § 1.2 — bouton œil quand le mot de passe est masqué",
-  },
-  hide: {
-    id: "ui.passwordField.hide",
-    defaultMessage: "Masquer le mot de passe",
-    description: "06 § 1.2 — bouton œil quand le mot de passe est affiché",
-  },
+const showMessage = defineMessage({
+  id: "ui.passwordField.show",
+  defaultMessage: "Afficher le mot de passe",
+  description: "06 § 1.2 — bouton œil quand le mot de passe est masqué",
+});
+
+const hideMessage = defineMessage({
+  id: "ui.passwordField.hide",
+  defaultMessage: "Masquer le mot de passe",
+  description: "06 § 1.2 — bouton œil quand le mot de passe est affiché",
 });
 
 export interface PasswordFieldProps extends Omit<InputProps, "type"> {
@@ -72,7 +71,7 @@ export function PasswordField({
           aria-describedby={fieldMessages.describedBy}
         />
         <IconButton
-          aria-label={intl.formatMessage(shown ? messages.hide : messages.show)}
+          aria-label={intl.formatMessage(shown ? hideMessage : showMessage)}
           onClick={() => {
             setShown(!shown);
           }}

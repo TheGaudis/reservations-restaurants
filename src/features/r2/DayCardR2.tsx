@@ -1,5 +1,5 @@
 import { useIsMutating } from "@tanstack/react-query";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useIsR2OrderingClosed, useToday } from "@/background/clock";
 import { dishesForDay, findDay, remainingStock } from "@/domain/capacity";
@@ -17,18 +17,16 @@ import { ReserveButton } from "@/features/calendar/ReserveButton";
 import { useShownState } from "@/features/calendar/use-shown-state";
 import { DishRow } from "@/features/r2/DishRow";
 import { OrderFormR2 } from "@/features/r2/OrderFormR2";
-import { commonMessages } from "@/intl/common-messages";
+import { r2ClosedMessage } from "@/intl/common-messages";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { Alert } from "@/ui/feedback/Alert";
 
 import styles from "@/features/r2/DayCardR2.module.css";
 
-const messages = defineMessages({
-  note: {
-    id: "public.r2.dayCard.note",
-    defaultMessage: "Note",
-    description: "05 § 4.4, 04 § 4.3 — surtitre du bloc note de la fiche R2",
-  },
+const noteMessage = defineMessage({
+  id: "public.r2.dayCard.note",
+  defaultMessage: "Note",
+  description: "05 § 4.4, 04 § 4.3 — surtitre du bloc note de la fiche R2",
 });
 
 /**
@@ -61,7 +59,7 @@ export function DayCardR2() {
     <DayCard past={past}>
       <DayCardTop iso={iso} />
       <ThemeBlock text={day.theme} />
-      <TextBlock label={intl.formatMessage(messages.note)} text={day.note} />
+      <TextBlock label={intl.formatMessage(noteMessage)} text={day.note} />
       {dishes.length > 0 && !ordering ? (
         <div className={styles["dishes"]}>
           {dishes.map(({ dish, remaining }) => (
@@ -72,10 +70,7 @@ export function DayCardR2() {
       {closed && !past && !ordering ? (
         <div className={styles["closed"]}>
           <Alert variant="note" tone="warning">
-            <FormattedMessage
-              {...commonMessages.r2Closed}
-              values={{ name2: state.settings.name2 }}
-            />
+            <FormattedMessage {...r2ClosedMessage} values={{ name2: state.settings.name2 }} />
           </Alert>
         </div>
       ) : null}

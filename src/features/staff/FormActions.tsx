@@ -2,7 +2,7 @@ import { useSelector } from "@tanstack/react-form";
 import { FormattedMessage } from "react-intl";
 
 import { DayActions } from "@/features/calendar/DayCard";
-import { commonMessages } from "@/intl/common-messages";
+import { saveAction, savingLabel, cancelAction } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { Button } from "@/ui/button/Button";
 import { useFormContext } from "@/ui/form/form-context";
@@ -19,8 +19,8 @@ interface FormActionsProps {
 /** Submit button and « Annuler », disabled while sending (E-13), inside the `Form` of a staff form. */
 export function FormActions({
   onCancel,
-  submitLabel = intl.formatMessage(commonMessages.save),
-  pendingLabel = intl.formatMessage(commonMessages.saving),
+  submitLabel = intl.formatMessage(saveAction),
+  pendingLabel = intl.formatMessage(savingLabel),
 }: FormActionsProps) {
   const form = useFormContext();
   const sending = useSelector(form.store, (state) => state.isSubmitting);
@@ -28,7 +28,7 @@ export function FormActions({
     <DayActions>
       <SubmitButton pendingLabel={pendingLabel}>{submitLabel}</SubmitButton>
       <Button variant="ghost" disabled={sending} onClick={onCancel}>
-        <FormattedMessage {...commonMessages.cancel} />
+        <FormattedMessage {...cancelAction} />
       </Button>
     </DayActions>
   );

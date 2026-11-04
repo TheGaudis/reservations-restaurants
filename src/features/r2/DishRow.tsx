@@ -5,7 +5,7 @@ import { capacityClass } from "@/domain/capacity";
 import { gaugePercent } from "@/domain/gauge";
 import type { Dish } from "@/domain/types";
 import { dishPriceText, withPrice } from "@/intl/amounts";
-import { commonMessages } from "@/intl/common-messages";
+import { soldOutLabel } from "@/intl/common-messages";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 import styles from "@/features/r2/DishRow.module.css";
@@ -34,7 +34,7 @@ export function DishRow({ dish, remaining, past, children }: DishRowProps) {
           <CapacityPill
             percent={gaugePercent(remaining, dish.stock)}
             state={capacityClass(remaining, dish.stock)}
-            fullLabel={intl.formatMessage(commonMessages.soldOut)}
+            fullLabel={intl.formatMessage(soldOutLabel)}
           >
             <FormattedMessage
               id="public.r2.dish.stock"

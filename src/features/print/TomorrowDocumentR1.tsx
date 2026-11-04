@@ -1,4 +1,4 @@
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import type { ListR1 } from "@/domain/print";
@@ -6,11 +6,18 @@ import type { StaffServiceDayR1 } from "@/domain/types";
 import logoUrl from "@/features/page/logo.png";
 import {
   bookingPriceText,
-  documentMessages,
   dotted,
   openedByText,
   seatsBookedText,
   tomorrowSubtitle,
+  openedByInfoLabel,
+  placesInfoLabel,
+  nameColumnLabel,
+  seatsColumnLabel,
+  priceColumnLabel,
+  totalLabel,
+  noDayTomorrowNote,
+  noBookingsNote,
 } from "@/features/print/document-texts";
 import { formatEuros, seatsText } from "@/intl/amounts";
 import { PrintLayout, PrintNote } from "@/ui/print/PrintLayout";
@@ -18,24 +25,22 @@ import type { PrintInfo } from "@/ui/print/PrintLayout";
 import { PrintTable } from "@/ui/print/PrintTable";
 import type { PrintColumn } from "@/ui/print/PrintTable";
 
-const messages = defineMessages({
-  className: {
-    id: "print.r1.tomorrow.column.className",
-    defaultMessage: "Classe",
-    description: "07 § 6 — colonne du résumé R1 du lendemain",
-  },
+const classNameMessage = defineMessage({
+  id: "print.r1.tomorrow.column.className",
+  defaultMessage: "Classe",
+  description: "07 § 6 — colonne du résumé R1 du lendemain",
 });
 
 function infos(intl: IntlShape, day: StaffServiceDayR1, seats: number): PrintInfo[] {
   return [
     {
       key: "openedBy",
-      label: intl.formatMessage(documentMessages.openedBy),
+      label: intl.formatMessage(openedByInfoLabel),
       value: openedByText(day.openedBy),
     },
     {
       key: "places",
-      label: intl.formatMessage(documentMessages.places),
+      label: intl.formatMessage(placesInfoLabel),
       value: seatsBookedText(seats, day.capacity),
     },
   ];
@@ -43,10 +48,10 @@ function infos(intl: IntlShape, day: StaffServiceDayR1, seats: number): PrintInf
 
 function columns(intl: IntlShape): PrintColumn[] {
   return [
-    { key: "name", label: intl.formatMessage(documentMessages.name) },
-    { key: "className", label: intl.formatMessage(messages.className) },
-    { key: "seats", label: intl.formatMessage(documentMessages.seats), align: "end" },
-    { key: "price", label: intl.formatMessage(documentMessages.price), align: "end" },
+    { key: "name", label: intl.formatMessage(nameColumnLabel) },
+    { key: "className", label: intl.formatMessage(classNameMessage) },
+    { key: "seats", label: intl.formatMessage(seatsColumnLabel), align: "end" },
+    { key: "price", label: intl.formatMessage(priceColumnLabel), align: "end" },
   ];
 }
 
@@ -76,7 +81,7 @@ export function TomorrowDocumentR1({ list, printedAt }: TomorrowDocumentR1Props)
         day === undefined
           ? undefined
           : {
-              label: intl.formatMessage(documentMessages.total),
+              label: intl.formatMessage(totalLabel),
               value: dotted([
                 seatsText(totals.seats),
                 totals.price > 0 ? formatEuros(totals.price) : "",
@@ -86,7 +91,7 @@ export function TomorrowDocumentR1({ list, printedAt }: TomorrowDocumentR1Props)
     >
       {day === undefined ? (
         <PrintNote>
-          <FormattedMessage {...documentMessages.noDayTomorrow} />
+          <FormattedMessage {...noDayTomorrowNote} />
         </PrintNote>
       ) : (
         <PrintTable
@@ -95,7 +100,7 @@ export function TomorrowDocumentR1({ list, printedAt }: TomorrowDocumentR1Props)
             key: booking.id,
             cells: [booking.name, booking.className, booking.seats, bookingPriceText(booking)],
           }))}
-          empty={intl.formatMessage(documentMessages.noBookings)}
+          empty={intl.formatMessage(noBookingsNote)}
         />
       )}
     </PrintLayout>

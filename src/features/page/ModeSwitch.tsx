@@ -1,6 +1,6 @@
 import { useMatch, useNavigate, useRouter } from "@tanstack/react-router";
 import { useId, useRef } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { PasswordRejectedError } from "@/api/errors";
 import { publicSearch } from "@/domain/navigation";
@@ -15,37 +15,40 @@ import { ViewToggle } from "@/ui/toggle/ViewToggle";
 
 import styles from "@/features/page/ModeSwitch.module.css";
 
-const messages = defineMessages({
-  group: {
-    id: "staff.modeSwitch.label",
-    defaultMessage: "Mode d'accès",
-    description: "06 § 1.1 — nom du groupe « Client / Collègue » de l'en-tête",
-  },
-  client: {
-    id: "staff.modeSwitch.client",
-    defaultMessage: "Client",
-    description: "06 § 1.1 — segment du mode public",
-  },
-  staff: {
-    id: "staff.modeSwitch.staff",
-    defaultMessage: "Collègue",
-    description: "06 § 1.1 — segment du mode collègue, qui ouvre le panneau de connexion",
-  },
-  loggedIn: {
-    id: "staff.login.success",
-    defaultMessage: "Mode collègue activé.",
-    description: "06 § 1.3 (5) — toast de succès de la connexion",
-  },
-  failed: {
-    id: "staff.login.error",
-    defaultMessage: "Erreur de connexion. Réessayez.",
-    description: "06 § 1.3 (6) — toast d'erreur de la connexion, sauf mot de passe refusé",
-  },
-  fromCache: {
-    id: "staff.login.fromCache",
-    defaultMessage: "Les données se chargent. Réessayez dans un instant.",
-    description: "06 § 1.3 (1), 09 G-02 — connexion refusée tant que la copie locale est affichée",
-  },
+const groupMessage = defineMessage({
+  id: "staff.modeSwitch.label",
+  defaultMessage: "Mode d'accès",
+  description: "06 § 1.1 — nom du groupe « Client / Collègue » de l'en-tête",
+});
+
+const clientMessage = defineMessage({
+  id: "staff.modeSwitch.client",
+  defaultMessage: "Client",
+  description: "06 § 1.1 — segment du mode public",
+});
+
+const staffMessage = defineMessage({
+  id: "staff.modeSwitch.staff",
+  defaultMessage: "Collègue",
+  description: "06 § 1.1 — segment du mode collègue, qui ouvre le panneau de connexion",
+});
+
+const loggedInMessage = defineMessage({
+  id: "staff.login.success",
+  defaultMessage: "Mode collègue activé.",
+  description: "06 § 1.3 (5) — toast de succès de la connexion",
+});
+
+const failedMessage = defineMessage({
+  id: "staff.login.error",
+  defaultMessage: "Erreur de connexion. Réessayez.",
+  description: "06 § 1.3 (6) — toast d'erreur de la connexion, sauf mot de passe refusé",
+});
+
+const fromCacheMessage = defineMessage({
+  id: "staff.login.fromCache",
+  defaultMessage: "Les données se chargent. Réessayez dans un instant.",
+  description: "06 § 1.3 (1), 09 G-02 — connexion refusée tant que la copie locale est affichée",
 });
 
 type Mode = "client" | "staff";
@@ -95,14 +98,14 @@ function useSubmitLogin(
   const login = useLogin();
   return async (password) => {
     if (fromCache) {
-      showToast(intl.formatMessage(messages.fromCache), "error");
+      showToast(intl.formatMessage(fromCacheMessage), "error");
       return;
     }
     void preloadStaffPage(async () => router.loadRouteChunk(router.routesById["/collegue"]));
     try {
       await login.mutateAsync(password, {
         onSuccess: () => {
-          showToast(intl.formatMessage(messages.loggedIn), "success");
+          showToast(intl.formatMessage(loggedInMessage), "success");
           focusStaff();
           if (search.retour === undefined) {
             void navigate({ to: "/collegue", search: publicSearch(search), replace: true });
@@ -113,7 +116,7 @@ function useSubmitLogin(
       });
     } catch (error) {
       const refused = error instanceof PasswordRejectedError;
-      showToast(refused ? error.message : intl.formatMessage(messages.failed), "error");
+      showToast(refused ? error.message : intl.formatMessage(failedMessage), "error");
     } finally {
       login.reset();
     }
@@ -173,15 +176,15 @@ export function ModeSwitch() {
   return (
     <div ref={box} className={styles["box"]}>
       <ViewToggle<Mode>
-        aria-label={intl.formatMessage(messages.group)}
+        aria-label={intl.formatMessage(groupMessage)}
         className={styles["switch"]}
         value={loggedIn || open ? "staff" : "client"}
         onValueChange={choose}
         items={[
-          { value: "client", label: intl.formatMessage(messages.client) },
+          { value: "client", label: intl.formatMessage(clientMessage) },
           {
             value: "staff",
-            label: intl.formatMessage(messages.staff),
+            label: intl.formatMessage(staffMessage),
             "aria-controls": panelId,
             "aria-expanded": open,
           },

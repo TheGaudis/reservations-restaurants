@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useIsR2OrderingClosed, useToday } from "@/background/clock";
 import { dayStatusR1, dayStatusR2 } from "@/domain/capacity";
@@ -33,22 +33,22 @@ import { ViewToggle } from "@/ui/toggle/ViewToggle";
 import styles from "@/features/calendar/RestaurantCalendar.module.css";
 import "@/features/calendar/view-transitions.css";
 
-const messages = defineMessages({
-  views: {
-    id: "common.calendar.view.label",
-    defaultMessage: "Affichage du calendrier",
-    description: "05 § 2.2, § 2.3, 08 § 6.3 — nom du groupe « Semaine | Mois »",
-  },
-  week: {
-    id: "common.calendar.view.week",
-    defaultMessage: "Semaine",
-    description: "05 § 2.3 — segment de la vue semaine",
-  },
-  month: {
-    id: "common.calendar.view.month",
-    defaultMessage: "Mois",
-    description: "05 § 2.3 — segment de la vue mois",
-  },
+const viewsMessage = defineMessage({
+  id: "common.calendar.view.label",
+  defaultMessage: "Affichage du calendrier",
+  description: "05 § 2.2, § 2.3, 08 § 6.3 — nom du groupe « Semaine | Mois »",
+});
+
+const weekMessage = defineMessage({
+  id: "common.calendar.view.week",
+  defaultMessage: "Semaine",
+  description: "05 § 2.3 — segment de la vue semaine",
+});
+
+const monthMessage = defineMessage({
+  id: "common.calendar.view.month",
+  defaultMessage: "Mois",
+  description: "05 § 2.3 — segment de la vue mois",
 });
 
 interface CalendarDaysInput {
@@ -131,11 +131,11 @@ export function RestaurantCalendar({ restaurant }: { restaurant: Restaurant }) {
         }}
       >
         <ViewToggle<CalendarView>
-          aria-label={intl.formatMessage(messages.views)}
+          aria-label={intl.formatMessage(viewsMessage)}
           size="small"
           items={[
-            { value: "semaine", label: intl.formatMessage(messages.week) },
-            { value: "mois", label: intl.formatMessage(messages.month) },
+            { value: "semaine", label: intl.formatMessage(weekMessage) },
+            { value: "mois", label: intl.formatMessage(monthMessage) },
           ]}
           value={view}
           onValueChange={(next) => {

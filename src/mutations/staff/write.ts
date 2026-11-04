@@ -1,14 +1,21 @@
 import { mutationOptions } from "@tanstack/react-query";
 import type { QueryClient } from "@tanstack/react-query";
+import { defineMessage } from "react-intl";
 
 import { errorMessage, PasswordRejectedError } from "@/api/errors";
 import type { FullState } from "@/domain/types";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { WRITE_SCOPE } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
 import { useSessionStore } from "@/session/session";
 import { showToast } from "@/ui/feedback/toast";
+
+const staffServiceUnavailableMessage = defineMessage({
+  id: "staff.error.serviceUnavailable",
+  defaultMessage: "Le service ne répond pas. Réessayez dans un instant.",
+  description:
+    "PLAN annexe F, D-14 — écriture collègue (ajout d'une personne compris) sans réponse",
+});
 
 // Writes of the staff mode (02 § 4.7, PLAN § 3.3.3): one factory for days, dishes, bookings and settings. The password
 // and the session number are read from the store when the write starts, never passed by a component. The answer (the
@@ -102,7 +109,7 @@ export function staffWriteOptions<TVariables>({
  */
 export function staffErrorText(error: unknown): string | null {
   if (error instanceof PasswordRejectedError) return null;
-  return errorMessage(error) ?? intl.formatMessage(staffCommonMessages.serviceUnavailable);
+  return errorMessage(error) ?? intl.formatMessage(staffServiceUnavailableMessage);
 }
 
 /** Error toast of a failed staff write (`staffErrorText`); nothing for a refused password. */

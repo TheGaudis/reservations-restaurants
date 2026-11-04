@@ -2,7 +2,6 @@ import { FormattedMessage } from "react-intl";
 
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { addButtonId, addFormId, addFormTarget } from "@/features/staff/add-booking";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
 import { requestFocus } from "@/ui/pending-focus";
 
@@ -34,7 +33,11 @@ export function AddPersonButton({ ajout }: AddPersonButtonProps) {
         navigate({ ...search, ajout }, { replace: false });
       }}
     >
-      <FormattedMessage {...staffCommonMessages.addPerson} />
+      <FormattedMessage
+        id="staff.addBooking.open"
+        defaultMessage="+ Ajouter une personne"
+        description="06 § 8 — ouverture de l'ajout d'une personne (fiche R1, plat R2)"
+      />
     </Button>
   );
 }

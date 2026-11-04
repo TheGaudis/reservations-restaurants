@@ -1,16 +1,34 @@
-import { FormattedMessage } from "react-intl";
+import { defineMessage, FormattedMessage } from "react-intl";
 
 import type { SeatCountValues } from "@/domain/bookings";
 import { priceR1, seatTotal } from "@/domain/pricing";
 import type { R1Prices } from "@/domain/pricing";
 import { countValue } from "@/domain/validation";
 import { formatEuros, r1TotalText } from "@/intl/amounts";
-import { commonMessages } from "@/intl/common-messages";
+import { studentsLabel, staffMembersLabel, externalsLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { withFieldGroup } from "@/ui/form/app-form";
 import { errorText } from "@/ui/form/errors";
 
 import styles from "@/features/r1/SeatCountersR1.module.css";
+
+export const counterWithPriceLabel = defineMessage<{ label: string; price: string }>({
+  id: "common.form.seats.counterLabel",
+  defaultMessage: "{label} · {price}",
+  description: "04 § 5.2, 06 § 7.3 — libellé d'un compteur R1 avec son tarif (« Élèves · 4,95 € »)",
+});
+
+export const counterDecrementLabel = defineMessage<{ label: string }>({
+  id: "public.r1.form.counter.decrement",
+  defaultMessage: "Diminuer : {label}",
+  description: "PLAN annexe F, D-17 — bouton − d'un compteur R1",
+});
+
+const counterIncrementLabel = defineMessage<{ label: string }>({
+  id: "public.r1.form.counter.increment",
+  defaultMessage: "Augmenter : {label}",
+  description: "PLAN annexe F, D-17 — bouton + d'un compteur R1",
+});
 
 // Red round before the message (08 § 4.6), outside the element that `aria-describedby` reads.
 const MARK = "!";
@@ -28,9 +46,9 @@ function liveTotal(values: SeatCountValues, prices: R1Prices): string {
 const seatDefaults: SeatCountValues = { students: null, staffMembers: null, externals: null };
 
 const COUNTERS = [
-  { name: "students", label: commonMessages.students, price: "priceStudent" },
-  { name: "staffMembers", label: commonMessages.staffMembers, price: "priceStaff" },
-  { name: "externals", label: commonMessages.externals, price: "priceExternal" },
+  { name: "students", label: studentsLabel, price: "priceStudent" },
+  { name: "staffMembers", label: staffMembersLabel, price: "priceStaff" },
+  { name: "externals", label: externalsLabel, price: "priceExternal" },
 ] as const;
 
 interface SeatCountersProps {
@@ -67,7 +85,12 @@ export const SeatCountersR1 = withFieldGroup({
     <>
       <fieldset className={styles["group"]}>
         <legend className={styles["legend"]}>
-          <FormattedMessage {...commonMessages.seatsLegend} values={{ max }} />
+          <FormattedMessage
+            id="common.form.seats.legend"
+            defaultMessage="Nombre de personnes ({max} au maximum)"
+            description="04 § 5.2, 06 § 7.3, § 8.2 — légende des compteurs R1"
+            values={{ max }}
+          />
         </legend>
         {help === "" ? null : <p className={styles["help"]}>{help}</p>}
         <div className={styles["row"]}>
@@ -77,12 +100,12 @@ export const SeatCountersR1 = withFieldGroup({
               <group.AppField key={counter.name} name={counter.name}>
                 {(field) => (
                   <field.NumberField
-                    label={intl.formatMessage(commonMessages.counterWithPrice, {
+                    label={intl.formatMessage(counterWithPriceLabel, {
                       label,
                       price: formatEuros(prices[counter.price]),
                     })}
-                    decrementLabel={intl.formatMessage(commonMessages.counterDecrement, { label })}
-                    incrementLabel={intl.formatMessage(commonMessages.counterIncrement, { label })}
+                    decrementLabel={intl.formatMessage(counterDecrementLabel, { label })}
+                    incrementLabel={intl.formatMessage(counterIncrementLabel, { label })}
                     errorShownBy={errorId}
                   />
                 )}

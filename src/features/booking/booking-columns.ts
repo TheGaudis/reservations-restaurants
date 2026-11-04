@@ -1,11 +1,24 @@
 import { createContext, use } from "react";
+import { defineMessage } from "react-intl";
 
 import type { SummaryR1, SummaryR2 } from "@/domain/bookings";
 import type { Restaurant } from "@/domain/types";
 import { useCloseForm } from "@/features/calendar/page-search";
-import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { showToast } from "@/ui/feedback/toast";
+
+const bookingConfirmedMessage = defineMessage({
+  id: "public.toast.bookingConfirmed",
+  defaultMessage: "Réservation confirmée.",
+  description: "04 § 9 — toast de succès d'une réservation R1 ou R2",
+});
+
+const bookingDuplicateMessage = defineMessage({
+  id: "public.toast.duplicate",
+  defaultMessage:
+    "Cette réservation était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.",
+  description: "04 § 9, D-16 — toast neutre d'un doublon (_duplicate)",
+});
 
 /** Content of a booking summary (04 § 7): R1 or R2, built by `summaryR1` / `summaryR2` of domain/bookings.ts. */
 export type BookingSummaryContent = SummaryR1 | SummaryR2;
@@ -66,9 +79,9 @@ export function useBookingDone(restaurant: Restaurant) {
   return (summary: BookingSummaryContent, duplicate: boolean) => {
     columns.show(summary);
     if (duplicate) {
-      showToast(intl.formatMessage(commonMessages.bookingDuplicate), "neutral");
+      showToast(intl.formatMessage(bookingDuplicateMessage), "neutral");
     } else {
-      showToast(intl.formatMessage(commonMessages.bookingConfirmed));
+      showToast(intl.formatMessage(bookingConfirmedMessage));
     }
     close();
   };

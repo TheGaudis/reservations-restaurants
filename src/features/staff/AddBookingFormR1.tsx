@@ -23,7 +23,7 @@ import { AddPersonButton } from "@/features/staff/AddBookingParts";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import { addPersonSubmitAction, addingLabel } from "@/intl/staff-messages";
 import { isSeatsRefusal, useBookR1 } from "@/mutations/bookings";
 import { showStaffError } from "@/mutations/staff/write";
 import { showToast } from "@/ui/feedback/toast";
@@ -134,8 +134,8 @@ function AddBookingFormR1Open({ day }: AddBookingR1Props) {
         <ObservationField form={form} fields={OBSERVATION} />
         <FormActions
           onCancel={close}
-          submitLabel={intl.formatMessage(staffCommonMessages.addPersonSubmit)}
-          pendingLabel={intl.formatMessage(staffCommonMessages.adding)}
+          submitLabel={intl.formatMessage(addPersonSubmitAction)}
+          pendingLabel={intl.formatMessage(addingLabel)}
         />
         <SlowWriteNotice slow={slowWrite.slow} />
       </Form>

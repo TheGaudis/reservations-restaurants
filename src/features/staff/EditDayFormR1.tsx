@@ -1,4 +1,4 @@
-import { FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { BusinessError, PasswordRejectedError } from "@/api/errors";
 import { seatsBooked } from "@/domain/capacity";
@@ -7,11 +7,11 @@ import { compose, parseCount, positiveInteger, required } from "@/domain/validat
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { useCloseForm, usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
-import { dayMessages } from "@/features/staff/day-messages";
+import { capacityRequiredMessage, capacityLabel, menuLabel } from "@/features/staff/day-messages";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import { themeLabel } from "@/intl/staff-messages";
 import { useEditDayR1 } from "@/mutations/staff/days";
 import { showStaffError } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
@@ -21,6 +21,14 @@ import { Form } from "@/ui/form/Form";
 import { focusById } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/EditDayFormR1.module.css";
+
+const capacityBelowBookedMessage = defineMessage<{ used: string }>({
+  id: "staff.editDay.capacity.belowBooked",
+  defaultMessage:
+    "Impossible : {used} couvert(s) déjà réservé(s) pour ce jour, la capacité ne peut pas être inférieure.",
+  description:
+    "02 § 4.7, 06 § 5.1, D-19 — message du script repris avant l'envoi : capacité sous les couverts réservés",
+});
 
 interface EditDayR1Props {
   /** Selected R1 day, from the full state. */
@@ -64,10 +72,10 @@ export function EditDayButtonR1(_props: EditDayR1Props) {
 
 /** 06 § 5.1: a capacity above 0, and not under the seats already booked (D-19, message of the script). */
 function editDayR1Rules(value: EditDayR1Values, booked: number) {
-  const message = intl.formatMessage(dayMessages.capacityRequired);
+  const message = intl.formatMessage(capacityRequiredMessage);
   let capacity = compose(required(message), positiveInteger(message))({ value: value.capacity });
   if (capacity === undefined && parseCount(value.capacity) < booked) {
-    capacity = intl.formatMessage(dayMessages.capacityBelowBooked, { used: String(booked) });
+    capacity = intl.formatMessage(capacityBelowBookedMessage, { used: String(booked) });
   }
   return capacity === undefined ? undefined : { fields: { capacity } };
 }
@@ -128,7 +136,7 @@ function EditDayFormBody({ day }: EditDayR1Props) {
         <form.AppField name="capacity">
           {(field) => (
             <field.TextField
-              label={formatMessage(dayMessages.capacityLabel)}
+              label={formatMessage(capacityLabel)}
               type="number"
               min={1}
               inputMode="numeric"
@@ -136,11 +144,11 @@ function EditDayFormBody({ day }: EditDayR1Props) {
           )}
         </form.AppField>
         <form.AppField name="theme">
-          {(field) => <field.TextField label={formatMessage(staffCommonMessages.themeLabel)} />}
+          {(field) => <field.TextField label={formatMessage(themeLabel)} />}
         </form.AppField>
       </div>
       <form.AppField name="menu">
-        {(field) => <field.TextField label={formatMessage(dayMessages.menuLabel)} />}
+        {(field) => <field.TextField label={formatMessage(menuLabel)} />}
       </form.AppField>
       <FormActions onCancel={close} />
       <SlowWriteNotice slow={slowWrite.slow} />

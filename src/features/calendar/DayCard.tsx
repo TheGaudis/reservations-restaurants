@@ -1,18 +1,15 @@
 import type { ReactNode } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import type { IsoDate, Restaurant } from "@/domain/types";
-import { commonMessages } from "@/intl/common-messages";
 import { formatLongDate } from "@/intl/dates";
 
 import styles from "@/features/calendar/DayCard.module.css";
 
-const messages = defineMessages({
-  theme: {
-    id: "public.dayCard.theme",
-    defaultMessage: "Thème du jour",
-    description: "05 § 4.4, 04 § 4.2-4.3 — surtitre du bloc thème des fiches R1 et R2",
-  },
+const themeMessage = defineMessage({
+  id: "public.dayCard.theme",
+  defaultMessage: "Thème du jour",
+  description: "05 § 4.4, 04 § 4.2-4.3 — surtitre du bloc thème des fiches R1 et R2",
 });
 
 interface DayDetailProps {
@@ -81,7 +78,11 @@ export function NoServiceCard({ iso, past }: { iso: IsoDate; past: boolean }) {
     <DayCard past={past}>
       <DayCardTop iso={iso} />
       <p className={styles["empty"]}>
-        <FormattedMessage {...commonMessages.noService} />
+        <FormattedMessage
+          id="public.dayCard.noService"
+          defaultMessage="Aucune réservation possible ce jour-là."
+          description="00 § 2.3, 04 § 4.1, § 9 — fiche d'un jour sans service (R1 et R2)"
+        />
       </p>
     </DayCard>
   );
@@ -108,7 +109,7 @@ export function TextBlock({ label, text }: TextBlockProps) {
 /** « Thème du jour » of an R1 or R2 day (05 § 5.1, § 6.2). */
 export function ThemeBlock({ text }: { text: string }) {
   const intl = useIntl();
-  return <TextBlock label={intl.formatMessage(messages.theme)} text={text} />;
+  return <TextBlock label={intl.formatMessage(themeMessage)} text={text} />;
 }
 
 /** Row of buttons at the bottom of a card (`.day-actions`, 05 § 5.1). */

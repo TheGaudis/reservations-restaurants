@@ -1,10 +1,23 @@
+import { defineMessage } from "react-intl";
+
 import type { IdentityValues } from "@/domain/bookings";
-import { commonMessages } from "@/intl/common-messages";
+import { classLabel, observationLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { withFieldGroup } from "@/ui/form/app-form";
 
 import styles from "@/features/staff/EditBookingForm.module.css";
+
+const nameLabel = defineMessage({
+  id: "staff.editBooking.name.label",
+  defaultMessage: "Nom",
+  description: "06 § 7.2 — libellé du nom d'une réservation modifiée",
+});
+
+const contactLabel = defineMessage({
+  id: "staff.editBooking.contact.label",
+  defaultMessage: "Téléphone ou email",
+  description: "06 § 7.2 — libellé du contact d'une réservation modifiée (R1 et R2)",
+});
 
 // Fields shared by the two edit forms of a booking (06 § 7.2-7.4); their rules and the closing of the form are in
 // edit-booking.ts, the buttons in FormActions.tsx.
@@ -17,20 +30,10 @@ export const EditNameFields = withFieldGroup({
   render: ({ group }) => (
     <div className={styles["row"]}>
       <group.AppField name="name">
-        {(field) => (
-          <field.TextField
-            label={intl.formatMessage(staffCommonMessages.nameLabel)}
-            autoComplete="off"
-          />
-        )}
+        {(field) => <field.TextField label={intl.formatMessage(nameLabel)} autoComplete="off" />}
       </group.AppField>
       <group.AppField name="className">
-        {(field) => (
-          <field.TextField
-            label={intl.formatMessage(commonMessages.classLabel)}
-            autoComplete="off"
-          />
-        )}
+        {(field) => <field.TextField label={intl.formatMessage(classLabel)} autoComplete="off" />}
       </group.AppField>
     </div>
   ),
@@ -45,7 +48,7 @@ export const EditContactField = withFieldGroup({
     <group.AppField name="contact">
       {(field) => (
         <field.TextField
-          label={intl.formatMessage(staffCommonMessages.contactLabel)}
+          label={intl.formatMessage(contactLabel)}
           autoComplete="off"
           spellCheck={false}
         />
@@ -61,7 +64,7 @@ export const EditObservationField = withFieldGroup({
   defaultValues: observationDefaults,
   render: ({ group }) => (
     <group.AppField name="observation">
-      {(field) => <field.TextField label={intl.formatMessage(commonMessages.observationLabel)} />}
+      {(field) => <field.TextField label={intl.formatMessage(observationLabel)} />}
     </group.AppField>
   ),
 });

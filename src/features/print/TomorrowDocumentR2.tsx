@@ -1,37 +1,43 @@
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { bookingAmounts } from "@/domain/print";
 import type { DishTotal, ListR2 } from "@/domain/print";
 import logoUrl from "@/features/page/logo.png";
 import {
-  documentMessages,
   dotted,
   openedByText,
   tomorrowSubtitle,
+  nameColumnLabel,
+  priceColumnLabel,
+  noBookingsNote,
+  noDayTomorrowNote,
+  openedByInfoLabel,
+  totalLabel,
 } from "@/features/print/document-texts";
-import { bookedText, r2Messages } from "@/features/print/list-r2";
+import {
+  bookedText,
+  r2ClassColumnLabel,
+  r2PortionsColumnLabel,
+  r2PortionCountText,
+} from "@/features/print/list-r2";
 import { amountsText, dishPriceText, withPrice } from "@/intl/amounts";
 import { PrintLayout, PrintNote } from "@/ui/print/PrintLayout";
 import { PrintTable } from "@/ui/print/PrintTable";
 import type { PrintColumn } from "@/ui/print/PrintTable";
 
-const messages = defineMessages<{
-  unitPrice: { price: string };
-}>({
-  unitPrice: {
-    id: "print.r2.tomorrow.unitPrice",
-    defaultMessage: "{price} l''unité",
-    description: "07 § 7 — prix en euros d'un plat dans son titre (« Lasagnes — 4,50 € l'unité »)",
-  },
+const unitPriceMessage = defineMessage<{ price: string }>({
+  id: "print.r2.tomorrow.unitPrice",
+  defaultMessage: "{price} l''unité",
+  description: "07 § 7 — prix en euros d'un plat dans son titre (« Lasagnes — 4,50 € l'unité »)",
 });
 
 function columns(intl: IntlShape): PrintColumn[] {
   return [
-    { key: "name", label: intl.formatMessage(documentMessages.name) },
-    { key: "className", label: intl.formatMessage(r2Messages.className) },
-    { key: "portions", label: intl.formatMessage(r2Messages.portions), align: "end" },
-    { key: "price", label: intl.formatMessage(documentMessages.price), align: "end" },
+    { key: "name", label: intl.formatMessage(nameColumnLabel) },
+    { key: "className", label: intl.formatMessage(r2ClassColumnLabel) },
+    { key: "portions", label: intl.formatMessage(r2PortionsColumnLabel), align: "end" },
+    { key: "price", label: intl.formatMessage(priceColumnLabel), align: "end" },
   ];
 }
 
@@ -41,7 +47,7 @@ function dishTitle(intl: IntlShape, total: DishTotal): string {
   const euros = price !== "" && !total.dish.voucher;
   return withPrice(
     total.dish.name,
-    euros ? intl.formatMessage(messages.unitPrice, { price }) : price,
+    euros ? intl.formatMessage(unitPriceMessage, { price }) : price,
   );
 }
 
@@ -65,7 +71,7 @@ function DishSection({ total }: { total: DishTotal }) {
             amountsText(bookingAmounts(total.dish, booking.portions)),
           ],
         }))}
-        empty={intl.formatMessage(documentMessages.noBookings)}
+        empty={intl.formatMessage(noBookingsNote)}
       />
     </section>
   );
@@ -76,7 +82,7 @@ function Body({ list }: { list: ListR2 }) {
   if (list.day === undefined) {
     return (
       <PrintNote>
-        <FormattedMessage {...documentMessages.noDayTomorrow} />
+        <FormattedMessage {...noDayTomorrowNote} />
       </PrintNote>
     );
   }
@@ -123,7 +129,7 @@ export function TomorrowDocumentR2({ list, printedAt }: TomorrowDocumentR2Props)
           : [
               {
                 key: "openedBy",
-                label: intl.formatMessage(documentMessages.openedBy),
+                label: intl.formatMessage(openedByInfoLabel),
                 value: openedByText(day.openedBy),
               },
             ]
@@ -132,9 +138,9 @@ export function TomorrowDocumentR2({ list, printedAt }: TomorrowDocumentR2Props)
         day === undefined || list.dishes.length === 0
           ? undefined
           : {
-              label: intl.formatMessage(documentMessages.total),
+              label: intl.formatMessage(totalLabel),
               value: dotted([
-                intl.formatMessage(r2Messages.portionCount, { count: totals.portions }),
+                intl.formatMessage(r2PortionCountText, { count: totals.portions }),
                 amountsText(totals.amounts),
               ]),
             }

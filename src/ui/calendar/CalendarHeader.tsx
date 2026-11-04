@@ -1,32 +1,33 @@
 import type { ReactNode } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { IconButton } from "@/ui/button/IconButton";
 import { ChevronNextIcon, ChevronPrevIcon } from "@/ui/icons";
 
 import styles from "@/ui/calendar/CalendarHeader.module.css";
 
-const messages = defineMessages({
-  previousWeek: {
-    id: "ui.calendar.previousWeek",
-    defaultMessage: "Semaine précédente",
-    description: "05 § 2.3 — aria-label du bouton ‹ en vue semaine",
-  },
-  nextWeek: {
-    id: "ui.calendar.nextWeek",
-    defaultMessage: "Semaine suivante",
-    description: "05 § 2.3 — aria-label du bouton › en vue semaine",
-  },
-  previousMonth: {
-    id: "ui.calendar.previousMonth",
-    defaultMessage: "Mois précédent",
-    description: "05 § 2.3, 06 § 3.2 — aria-label du bouton ‹ en vue mois et du sélecteur de date",
-  },
-  nextMonth: {
-    id: "ui.calendar.nextMonth",
-    defaultMessage: "Mois suivant",
-    description: "05 § 2.3, 06 § 3.2 — aria-label du bouton › en vue mois et du sélecteur de date",
-  },
+const previousWeekMessage = defineMessage({
+  id: "ui.calendar.previousWeek",
+  defaultMessage: "Semaine précédente",
+  description: "05 § 2.3 — aria-label du bouton ‹ en vue semaine",
+});
+
+const nextWeekMessage = defineMessage({
+  id: "ui.calendar.nextWeek",
+  defaultMessage: "Semaine suivante",
+  description: "05 § 2.3 — aria-label du bouton › en vue semaine",
+});
+
+const previousMonthMessage = defineMessage({
+  id: "ui.calendar.previousMonth",
+  defaultMessage: "Mois précédent",
+  description: "05 § 2.3, 06 § 3.2 — aria-label du bouton ‹ en vue mois et du sélecteur de date",
+});
+
+const nextMonthMessage = defineMessage({
+  id: "ui.calendar.nextMonth",
+  defaultMessage: "Mois suivant",
+  description: "05 § 2.3, 06 § 3.2 — aria-label du bouton › en vue mois et du sélecteur de date",
 });
 
 export interface CalendarHeaderProps {
@@ -72,7 +73,7 @@ export function CalendarHeader({
         <IconButton
           tone={tone}
           aria-label={intl.formatMessage(
-            view === "week" ? messages.previousWeek : messages.previousMonth,
+            view === "week" ? previousWeekMessage : previousMonthMessage,
           )}
           onClick={onPrevious}
         >
@@ -88,7 +89,7 @@ export function CalendarHeader({
         </div>
         <IconButton
           tone={tone}
-          aria-label={intl.formatMessage(view === "week" ? messages.nextWeek : messages.nextMonth)}
+          aria-label={intl.formatMessage(view === "week" ? nextWeekMessage : nextMonthMessage)}
           onClick={onNext}
         >
           <ChevronNextIcon />

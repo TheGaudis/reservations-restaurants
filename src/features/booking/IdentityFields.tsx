@@ -1,25 +1,65 @@
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import type { IdentityValues } from "@/domain/bookings";
 import type { IdentityVariant } from "@/features/booking/identity-rules";
-import { commonMessages } from "@/intl/common-messages";
+import { classLabel, observationLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { withFieldGroup } from "@/ui/form/app-form";
 
 import styles from "@/features/booking/IdentityFields.module.css";
 
-const messages = defineMessages({
-  emailLabel: {
-    id: "public.form.email.label",
-    defaultMessage: "Adresse email",
-    description: "04 § 5.2-5.3 — libellé de l'adresse email (formulaires publics R1 et R2)",
-  },
-  emailHelp: {
-    id: "public.form.email.help",
-    defaultMessage: "Pour vous envoyer la confirmation.",
-    description: "04 § 5.2, § 9 — aide sous l'adresse email (formulaires publics R1 et R2)",
-  },
+const nameLabel = defineMessage({
+  id: "common.form.name.label",
+  defaultMessage: "Nom et prénom",
+  description: "04 § 5.2, 06 § 8.1 — libellé du nom (formulaires publics, ajout d'une personne)",
+});
+
+const namePlaceholder = defineMessage({
+  id: "common.form.name.placeholder",
+  defaultMessage: "Ex. Cyrille Ungerer",
+  description: "04 § 5.2, 06 § 8.1 — exemple du champ nom",
+});
+
+const classPlaceholder = defineMessage({
+  id: "common.form.className.placeholder",
+  defaultMessage: "Ex. TS2 ou vie scolaire",
+  description: "04 § 5.2, 06 § 8.1 — exemple du champ classe",
+});
+
+const emailPlaceholder = defineMessage({
+  id: "common.form.email.placeholder",
+  defaultMessage: "Ex. Ariele.gsell@exemple.fr",
+  description: "04 § 5.2, 06 § 8.1 — exemple du champ email",
+});
+
+const observationPlaceholder = defineMessage({
+  id: "common.form.observation.placeholder",
+  defaultMessage: "Ex. table partagée, allergie…",
+  description: "04 § 5.2, 06 § 8.1 — exemple du champ observation",
+});
+
+const emailOptionalLabel = defineMessage({
+  id: "staff.addBooking.email.label",
+  defaultMessage: "Adresse email (optionnel)",
+  description: "06 § 8.1 — libellé de l'email de l'ajout d'une personne",
+});
+
+const emailOptionalHelp = defineMessage({
+  id: "staff.addBooking.email.help",
+  defaultMessage: "Si elle est indiquée, la confirmation y est envoyée.",
+  description: "06 § 8.1 — aide de l'email de l'ajout d'une personne",
+});
+
+const emailLabel = defineMessage({
+  id: "public.form.email.label",
+  defaultMessage: "Adresse email",
+  description: "04 § 5.2-5.3 — libellé de l'adresse email (formulaires publics R1 et R2)",
+});
+
+const emailHelp = defineMessage({
+  id: "public.form.email.help",
+  defaultMessage: "Pour vous envoyer la confirmation.",
+  description: "04 § 5.2, § 9 — aide sous l'adresse email (formulaires publics R1 et R2)",
 });
 
 const identityDefaults: Pick<IdentityValues, "name" | "contact" | "className"> = {
@@ -48,8 +88,8 @@ export const IdentityFields = withFieldGroup({
       <group.AppField name="name">
         {(field) => (
           <field.TextField
-            label={intl.formatMessage(commonMessages.nameLabel)}
-            placeholder={intl.formatMessage(commonMessages.namePlaceholder)}
+            label={intl.formatMessage(nameLabel)}
+            placeholder={intl.formatMessage(namePlaceholder)}
             autoComplete={isPublic ? "name" : "off"}
           />
         )}
@@ -59,17 +99,13 @@ export const IdentityFields = withFieldGroup({
       <group.AppField name="contact">
         {(field) => (
           <field.TextField
-            label={intl.formatMessage(
-              isPublic ? messages.emailLabel : staffCommonMessages.emailOptionalLabel,
-            )}
-            description={intl.formatMessage(
-              isPublic ? messages.emailHelp : staffCommonMessages.emailOptionalHelp,
-            )}
+            label={intl.formatMessage(isPublic ? emailLabel : emailOptionalLabel)}
+            description={intl.formatMessage(isPublic ? emailHelp : emailOptionalHelp)}
             type="email"
             inputMode="email"
             spellCheck={false}
             autoComplete={isPublic ? "email" : "off"}
-            placeholder={intl.formatMessage(commonMessages.emailPlaceholder)}
+            placeholder={intl.formatMessage(emailPlaceholder)}
           />
         )}
       </group.AppField>
@@ -78,8 +114,8 @@ export const IdentityFields = withFieldGroup({
       <group.AppField name="className">
         {(field) => (
           <field.TextField
-            label={intl.formatMessage(commonMessages.classLabel)}
-            placeholder={intl.formatMessage(commonMessages.classPlaceholder)}
+            label={intl.formatMessage(classLabel)}
+            placeholder={intl.formatMessage(classPlaceholder)}
           />
         )}
       </group.AppField>
@@ -114,8 +150,8 @@ export const ObservationField = withFieldGroup({
     <group.AppField name="observation">
       {(field) => (
         <field.TextField
-          label={intl.formatMessage(commonMessages.observationLabel)}
-          placeholder={intl.formatMessage(commonMessages.observationPlaceholder)}
+          label={intl.formatMessage(observationLabel)}
+          placeholder={intl.formatMessage(observationPlaceholder)}
         />
       )}
     </group.AppField>

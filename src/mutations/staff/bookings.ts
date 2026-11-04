@@ -1,12 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { defineMessage } from "react-intl";
 
 import { deleteBookingR1, deleteBookingR2, editBookingR1, editBookingR2 } from "@/api/actions";
 import { BusinessError } from "@/api/errors";
 import type { Restaurant } from "@/domain/types";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { staffWriteOptions } from "@/mutations/staff/write";
 import { stateKeys } from "@/queries/state";
+
+const bookingEditedMessage = defineMessage({
+  id: "staff.booking.edited",
+  defaultMessage: "Réservation modifiée.",
+  description: "06 § 7.3, § 7.4 — toast de succès d'une modification de réservation",
+});
+
+const bookingDeletedMessage = defineMessage({
+  id: "staff.booking.deleted",
+  defaultMessage: "Réservation supprimée.",
+  description: "06 § 5.2 — toast de succès d'une suppression de réservation",
+});
 
 // Staff writes of the bookings (02 § 4.7, 06 § 7): `editBookingR1`, `editBookingR2`, `deleteBookingR1`,
 // `deleteBookingR2`, built with `staffWriteOptions` (write.ts). The person added by a colleague goes through
@@ -47,7 +59,7 @@ export function useEditBookingR1() {
       domain: "bookings",
       action: "editBookingR1",
       write: editBookingR1,
-      successToast: () => intl.formatMessage(staffCommonMessages.bookingEdited),
+      successToast: () => intl.formatMessage(bookingEditedMessage),
     }),
     onError,
   });
@@ -61,7 +73,7 @@ export function useEditBookingR2() {
       domain: "bookings",
       action: "editBookingR2",
       write: editBookingR2,
-      successToast: () => intl.formatMessage(staffCommonMessages.bookingEdited),
+      successToast: () => intl.formatMessage(bookingEditedMessage),
     }),
     onError,
   });
@@ -77,7 +89,7 @@ export function useDeleteBooking(restaurant: Restaurant) {
       domain: "bookings",
       action: restaurant === "r1" ? "deleteBookingR1" : "deleteBookingR2",
       write: restaurant === "r1" ? deleteBookingR1 : deleteBookingR2,
-      successToast: () => intl.formatMessage(staffCommonMessages.bookingDeleted),
+      successToast: () => intl.formatMessage(bookingDeletedMessage),
     }),
   );
 }

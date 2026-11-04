@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import { editBookingR1Input, maxSeatsForEdit } from "@/domain/bookings";
 import type { BookingR1Values, SeatCountValues } from "@/domain/bookings";
@@ -18,7 +18,7 @@ import {
 } from "@/features/staff/EditBookingFields";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { commonMessages } from "@/intl/common-messages";
+import { atLeastOnePersonMessage } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { isCapacityRefusal, useEditBookingR1 } from "@/mutations/staff/bookings";
 import { showStaffError } from "@/mutations/staff/write";
@@ -28,23 +28,19 @@ import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/staff/EditBookingForm.module.css";
 
-const messages = defineMessages<{
-  maxSeats: { count: number };
-  beforePrices: { count: number };
-}>({
-  maxSeats: {
-    id: "staff.editBooking.r1.maxSeats",
-    defaultMessage:
-      "{count, plural, one {# couvert} other {# couverts}} au maximum pour cette réservation (places restantes ce jour-là).",
-    description: "06 § 7.3 — total au-delà du maximum d'une réservation R1 modifiée (editMaxR1)",
-  },
-  beforePrices: {
-    id: "staff.editBooking.r1.beforePrices",
-    defaultMessage:
-      "Réservation enregistrée avant les tarifs : indiquez la répartition de ses {count, plural, one {# couvert} other {# couverts}}.",
-    description:
-      "06 § 7.3 — aide sous la légende quand aucun compteur de la réservation n'est supérieur à 0",
-  },
+const maxSeatsMessage = defineMessage<{ count: number }>({
+  id: "staff.editBooking.r1.maxSeats",
+  defaultMessage:
+    "{count, plural, one {# couvert} other {# couverts}} au maximum pour cette réservation (places restantes ce jour-là).",
+  description: "06 § 7.3 — total au-delà du maximum d'une réservation R1 modifiée (editMaxR1)",
+});
+
+const beforePricesMessage = defineMessage<{ count: number }>({
+  id: "staff.editBooking.r1.beforePrices",
+  defaultMessage:
+    "Réservation enregistrée avant les tarifs : indiquez la répartition de ses {count, plural, one {# couvert} other {# couverts}}.",
+  description:
+    "06 § 7.3 — aide sous la légende quand aucun compteur de la réservation n'est supérieur à 0",
 });
 
 const NAME = { name: "name", className: "className" } as const;
@@ -63,8 +59,8 @@ function seatRowError(values: SeatCountValues, max: number): string | null {
     staffMembers: countValue(values.staffMembers),
     externals: countValue(values.externals),
   });
-  if (seats <= 0) return intl.formatMessage(commonMessages.atLeastOnePerson);
-  if (seats > max) return intl.formatMessage(messages.maxSeats, { count: max });
+  if (seats <= 0) return intl.formatMessage(atLeastOnePersonMessage);
+  if (seats > max) return intl.formatMessage(maxSeatsMessage, { count: max });
   return null;
 }
 
@@ -146,7 +142,7 @@ export function EditBookingFormR1({ booking }: EditBookingFormR1Props) {
   const { form, max, prices, slowWrite } = useEditFormR1(booking, close);
   const errorId = useId();
   const help = madeBeforePrices(booking)
-    ? intl.formatMessage(messages.beforePrices, { count: booking.seats })
+    ? intl.formatMessage(beforePricesMessage, { count: booking.seats })
     : "";
   return (
     <Form form={form} className={styles["form"]}>

@@ -1,7 +1,7 @@
 import type { MessageDescriptor } from "react-intl";
 import { expect, it } from "vitest";
 
-import { commonMessages } from "@/intl/common-messages";
+import { cancelAction } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 
 it.each([
@@ -13,7 +13,7 @@ it.each([
 });
 
 it("formats a shared message", () => {
-  expect(intl.formatMessage(commonMessages.cancel)).toBe("Annuler");
+  expect(intl.formatMessage(cancelAction)).toBe("Annuler");
 });
 
 it("types message ids from translations/fr.json", () => {

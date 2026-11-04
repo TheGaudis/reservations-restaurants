@@ -1,18 +1,16 @@
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import type { OrderR2Values } from "@/domain/bookings";
 import type { DishLine } from "@/domain/pricing";
 import type { Dish } from "@/domain/types";
 import { countValue } from "@/domain/validation";
-import { commonMessages } from "@/intl/common-messages";
+import { maxPortionsMessage } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 
-const messages = defineMessages({
-  noDish: {
-    id: "public.r2.form.dishes.required",
-    defaultMessage: "Choisissez au moins un plat.",
-    description: "04 § 5.3, § 9 — aucun plat choisi dans le formulaire R2 (message sous les plats)",
-  },
+const noDishMessage = defineMessage({
+  id: "public.r2.form.dishes.required",
+  defaultMessage: "Choisissez au moins un plat.",
+  description: "04 § 5.3, § 9 — aucun plat choisi dans le formulaire R2 (message sous les plats)",
 });
 
 /** A dish of the day and its portions left (stock minus portions booked, 01 § 3.2). */
@@ -31,7 +29,7 @@ export function portionsField(dishId: string): `portions.${string}` {
 
 /** « Choisissez au moins un plat. » (04 § 5.3): the text that the dishes' fieldset shows for every quantity. */
 export function noDishText(): string {
-  return intl.formatMessage(messages.noDish);
+  return intl.formatMessage(noDishMessage);
 }
 
 /** Dishes that can be ordered: a sold-out dish shows « Épuisé » without a field (04 § 5.3). */
@@ -73,7 +71,7 @@ export function dishErrors(
   const errors: Partial<Record<`portions.${string}`, string>> = {};
   for (const { dish, remaining } of candidates) {
     if (countValue(portions[dish.id] ?? null) > remaining) {
-      errors[portionsField(dish.id)] = intl.formatMessage(commonMessages.maxPortions, {
+      errors[portionsField(dish.id)] = intl.formatMessage(maxPortionsMessage, {
         count: remaining,
       });
     }

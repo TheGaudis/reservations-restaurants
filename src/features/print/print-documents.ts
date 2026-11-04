@@ -3,39 +3,34 @@
 // chunk (S3).
 import { createElement } from "react";
 import type { ComponentType } from "react";
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import { listR1, listR2 } from "@/domain/print";
 import type { FullState, IsoDate } from "@/domain/types";
 import { formatLongDate } from "@/intl/dates";
 import { intl } from "@/intl/intl";
 
-// Value types of each message: react-intl types `formatMessage` from them.
-const messages = defineMessages<{
-  listTitle: { name: string; date: string };
-  tomorrowTitle: { name: string; date: string };
-}>({
-  listTitle: {
-    id: "print.list.title",
-    defaultMessage: "{name} — {date}",
-    description:
-      "07 § 3, § 4 — titre du document, nom proposé pour le PDF (« Restaurant Pédagogique — vendredi 9 octobre 2026 »)",
-  },
-  tomorrowTitle: {
-    id: "print.tomorrow.title",
-    defaultMessage: "{name} — demain {date}",
-    description: "07 § 6, § 7 — titre du résumé du lendemain, nom proposé pour le PDF",
-  },
+const listTitleText = defineMessage<{ name: string; date: string }>({
+  id: "print.list.title",
+  defaultMessage: "{name} — {date}",
+  description:
+    "07 § 3, § 4 — titre du document, nom proposé pour le PDF (« Restaurant Pédagogique — vendredi 9 octobre 2026 »)",
+});
+
+const tomorrowTitleText = defineMessage<{ name: string; date: string }>({
+  id: "print.tomorrow.title",
+  defaultMessage: "{name} — demain {date}",
+  description: "07 § 6, § 7 — titre du résumé du lendemain, nom proposé pour le PDF",
 });
 
 /** « {name} — {date} » (07 § 3, § 4): the document title, offered as the name of the PDF. */
 function listTitle(name: string, iso: IsoDate): string {
-  return intl.formatMessage(messages.listTitle, { name, date: formatLongDate(iso) });
+  return intl.formatMessage(listTitleText, { name, date: formatLongDate(iso) });
 }
 
 /** « {name} — demain {date} » (07 § 6, § 7). */
 function tomorrowTitle(name: string, iso: IsoDate): string {
-  return intl.formatMessage(messages.tomorrowTitle, { name, date: formatLongDate(iso) });
+  return intl.formatMessage(tomorrowTitleText, { name, date: formatLongDate(iso) });
 }
 
 /**

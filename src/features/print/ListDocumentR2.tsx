@@ -4,7 +4,7 @@ import type { IntlShape } from "react-intl";
 import { bookingAmounts } from "@/domain/print";
 import type { ListR2, Order } from "@/domain/print";
 import logoUrl from "@/features/page/logo.png";
-import { documentMessages } from "@/features/print/document-texts";
+import { noBookingsNote } from "@/features/print/document-texts";
 import {
   customerColumns,
   dishColumns,
@@ -99,7 +99,7 @@ export function ListDocumentR2({ list, printedAt }: ListDocumentR2Props) {
       <PrintTable
         columns={customerColumns(intl)}
         rows={list.orders.map((order) => customerRow(intl, order))}
-        empty={intl.formatMessage(documentMessages.noBookings)}
+        empty={intl.formatMessage(noBookingsNote)}
       />
       <h2>
         <FormattedMessage

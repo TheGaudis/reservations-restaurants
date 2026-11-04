@@ -1,22 +1,21 @@
 import type { KeyboardEvent } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/page/ModeSwitch.module.css";
 
-const messages = defineMessages({
-  passwordLabel: {
-    id: "staff.login.password.label",
-    defaultMessage: "Mot de passe collègue",
-    description: "06 § 1.1 — aria-label du champ mot de passe du panneau de connexion",
-  },
-  passwordPlaceholder: {
-    id: "staff.login.password.placeholder",
-    defaultMessage: "Mot de passe",
-    description: "06 § 1.1 — placeholder du champ mot de passe",
-  },
+const passwordLabel = defineMessage({
+  id: "staff.login.password.label",
+  defaultMessage: "Mot de passe collègue",
+  description: "06 § 1.1 — aria-label du champ mot de passe du panneau de connexion",
+});
+
+const passwordPlaceholder = defineMessage({
+  id: "staff.login.password.placeholder",
+  defaultMessage: "Mot de passe",
+  description: "06 § 1.1 — placeholder du champ mot de passe",
 });
 
 interface LoginPanelProps {
@@ -47,9 +46,9 @@ export function LoginPanel({ submit, onEscape, takeFocus }: LoginPanelProps) {
         {(field) => (
           <field.PasswordField
             ref={takeFocus}
-            label={intl.formatMessage(messages.passwordLabel)}
+            label={intl.formatMessage(passwordLabel)}
             hideLabel
-            placeholder={intl.formatMessage(messages.passwordPlaceholder)}
+            placeholder={intl.formatMessage(passwordPlaceholder)}
             onKeyDown={onKeyDown}
           />
         )}

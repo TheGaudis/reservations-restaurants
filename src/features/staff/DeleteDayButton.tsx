@@ -1,13 +1,26 @@
-import { FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { bookingsOfDay } from "@/domain/days";
 import type { IsoDate, Restaurant } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { useDeleteDay } from "@/mutations/staff/days";
 import { showStaffError } from "@/mutations/staff/write";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
+
+const deleteDayConfirmLabel = defineMessage({
+  id: "staff.day.delete.confirm",
+  defaultMessage: "Confirmer la suppression du jour et de toutes ses réservations",
+  description: "06 § 5.2 — aria-label et title du bouton armé d'un jour sans réservation",
+});
+
+export const deleteDayWithBookingsLabel = defineMessage<{ n: number }>({
+  id: "staff.day.delete.confirmWithBookings",
+  defaultMessage:
+    "Confirmer la suppression du jour et de ses {n, plural, one {# réservation} other {# réservations}} (les personnes ne seront pas prévenues)",
+  description:
+    "PLAN annexe F, D-21 — note et aria-label du bouton armé d'un jour qui a des réservations",
+});
 
 interface DeleteDayButtonProps {
   restaurant: Restaurant;
@@ -27,8 +40,8 @@ export function DeleteDayButton({ restaurant, iso }: DeleteDayButtonProps) {
   const bookings = useStaffState((state) => bookingsOfDay(state, restaurant, iso));
   const detail =
     bookings === 0
-      ? formatMessage(staffCommonMessages.deleteDayDetail)
-      : formatMessage(staffCommonMessages.deleteDayWithBookings, { n: bookings });
+      ? formatMessage(deleteDayConfirmLabel)
+      : formatMessage(deleteDayWithBookingsLabel, { n: bookings });
   async function confirm() {
     // The day and this button leave the page with the answer: `mutateAsync` resolves all the same, the callbacks
     // given to `mutate` would not run.
@@ -49,7 +62,11 @@ export function DeleteDayButton({ restaurant, iso }: DeleteDayButtonProps) {
         void confirm();
       }}
     >
-      <FormattedMessage {...staffCommonMessages.deleteDay} />
+      <FormattedMessage
+        id="staff.day.delete"
+        defaultMessage="Supprimer ce jour"
+        description="06 § 5.2 — bouton de suppression d'un jour (R1 et R2)"
+      />
     </ConfirmButton>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { hasAmounts } from "@/domain/pricing";
@@ -17,65 +17,58 @@ import styles from "@/features/staff/TomorrowPanel.module.css";
 // Blocks per restaurant of the panel « Demain ({date}) » (07 § 5, D-07), under its totals row, each with its
 // « Imprimer » button (documents C and D, 07 § 6-7). Texts corrected by a-24 (PLAN annexe F, E-44); bookings of a
 // deleted dish left out (b-3, E-30); one voucher per order (a-11, E-16).
+const printMessage = defineMessage({
+  id: "staff.tomorrow.print",
+  defaultMessage: "Imprimer",
+  description: "07 § 5 — aria-label et title du bouton icône qui imprime le résumé d'un restaurant",
+});
 
-// Value types of each message: react-intl types `formatMessage` from them.
-const messages = defineMessages<{
-  print: Record<string, never>;
-  openedBy: { name: string };
-  nobody: Record<string, never>;
-  customer: { name: string; className: string };
-  comma: { before: string; after: string };
-  dishLine: { name: string; n: number };
-  dishCustomers: { line: string; names: string };
-  totalR2: { name: string; amounts: string };
-  totalR2WithGap: { name: string; amounts: string };
-}>({
-  print: {
-    id: "staff.tomorrow.print",
-    defaultMessage: "Imprimer",
-    description:
-      "07 § 5 — aria-label et title du bouton icône qui imprime le résumé d'un restaurant",
-  },
-  openedBy: {
-    id: "staff.tomorrow.openedBy",
-    defaultMessage: "Ouvert par {name}",
-    description: "07 § 5 — collègue qui a ouvert le jour de demain",
-  },
-  nobody: {
-    id: "staff.tomorrow.openedBy.none",
-    defaultMessage: "(aucun)",
-    description: "07 § 5 — « Ouvert par » d'un jour ouvert sans nom",
-  },
-  customer: {
-    id: "staff.tomorrow.r1.customer",
-    defaultMessage: "{name} ({className})",
-    description: "07 § 5 — une personne de la liste « Clients »",
-  },
-  comma: {
-    id: "staff.tomorrow.comma",
-    defaultMessage: "{before}, {after}",
-    description: "07 § 5 — séparateur des noms des listes du résumé",
-  },
-  dishLine: {
-    id: "print.tomorrow.r2.dishLine",
-    defaultMessage: "• {name} : {n, plural, one {# portion} other {# portions}}",
-    description: "PLAN annexe F, a-24 — résumé R2 du lendemain (remplace « {Nom}: … portion(s) »)",
-  },
-  dishCustomers: {
-    id: "staff.tomorrow.r2.dishCustomers",
-    defaultMessage: "{line} ({names})",
-    description: "07 § 5 — ligne d'un plat suivie des noms des personnes qui l'ont réservé",
-  },
-  totalR2: {
-    id: "staff.tomorrow.r2.total",
-    defaultMessage: "Total {name} : {amounts}",
-    description: "07 § 5 — montants de demain au restaurant 2 ; name : nom du restaurant 2",
-  },
-  totalR2WithGap: {
-    id: "staff.tomorrow.r2.totalWithGap",
-    defaultMessage: "Total {name} (hors plats sans prix indiqué) : {amounts}",
-    description: "07 § 5, D-03 — montants de demain au restaurant 2 avec un plat sans prix",
-  },
+const openedByMessage = defineMessage<{ name: string }>({
+  id: "staff.tomorrow.openedBy",
+  defaultMessage: "Ouvert par {name}",
+  description: "07 § 5 — collègue qui a ouvert le jour de demain",
+});
+
+const nobodyMessage = defineMessage({
+  id: "staff.tomorrow.openedBy.none",
+  defaultMessage: "(aucun)",
+  description: "07 § 5 — « Ouvert par » d'un jour ouvert sans nom",
+});
+
+const customerMessage = defineMessage<{ name: string; className: string }>({
+  id: "staff.tomorrow.r1.customer",
+  defaultMessage: "{name} ({className})",
+  description: "07 § 5 — une personne de la liste « Clients »",
+});
+
+const commaMessage = defineMessage<{ before: string; after: string }>({
+  id: "staff.tomorrow.comma",
+  defaultMessage: "{before}, {after}",
+  description: "07 § 5 — séparateur des noms des listes du résumé",
+});
+
+const dishLineMessage = defineMessage<{ name: string; n: number }>({
+  id: "print.tomorrow.r2.dishLine",
+  defaultMessage: "• {name} : {n, plural, one {# portion} other {# portions}}",
+  description: "PLAN annexe F, a-24 — résumé R2 du lendemain (remplace « {Nom}: … portion(s) »)",
+});
+
+const dishCustomersMessage = defineMessage<{ line: string; names: string }>({
+  id: "staff.tomorrow.r2.dishCustomers",
+  defaultMessage: "{line} ({names})",
+  description: "07 § 5 — ligne d'un plat suivie des noms des personnes qui l'ont réservé",
+});
+
+const totalR2Message = defineMessage<{ name: string; amounts: string }>({
+  id: "staff.tomorrow.r2.total",
+  defaultMessage: "Total {name} : {amounts}",
+  description: "07 § 5 — montants de demain au restaurant 2 ; name : nom du restaurant 2",
+});
+
+const totalR2WithGapMessage = defineMessage<{ name: string; amounts: string }>({
+  id: "staff.tomorrow.r2.totalWithGap",
+  defaultMessage: "Total {name} (hors plats sans prix indiqué) : {amounts}",
+  description: "07 § 5, D-03 — montants de demain au restaurant 2 avec un plat sans prix",
 });
 
 const whole = (state: FullState): FullState => state;
@@ -84,13 +77,13 @@ const whole = (state: FullState): FullState => state;
 function commaList(intl: IntlShape, parts: readonly string[]): string {
   const [first = "", ...rest] = parts;
   let text = first;
-  for (const part of rest) text = intl.formatMessage(messages.comma, { before: text, after: part });
+  for (const part of rest) text = intl.formatMessage(commaMessage, { before: text, after: part });
   return text;
 }
 
 function openedByText(intl: IntlShape, openedBy: string): string {
-  const name = openedBy === "" ? intl.formatMessage(messages.nobody) : openedBy;
-  return intl.formatMessage(messages.openedBy, { name });
+  const name = openedBy === "" ? intl.formatMessage(nobodyMessage) : openedBy;
+  return intl.formatMessage(openedByMessage, { name });
 }
 
 interface BlockProps {
@@ -105,7 +98,7 @@ interface BlockProps {
 /** Name in the restaurant's colour with its « Imprimer » icon button, « Ouvert par », then the lines (07 § 5). */
 function Block({ restaurant, name, openedBy, onPrint, children }: BlockProps) {
   const intl = useIntl();
-  const label = intl.formatMessage(messages.print);
+  const label = intl.formatMessage(printMessage);
   return (
     <div className={styles["block"]} data-accent={restaurant}>
       <div className={styles["blockHead"]}>
@@ -160,7 +153,7 @@ function LinesR1({ list }: { list: ListR1 }) {
               names: commaList(
                 intl,
                 bookings.map((booking) =>
-                  intl.formatMessage(messages.customer, {
+                  intl.formatMessage(customerMessage, {
                     name: booking.name,
                     className: booking.className,
                   }),
@@ -177,14 +170,14 @@ function LinesR1({ list }: { list: ListR1 }) {
 /** « • Lasagnes : 1 portion — 4,50 € (Noah Bernard) » (07 § 5, annexe F); one voucher per order (E-16). */
 function dishLineText(intl: IntlShape, total: DishTotal): string {
   const line = withPrice(
-    intl.formatMessage(messages.dishLine, { name: total.dish.name, n: total.portions }),
+    intl.formatMessage(dishLineMessage, { name: total.dish.name, n: total.portions }),
     amountsText(total.amounts),
   );
   const names = commaList(
     intl,
     total.bookings.map((booking) => booking.name),
   );
-  return intl.formatMessage(messages.dishCustomers, { line, names });
+  return intl.formatMessage(dishCustomersMessage, { line, names });
 }
 
 /** A line per booked dish, then « Total {name2} : … »; « Aucun plat ouvert. » without dishes (07 § 5, D-03). */
@@ -215,7 +208,7 @@ function LinesR2({ list }: { list: ListR2 }) {
       {hasAmounts(amounts) ? (
         <p className={styles["blockTotal"]}>
           <FormattedMessage
-            {...(amounts.gap ? messages.totalR2WithGap : messages.totalR2)}
+            {...(amounts.gap ? totalR2WithGapMessage : totalR2Message)}
             values={values}
           />
         </p>

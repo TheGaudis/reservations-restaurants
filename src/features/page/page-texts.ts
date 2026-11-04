@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import type { Restaurant, Settings } from "@/domain/types";
 import { readFallbackTexts } from "@/queries/local-cache";
@@ -6,28 +6,28 @@ import type { FallbackTexts } from "@/queries/local-cache";
 import { useLoadedAppState } from "@/queries/use-app-state";
 
 // Names and descriptions of the two restaurants, shown in the header and the columns (04 § 2, 05 § 1).
+const name1Message = defineMessage({
+  id: "common.page.defaultName1",
+  defaultMessage: "Restaurant Pédagogique",
+  description: "04 § 2, 05 § 1, 01 § 4.1 — nom du restaurant 1 avant toute donnée",
+});
 
-const messages = defineMessages({
-  name1: {
-    id: "common.page.defaultName1",
-    defaultMessage: "Restaurant Pédagogique",
-    description: "04 § 2, 05 § 1, 01 § 4.1 — nom du restaurant 1 avant toute donnée",
-  },
-  name2: {
-    id: "common.page.defaultName2",
-    defaultMessage: "Aristide",
-    description: "04 § 2, 05 § 1, 01 § 4.1 — nom du restaurant 2 avant toute donnée",
-  },
-  desc1: {
-    id: "common.page.defaultDesc1",
-    defaultMessage: "Table réservée par nombre de couverts, avec le menu du jour.",
-    description: "01 § 4.1, 03 § 2.2 — description du restaurant 1 avant toute donnée",
-  },
-  desc2: {
-    id: "common.page.defaultDesc2",
-    defaultMessage: "Plats à emporter ou sur place, chacun avec son propre stock.",
-    description: "01 § 4.1, 03 § 2.2 — description du restaurant 2 avant toute donnée",
-  },
+const name2Message = defineMessage({
+  id: "common.page.defaultName2",
+  defaultMessage: "Aristide",
+  description: "04 § 2, 05 § 1, 01 § 4.1 — nom du restaurant 2 avant toute donnée",
+});
+
+const desc1Message = defineMessage({
+  id: "common.page.defaultDesc1",
+  defaultMessage: "Table réservée par nombre de couverts, avec le menu du jour.",
+  description: "01 § 4.1, 03 § 2.2 — description du restaurant 1 avant toute donnée",
+});
+
+const desc2Message = defineMessage({
+  id: "common.page.defaultDesc2",
+  defaultMessage: "Plats à emporter ou sur place, chacun avec son propre stock.",
+  description: "01 § 4.1, 03 § 2.2 — description du restaurant 2 avant toute donnée",
 });
 
 export type PageTexts = Pick<Settings, "name1" | "name2" | "desc1" | "desc2">;
@@ -52,10 +52,10 @@ function withDefaults(texts: FallbackTexts | null, defaults: PageTexts): PageTex
 function useDefaultTexts(): PageTexts {
   const intl = useIntl();
   return {
-    name1: intl.formatMessage(messages.name1),
-    name2: intl.formatMessage(messages.name2),
-    desc1: intl.formatMessage(messages.desc1),
-    desc2: intl.formatMessage(messages.desc2),
+    name1: intl.formatMessage(name1Message),
+    name2: intl.formatMessage(name2Message),
+    desc1: intl.formatMessage(desc1Message),
+    desc2: intl.formatMessage(desc2Message),
   };
 }
 

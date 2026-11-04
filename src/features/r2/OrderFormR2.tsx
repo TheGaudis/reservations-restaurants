@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import { syncClock } from "@/background/clock";
 import { orderR2Input, summaryR2 } from "@/domain/bookings";
@@ -20,7 +20,7 @@ import { useShownState } from "@/features/calendar/use-shown-state";
 import { DishQuantitiesR2 } from "@/features/r2/DishQuantitiesR2";
 import { dishErrors, orderablePortions } from "@/features/r2/order-rules";
 import type { DishStock } from "@/features/r2/order-rules";
-import { commonMessages } from "@/intl/common-messages";
+import { dineInLabel, takeawayLabel, serviceModeLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { useOrderR2 } from "@/mutations/bookings";
 import { showToast } from "@/ui/feedback/toast";
@@ -30,13 +30,16 @@ import { focusOnMount } from "@/ui/pending-focus";
 
 import styles from "@/features/r2/OrderFormR2.module.css";
 
-const messages = defineMessages({
-  nothingConfirmed: {
-    id: "public.r2.toast.nothingConfirmed",
-    defaultMessage: "Aucun des plats choisis n'est disponible en quantité suffisante.",
-    description:
-      "04 § 6.3, § 9 — toast d'erreur : le script n'a accordé aucun plat (confirmed vide)",
-  },
+const dineInOnlyHelp = defineMessage({
+  id: "public.r2.form.dineInOnly",
+  defaultMessage: "Sur place uniquement ce jour-là : repas au prix d'un ticket restaurant.",
+  description: "04 § 5.3, § 9 — aide sous le mode de service un jour au ticket restaurant",
+});
+
+const nothingConfirmedMessage = defineMessage({
+  id: "public.r2.toast.nothingConfirmed",
+  defaultMessage: "Aucun des plats choisis n'est disponible en quantité suffisante.",
+  description: "04 § 6.3, § 9 — toast d'erreur : le script n'a accordé aucun plat (confirmed vide)",
 });
 
 const IDENTITY = { name: "name", contact: "contact", className: "className" } as const;
@@ -96,7 +99,7 @@ function useDone() {
   return (input: OrderR2Input, response: WriteResponse, dishesOfDay: readonly Dish[]) => {
     const summary = summaryR2(input, response, dishesOfDay);
     if (summary === null) {
-      showToast(intl.formatMessage(messages.nothingConfirmed), "error");
+      showToast(intl.formatMessage(nothingConfirmedMessage), "error");
       return;
     }
     done(summary, response.duplicate);
@@ -146,9 +149,9 @@ function useOrderFormR2(date: IsoDate) {
 
 /** « À emporter » and « Sur place »; « Sur place » alone on a voucher day (04 § 5.3, invariant 5). */
 function modeOptions(voucherDay: boolean): Array<{ value: ServiceMode; label: string }> {
-  const dineIn = { value: "dineIn" as const, label: intl.formatMessage(commonMessages.dineIn) };
+  const dineIn = { value: "dineIn" as const, label: intl.formatMessage(dineInLabel) };
   if (voucherDay) return [dineIn];
-  return [{ value: "takeaway", label: intl.formatMessage(commonMessages.takeaway) }, dineIn];
+  return [{ value: "takeaway", label: intl.formatMessage(takeawayLabel) }, dineIn];
 }
 
 interface OrderFormR2Props {
@@ -172,9 +175,9 @@ export function OrderFormR2({ date }: OrderFormR2Props) {
         <form.AppField name="serviceMode">
           {(field) => (
             <field.SegmentedRadio
-              legend={intl.formatMessage(commonMessages.serviceMode)}
+              legend={intl.formatMessage(serviceModeLabel)}
               hideLegend
-              description={voucherDay ? intl.formatMessage(commonMessages.dineInOnly) : undefined}
+              description={voucherDay ? intl.formatMessage(dineInOnlyHelp) : undefined}
               options={modeOptions(voucherDay)}
             />
           )}

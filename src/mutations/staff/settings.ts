@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import { setConfigField } from "@/api/actions";
 import { PasswordRejectedError } from "@/api/errors";
@@ -12,18 +12,16 @@ import { useSessionStore } from "@/session/session";
 // Writes of the settings (02 § 4.7, 06 § 2.2, D-20): one `setConfigField` per changed field, in sequence, in a single
 // `write` of `staffWriteOptions` (write.ts). A failure after the first field keeps the fields already saved: the full
 // state they answered goes to the cache past the session guard.
+const savedOneMessage = defineMessage({
+  id: "staff.settings.savedOne",
+  defaultMessage: "Paramètre enregistré.",
+  description: "06 § 2.2 (5) — toast de succès, un seul champ enregistré",
+});
 
-const messages = defineMessages({
-  savedOne: {
-    id: "staff.settings.savedOne",
-    defaultMessage: "Paramètre enregistré.",
-    description: "06 § 2.2 (5) — toast de succès, un seul champ enregistré",
-  },
-  savedMany: {
-    id: "staff.settings.savedMany",
-    defaultMessage: "Paramètres enregistrés.",
-    description: "06 § 2.2 (5) — toast de succès, plusieurs champs enregistrés",
-  },
+const savedManyMessage = defineMessage({
+  id: "staff.settings.savedMany",
+  defaultMessage: "Paramètres enregistrés.",
+  description: "06 § 2.2 (5) — toast de succès, plusieurs champs enregistrés",
 });
 
 /**
@@ -88,7 +86,7 @@ export function useSaveSettings() {
       action: "save",
       write: saveInSequence,
       successToast: (changes: readonly SettingInput[]) =>
-        intl.formatMessage(changes.length > 1 ? messages.savedMany : messages.savedOne),
+        intl.formatMessage(changes.length > 1 ? savedManyMessage : savedOneMessage),
     }),
     onError: async (error, _changes, _onMutateResult, { client }) => {
       if (error instanceof SettingsPartialFailureError) await adoptStaffState(client, error.result);

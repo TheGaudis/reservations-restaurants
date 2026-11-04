@@ -1,16 +1,14 @@
 import { useState } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useOnline } from "@/features/page/use-online";
 import { Button } from "@/ui/button/Button";
 import { Alert } from "@/ui/feedback/Alert";
 
-const messages = defineMessages({
-  retrying: {
-    id: "loading.retry.pending",
-    defaultMessage: "Nouvelle tentative…",
-    description: "00 § 2.3, 03 § 3.2 — bouton « Réessayer » occupé",
-  },
+const retryingMessage = defineMessage({
+  id: "loading.retry.pending",
+  defaultMessage: "Nouvelle tentative…",
+  description: "00 § 2.3, 03 § 3.2 — bouton « Réessayer » occupé",
 });
 
 interface LoadErrorBoxProps {
@@ -41,7 +39,7 @@ export function LoadErrorBox({ fromCache, onRetry }: LoadErrorBoxProps) {
     <Button
       variant="primary"
       busy={retrying}
-      busyLabel={intl.formatMessage(messages.retrying)}
+      busyLabel={intl.formatMessage(retryingMessage)}
       onClick={() => {
         void retry();
       }}

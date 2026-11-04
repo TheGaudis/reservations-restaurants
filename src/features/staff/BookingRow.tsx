@@ -1,13 +1,18 @@
 import { Fragment } from "react";
 import type { ReactNode } from "react";
-import { FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import type { BookingLine } from "@/features/staff/booking-line";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
 
 import styles from "@/features/staff/BookingList.module.css";
+
+const bookingDeleteConfirmLabel = defineMessage({
+  id: "staff.booking.delete.confirm",
+  defaultMessage: "Confirmer la suppression de cette réservation",
+  description: "06 § 5.2 — aria-label et title du bouton armé d'une réservation",
+});
 
 /** « **Nom** — Classe — 3 couverts — 16,00 € — contact — *observation* » (05 § 4.6). */
 function LineText({ line }: { line: BookingLine }) {
@@ -65,15 +70,23 @@ export function BookingRow({
       <LineText line={line} />
       <span className={styles["actions"]}>
         <Button id={editButtonId} size="small" aria-expanded={expanded} onClick={onEdit}>
-          <FormattedMessage {...staffCommonMessages.edit} />
+          <FormattedMessage
+            id="staff.booking.edit"
+            defaultMessage="Modifier"
+            description="06 § 7.1 — bouton d'une ligne de réservation (R1 et R2)"
+          />
         </Button>
         <ConfirmButton
           size="small"
-          detail={intl.formatMessage(staffCommonMessages.bookingDeleteDetail)}
+          detail={intl.formatMessage(bookingDeleteConfirmLabel)}
           busy={deleting}
           onConfirm={onDelete}
         >
-          <FormattedMessage {...staffCommonMessages.delete} />
+          <FormattedMessage
+            id="staff.booking.delete"
+            defaultMessage="Supprimer"
+            description="06 § 7.1 — bouton de suppression d'une ligne de réservation (R1 et R2)"
+          />
         </ConfirmButton>
       </span>
     </div>

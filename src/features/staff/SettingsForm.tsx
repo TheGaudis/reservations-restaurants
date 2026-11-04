@@ -1,4 +1,5 @@
-import { defineMessages, FormattedMessage } from "react-intl";
+import { defineMessage, FormattedMessage } from "react-intl";
+import type { MessageDescriptor } from "react-intl";
 
 import { changedSettings, settingErrors, settingsValues, SETTING_KEYS } from "@/domain/settings";
 import type { SettingError, SettingsValues } from "@/domain/settings";
@@ -6,7 +7,7 @@ import type { FullState, SettingKey } from "@/domain/types";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { commonMessages } from "@/intl/common-messages";
+import { savingLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { SettingsPartialFailureError, useSaveSettings } from "@/mutations/staff/settings";
 import { staffErrorText } from "@/mutations/staff/write";
@@ -20,84 +21,80 @@ import styles from "@/features/staff/SettingsForm.module.css";
 // Fields of « Paramètres » (06 § 2.2) and their sending (D-20): rules in domain/settings.ts, requests in
 // mutations/staff/settings.ts.
 
-const labels = defineMessages<SettingKey>({
-  name1: {
+const labels: Record<SettingKey, MessageDescriptor> = {
+  name1: defineMessage({
     id: "staff.settings.field.name1",
     defaultMessage: "Nom du restaurant 1",
     description: "06 § 2.2 — libellé du champ du nom du restaurant 1",
-  },
-  name2: {
+  }),
+  name2: defineMessage({
     id: "staff.settings.field.name2",
     defaultMessage: "Nom du restaurant 2",
     description: "06 § 2.2 — libellé du champ du nom du restaurant 2",
-  },
-  desc1: {
+  }),
+  desc1: defineMessage({
     id: "staff.settings.field.desc1",
     defaultMessage: "Description du restaurant 1",
     description: "06 § 2.2 — libellé du champ de la description du restaurant 1",
-  },
-  desc2: {
+  }),
+  desc2: defineMessage({
     id: "staff.settings.field.desc2",
     defaultMessage: "Description du restaurant 2",
     description: "06 § 2.2 — libellé du champ de la description du restaurant 2",
-  },
-  cancellationContact: {
+  }),
+  cancellationContact: defineMessage({
     id: "staff.settings.field.cancellationContact",
     defaultMessage: "Contact à indiquer pour une annulation (affiché dans les emails)",
     description: "06 § 2.2 — libellé du champ du contact d'annulation",
-  },
-  priceStudent: {
+  }),
+  priceStudent: defineMessage({
     id: "staff.settings.field.priceStudent",
     defaultMessage: "Tarif élève (€)",
     description: "06 § 2.2 — libellé du champ du tarif élève",
-  },
-  priceStaff: {
+  }),
+  priceStaff: defineMessage({
     id: "staff.settings.field.priceStaff",
     defaultMessage: "Tarif professeur/personnel (€)",
     description: "06 § 2.2 — libellé du champ du tarif professeur ou personnel",
-  },
-  priceExternal: {
+  }),
+  priceExternal: defineMessage({
     id: "staff.settings.field.priceExternal",
     defaultMessage: "Tarif extérieur (€)",
     description: "06 § 2.2 — libellé du champ du tarif extérieur",
-  },
+  }),
+};
+
+const contactPlaceholder = defineMessage({
+  id: "staff.settings.field.cancellationContact.placeholder",
+  defaultMessage: "Ex. le secrétariat au 03 00 00 00 00",
+  description: "06 § 2.2 — exemple dans le champ du contact d'annulation",
 });
 
-const messages = defineMessages<{
-  contactPlaceholder: Record<string, never>;
-  noChange: Record<string, never>;
-  partialFailure: { saved: string; failed: string; message: string };
-}>({
-  contactPlaceholder: {
-    id: "staff.settings.field.cancellationContact.placeholder",
-    defaultMessage: "Ex. le secrétariat au 03 00 00 00 00",
-    description: "06 § 2.2 — exemple dans le champ du contact d'annulation",
-  },
-  noChange: {
-    id: "staff.settings.noChange",
-    defaultMessage: "Aucune modification à enregistrer.",
-    description: "06 § 2.2 (2) — toast quand aucun champ ne diffère des paramètres enregistrés",
-  },
-  partialFailure: {
-    id: "staff.settings.partialFailure",
-    defaultMessage: "Enregistré : {saved}. Non enregistré : {failed} ({message}).",
-    description:
-      "PLAN annexe F, D-20 — toast d'un échec partiel ; saved et failed : libellés des champs joints par « , »",
-  },
+const noChangeMessage = defineMessage({
+  id: "staff.settings.noChange",
+  defaultMessage: "Aucune modification à enregistrer.",
+  description: "06 § 2.2 (2) — toast quand aucun champ ne diffère des paramètres enregistrés",
 });
 
-const errorMessages = defineMessages<SettingError>({
-  nameRequired: {
+const partialFailureMessage = defineMessage<{ saved: string; failed: string; message: string }>({
+  id: "staff.settings.partialFailure",
+  defaultMessage: "Enregistré : {saved}. Non enregistré : {failed} ({message}).",
+  description:
+    "PLAN annexe F, D-20 — toast d'un échec partiel ; saved et failed : libellés des champs joints par « , »",
+});
+
+const errorMessages: Record<SettingError, MessageDescriptor> = {
+  nameRequired: defineMessage({
     id: "staff.settings.error.nameRequired",
     defaultMessage: "Indiquez le nom du restaurant.",
     description: "PLAN annexe F, D-20 — nom d'un restaurant vidé",
-  },
-  invalidPrice: {
+  }),
+  invalidPrice: defineMessage({
     id: "staff.settings.error.invalidPrice",
     defaultMessage: "Indiquez un tarif positif ou nul (ex. 4,95).",
     description: "PLAN annexe F, D-20 — tarif vide, négatif ou qui n'est pas un nombre",
-  },
-});
+  }),
+};
 
 /** Fields over both columns of the grid (06 § 2.2: « pleine »). */
 const WIDE_FIELDS: ReadonlySet<SettingKey> = new Set(["desc1", "desc2", "cancellationContact"]);
@@ -108,7 +105,7 @@ function inputProps(key: SettingKey): InputProps {
     return { type: "number", step: "0.01", min: "0", inputMode: "decimal", autoComplete: "off" };
   }
   if (key === "cancellationContact") {
-    return { placeholder: intl.formatMessage(messages.contactPlaceholder), autoComplete: "off" };
+    return { placeholder: intl.formatMessage(contactPlaceholder), autoComplete: "off" };
   }
   return { autoComplete: "off" };
 }
@@ -133,7 +130,7 @@ function failureText(error: unknown): string | null {
   if (!(error instanceof SettingsPartialFailureError)) return staffErrorText(error);
   const message = staffErrorText(error.cause);
   if (message === null) return null;
-  return intl.formatMessage(messages.partialFailure, {
+  return intl.formatMessage(partialFailureMessage, {
     saved: labelsOf(error.saved),
     failed: labelsOf(error.failed),
     message,
@@ -150,7 +147,7 @@ function useSettingsForm() {
     onSubmit: async ({ value, formApi }) => {
       const changes = changedSettings(value, settings);
       if (changes.length === 0) {
-        showToast(intl.formatMessage(messages.noChange), "success");
+        showToast(intl.formatMessage(noChangeMessage), "success");
         return;
       }
       slowWrite.start();
@@ -191,7 +188,7 @@ export function SettingsForm() {
           </div>
         ))}
       </div>
-      <form.SubmitButton pendingLabel={intl.formatMessage(commonMessages.saving)}>
+      <form.SubmitButton pendingLabel={intl.formatMessage(savingLabel)}>
         <FormattedMessage
           id="staff.settings.save"
           defaultMessage="Enregistrer les paramètres"

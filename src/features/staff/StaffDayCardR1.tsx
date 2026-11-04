@@ -1,4 +1,4 @@
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { capacityClass, findDay, remainingSeats } from "@/domain/capacity";
@@ -22,14 +22,10 @@ import { OpenedBy, StaffNoServiceCard } from "@/features/staff/StaffDayCard";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
-const messages = defineMessages<{
-  menu: Record<string, never>;
-}>({
-  menu: {
-    id: "staff.r1.dayCard.menu",
-    defaultMessage: "Menu du jour",
-    description: "05 § 4.4 — surtitre du bloc menu de la fiche R1 collègue",
-  },
+const menuMessage = defineMessage({
+  id: "staff.r1.dayCard.menu",
+  defaultMessage: "Menu du jour",
+  description: "05 § 4.4 — surtitre du bloc menu de la fiche R1 collègue",
 });
 
 const whole = (state: FullState): FullState => state;
@@ -63,7 +59,7 @@ export function StaffDayCardR1() {
         </CapacityPill>
       </DayCardTop>
       <ThemeBlock text={day.theme} />
-      <TextBlock label={intl.formatMessage(messages.menu)} text={day.menu} />
+      <TextBlock label={intl.formatMessage(menuMessage)} text={day.menu} />
       <OpenedBy name={day.openedBy} />
       <BookingListR1 day={day} />
       <DayActions>

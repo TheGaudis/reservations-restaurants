@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import styles from "@/ui/print/PrintLayout.module.css";
 
-const messages = defineMessages({
-  logoAlt: {
-    id: "print.layout.logoAlt",
-    defaultMessage: "Lycée Aristide Briand",
-    description: "07 § 2.2 — texte de remplacement du logo de l'en-tête imprimé",
-  },
+const logoAltMessage = defineMessage({
+  id: "print.layout.logoAlt",
+  defaultMessage: "Lycée Aristide Briand",
+  description: "07 § 2.2 — texte de remplacement du logo de l'en-tête imprimé",
 });
 
 /** One information of the header (`.pb-meta`, 07 § 2.2): label and value; `wide` for the menu. */
@@ -54,7 +52,7 @@ function PrintHeader({ logo, printedAt }: { logo: string; printedAt: number }) {
     <>
       <div className={styles["stripe"]} />
       <header className={styles["head"]}>
-        <img className={styles["logo"]} src={logo} alt={intl.formatMessage(messages.logoAlt)} />
+        <img className={styles["logo"]} src={logo} alt={intl.formatMessage(logoAltMessage)} />
         <p className={styles["school"]}>
           <FormattedMessage
             id="print.layout.school"

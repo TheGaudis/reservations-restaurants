@@ -1,6 +1,6 @@
 import { Toast } from "@base-ui/react/toast";
 import type { RefObject } from "react";
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { TOAST_DURATION_MS } from "@/domain/constants";
 import { toastManager } from "@/ui/feedback/toast";
@@ -8,12 +8,10 @@ import { CheckIcon, PriorityHighIcon } from "@/ui/icons";
 
 import styles from "@/ui/feedback/Toaster.module.css";
 
-const messages = defineMessages({
-  viewport: {
-    id: "ui.toast.viewport",
-    defaultMessage: "Notifications",
-    description: "PLAN annexe F, a-8 — nom de la zone des notifications",
-  },
+const viewportMessage = defineMessage({
+  id: "ui.toast.viewport",
+  defaultMessage: "Notifications",
+  description: "PLAN annexe F, a-8 — nom de la zone des notifications",
 });
 
 function ToastList() {
@@ -46,7 +44,7 @@ export function Toaster({ container }: ToasterProps) {
       <Toast.Portal container={container}>
         <Toast.Viewport
           className={styles["viewport"]}
-          aria-label={intl.formatMessage(messages.viewport)}
+          aria-label={intl.formatMessage(viewportMessage)}
         >
           <ToastList />
         </Toast.Viewport>

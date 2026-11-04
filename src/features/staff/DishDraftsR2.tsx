@@ -1,10 +1,16 @@
-import { defineMessages, FormattedMessage } from "react-intl";
+import { defineMessage, FormattedMessage } from "react-intl";
 
 import type { DishDraft } from "@/domain/dishes";
 import { newDishLine } from "@/features/staff/dish-lines";
 import type { DishLine } from "@/features/staff/dish-lines";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import {
+  dishNamePlaceholder,
+  dishVoucherPricePlaceholder,
+  dishVoucherLabel,
+  dishStockLabel,
+  dishPriceLabel,
+} from "@/intl/staff-messages";
 import { Button } from "@/ui/button/Button";
 import { IconButton } from "@/ui/button/IconButton";
 import { withFieldGroup } from "@/ui/form/app-form";
@@ -13,50 +19,46 @@ import { focusOnMount, requestFocus } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/OpenDayForm.module.css";
 
-const messages = defineMessages<{
-  name: { n: number };
-  stock: { n: number };
-  stockPlaceholder: Record<string, never>;
-  price: { n: number };
-  pricePlaceholder: Record<string, never>;
-  remove: { n: number };
-  voucherName: { n: number };
-}>({
-  name: {
-    id: "staff.openDay.r2.dish.name",
-    defaultMessage: "Plat {n} : nom",
-    description: "06 § 4.2 — aria-label du nom de la ligne de plat n (numérotée à partir de 1)",
-  },
-  stock: {
-    id: "staff.openDay.r2.dish.stock",
-    defaultMessage: "Plat {n} : stock",
-    description: "06 § 4.2 — aria-label du stock de la ligne de plat n",
-  },
-  stockPlaceholder: {
-    id: "staff.openDay.r2.dish.stock.placeholder",
-    defaultMessage: "10",
-    description: "06 § 4.2 — exemple de stock d'une ligne de plat",
-  },
-  price: {
-    id: "staff.openDay.r2.dish.price",
-    defaultMessage: "Plat {n} : prix en euros (optionnel)",
-    description: "06 § 4.2 — aria-label du prix de la ligne de plat n",
-  },
-  pricePlaceholder: {
-    id: "staff.openDay.r2.dish.price.placeholder",
-    defaultMessage: "3,50",
-    description: "06 § 4.2 — exemple de prix d'une ligne de plat",
-  },
-  remove: {
-    id: "staff.openDay.r2.dish.remove",
-    defaultMessage: "Retirer le plat {n}",
-    description: "06 § 4.2 — aria-label du bouton croix de la ligne de plat n",
-  },
-  voucherName: {
-    id: "staff.openDay.r2.dish.voucher.name",
-    defaultMessage: "Plat {n} : au prix d'un ticket restaurant",
-    description: "06 § 4.2 — aria-label de la case ticket de la ligne de plat n",
-  },
+const nameMessage = defineMessage<{ n: number }>({
+  id: "staff.openDay.r2.dish.name",
+  defaultMessage: "Plat {n} : nom",
+  description: "06 § 4.2 — aria-label du nom de la ligne de plat n (numérotée à partir de 1)",
+});
+
+const stockMessage = defineMessage<{ n: number }>({
+  id: "staff.openDay.r2.dish.stock",
+  defaultMessage: "Plat {n} : stock",
+  description: "06 § 4.2 — aria-label du stock de la ligne de plat n",
+});
+
+const stockPlaceholder = defineMessage({
+  id: "staff.openDay.r2.dish.stock.placeholder",
+  defaultMessage: "10",
+  description: "06 § 4.2 — exemple de stock d'une ligne de plat",
+});
+
+const priceMessage = defineMessage<{ n: number }>({
+  id: "staff.openDay.r2.dish.price",
+  defaultMessage: "Plat {n} : prix en euros (optionnel)",
+  description: "06 § 4.2 — aria-label du prix de la ligne de plat n",
+});
+
+const pricePlaceholder = defineMessage({
+  id: "staff.openDay.r2.dish.price.placeholder",
+  defaultMessage: "3,50",
+  description: "06 § 4.2 — exemple de prix d'une ligne de plat",
+});
+
+const removeMessage = defineMessage<{ n: number }>({
+  id: "staff.openDay.r2.dish.remove",
+  defaultMessage: "Retirer le plat {n}",
+  description: "06 § 4.2 — aria-label du bouton croix de la ligne de plat n",
+});
+
+const voucherNameMessage = defineMessage<{ n: number }>({
+  id: "staff.openDay.r2.dish.voucher.name",
+  defaultMessage: "Plat {n} : au prix d'un ticket restaurant",
+  description: "06 § 4.2 — aria-label de la case ticket de la ligne de plat n",
 });
 
 const lineDefaults: DishDraft = newDishLine();
@@ -92,8 +94,8 @@ const DishDraftLine = withFieldGroup({
         {(field) => (
           <field.TextField
             hideLabel
-            label={intl.formatMessage(messages.name, { n })}
-            placeholder={intl.formatMessage(staffCommonMessages.dishNamePlaceholder)}
+            label={intl.formatMessage(nameMessage, { n })}
+            placeholder={intl.formatMessage(dishNamePlaceholder)}
           />
         )}
       </group.AppField>
@@ -101,8 +103,8 @@ const DishDraftLine = withFieldGroup({
         {(field) => (
           <field.TextField
             hideLabel
-            label={intl.formatMessage(messages.stock, { n })}
-            placeholder={intl.formatMessage(messages.stockPlaceholder)}
+            label={intl.formatMessage(stockMessage, { n })}
+            placeholder={intl.formatMessage(stockPlaceholder)}
             type="number"
             min={1}
             inputMode="numeric"
@@ -113,9 +115,9 @@ const DishDraftLine = withFieldGroup({
         {(field) => (
           <field.PriceField
             hideLabel
-            label={intl.formatMessage(messages.price, { n })}
+            label={intl.formatMessage(priceMessage, { n })}
             placeholder={intl.formatMessage(
-              voucher ? staffCommonMessages.dishVoucherPricePlaceholder : messages.pricePlaceholder,
+              voucher ? dishVoucherPricePlaceholder : pricePlaceholder,
             )}
             suggestions={suggestions}
             disabled={voucher}
@@ -124,7 +126,7 @@ const DishDraftLine = withFieldGroup({
       </group.AppField>
       <IconButton
         className={styles["remove"]}
-        aria-label={intl.formatMessage(messages.remove, { n })}
+        aria-label={intl.formatMessage(removeMessage, { n })}
         onClick={(event) => {
           onRemove(event.currentTarget);
         }}
@@ -141,8 +143,8 @@ const DishDraftLine = withFieldGroup({
       >
         {(field) => (
           <field.CheckboxField
-            label={intl.formatMessage(staffCommonMessages.dishVoucherLabel)}
-            aria-label={intl.formatMessage(messages.voucherName, { n })}
+            label={intl.formatMessage(dishVoucherLabel)}
+            aria-label={intl.formatMessage(voucherNameMessage, { n })}
           />
         )}
       </group.AppField>
@@ -184,10 +186,10 @@ export const DishDraftsR2 = withFieldGroup({
           />
         </span>
         <span>
-          <FormattedMessage {...staffCommonMessages.dishStockLabel} />
+          <FormattedMessage {...dishStockLabel} />
         </span>
         <span>
-          <FormattedMessage {...staffCommonMessages.dishPriceLabel} />
+          <FormattedMessage {...dishPriceLabel} />
         </span>
       </div>
       <group.AppField name="dishes" mode="array">

@@ -8,7 +8,7 @@ import type { BackgroundDeps } from "@/background/deps";
 import { isR2OrderingClosed } from "@/domain/cutoff";
 import { parisDate } from "@/domain/paris";
 import type { IsoDate, PublicState } from "@/domain/types";
-import { commonMessages } from "@/intl/common-messages";
+import { r2ClosedMessage } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
@@ -79,6 +79,6 @@ export function watchR2Cutoff({ router, queryClient, showToast }: BackgroundDeps
     if (isR2OrderingClosed(day, previous.now) || !isR2OrderingClosed(day, clock.now)) return;
     void router.navigate({ to: "/", search: { ...search, reserver: undefined }, replace: true });
     const name2 = queryClient.getQueryData<PublicState>(stateKeys.public())?.settings.name2 ?? "";
-    showToast(intl.formatMessage(commonMessages.r2Closed, { name2 }), "neutral");
+    showToast(intl.formatMessage(r2ClosedMessage, { name2 }), "neutral");
   });
 }

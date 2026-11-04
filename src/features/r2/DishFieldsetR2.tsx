@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 import { noDishText } from "@/features/r2/order-rules";
 import type { DishStock } from "@/features/r2/order-rules";
 import { dishPriceText, withPrice } from "@/intl/amounts";
-import { commonMessages } from "@/intl/common-messages";
+import { soldOutLabel } from "@/intl/common-messages";
 
 import styles from "@/features/r2/DishQuantitiesR2.module.css";
 
@@ -19,7 +19,7 @@ export function SoldOutRow({ name }: { name: string }) {
     <div className={styles["row"]}>
       <span className={styles["name"]}>{name}</span>
       <span className={styles["soldOut"]}>
-        <FormattedMessage {...commonMessages.soldOut} />
+        <FormattedMessage {...soldOutLabel} />
       </span>
     </div>
   );

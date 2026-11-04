@@ -1,4 +1,4 @@
-import { defineMessages, useIntl } from "react-intl";
+import { defineMessage, useIntl } from "react-intl";
 
 import { dishDraftInput } from "@/domain/dishes";
 import type { DishDraft } from "@/domain/dishes";
@@ -8,28 +8,34 @@ import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { dishErrors } from "@/features/staff/dish-rules";
 import { FormActions } from "@/features/staff/FormActions";
 import { usePriceSuggestions } from "@/features/staff/price-suggestions";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import {
+  dishNamePlaceholder,
+  dishStockLabel,
+  dishPriceLabel,
+  dishVoucherPricePlaceholder,
+  dishVoucherLabel,
+} from "@/intl/staff-messages";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/staff/DishForm.module.css";
 
-const messages = defineMessages({
-  nameLabel: {
-    id: "staff.dishForm.name.label",
-    defaultMessage: "Nom du plat",
-    description: "06 § 6.1 — libellé du nom du plat (ajout et modification)",
-  },
-  stockPlaceholder: {
-    id: "staff.dishForm.stock.placeholder",
-    defaultMessage: "Ex. 10",
-    description: "06 § 6.1 — placeholder du stock (ajout)",
-  },
-  pricePlaceholder: {
-    id: "staff.dishForm.price.placeholder",
-    defaultMessage: "Ex. 3,50",
-    description: "06 § 6.1 — placeholder du prix du plat",
-  },
+const nameLabel = defineMessage({
+  id: "staff.dishForm.name.label",
+  defaultMessage: "Nom du plat",
+  description: "06 § 6.1 — libellé du nom du plat (ajout et modification)",
+});
+
+const stockPlaceholder = defineMessage({
+  id: "staff.dishForm.stock.placeholder",
+  defaultMessage: "Ex. 10",
+  description: "06 § 6.1 — placeholder du stock (ajout)",
+});
+
+const pricePlaceholder = defineMessage({
+  id: "staff.dishForm.price.placeholder",
+  defaultMessage: "Ex. 3,50",
+  description: "06 § 6.1 — placeholder du prix du plat",
 });
 
 export interface DishFieldsProps {
@@ -92,10 +98,8 @@ export function DishFields(props: DishFieldsProps) {
           <form.AppField name="name">
             {(field) => (
               <field.TextField
-                label={intl.formatMessage(messages.nameLabel)}
-                placeholder={
-                  adding ? intl.formatMessage(staffCommonMessages.dishNamePlaceholder) : undefined
-                }
+                label={intl.formatMessage(nameLabel)}
+                placeholder={adding ? intl.formatMessage(dishNamePlaceholder) : undefined}
                 autoComplete="off"
               />
             )}
@@ -103,8 +107,8 @@ export function DishFields(props: DishFieldsProps) {
           <form.AppField name="stock">
             {(field) => (
               <field.TextField
-                label={intl.formatMessage(staffCommonMessages.dishStockLabel)}
-                placeholder={adding ? intl.formatMessage(messages.stockPlaceholder) : undefined}
+                label={intl.formatMessage(dishStockLabel)}
+                placeholder={adding ? intl.formatMessage(stockPlaceholder) : undefined}
                 inputMode="numeric"
                 autoComplete="off"
               />
@@ -116,11 +120,9 @@ export function DishFields(props: DishFieldsProps) {
             <form.AppField name="price">
               {(field) => (
                 <field.PriceField
-                  label={intl.formatMessage(staffCommonMessages.dishPriceLabel)}
+                  label={intl.formatMessage(dishPriceLabel)}
                   placeholder={intl.formatMessage(
-                    voucher
-                      ? staffCommonMessages.dishVoucherPricePlaceholder
-                      : messages.pricePlaceholder,
+                    voucher ? dishVoucherPricePlaceholder : pricePlaceholder,
                   )}
                   suggestions={suggestions}
                   disabled={voucher}
@@ -137,9 +139,7 @@ export function DishFields(props: DishFieldsProps) {
             },
           }}
         >
-          {(field) => (
-            <field.CheckboxField label={intl.formatMessage(staffCommonMessages.dishVoucherLabel)} />
-          )}
+          {(field) => <field.CheckboxField label={intl.formatMessage(dishVoucherLabel)} />}
         </form.AppField>
         <FormActions onCancel={cancel} submitLabel={submitLabel} pendingLabel={pendingLabel} />
         <SlowWriteNotice slow={slowWrite.slow} />

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { deleteDayWithBookingsLabel } from "@/features/staff/DeleteDayButton";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import { pastDateMessage } from "@/intl/staff-messages";
 
 // Texts of the staff mode shared by several files (06, PLAN annexe F), checked before P5 uses them.
 
@@ -20,18 +21,12 @@ describe("staffCommonMessages", () => {
       "Confirmer la suppression du jour et de ses 3 réservations (les personnes ne seront pas prévenues)",
     ],
   ])("writes the D-21 note for %i booking(s)", (n, text) => {
-    expect(intl.formatMessage(staffCommonMessages.deleteDayWithBookings, { n })).toBe(text);
+    expect(intl.formatMessage(deleteDayWithBookingsLabel, { n })).toBe(text);
   });
 
-  it.each([
-    ["serviceUnavailable", "Le service ne répond pas. Réessayez dans un instant."],
-    [
-      "personDuplicate",
-      "Cette personne était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.",
-    ],
-    ["pastDate", "Choisissez la date d'aujourd'hui ou une date ultérieure."],
-    ["addPerson", "+ Ajouter une personne"],
-  ] as const)("keeps the text of %s", (key, text) => {
-    expect(intl.formatMessage(staffCommonMessages[key])).toBe(text);
+  it("keeps the text of pastDateMessage", () => {
+    expect(intl.formatMessage(pastDateMessage)).toBe(
+      "Choisissez la date d'aujourd'hui ou une date ultérieure.",
+    );
   });
 });

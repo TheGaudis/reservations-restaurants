@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { CONFIRM_WINDOW_MS } from "@/domain/constants";
 import { Button } from "@/ui/button/Button";
@@ -8,12 +8,10 @@ import type { ButtonSize } from "@/ui/button/Button";
 
 import styles from "@/ui/button/ConfirmButton.module.css";
 
-const messages = defineMessages({
-  label: {
-    id: "ui.confirm.label",
-    defaultMessage: "Confirmer ?",
-    description: "00 § 2.1, 06 § 5.2 — libellé d'un bouton de suppression armé",
-  },
+const labelMessage = defineMessage({
+  id: "ui.confirm.label",
+  defaultMessage: "Confirmer ?",
+  description: "00 § 2.1, 06 § 5.2 — libellé d'un bouton de suppression armé",
 });
 
 export interface ConfirmButtonProps {
@@ -68,7 +66,7 @@ export function ConfirmButton({
   }
 
   const confirming = armed || busy;
-  const label = intl.formatMessage(messages.label);
+  const label = intl.formatMessage(labelMessage);
   return (
     <>
       <Button

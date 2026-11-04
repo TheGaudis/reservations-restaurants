@@ -1,5 +1,5 @@
 import { useIsMutating } from "@tanstack/react-query";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { capacityClass, findDay, remainingSeats } from "@/domain/capacity";
@@ -20,14 +20,10 @@ import { BookingFormR1 } from "@/features/r1/BookingFormR1";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
-const messages = defineMessages<{
-  menu: Record<string, never>;
-}>({
-  menu: {
-    id: "public.r1.dayCard.menu",
-    defaultMessage: "Menu du jour",
-    description: "05 § 4.4, 04 § 4.2 — surtitre du bloc menu de la fiche R1",
-  },
+const menuMessage = defineMessage({
+  id: "public.r1.dayCard.menu",
+  defaultMessage: "Menu du jour",
+  description: "05 § 4.4, 04 § 4.2 — surtitre du bloc menu de la fiche R1",
 });
 
 /**
@@ -64,7 +60,7 @@ export function DayCardR1() {
         </CapacityPill>
       </DayCardTop>
       <ThemeBlock text={day.theme} />
-      <TextBlock label={intl.formatMessage(messages.menu)} text={day.menu} />
+      <TextBlock label={intl.formatMessage(menuMessage)} text={day.menu} />
       {!full && !past && !formOpen ? <ReserveButton restaurant="r1" iso={iso} /> : null}
       {(!full || sending) && !past && formOpen ? (
         <BookingFormR1 key={`r1:${iso}`} date={iso} />

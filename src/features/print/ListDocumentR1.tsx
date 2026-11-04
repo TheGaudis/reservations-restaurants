@@ -2,7 +2,7 @@ import { useIntl } from "react-intl";
 
 import type { ListR1 } from "@/domain/print";
 import logoUrl from "@/features/page/logo.png";
-import { documentMessages } from "@/features/print/document-texts";
+import { totalLabel, noBookingsNote } from "@/features/print/document-texts";
 import {
   dayClosedText,
   listColumnsR1,
@@ -40,7 +40,7 @@ export function ListDocumentR1({ list, printedAt }: ListDocumentR1Props) {
       total={
         day === undefined
           ? undefined
-          : { label: intl.formatMessage(documentMessages.total), value: listTotalR1(intl, totals) }
+          : { label: intl.formatMessage(totalLabel), value: listTotalR1(intl, totals) }
       }
       signature
     >
@@ -52,7 +52,7 @@ export function ListDocumentR1({ list, printedAt }: ListDocumentR1Props) {
           groups={listGroupsR1(intl)}
           columns={listColumnsR1(intl)}
           rows={list.bookings.map((booking) => listRowR1(intl, booking))}
-          empty={intl.formatMessage(documentMessages.noBookings)}
+          empty={intl.formatMessage(noBookingsNote)}
         />
       )}
     </PrintLayout>

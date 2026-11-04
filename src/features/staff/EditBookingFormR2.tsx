@@ -1,4 +1,4 @@
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import { editBookingR2Input, maxPortionsForEdit } from "@/domain/bookings";
 import type { IdentityValues } from "@/domain/bookings";
@@ -17,7 +17,11 @@ import {
 } from "@/features/staff/EditBookingFields";
 import { FormActions } from "@/features/staff/FormActions";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { commonMessages } from "@/intl/common-messages";
+import {
+  quantityDecrementLabel,
+  quantityIncrementLabel,
+  serviceModeLabel,
+} from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { isCapacityRefusal, useEditBookingR2 } from "@/mutations/staff/bookings";
 import { showStaffError } from "@/mutations/staff/write";
@@ -27,12 +31,10 @@ import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/staff/EditBookingForm.module.css";
 
-const messages = defineMessages({
-  portions: {
-    id: "staff.editBooking.r2.portions.label",
-    defaultMessage: "Portions",
-    description: "06 § 7.4 — libellé des portions d'une réservation R2 modifiée",
-  },
+const portionsMessage = defineMessage({
+  id: "staff.editBooking.r2.portions.label",
+  defaultMessage: "Portions",
+  description: "06 § 7.4 — libellé des portions d'une réservation R2 modifiée",
 });
 
 interface EditR2Values extends IdentityValues {
@@ -117,12 +119,12 @@ export function EditBookingFormR2({ booking, dish }: EditBookingFormR2Props) {
         <form.AppField name="portions">
           {(field) => (
             <field.NumberField
-              label={intl.formatMessage(messages.portions)}
+              label={intl.formatMessage(portionsMessage)}
               min={1}
-              decrementLabel={intl.formatMessage(commonMessages.quantityDecrement, {
+              decrementLabel={intl.formatMessage(quantityDecrementLabel, {
                 name: dish.name,
               })}
-              incrementLabel={intl.formatMessage(commonMessages.quantityIncrement, {
+              incrementLabel={intl.formatMessage(quantityIncrementLabel, {
                 name: dish.name,
               })}
             />
@@ -132,7 +134,7 @@ export function EditBookingFormR2({ booking, dish }: EditBookingFormR2Props) {
       <form.AppField name="serviceMode">
         {(field) => (
           <field.SegmentedRadio
-            legend={intl.formatMessage(commonMessages.serviceMode)}
+            legend={intl.formatMessage(serviceModeLabel)}
             options={modeOptions(voucherDay)}
           />
         )}

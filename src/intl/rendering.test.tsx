@@ -2,7 +2,7 @@ import { FormattedMessage, FormattedNumber, RawIntlProvider } from "react-intl";
 import { expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 
-import { commonMessages } from "@/intl/common-messages";
+import { cancelAction } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 
 it("renders messages and amounts in Chromium (fr-FR)", async () => {
@@ -12,7 +12,7 @@ it("renders messages and amounts in Chromium (fr-FR)", async () => {
         <FormattedNumber value={12.5} format="euro" />
       </p>
       <button type="button">
-        <FormattedMessage {...commonMessages.cancel} />
+        <FormattedMessage {...cancelAction} />
       </button>
     </RawIntlProvider>,
   );

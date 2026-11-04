@@ -1,6 +1,6 @@
 import { useSelector } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { dishDraftStatus, isR2DayOpen, openDateProblem, openDayDishes } from "@/domain/days";
@@ -21,7 +21,14 @@ import { OpenDayPanel } from "@/features/staff/OpenDayPanel";
 import { usePriceSuggestions } from "@/features/staff/price-suggestions";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import {
+  dishZeroPriceMessage,
+  pastDateMessage,
+  openedByLabel,
+  themeLabel,
+  openingLabel,
+  openDaySubmitAction,
+} from "@/intl/staff-messages";
 import { useOpenDayR2 } from "@/mutations/staff/days";
 import { showStaffError } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
@@ -29,43 +36,47 @@ import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/staff/OpenDayForm.module.css";
 
-const messages = defineMessages({
-  openedByPlaceholder: {
-    id: "staff.openDay.r2.openedBy.placeholder",
-    defaultMessage: "Ex. Cyrille Ungerer",
-    description: "06 § 4.2 — exemple du collègue qui ouvre un jour R2",
-  },
-  noteLabel: {
-    id: "staff.openDay.r2.note.label",
-    defaultMessage: "Note (optionnel)",
-    description: "06 § 4.2 — libellé de la note d'un jour R2",
-  },
-  notePlaceholder: {
-    id: "staff.openDay.r2.note.placeholder",
-    defaultMessage: "Ex. semaine du menu bistrot",
-    description: "06 § 4.2 — exemple de note d'un jour R2",
-  },
-  themePlaceholder: {
-    id: "staff.openDay.r2.theme.placeholder",
-    defaultMessage: "Ex. semaine italienne",
-    description: "06 § 4.2 — exemple de thème d'un jour R2",
-  },
-  alreadyOpen: {
-    id: "staff.openDay.r2.alreadyOpen",
-    defaultMessage: "Ce jour est déjà ouvert : seuls les plats de nom nouveau seront ajoutés.",
-    description:
-      "PLAN annexe F, D-19 — « Ouvrir un jour » R2 sur un jour déjà ouvert (avertissement)",
-  },
-  incompleteLine: {
-    id: "staff.openDay.r2.incompleteLine",
-    defaultMessage: "Indiquez le nom et le stock de ce plat, ou retirez la ligne.",
-    description: "PLAN annexe F, D-19 — ligne de plat incomplète de « Ouvrir un jour » R2",
-  },
-  noDish: {
-    id: "staff.openDay.r2.noDish",
-    defaultMessage: "Ajoutez au moins un plat avec un nom et un stock.",
-    description: "06 § 4.2 — aucune ligne de plat complète, message après la dernière ligne",
-  },
+const openedByPlaceholder = defineMessage({
+  id: "staff.openDay.r2.openedBy.placeholder",
+  defaultMessage: "Ex. Cyrille Ungerer",
+  description: "06 § 4.2 — exemple du collègue qui ouvre un jour R2",
+});
+
+const noteLabel = defineMessage({
+  id: "staff.openDay.r2.note.label",
+  defaultMessage: "Note (optionnel)",
+  description: "06 § 4.2 — libellé de la note d'un jour R2",
+});
+
+const notePlaceholder = defineMessage({
+  id: "staff.openDay.r2.note.placeholder",
+  defaultMessage: "Ex. semaine du menu bistrot",
+  description: "06 § 4.2 — exemple de note d'un jour R2",
+});
+
+const themePlaceholder = defineMessage({
+  id: "staff.openDay.r2.theme.placeholder",
+  defaultMessage: "Ex. semaine italienne",
+  description: "06 § 4.2 — exemple de thème d'un jour R2",
+});
+
+const alreadyOpenMessage = defineMessage({
+  id: "staff.openDay.r2.alreadyOpen",
+  defaultMessage: "Ce jour est déjà ouvert : seuls les plats de nom nouveau seront ajoutés.",
+  description:
+    "PLAN annexe F, D-19 — « Ouvrir un jour » R2 sur un jour déjà ouvert (avertissement)",
+});
+
+const incompleteLineMessage = defineMessage({
+  id: "staff.openDay.r2.incompleteLine",
+  defaultMessage: "Indiquez le nom et le stock de ce plat, ou retirez la ligne.",
+  description: "PLAN annexe F, D-19 — ligne de plat incomplète de « Ouvrir un jour » R2",
+});
+
+const noDishMessage = defineMessage({
+  id: "staff.openDay.r2.noDish",
+  defaultMessage: "Ajoutez au moins un plat avec un nom et un stock.",
+  description: "06 § 4.2 — aucune ligne de plat complète, message après la dernière ligne",
 });
 
 interface OpenDayR2Values {
@@ -92,16 +103,14 @@ function dishRules(dishes: readonly DishDraft[]): Record<string, string> {
   for (const [index, dish] of dishes.entries()) {
     if (statuses[index] === "incomplete") {
       const missing = dish.name.trim() === "" ? "name" : "stock";
-      fields[`dishes[${String(index)}].${missing}`] = intl.formatMessage(messages.incompleteLine);
+      fields[`dishes[${String(index)}].${missing}`] = intl.formatMessage(incompleteLineMessage);
     }
     if (isDishPriceRefused(dish)) {
-      fields[`dishes[${String(index)}].price`] = intl.formatMessage(
-        staffCommonMessages.dishZeroPrice,
-      );
+      fields[`dishes[${String(index)}].price`] = intl.formatMessage(dishZeroPriceMessage);
     }
   }
   if (statuses.every((status) => status === "blank")) {
-    fields[`dishes[${String(dishes.length - 1)}].name`] = intl.formatMessage(messages.noDish);
+    fields[`dishes[${String(dishes.length - 1)}].name`] = intl.formatMessage(noDishMessage);
   }
   return fields;
 }
@@ -168,14 +177,14 @@ function OpenDayBodyR2() {
       <OpenDatePicker
         restaurant="r2"
         date={date}
-        error={sent && problem !== null ? formatMessage(staffCommonMessages.pastDate) : null}
-        warning={isR2DayOpen(state, date) ? formatMessage(messages.alreadyOpen) : null}
+        error={sent && problem !== null ? formatMessage(pastDateMessage) : null}
+        warning={isR2DayOpen(state, date) ? formatMessage(alreadyOpenMessage) : null}
       />
       <form.AppField name="openedBy">
         {(field) => (
           <field.TextField
-            label={formatMessage(staffCommonMessages.openedByLabel)}
-            placeholder={formatMessage(messages.openedByPlaceholder)}
+            label={formatMessage(openedByLabel)}
+            placeholder={formatMessage(openedByPlaceholder)}
             autoComplete="name"
           />
         )}
@@ -183,23 +192,23 @@ function OpenDayBodyR2() {
       <form.AppField name="note">
         {(field) => (
           <field.TextField
-            label={formatMessage(messages.noteLabel)}
-            placeholder={formatMessage(messages.notePlaceholder)}
+            label={formatMessage(noteLabel)}
+            placeholder={formatMessage(notePlaceholder)}
           />
         )}
       </form.AppField>
       <form.AppField name="theme">
         {(field) => (
           <field.TextField
-            label={formatMessage(staffCommonMessages.themeLabel)}
-            placeholder={formatMessage(messages.themePlaceholder)}
+            label={formatMessage(themeLabel)}
+            placeholder={formatMessage(themePlaceholder)}
           />
         )}
       </form.AppField>
       <DishDraftsR2 form={form} fields={DISHES} suggestions={usePriceSuggestions()} />
       <div className={styles["submit"]}>
-        <form.SubmitButton pendingLabel={formatMessage(staffCommonMessages.opening)}>
-          <FormattedMessage {...staffCommonMessages.openDaySubmit} />
+        <form.SubmitButton pendingLabel={formatMessage(openingLabel)}>
+          <FormattedMessage {...openDaySubmitAction} />
         </form.SubmitButton>
       </div>
       <SlowWriteNotice slow={slowWrite.slow} />

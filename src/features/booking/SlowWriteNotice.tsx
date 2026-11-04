@@ -1,7 +1,5 @@
 import { FormattedMessage } from "react-intl";
 
-import { commonMessages } from "@/intl/common-messages";
-
 import styles from "@/features/booking/SlowWriteNotice.module.css";
 
 interface SlowWriteNoticeProps {
@@ -16,7 +14,13 @@ interface SlowWriteNoticeProps {
 export function SlowWriteNotice({ slow }: SlowWriteNoticeProps) {
   return (
     <output className={styles["notice"]}>
-      {slow ? <FormattedMessage {...commonMessages.slowWrite} /> : null}
+      {slow ? (
+        <FormattedMessage
+          id="common.write.slow"
+          defaultMessage="Le service met du temps à répondre. Gardez cette page ouverte : la confirmation s'affichera ici."
+          description="PLAN annexe F, D-15 — sous le bouton occupé après 20 s, public et collègue"
+        />
+      ) : null}
     </output>
   );
 }

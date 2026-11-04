@@ -1,6 +1,6 @@
 import { Popover } from "@base-ui/react/popover";
 import { useId, useState } from "react";
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 import type { IntlShape } from "react-intl";
 
 import { addMonthsClamped, firstOfMonth, isSameMonth, monthCells } from "@/domain/dates";
@@ -13,33 +13,28 @@ import { CalendarIcon } from "@/ui/icons";
 
 import styles from "@/ui/calendar/DatePickerPopover.module.css";
 
-const messages = defineMessages<{
-  dialog: Record<string, never>;
-  marked: Record<string, never>;
-  past: Record<string, never>;
-  part: { text: string; part: string };
-}>({
-  dialog: {
-    id: "ui.datePicker.dialog",
-    defaultMessage: "Choisir la date",
-    description: "06 § 3.2 — aria-label du calendrier déplié du sélecteur de date",
-  },
-  marked: {
-    id: "ui.datePicker.marked",
-    defaultMessage: "déjà ouvert",
-    description:
-      "06 § 3.2 — légende de la pastille et suffixe de l'aria-label d'un jour déjà ouvert",
-  },
-  past: {
-    id: "ui.datePicker.past",
-    defaultMessage: "passé",
-    description: "06 § 3.2 — suffixe de l'aria-label d'un jour passé du sélecteur de date",
-  },
-  part: {
-    id: "ui.datePicker.part",
-    defaultMessage: "{text}, {part}",
-    description: "06 § 3.2 — une partie de l'aria-label d'un jour ajoutée après une virgule",
-  },
+const dialogMessage = defineMessage({
+  id: "ui.datePicker.dialog",
+  defaultMessage: "Choisir la date",
+  description: "06 § 3.2 — aria-label du calendrier déplié du sélecteur de date",
+});
+
+const markedMessage = defineMessage({
+  id: "ui.datePicker.marked",
+  defaultMessage: "déjà ouvert",
+  description: "06 § 3.2 — légende de la pastille et suffixe de l'aria-label d'un jour déjà ouvert",
+});
+
+const pastMessage = defineMessage({
+  id: "ui.datePicker.past",
+  defaultMessage: "passé",
+  description: "06 § 3.2 — suffixe de l'aria-label d'un jour passé du sélecteur de date",
+});
+
+const partMessage = defineMessage<{ text: string; part: string }>({
+  id: "ui.datePicker.part",
+  defaultMessage: "{text}, {part}",
+  description: "06 § 3.2 — une partie de l'aria-label d'un jour ajoutée après une virgule",
 });
 
 export interface DatePickerPopoverProps {
@@ -65,11 +60,11 @@ export interface DatePickerPopoverProps {
 function dayLabel(iso: IsoDate, marked: boolean, past: boolean, intl: IntlShape): string {
   let label = formatLongDate(iso);
   for (const [applies, part] of [
-    [marked, messages.marked],
-    [past, messages.past],
+    [marked, markedMessage],
+    [past, pastMessage],
   ] as const) {
     if (applies) {
-      label = intl.formatMessage(messages.part, { text: label, part: intl.formatMessage(part) });
+      label = intl.formatMessage(partMessage, { text: label, part: intl.formatMessage(part) });
     }
   }
   return label;
@@ -141,7 +136,7 @@ function MonthPanel({
       />
       <p className={styles["legend"]}>
         <span aria-hidden="true" className={styles["dot"]} />
-        <FormattedMessage {...messages.marked} />
+        <FormattedMessage {...markedMessage} />
       </p>
     </>
   );
@@ -193,7 +188,7 @@ export function DatePickerPopover({
       <Popover.Portal>
         <Popover.Positioner side="bottom" align="start" sideOffset={8} data-accent={accent}>
           <Popover.Popup
-            aria-label={intl.formatMessage(messages.dialog)}
+            aria-label={intl.formatMessage(dialogMessage)}
             className={styles["popup"]}
             // The day with tabindex="0" of the month shown: the chosen date when it is there (06 § 3.3).
             initialFocus={() =>

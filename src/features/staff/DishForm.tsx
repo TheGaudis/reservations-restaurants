@@ -1,4 +1,4 @@
-import { defineMessages, FormattedMessage, useIntl } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { portionsBooked } from "@/domain/capacity";
 import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
@@ -16,8 +16,8 @@ import {
 import { bookingsOfDish } from "@/features/staff/dish-rules";
 import { DishFields } from "@/features/staff/DishFields";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { commonMessages } from "@/intl/common-messages";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import { saveAction, savingLabel } from "@/intl/common-messages";
+import { addingLabel } from "@/intl/staff-messages";
 import { useAddDish, useDeleteDish, useEditDish } from "@/mutations/staff/dishes";
 import { showStaffError } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
@@ -32,29 +32,24 @@ const EMPTY_DISH = emptyDishDraft();
 // Dishes of the R2 staff card (06 § 6, 05 § 6.2-6.3, C-14, C-20 to C-22): « Modifier ce plat » and « Supprimer ce
 // plat » in the actions of each dish, its form under them, « + Ajouter un plat à ce jour » or its form under the list.
 // Each open form is a search param (`editPlat`, `ajoutPlat`, PLAN § 3.2).
+const deleteDetailMessage = defineMessage({
+  id: "staff.dish.delete.confirm",
+  defaultMessage: "Confirmer la suppression de ce plat",
+  description: "06 § 5.2 — aria-label et title du bouton armé d'un plat sans réservation",
+});
 
-const messages = defineMessages<{
-  deleteDetail: Record<string, never>;
-  deleteWithBookings: { n: number };
-  addSubmit: Record<string, never>;
-}>({
-  deleteDetail: {
-    id: "staff.dish.delete.confirm",
-    defaultMessage: "Confirmer la suppression de ce plat",
-    description: "06 § 5.2 — aria-label et title du bouton armé d'un plat sans réservation",
-  },
-  deleteWithBookings: {
-    id: "staff.dish.delete.confirmWithBookings",
-    defaultMessage:
-      "Confirmer la suppression de ce plat ({n, plural, one {# réservation ne sera plus affichée} other {# réservations ne seront plus affichées}}, les personnes ne seront pas prévenues)",
-    description:
-      "PLAN annexe F, D-21 — note et aria-label du bouton armé d'un plat qui a des réservations",
-  },
-  addSubmit: {
-    id: "staff.dish.add.submit",
-    defaultMessage: "Ajouter ce plat",
-    description: "06 § 6.2 — bouton d'envoi de l'ajout d'un plat",
-  },
+const deleteWithBookingsMessage = defineMessage<{ n: number }>({
+  id: "staff.dish.delete.confirmWithBookings",
+  defaultMessage:
+    "Confirmer la suppression de ce plat ({n, plural, one {# réservation ne sera plus affichée} other {# réservations ne seront plus affichées}}, les personnes ne seront pas prévenues)",
+  description:
+    "PLAN annexe F, D-21 — note et aria-label du bouton armé d'un plat qui a des réservations",
+});
+
+const addSubmitMessage = defineMessage({
+  id: "staff.dish.add.submit",
+  defaultMessage: "Ajouter ce plat",
+  description: "06 § 6.2 — bouton d'envoi de l'ajout d'un plat",
 });
 
 /** « Supprimer ce plat » (06 § 6.4): two clicks; the armed button details the bookings left orphaned (D-21, E-38). */
@@ -64,8 +59,8 @@ function DeleteDishButton({ dish }: { dish: Dish }) {
   const bookings = useStaffState((state) => bookingsOfDish(state, dish.id));
   const detail =
     bookings > 0
-      ? intl.formatMessage(messages.deleteWithBookings, { n: bookings })
-      : intl.formatMessage(messages.deleteDetail);
+      ? intl.formatMessage(deleteWithBookingsMessage, { n: bookings })
+      : intl.formatMessage(deleteDetailMessage);
   async function confirm() {
     // The dish and this button leave the page with the answer: `mutateAsync` resolves all the same, the callbacks
     // given to `mutate` would not run. The card's date takes the focus (03 § 5.4, E-48).
@@ -143,8 +138,8 @@ function EditDishFormOpen({ dish }: { dish: Dish }) {
       initial={dishDraftOf(dish)}
       booked={booked}
       adding={false}
-      submitLabel={intl.formatMessage(commonMessages.save)}
-      pendingLabel={intl.formatMessage(commonMessages.saving)}
+      submitLabel={intl.formatMessage(saveAction)}
+      pendingLabel={intl.formatMessage(savingLabel)}
       save={async (input) => {
         try {
           await edit.mutateAsync({ ...input, dishId: dish.id }, { onSuccess: close });
@@ -183,8 +178,8 @@ function AddDishFormOpen({ iso }: { iso: IsoDate }) {
       initial={EMPTY_DISH}
       booked={0}
       adding
-      submitLabel={intl.formatMessage(messages.addSubmit)}
-      pendingLabel={intl.formatMessage(staffCommonMessages.adding)}
+      submitLabel={intl.formatMessage(addSubmitMessage)}
+      pendingLabel={intl.formatMessage(addingLabel)}
       save={async (input) => {
         try {
           await add.mutateAsync({ ...input, date: iso }, { onSuccess: close });

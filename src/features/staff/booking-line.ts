@@ -1,31 +1,26 @@
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import type { BookingR1, BookingR2, Dish, Restaurant } from "@/domain/types";
 import { dishAmountText, formatEuros, seatsText } from "@/intl/amounts";
 import { intl } from "@/intl/intl";
 
 // Text of a booking line of the staff cards (05 § 4.6) and the `editResa` value of a booking (PLAN § 3.2).
+const portionsMessage = defineMessage<{ count: number }>({
+  id: "staff.booking.line.portions",
+  defaultMessage: "{count, plural, one {# portion} other {# portions}}",
+  description: "05 § 4.6 — quantité d'une ligne de réservation R2 (plural(Qte, 'portion'))",
+});
 
-const messages = defineMessages<{
-  portions: { count: number };
-  takeaway: Record<string, never>;
-  dineIn: Record<string, never>;
-}>({
-  portions: {
-    id: "staff.booking.line.portions",
-    defaultMessage: "{count, plural, one {# portion} other {# portions}}",
-    description: "05 § 4.6 — quantité d'une ligne de réservation R2 (plural(Qte, 'portion'))",
-  },
-  takeaway: {
-    id: "staff.booking.line.takeaway",
-    defaultMessage: "à emporter",
-    description: "05 § 4.6 — mode d'une ligne de réservation R2 commandée à emporter",
-  },
-  dineIn: {
-    id: "staff.booking.line.dineIn",
-    defaultMessage: "sur place",
-    description: "05 § 4.6 — mode d'une ligne de réservation R2 servie sur place (tout autre mode)",
-  },
+const takeawayMessage = defineMessage({
+  id: "staff.booking.line.takeaway",
+  defaultMessage: "à emporter",
+  description: "05 § 4.6 — mode d'une ligne de réservation R2 commandée à emporter",
+});
+
+const dineInMessage = defineMessage({
+  id: "staff.booking.line.dineIn",
+  defaultMessage: "sur place",
+  description: "05 § 4.6 — mode d'une ligne de réservation R2 servie sur place (tout autre mode)",
 });
 
 /** Parts of a booking line (05 § 4.6): the name in bold, the details, the observation in italics; empty parts left out. */
@@ -55,11 +50,11 @@ export function bookingLineR1(booking: BookingR1): BookingLine {
  */
 export function bookingLineR2(booking: BookingR2, dish: Dish): BookingLine {
   const mode = intl.formatMessage(
-    booking.serviceMode === "takeaway" ? messages.takeaway : messages.dineIn,
+    booking.serviceMode === "takeaway" ? takeawayMessage : dineInMessage,
   );
   const details = [
     booking.className,
-    intl.formatMessage(messages.portions, { count: booking.portions }),
+    intl.formatMessage(portionsMessage, { count: booking.portions }),
     dishAmountText(dish, booking.portions),
     mode,
     booking.contact,

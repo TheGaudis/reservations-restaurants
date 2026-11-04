@@ -6,7 +6,6 @@ import { dayStatusR1, dayStatusR2 } from "@/domain/capacity";
 import type { FullState, IsoDate, Restaurant } from "@/domain/types";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
 import { useStaffState } from "@/features/staff/use-staff-state";
-import { staffCommonMessages } from "@/intl/staff-messages";
 import { DatePickerPopover } from "@/ui/calendar/DatePickerPopover";
 import { Alert } from "@/ui/feedback/Alert";
 
@@ -44,7 +43,11 @@ export function OpenDatePicker({ restaurant, date, error, warning }: OpenDatePic
   return (
     <div className={styles["field"]}>
       <label id={labelId} htmlFor={id} className={styles["label"]}>
-        <FormattedMessage {...staffCommonMessages.dateLabel} />
+        <FormattedMessage
+          id="staff.openDay.date.label"
+          defaultMessage="Date"
+          description="06 § 3.1, § 4.1, § 4.2 — champ Date de « Ouvrir un jour »"
+        />
       </label>
       <DatePickerPopover
         id={id}

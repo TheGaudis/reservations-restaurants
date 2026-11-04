@@ -4,7 +4,6 @@ import type { IsoDate, Restaurant } from "@/domain/types";
 import { columnFocus, useBookingColumns } from "@/features/booking/booking-columns";
 import { DayActions } from "@/features/calendar/DayCard";
 import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
-import { commonMessages } from "@/intl/common-messages";
 import { Button } from "@/ui/button/Button";
 import { focusOnMount, requestFocus } from "@/ui/pending-focus";
 
@@ -36,7 +35,11 @@ export function ReserveButton({ restaurant, iso }: ReserveButtonProps) {
           navigate({ ...search, ...day, reserver: restaurant }, { replace: false });
         }}
       >
-        <FormattedMessage {...commonMessages.book} />
+        <FormattedMessage
+          id="common.action.book"
+          defaultMessage="Réserver"
+          description="00 § 2.3, 04 § 9 — bouton d'ouverture du formulaire (fiches R1 et R2)"
+        />
       </Button>
     </DayActions>
   );

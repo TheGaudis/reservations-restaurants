@@ -1,10 +1,18 @@
+import { defineMessage } from "react-intl";
+
 import type { IdentityValues } from "@/domain/bookings";
 import type { BookingR1, BookingR2 } from "@/domain/types";
 import { required } from "@/domain/validation";
 import { useCloseForm } from "@/features/calendar/page-search";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import { staffNameRequiredMessage, staffClassRequiredMessage } from "@/intl/staff-messages";
 import { focusById } from "@/ui/pending-focus";
+
+const contactRequiredMessage = defineMessage({
+  id: "staff.editBooking.contact.required",
+  defaultMessage: "Indiquez un téléphone ou un email.",
+  description: "06 § 7.2 — contact vide",
+});
 
 // Rules and closing shared by the two edit forms of a booking (06 § 7.2-7.4, E-48).
 
@@ -28,11 +36,11 @@ export function editIdentityErrors(
   values: Pick<IdentityValues, IdentityKey>,
 ): Partial<Record<IdentityKey, string>> {
   const results = {
-    name: required(intl.formatMessage(staffCommonMessages.nameRequired))({ value: values.name }),
-    className: required(intl.formatMessage(staffCommonMessages.classRequired))({
+    name: required(intl.formatMessage(staffNameRequiredMessage))({ value: values.name }),
+    className: required(intl.formatMessage(staffClassRequiredMessage))({
       value: values.className,
     }),
-    contact: required(intl.formatMessage(staffCommonMessages.contactRequired))({
+    contact: required(intl.formatMessage(contactRequiredMessage))({
       value: values.contact,
     }),
   };

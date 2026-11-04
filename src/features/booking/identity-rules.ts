@@ -1,10 +1,15 @@
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import type { IdentityValues } from "@/domain/bookings";
 import { compose, email, required } from "@/domain/validation";
-import { commonMessages } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
-import { staffCommonMessages } from "@/intl/staff-messages";
+import { staffNameRequiredMessage, staffClassRequiredMessage } from "@/intl/staff-messages";
+
+const emailInvalidMessage = defineMessage({
+  id: "common.form.email.invalid",
+  defaultMessage: "Vérifiez votre adresse email (ex. Ariele.gsell@exemple.fr).",
+  description: "04 § 5.2, § 9, 06 § 8.1 — adresse email mal formée",
+});
 
 /**
  * Wording of the identity fields: the public booking forms (04 § 5.2-5.3), or a person added by a colleague
@@ -15,40 +20,40 @@ export type IdentityVariant = "public" | "staffAdd";
 /** Fields checked by `identityErrors`; the observation is optional everywhere. */
 export type IdentityKey = "name" | "contact" | "className";
 
-const messages = defineMessages({
-  nameRequired: {
-    id: "public.form.name.required",
-    defaultMessage: "Indiquez vos nom et prénom.",
-    description: "04 § 5.2, § 9 — nom vide (formulaires publics R1 et R2)",
-  },
-  emailRequired: {
-    id: "public.form.email.required",
-    defaultMessage: "Indiquez votre adresse email.",
-    description: "04 § 5.2, § 9 — adresse email vide (formulaires publics R1 et R2)",
-  },
-  classRequired: {
-    id: "public.form.className.required",
-    defaultMessage: "Indiquez votre classe ou votre service.",
-    description: "04 § 5.2, § 9 — classe vide (formulaires publics R1 et R2)",
-  },
+const nameRequiredMessage = defineMessage({
+  id: "public.form.name.required",
+  defaultMessage: "Indiquez vos nom et prénom.",
+  description: "04 § 5.2, § 9 — nom vide (formulaires publics R1 et R2)",
+});
+
+const emailRequiredMessage = defineMessage({
+  id: "public.form.email.required",
+  defaultMessage: "Indiquez votre adresse email.",
+  description: "04 § 5.2, § 9 — adresse email vide (formulaires publics R1 et R2)",
+});
+
+const classRequiredMessage = defineMessage({
+  id: "public.form.className.required",
+  defaultMessage: "Indiquez votre classe ou votre service.",
+  description: "04 § 5.2, § 9 — classe vide (formulaires publics R1 et R2)",
 });
 
 function publicRules(values: Pick<IdentityValues, IdentityKey>) {
   return {
-    name: required(intl.formatMessage(messages.nameRequired))({ value: values.name }),
+    name: required(intl.formatMessage(nameRequiredMessage))({ value: values.name }),
     contact: compose(
-      required(intl.formatMessage(messages.emailRequired)),
-      email(intl.formatMessage(commonMessages.emailInvalid)),
+      required(intl.formatMessage(emailRequiredMessage)),
+      email(intl.formatMessage(emailInvalidMessage)),
     )({ value: values.contact }),
-    className: required(intl.formatMessage(messages.classRequired))({ value: values.className }),
+    className: required(intl.formatMessage(classRequiredMessage))({ value: values.className }),
   };
 }
 
 function staffAddRules(values: Pick<IdentityValues, IdentityKey>) {
   return {
-    name: required(intl.formatMessage(staffCommonMessages.nameRequired))({ value: values.name }),
-    contact: email(intl.formatMessage(commonMessages.emailInvalid))({ value: values.contact }),
-    className: required(intl.formatMessage(staffCommonMessages.classRequired))({
+    name: required(intl.formatMessage(staffNameRequiredMessage))({ value: values.name }),
+    contact: email(intl.formatMessage(emailInvalidMessage))({ value: values.contact }),
+    className: required(intl.formatMessage(staffClassRequiredMessage))({
       value: values.className,
     }),
   };

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
-import { FormattedMessage, useIntl, defineMessages } from "react-intl";
+import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
 import { LOGO_CLICK_WINDOW_MS, LOGO_CLICKS } from "@/domain/constants";
 import logoUrl from "@/features/page/logo.png";
@@ -8,12 +8,10 @@ import { usePageTexts } from "@/features/page/page-texts";
 
 import styles from "@/features/page/Header.module.css";
 
-const messages = defineMessages({
-  logo: {
-    id: "common.page.logoAlt",
-    defaultMessage: "Lycée Aristide Briand",
-    description: "08 § 7.2 — texte de remplacement du logo",
-  },
+const logoMessage = defineMessage({
+  id: "common.page.logoAlt",
+  defaultMessage: "Lycée Aristide Briand",
+  description: "08 § 7.2 — texte de remplacement du logo",
 });
 
 // Easter egg of the old site (D-01, 09 § 7).
@@ -73,7 +71,7 @@ export function Header({ children }: { children?: ReactNode }) {
           src={logoUrl}
           width={161}
           height={144}
-          alt={intl.formatMessage(messages.logo)}
+          alt={intl.formatMessage(logoMessage)}
         />
         <div className={styles["text"]}>
           <span className={`kicker ${styles["kicker"]}`}>

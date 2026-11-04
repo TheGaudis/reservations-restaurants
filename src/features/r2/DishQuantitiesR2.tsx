@@ -1,26 +1,21 @@
-import { defineMessages } from "react-intl";
+import { defineMessage } from "react-intl";
 
 import { orderAmounts } from "@/domain/pricing";
 import { DishFieldset, DishLabel, SoldOutRow } from "@/features/r2/DishFieldsetR2";
 import { chosenLines, noDishText, portionsField } from "@/features/r2/order-rules";
 import type { DishStock, Portions } from "@/features/r2/order-rules";
 import { r2TotalText } from "@/intl/amounts";
-import { commonMessages } from "@/intl/common-messages";
+import { quantityDecrementLabel, quantityIncrementLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { withFieldGroup } from "@/ui/form/app-form";
 import { errorText } from "@/ui/form/errors";
 
 import styles from "@/features/r2/DishQuantitiesR2.module.css";
 
-const messages = defineMessages<{
-  quantity: { name: string };
-}>({
-  quantity: {
-    id: "public.r2.form.quantity.label",
-    defaultMessage: "Quantité : {name}",
-    description:
-      "04 § 5.3, § 10 — nom accessible du champ quantité d'un plat (sans libellé visible)",
-  },
+const quantityMessage = defineMessage<{ name: string }>({
+  id: "public.r2.form.quantity.label",
+  defaultMessage: "Quantité : {name}",
+  description: "04 § 5.3, § 10 — nom accessible du champ quantité d'un plat (sans libellé visible)",
 });
 
 const portionsDefaults: { portions: Portions } = { portions: {} };
@@ -55,12 +50,12 @@ export const DishQuantitiesR2 = withFieldGroup({
               <DishLabel stock={stock} />
               <field.NumberField
                 hideLabel
-                label={intl.formatMessage(messages.quantity, { name: stock.dish.name })}
+                label={intl.formatMessage(quantityMessage, { name: stock.dish.name })}
                 max={stock.remaining}
-                decrementLabel={intl.formatMessage(commonMessages.quantityDecrement, {
+                decrementLabel={intl.formatMessage(quantityDecrementLabel, {
                   name: stock.dish.name,
                 })}
-                incrementLabel={intl.formatMessage(commonMessages.quantityIncrement, {
+                incrementLabel={intl.formatMessage(quantityIncrementLabel, {
                   name: stock.dish.name,
                 })}
                 errorShownBy={errorText(field.state.meta.errors) === noDish ? errorId : undefined}
