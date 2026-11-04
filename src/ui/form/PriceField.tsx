@@ -2,9 +2,8 @@ import { Field } from "@base-ui/react/field";
 import { useId } from "react";
 import type { ReactNode } from "react";
 
-import { FieldMessages } from "@/ui/form/FieldMessages";
+import { FieldShell, useFieldMessages } from "@/ui/form/FieldShell";
 import { useFieldContext } from "@/ui/form/form-context";
-import { useFieldMessages } from "@/ui/form/use-field-messages";
 
 import styles from "@/ui/form/Field.module.css";
 
@@ -40,13 +39,11 @@ export function PriceField({
   const listId = useId();
   const hasSuggestions = suggestions.length > 0;
   return (
-    <Field.Root
-      name={field.name}
-      invalid={fieldMessages.invalid}
-      touched={field.state.meta.isTouched}
-      dirty={field.state.meta.isDirty}
+    <FieldShell
+      field={field}
+      messages={fieldMessages}
+      description={description}
       disabled={disabled}
-      className={styles["field"]}
     >
       <Field.Label className={hideLabel ? "visually-hidden" : styles["label"]}>{label}</Field.Label>
       <Field.Control
@@ -72,7 +69,6 @@ export function PriceField({
           ))}
         </datalist>
       ) : null}
-      <FieldMessages messages={fieldMessages} description={description} />
-    </Field.Root>
+    </FieldShell>
   );
 }

@@ -3,9 +3,8 @@ import { NumberField as BaseNumberField } from "@base-ui/react/number-field";
 import type { ReactNode } from "react";
 import { defineMessage, useIntl } from "react-intl";
 
-import { FieldMessages } from "@/ui/form/FieldMessages";
+import { FieldShell, useFieldMessages } from "@/ui/form/FieldShell";
 import { useFieldContext } from "@/ui/form/form-context";
-import { useFieldMessages } from "@/ui/form/use-field-messages";
 
 import styles from "@/ui/form/Field.module.css";
 import numberStyles from "@/ui/form/NumberField.module.css";
@@ -84,13 +83,12 @@ export function NumberField({
   const describedBy =
     fieldMessages.invalid && !shownHere ? errorShownBy : fieldMessages.describedBy;
   return (
-    <Field.Root
-      name={field.name}
-      invalid={fieldMessages.invalid}
-      touched={field.state.meta.isTouched}
-      dirty={field.state.meta.isDirty}
+    <FieldShell
+      field={field}
+      messages={fieldMessages}
+      description={description}
       disabled={disabled}
-      className={styles["field"]}
+      errorHere={shownHere}
     >
       <BaseNumberField.Root
         value={field.state.value}
@@ -126,10 +124,6 @@ export function NumberField({
           </BaseNumberField.Increment>
         </BaseNumberField.Group>
       </BaseNumberField.Root>
-      <FieldMessages
-        messages={{ ...fieldMessages, invalid: fieldMessages.invalid && shownHere }}
-        description={description}
-      />
-    </Field.Root>
+    </FieldShell>
   );
 }

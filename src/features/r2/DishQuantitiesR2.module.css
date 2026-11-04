@@ -64,20 +64,6 @@
   animation: rise var(--dur) var(--ease) both;
 }
 
-.mark {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: var(--field-error-mark);
-  height: var(--field-error-mark);
-  border-radius: var(--radius-full);
-  background: var(--danger);
-  color: var(--text-on-accent);
-  font-size: var(--fs-error-mark);
-  font-weight: var(--fw-bold);
-}
-
 .total {
   margin: var(--space-1) 0 var(--space-3);
   font-weight: var(--fw-semibold);

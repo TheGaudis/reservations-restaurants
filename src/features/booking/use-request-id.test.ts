@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 
-import { newRequestId } from "@/api/request-id";
+import { newRequestId } from "@/features/booking/use-request-id";
 
 it("draws a new UUID at each call (02 § 5.3)", () => {
   const first = newRequestId();

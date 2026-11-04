@@ -14,12 +14,12 @@ import {
 } from "@/features/calendar/DayCard";
 import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
-import { useShownState } from "@/features/calendar/use-shown-state";
 import { DishRow } from "@/features/r2/DishRow";
 import { OrderFormR2 } from "@/features/r2/OrderFormR2";
 import { r2ClosedMessage } from "@/intl/common-messages";
 import { bookingKeys } from "@/mutations/booking-keys";
-import { Alert } from "@/ui/feedback/Alert";
+import { useAppState } from "@/queries/use-app-state";
+import { Note } from "@/ui/feedback/Alert";
 
 import styles from "@/features/r2/DayCardR2.module.css";
 
@@ -45,7 +45,7 @@ export function DayCardR2() {
   const formOpen = usePageSearch().reserver === "r2";
   // An order that takes the last portions keeps its form until its answer has been handled (summary, toast).
   const sending = useIsMutating({ mutationKey: bookingKeys.r2() }) > 0;
-  const state = useShownState();
+  const state = useAppState((shown) => shown);
   const day = findDay(state.r2Days, iso);
   if (day === undefined) return <NoServiceCard iso={iso} past={past} />;
   const dishes = dishesForDay(state, iso).map((dish) => ({
@@ -69,9 +69,9 @@ export function DayCardR2() {
       ) : null}
       {closed && !past && !ordering ? (
         <div className={styles["closed"]}>
-          <Alert variant="note" tone="warning">
+          <Note tone="warning">
             <FormattedMessage {...r2ClosedMessage} values={{ name2: state.settings.name2 }} />
-          </Alert>
+          </Note>
         </div>
       ) : null}
       {orderable && !formOpen ? <ReserveButton restaurant="r2" iso={iso} /> : null}

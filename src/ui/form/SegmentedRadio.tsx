@@ -1,12 +1,10 @@
-import { Field } from "@base-ui/react/field";
 import { Fieldset } from "@base-ui/react/fieldset";
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import type { ReactNode } from "react";
 
-import { FieldMessages } from "@/ui/form/FieldMessages";
+import { FieldShell, useFieldMessages } from "@/ui/form/FieldShell";
 import { useFieldContext } from "@/ui/form/form-context";
-import { useFieldMessages } from "@/ui/form/use-field-messages";
 import { CheckIcon } from "@/ui/icons";
 
 import fieldStyles from "@/ui/form/Field.module.css";
@@ -41,13 +39,7 @@ export function SegmentedRadio<T extends string>({
   const field = useFieldContext<T>();
   const fieldMessages = useFieldMessages(field);
   return (
-    <Field.Root
-      name={field.name}
-      invalid={fieldMessages.invalid}
-      touched={field.state.meta.isTouched}
-      dirty={field.state.meta.isDirty}
-      className={fieldStyles["field"]}
-    >
+    <FieldShell field={field} messages={fieldMessages} description={description}>
       <Fieldset.Root
         render={
           <RadioGroup
@@ -80,7 +72,6 @@ export function SegmentedRadio<T extends string>({
           ))}
         </div>
       </Fieldset.Root>
-      <FieldMessages messages={fieldMessages} description={description} />
-    </Field.Root>
+    </FieldShell>
   );
 }

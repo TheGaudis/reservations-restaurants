@@ -15,9 +15,9 @@ import {
 } from "@/features/calendar/DayCard";
 import { usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
 import { ReserveButton } from "@/features/calendar/ReserveButton";
-import { useShownState } from "@/features/calendar/use-shown-state";
 import { BookingFormR1 } from "@/features/r1/BookingFormR1";
 import { bookingKeys } from "@/mutations/booking-keys";
+import { useAppState } from "@/queries/use-app-state";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 const menuMessage = defineMessage({
@@ -39,7 +39,7 @@ export function DayCardR1() {
   const formOpen = usePageSearch().reserver === "r1";
   // A booking that takes the last seats keeps its form until its answer has been handled (summary, toast).
   const sending = useIsMutating({ mutationKey: bookingKeys.r1() }) > 0;
-  const state = useShownState();
+  const state = useAppState((shown) => shown);
   const day = findDay(state.r1Days, iso);
   if (day === undefined) return <NoServiceCard iso={iso} past={past} />;
   const remaining = remainingSeats(state, day);

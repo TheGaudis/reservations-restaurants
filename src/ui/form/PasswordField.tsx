@@ -4,10 +4,9 @@ import type { ReactNode } from "react";
 import { defineMessage, useIntl } from "react-intl";
 
 import { IconButton } from "@/ui/button/IconButton";
-import { FieldMessages } from "@/ui/form/FieldMessages";
+import { FieldShell, useFieldMessages } from "@/ui/form/FieldShell";
 import { useFieldContext } from "@/ui/form/form-context";
 import type { InputProps } from "@/ui/form/TextField";
-import { useFieldMessages } from "@/ui/form/use-field-messages";
 import { VisibilityIcon, VisibilityOffIcon } from "@/ui/icons";
 
 import styles from "@/ui/form/Field.module.css";
@@ -48,13 +47,7 @@ export function PasswordField({
   const fieldMessages = useFieldMessages(field);
   const [shown, setShown] = useState(false);
   return (
-    <Field.Root
-      name={field.name}
-      invalid={fieldMessages.invalid}
-      touched={field.state.meta.isTouched}
-      dirty={field.state.meta.isDirty}
-      className={styles["field"]}
-    >
+    <FieldShell field={field} messages={fieldMessages} description={description}>
       <Field.Label className={hideLabel ? "visually-hidden" : styles["label"]}>{label}</Field.Label>
       <div className={passwordStyles["row"]}>
         <Field.Control
@@ -79,7 +72,6 @@ export function PasswordField({
           {shown ? <VisibilityOffIcon /> : <VisibilityIcon />}
         </IconButton>
       </div>
-      <FieldMessages messages={fieldMessages} description={description} />
-    </Field.Root>
+    </FieldShell>
   );
 }

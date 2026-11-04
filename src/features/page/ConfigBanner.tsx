@@ -1,7 +1,7 @@
 import { FormattedMessage } from "react-intl";
 
 import { APPS_SCRIPT_URL, isConfigMissing } from "@/config";
-import { Alert } from "@/ui/feedback/Alert";
+import { Banner } from "@/ui/feedback/Alert";
 
 interface ConfigBannerProps {
   /** URL of the script deployment; the URL of the build by default. */
@@ -15,12 +15,12 @@ interface ConfigBannerProps {
 export function ConfigBanner({ url = APPS_SCRIPT_URL }: ConfigBannerProps) {
   if (!isConfigMissing(url)) return null;
   return (
-    <Alert variant="banner">
+    <Banner>
       <FormattedMessage
         id="loading.configBanner"
         defaultMessage="Configuration manquante : l'adresse du service de réservation n'est pas renseignée ou n'est pas valide. Prévenez l'établissement."
         description="PLAN annexe F, D-05 — bandeau de configuration manquante (« ⚠ » dessiné par une icône)"
       />
-    </Alert>
+    </Banner>
   );
 }

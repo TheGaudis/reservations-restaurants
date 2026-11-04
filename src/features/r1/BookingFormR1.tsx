@@ -12,10 +12,10 @@ import { IdentityFields, ObservationField } from "@/features/booking/IdentityFie
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useRequestId } from "@/features/booking/use-request-id";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { useShownState } from "@/features/calendar/use-shown-state";
 import { seatErrors } from "@/features/r1/seat-rules";
 import { SeatCountersR1 } from "@/features/r1/SeatCountersR1";
 import { isSeatsRefusal, useBookR1 } from "@/mutations/bookings";
+import { useAppState } from "@/queries/use-app-state";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
@@ -69,7 +69,7 @@ function useBookingFormR1(date: IsoDate) {
   const book = useBookR1();
   const slowWrite = useSlowWrite();
   const done = useBookingDone("r1");
-  const state = useShownState();
+  const state = useAppState((shown) => shown);
   const day = findDay(state.r1Days, date);
   const max = day === undefined ? 0 : remainingSeats(state, day);
   const form = useAppForm({

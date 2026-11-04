@@ -1,6 +1,6 @@
 import { FormattedMessage } from "react-intl";
 
-import { Alert } from "@/ui/feedback/Alert";
+import { Banner } from "@/ui/feedback/Alert";
 
 // `pnpm dev:real` (mode `real`) only: the production build and `pnpm dev` drop the banner (PLAN § 3.11).
 const REAL_DATA = import.meta.env.DEV && import.meta.env.MODE === "real";
@@ -9,12 +9,12 @@ const REAL_DATA = import.meta.env.DEV && import.meta.env.MODE === "real";
 export function DevDataBanner() {
   if (!REAL_DATA) return null;
   return (
-    <Alert variant="banner">
+    <Banner>
       <FormattedMessage
         id="dev.realDataBanner"
         defaultMessage="Données réelles"
         description="PLAN annexe F, § 3.11 — bandeau de pnpm dev:real"
       />
-    </Alert>
+    </Banner>
   );
 }

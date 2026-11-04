@@ -17,7 +17,7 @@ import { formatLongDate } from "@/intl/dates";
 import { useAppState } from "@/queries/use-app-state";
 import type { AppState } from "@/queries/use-app-state";
 import { Button } from "@/ui/button/Button";
-import { Alert } from "@/ui/feedback/Alert";
+import { Note } from "@/ui/feedback/Alert";
 import { SummaryCheckIcon } from "@/ui/icons";
 import { focusOnMount } from "@/ui/pending-focus";
 
@@ -182,9 +182,7 @@ export function BookingSummary({ summary, onClose }: BookingSummaryProps) {
       </div>
       {warnings.map((text) => (
         <div key={text} className={styles["warning"]}>
-          <Alert variant="note" tone="warning">
-            {text}
-          </Alert>
+          <Note tone="warning">{text}</Note>
         </div>
       ))}
       <ul className={styles["lines"]}>

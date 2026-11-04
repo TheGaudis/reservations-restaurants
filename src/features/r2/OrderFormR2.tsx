@@ -16,13 +16,13 @@ import { IdentityFields, ObservationField } from "@/features/booking/IdentityFie
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useRequestId } from "@/features/booking/use-request-id";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { useShownState } from "@/features/calendar/use-shown-state";
 import { DishQuantitiesR2 } from "@/features/r2/DishQuantitiesR2";
 import { dishErrors, orderablePortions } from "@/features/r2/order-rules";
 import type { DishStock } from "@/features/r2/order-rules";
 import { dineInLabel, takeawayLabel, serviceModeLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { useOrderR2 } from "@/mutations/bookings";
+import { useAppState } from "@/queries/use-app-state";
 import { showToast } from "@/ui/feedback/toast";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
@@ -115,7 +115,7 @@ function useOrderFormR2(date: IsoDate) {
   const order = useOrderR2();
   const slowWrite = useSlowWrite();
   const done = useDone();
-  const state = useShownState();
+  const state = useAppState((shown) => shown);
   const dishesOfDay = dishesForDay(state, date);
   const stocks = dishesOfDay.map((dish) => ({ dish, remaining: remainingStock(state, dish) }));
   const form = useAppForm({

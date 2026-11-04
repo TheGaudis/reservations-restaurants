@@ -1,5 +1,5 @@
 import { Button } from "@/ui/button/Button";
-import { Alert } from "@/ui/feedback/Alert";
+import { Alert, Banner as ConfigBanner, Note } from "@/ui/feedback/Alert";
 
 import preview from "../../../.storybook/preview";
 
@@ -40,20 +40,21 @@ export const WarningBox = meta.story({
 
 /** Cut-off of the R2 orders in a card (08 § 4.13). */
 export const WarningNote = meta.story({
-  args: {
-    variant: "note",
-    tone: "warning",
-    children:
-      "Commandes en ligne clôturées à 10h. Venez au restaurant Aristide à partir de 12h pour commander sur place.",
-  },
+  render: () => (
+    <Note tone="warning">
+      Commandes en ligne clôturées à 10h. Venez au restaurant Aristide à partir de 12h pour
+      commander sur place.
+    </Note>
+  ),
   globals: { accent: "r2" },
 });
 
 /** Configuration banner (G-05, D-05): « ⚠ » drawn as an icon. */
 export const Banner = meta.story({
-  args: {
-    variant: "banner",
-    children:
-      "Configuration manquante : l'adresse du service de réservation n'est pas renseignée ou n'est pas valide. Prévenez l'établissement.",
-  },
+  render: () => (
+    <ConfigBanner>
+      Configuration manquante : l'adresse du service de réservation n'est pas renseignée ou n'est
+      pas valide. Prévenez l'établissement.
+    </ConfigBanner>
+  ),
 });

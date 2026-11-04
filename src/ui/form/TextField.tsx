@@ -1,9 +1,8 @@
 import { Field } from "@base-ui/react/field";
 import type { ReactNode } from "react";
 
-import { FieldMessages } from "@/ui/form/FieldMessages";
+import { FieldShell, useFieldMessages } from "@/ui/form/FieldShell";
 import { useFieldContext } from "@/ui/form/form-context";
-import { useFieldMessages } from "@/ui/form/use-field-messages";
 
 import styles from "@/ui/form/Field.module.css";
 
@@ -50,13 +49,7 @@ export function TextField({
   const field = useFieldContext<string>();
   const messages = useFieldMessages(field);
   return (
-    <Field.Root
-      name={field.name}
-      invalid={messages.invalid}
-      touched={field.state.meta.isTouched}
-      dirty={field.state.meta.isDirty}
-      className={styles["field"]}
-    >
+    <FieldShell field={field} messages={messages} description={description}>
       <Field.Label className={hideLabel ? "visually-hidden" : styles["label"]}>{label}</Field.Label>
       <Field.Control
         {...inputProps}
@@ -68,7 +61,6 @@ export function TextField({
         onBlur={field.handleBlur}
         aria-describedby={messages.describedBy}
       />
-      <FieldMessages messages={messages} description={description} />
-    </Field.Root>
+    </FieldShell>
   );
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
 import { Button } from "@/ui/button/Button";
-import { Alert } from "@/ui/feedback/Alert";
+import { Alert, Banner, Note } from "@/ui/feedback/Alert";
 
 const OFFLINE = "Vous semblez hors ligne. Vérifiez votre connexion internet, puis réessayez.";
 
@@ -32,9 +32,9 @@ describe("Alert", () => {
 
   it("writes a warning note in the warning colour, polite when asked (08 § 4.13)", async () => {
     const { screen } = await renderWithProviders(
-      <Alert variant="note" tone="warning" live="status">
+      <Note tone="warning" live="status">
         Commandes en ligne clôturées à 10h.
-      </Alert>,
+      </Note>,
     );
     const note = screen.getByRole("status");
     await expect.element(note).toHaveTextContent("Commandes en ligne clôturées à 10h.");
@@ -44,9 +44,7 @@ describe("Alert", () => {
   });
 
   it("draws the configuration banner in red with the warning sign as an icon (08 § 4.20, annexe F)", async () => {
-    const { screen } = await renderWithProviders(
-      <Alert variant="banner">Configuration manquante.</Alert>,
-    );
+    const { screen } = await renderWithProviders(<Banner>Configuration manquante.</Banner>);
     const banner = screen.getByText("Configuration manquante.").element();
     expect(getComputedStyle(banner).backgroundColor).toBe("rgb(183, 55, 47)");
     expect(getComputedStyle(banner).color).toBe("rgb(255, 255, 255)");

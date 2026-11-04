@@ -9,6 +9,7 @@ import { studentsLabel, staffMembersLabel, externalsLabel } from "@/intl/common-
 import { intl } from "@/intl/intl";
 import { withFieldGroup } from "@/ui/form/app-form";
 import { errorText } from "@/ui/form/errors";
+import { ErrorMark } from "@/ui/form/FieldShell";
 
 import styles from "@/features/r1/SeatCountersR1.module.css";
 
@@ -29,9 +30,6 @@ const counterIncrementLabel = defineMessage<{ label: string }>({
   defaultMessage: "Augmenter : {label}",
   description: "PLAN annexe F, D-17 — bouton + d'un compteur R1",
 });
-
-// Red round before the message (08 § 4.6), outside the element that `aria-describedby` reads.
-const MARK = "!";
 
 /** « 3 couverts · Total : 16,00 € »: a string, so that the subscription renders only when the text changes. */
 function liveTotal(values: SeatCountValues, prices: R1Prices): string {
@@ -118,9 +116,7 @@ export const SeatCountersR1 = withFieldGroup({
             const message = errorText(field.state.meta.errors);
             return message === "" ? null : (
               <p className={styles["error"]}>
-                <span className={styles["mark"]} aria-hidden="true">
-                  {MARK}
-                </span>
+                <ErrorMark />
                 <span id={errorId}>{message}</span>
               </p>
             );

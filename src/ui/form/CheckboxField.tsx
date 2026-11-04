@@ -3,13 +3,11 @@ import { Field } from "@base-ui/react/field";
 import { useId } from "react";
 import type { ReactNode } from "react";
 
-import { FieldMessages } from "@/ui/form/FieldMessages";
+import { FieldShell, useFieldMessages } from "@/ui/form/FieldShell";
 import { useFieldContext } from "@/ui/form/form-context";
-import { useFieldMessages } from "@/ui/form/use-field-messages";
 import { CheckIcon } from "@/ui/icons";
 
 import styles from "@/ui/form/CheckboxField.module.css";
-import fieldStyles from "@/ui/form/Field.module.css";
 
 export interface CheckboxFieldProps {
   /** Visible text beside the box (« Ticket restaurant », 06 § 4.3). */
@@ -35,14 +33,7 @@ export function CheckboxField({
   // takes the label's `for`: the hidden input of the form value gets no label (one control per name, REG-37).
   const nameId = useId();
   return (
-    <Field.Root
-      name={field.name}
-      invalid={fieldMessages.invalid}
-      touched={field.state.meta.isTouched}
-      dirty={field.state.meta.isDirty}
-      disabled={disabled}
-      className={fieldStyles["field"]}
-    >
+    <FieldShell field={field} messages={fieldMessages} disabled={disabled}>
       <Field.Label className={styles["check"]}>
         <Checkbox.Root
           nativeButton
@@ -67,7 +58,6 @@ export function CheckboxField({
           {ariaLabel}
         </span>
       )}
-      <FieldMessages messages={fieldMessages} />
-    </Field.Root>
+    </FieldShell>
   );
 }
