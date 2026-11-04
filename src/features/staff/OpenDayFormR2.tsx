@@ -2,24 +2,22 @@ import { useSelector } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
+import { addDayR2 } from "@/api/actions";
 import { useToday } from "@/background/clock";
 import { dishDraftStatus, isR2DayOpen, openDateProblem, openDayDishes } from "@/domain/days";
-import type { OpenDateProblem } from "@/domain/days";
 import { isDishPriceRefused } from "@/domain/dishes";
 import type { DishDraft } from "@/domain/dishes";
 import { selectDay } from "@/domain/navigation";
 import type { PageSearchParams } from "@/domain/navigation";
-import type { FullState, IsoDate, OpenDayR2Input } from "@/domain/types";
+import type { OpenDayR2Input } from "@/domain/types";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { newDishLine } from "@/features/staff/dish-lines";
-import type { DishLine } from "@/features/staff/dish-lines";
-import { DishDraftsR2 } from "@/features/staff/DishDraftsR2";
-import { useOpenDate } from "@/features/staff/open-date";
-import { OpenDatePicker } from "@/features/staff/OpenDatePicker";
+import { DishDraftsR2, newDishLine } from "@/features/staff/DishDraftsR2";
+import type { DishLine } from "@/features/staff/DishDraftsR2";
+import { usePriceSuggestions } from "@/features/staff/DishFields";
+import { OpenDatePicker, useOpenDate } from "@/features/staff/OpenDatePicker";
 import { OpenDayPanel } from "@/features/staff/OpenDayPanel";
-import { usePriceSuggestions } from "@/features/staff/price-suggestions";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
 import {
   dishZeroPriceMessage,
@@ -29,12 +27,17 @@ import {
   openingLabel,
   openDaySubmitAction,
 } from "@/intl/staff-messages";
-import { useOpenDayR2 } from "@/mutations/staff/days";
-import { showStaffError } from "@/mutations/staff/write";
+import { showStaffError, useStaffWrite } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/staff/OpenDayForm.module.css";
+
+const dayAddedMessage = defineMessage({
+  id: "staff.openDay.success",
+  defaultMessage: "Jour ajouté.",
+  description: "06 § 4.1, § 4.2 — toast de succès de « Ouvrir un jour »",
+});
 
 const openedByPlaceholder = defineMessage({
   id: "staff.openDay.r2.openedBy.placeholder",
@@ -91,8 +94,6 @@ const EMPTY: OpenDayR2Values = { openedBy: "", note: "", theme: "", dishes: [new
 
 const DISHES = { dishes: "dishes" } as const;
 
-const whole = (state: FullState): FullState => state;
-
 /**
  * Rules of the dish lines (06 § 4.2, D-19, D-22): an incomplete line is refused under its missing name or stock, a
  * price in euros must be above 0, and without any complete line the message goes after the last one.
@@ -121,12 +122,17 @@ function openDayR2Rules(value: OpenDayR2Values) {
 }
 
 /**
- * State and sending of the form (06 § 4.2). A past date sends nothing (D-19). After « Jour ajouté. », the panel
+ * Content of the open panel: the date, then the fields and the dish lines of 06 § 4.2 in their order. A past date
+ * sends nothing (D-19). After « Jour ajouté. », the panel
  * stays open on the date, the fields are emptied, the dishes back to one empty line, and the R2 calendar selects the
  * day opened; `selectDay` keeps `ouvrir`.
  */
-function useOpenDayFormR2(date: IsoDate, problem: OpenDateProblem | null) {
-  const openDay = useOpenDayR2();
+function OpenDayBodyR2() {
+  const { formatMessage } = useIntl();
+  const date = useOpenDate("r2");
+  const fullState = useFullState();
+  const problem = openDateProblem(fullState, "r2", date, useToday());
+  const openDay = useStaffWrite(addDayR2, { success: dayAddedMessage });
   const slowWrite = useSlowWrite();
   const navigate = useNavigate();
   const form = useAppForm({
@@ -162,23 +168,13 @@ function useOpenDayFormR2(date: IsoDate, problem: OpenDateProblem | null) {
     },
   });
   const sent = useSelector(form.store, (state) => state.submissionAttempts > 0);
-  return { form, sent, slowWrite };
-}
-
-/** Content of the open panel: the date, then the fields and the dish lines of 06 § 4.2 in their order. */
-function OpenDayBodyR2() {
-  const { formatMessage } = useIntl();
-  const date = useOpenDate("r2");
-  const state = useStaffState(whole);
-  const problem = openDateProblem(state, "r2", date, useToday());
-  const { form, sent, slowWrite } = useOpenDayFormR2(date, problem);
   return (
     <Form form={form} className={styles["form"]}>
       <OpenDatePicker
         restaurant="r2"
         date={date}
         error={sent && problem !== null ? formatMessage(pastDateMessage) : null}
-        warning={isR2DayOpen(state, date) ? formatMessage(alreadyOpenMessage) : null}
+        warning={isR2DayOpen(fullState, date) ? formatMessage(alreadyOpenMessage) : null}
       />
       <form.AppField name="openedBy">
         {(field) => (

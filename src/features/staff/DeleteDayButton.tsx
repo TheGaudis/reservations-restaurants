@@ -1,12 +1,18 @@
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
+import { deleteDayR1, deleteDayR2 } from "@/api/actions";
 import { bookingsOfDay } from "@/domain/days";
 import type { IsoDate, Restaurant } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
-import { useStaffState } from "@/features/staff/use-staff-state";
-import { useDeleteDay } from "@/mutations/staff/days";
-import { showStaffError } from "@/mutations/staff/write";
+import { useFullState } from "@/features/staff/use-staff-state";
+import { showStaffError, useStaffWrite } from "@/mutations/staff/write";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
+
+const deletedMessage = defineMessage({
+  id: "staff.day.deleted",
+  defaultMessage: "Jour supprimé.",
+  description: "06 § 5.2 — toast de succès d'une suppression de jour (R1 et R2)",
+});
 
 const deleteDayConfirmLabel = defineMessage({
   id: "staff.day.delete.confirm",
@@ -36,8 +42,11 @@ interface DeleteDayButtonProps {
  */
 export function DeleteDayButton({ restaurant, iso }: DeleteDayButtonProps) {
   const { formatMessage } = useIntl();
-  const remove = useDeleteDay(restaurant);
-  const bookings = useStaffState((state) => bookingsOfDay(state, restaurant, iso));
+  // The script deletes the day and its bookings (R2: its dishes too).
+  const remove = useStaffWrite(restaurant === "r1" ? deleteDayR1 : deleteDayR2, {
+    success: deletedMessage,
+  });
+  const bookings = bookingsOfDay(useFullState(), restaurant, iso);
   const detail =
     bookings === 0
       ? formatMessage(deleteDayConfirmLabel)

@@ -4,7 +4,6 @@ import { useToday } from "@/background/clock";
 import { capacityClass, findDay, remainingSeats } from "@/domain/capacity";
 import { isPast } from "@/domain/cutoff";
 import { gaugePercent } from "@/domain/gauge";
-import type { FullState } from "@/domain/types";
 import {
   DayActions,
   DayCard,
@@ -14,12 +13,12 @@ import {
 } from "@/features/calendar/DayCard";
 import { useSelectedDay } from "@/features/calendar/page-search";
 import { PrintListButton } from "@/features/print/PrintListButton";
-import { AddBookingButtonR1, AddBookingFormR1 } from "@/features/staff/AddBookingFormR1";
+import { AddBookingButton, AddBookingForm } from "@/features/staff/AddBookingForm";
 import { BookingListR1 } from "@/features/staff/BookingList";
 import { DeleteDayButton } from "@/features/staff/DeleteDayButton";
 import { EditDayButtonR1, EditDayFormR1 } from "@/features/staff/EditDayFormR1";
 import { OpenedBy, StaffNoServiceCard } from "@/features/staff/StaffDayCard";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
 const menuMessage = defineMessage({
@@ -27,8 +26,6 @@ const menuMessage = defineMessage({
   defaultMessage: "Menu du jour",
   description: "05 § 4.4 — surtitre du bloc menu de la fiche R1 collègue",
 });
-
-const whole = (state: FullState): FullState => state;
 
 /**
  * Staff card of the selected R1 day (05 § 5.1, § 5.3, C-10, C-10b): date and gauge, theme, menu, « Ouvert par », the
@@ -39,7 +36,7 @@ export function StaffDayCardR1() {
   const intl = useIntl();
   const iso = useSelectedDay("r1");
   const past = isPast(iso, useToday());
-  const state = useStaffState(whole);
+  const state = useFullState();
   const day = findDay(state.r1Days, iso);
   if (day === undefined) return <StaffNoServiceCard iso={iso} past={past} />;
   const remaining = remainingSeats(state, day);
@@ -63,12 +60,12 @@ export function StaffDayCardR1() {
       <OpenedBy name={day.openedBy} />
       <BookingListR1 day={day} />
       <DayActions>
-        <AddBookingButtonR1 day={day} />
+        <AddBookingButton restaurant="r1" day={day} />
         <EditDayButtonR1 day={day} />
         <PrintListButton restaurant="r1" iso={iso} />
         <DeleteDayButton restaurant="r1" iso={iso} />
       </DayActions>
-      <AddBookingFormR1 day={day} />
+      <AddBookingForm restaurant="r1" day={day} />
       <EditDayFormR1 day={day} />
     </DayCard>
   );

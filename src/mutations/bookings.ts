@@ -5,7 +5,7 @@ import { addBookingR1, addBookingR2Multi } from "@/api/actions";
 import { BusinessError } from "@/api/errors";
 import type { WriteResponse } from "@/domain/types";
 import { bookingKeys, WRITE_SCOPE } from "@/mutations/booking-keys";
-import { stateKeys } from "@/queries/state";
+import { readStateAgainOn, stateKeys } from "@/queries/state";
 import { useSessionStore } from "@/session/session";
 
 // Bookings sent by the public forms and by « + Ajouter une personne » of the staff mode, without password
@@ -44,9 +44,7 @@ export function useBookR1() {
     scope: WRITE_SCOPE,
     mutationFn: addBookingR1,
     onSuccess: async (response) => adoptBookingState(queryClient, response),
-    onError: (error) => {
-      if (isSeatsRefusal(error)) void queryClient.invalidateQueries({ queryKey: stateKeys.all() });
-    },
+    onError: readStateAgainOn(isSeatsRefusal),
   });
 }
 

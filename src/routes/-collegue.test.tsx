@@ -187,14 +187,11 @@ describe("logout (PLAN § 3.3.4, S8)", () => {
 
   it("writes nothing back for a staff write answered after the logout (F-02, E-55)", async () => {
     const { queryClient } = await renderStaffPage(`/collegue?r1=${TODAY}`);
-    const { result } = await renderHook(
-      () => useMutation(staffWriteOptions({ domain: "days", action: "editR1", write: editDayR1 })),
-      {
-        wrapper: ({ children }) => (
-          <TestProviders queryClient={queryClient}>{children}</TestProviders>
-        ),
-      },
-    );
+    const { result } = await renderHook(() => useMutation(staffWriteOptions(editDayR1)), {
+      wrapper: ({ children }) => (
+        <TestProviders queryClient={queryClient}>{children}</TestProviders>
+      ),
+    });
     const release = fakeScript().hold();
     const sending = result.current.mutateAsync({ date: TODAY, capacity: 18, menu: "", theme: "" });
     await expect

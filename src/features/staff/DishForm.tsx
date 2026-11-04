@@ -1,37 +1,45 @@
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
+import { addItemR2, deleteItemR2, editItemR2 } from "@/api/actions";
 import { portionsBooked } from "@/domain/capacity";
 import { dishDraftOf, emptyDishDraft } from "@/domain/dishes";
 import type { Dish, IsoDate } from "@/domain/types";
 import { focusCardDate } from "@/features/calendar/card-date-focus";
 import { DayActions } from "@/features/calendar/DayCard";
 import { useCloseForm, usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
-import {
-  ADD_BUTTON,
-  ADD_FORM,
-  editButtonId,
-  editFormId,
-  editTarget,
-} from "@/features/staff/dish-focus";
 import { bookingsOfDish } from "@/features/staff/dish-rules";
 import { DishFields } from "@/features/staff/DishFields";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { saveAction, savingLabel } from "@/intl/common-messages";
 import { addingLabel } from "@/intl/staff-messages";
-import { useAddDish, useDeleteDish, useEditDish } from "@/mutations/staff/dishes";
-import { showStaffError } from "@/mutations/staff/write";
+import { showStaffError, useStaffWrite } from "@/mutations/staff/write";
 import { Button } from "@/ui/button/Button";
 import { ConfirmButton } from "@/ui/button/ConfirmButton";
 import { focusById, focusFirstInput, focusOnMount, requestFocus } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/DishForm.module.css";
 
-// « Ajouter un plat » starts empty (06 § 6.1).
-const EMPTY_DISH = emptyDishDraft();
-
 // Dishes of the R2 staff card (06 § 6, 05 § 6.2-6.3, C-14, C-20 to C-22): « Modifier ce plat » and « Supprimer ce
 // plat » in the actions of each dish, its form under them, « + Ajouter un plat à ce jour » or its form under the list.
 // Each open form is a search param (`editPlat`, `ajoutPlat`, PLAN § 3.2).
+const addedMessage = defineMessage({
+  id: "staff.dish.added",
+  defaultMessage: "Plat ajouté.",
+  description: "06 § 6.2, 02 § 4.7 — toast de succès de l'ajout d'un plat",
+});
+
+const editedMessage = defineMessage({
+  id: "staff.dish.edited",
+  defaultMessage: "Plat modifié.",
+  description: "06 § 6.3, 02 § 4.7 — toast de succès de la modification d'un plat",
+});
+
+const deletedMessage = defineMessage({
+  id: "staff.dish.deleted",
+  defaultMessage: "Plat supprimé.",
+  description: "06 § 5.2, § 6.4 — toast de succès de la suppression d'un plat",
+});
+
 const deleteDetailMessage = defineMessage({
   id: "staff.dish.delete.confirm",
   defaultMessage: "Confirmer la suppression de ce plat",
@@ -52,11 +60,37 @@ const addSubmitMessage = defineMessage({
   description: "06 § 6.2 — bouton d'envoi de l'ajout d'un plat",
 });
 
+// Focus keys and ids of the dish forms (E-48, ui/pending-focus.ts). A form opened by its button focuses its first field;
+// the button that opened it takes the focus back when the form closes. After a deletion, `focusCardDate`
+// (features/calendar/card-date-focus.ts) hands the focus to the date of the card.
+
+/** Form « Ajouter un plat » and its button. */
+const ADD_FORM = "add-form";
+const ADD_BUTTON = "add-button";
+
+/** Form « Modifier ce plat » of a dish. */
+function editTarget(dishId: string): string {
+  return `edit:${dishId}`;
+}
+
+/** Ids tying « Modifier ce plat » to its form (`aria-controls`): one R2 card in the page. */
+function editButtonId(dishId: string): string {
+  return `dish-edit-${dishId}`;
+}
+
+function editFormId(dishId: string): string {
+  return `dish-form-${dishId}`;
+}
+
+// « Ajouter un plat » starts empty (06 § 6.1).
+const EMPTY_DISH = emptyDishDraft();
+
 /** « Supprimer ce plat » (06 § 6.4): two clicks; the armed button details the bookings left orphaned (D-21, E-38). */
 function DeleteDishButton({ dish }: { dish: Dish }) {
   const intl = useIntl();
-  const remove = useDeleteDish();
-  const bookings = useStaffState((state) => bookingsOfDish(state, dish.id));
+  // The bookings of the dish stay in the sheet, orphaned (06 § 5.2, b-3).
+  const remove = useStaffWrite(deleteItemR2, { success: deletedMessage });
+  const bookings = bookingsOfDish(useFullState(), dish.id);
   const detail =
     bookings > 0
       ? intl.formatMessage(deleteWithBookingsMessage, { n: bookings })
@@ -123,8 +157,9 @@ export function DishActions({ dish }: { dish: Dish }) {
 
 function EditDishFormOpen({ dish }: { dish: Dish }) {
   const intl = useIntl();
-  const edit = useEditDish();
-  const booked = useStaffState((state) => portionsBooked(state, dish.id));
+  // « Plat introuvable. » for a deleted dish (06 § 6.3).
+  const edit = useStaffWrite(editItemR2, { success: editedMessage });
+  const booked = portionsBooked(useFullState(), dish.id);
   const closeForm = useCloseForm();
   const close = () => {
     focusById(editButtonId(dish.id));
@@ -165,7 +200,8 @@ export function EditDishForm({ dish }: { dish: Dish }) {
 
 function AddDishFormOpen({ iso }: { iso: IsoDate }) {
   const intl = useIntl();
-  const add = useAddDish();
+  // « Ce jour n'est pas ouvert. » for a deleted day (06 § 6.2).
+  const add = useStaffWrite(addItemR2, { success: addedMessage });
   const closeForm = useCloseForm();
   const close = () => {
     requestFocus(ADD_BUTTON);

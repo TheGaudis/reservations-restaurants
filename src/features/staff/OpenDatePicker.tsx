@@ -3,9 +3,9 @@ import { FormattedMessage } from "react-intl";
 
 import { useToday } from "@/background/clock";
 import { dayStatusR1, dayStatusR2 } from "@/domain/capacity";
-import type { FullState, IsoDate, Restaurant } from "@/domain/types";
-import { usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import type { IsoDate, Restaurant } from "@/domain/types";
+import { usePageNavigate, usePageSearch, useSelectedDay } from "@/features/calendar/page-search";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { DatePickerPopover } from "@/ui/calendar/DatePickerPopover";
 import { Alert } from "@/ui/feedback/Alert";
 
@@ -14,7 +14,15 @@ import styles from "@/features/staff/OpenDatePicker.module.css";
 // Round « ! » before an error message, as the fields of ui/form (08 § 4.6).
 const MARK = "!";
 
-const whole = (state: FullState): FullState => state;
+/**
+ * Date of « Ouvrir un jour » of `restaurant` (06 § 3.1): the one chosen in its picker (`ouvrirDate`), else the day
+ * selected in the restaurant's calendar. Choosing a day in that calendar removes `ouvrirDate` (`selectDay`, 05 § 3.3).
+ */
+export function useOpenDate(restaurant: Restaurant): IsoDate {
+  const search = usePageSearch();
+  const selected = useSelectedDay(restaurant);
+  return search.ouvrir === restaurant ? (search.ouvrirDate ?? selected) : selected;
+}
 
 interface OpenDatePickerProps {
   restaurant: Restaurant;
@@ -36,7 +44,7 @@ export function OpenDatePicker({ restaurant, date, error, warning }: OpenDatePic
   const labelId = useId();
   const errorId = useId();
   const today = useToday();
-  const state = useStaffState(whole);
+  const state = useFullState();
   const search = usePageSearch();
   const navigate = usePageNavigate();
   const status = restaurant === "r1" ? dayStatusR1 : dayStatusR2;

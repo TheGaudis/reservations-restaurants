@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { QueryFunctionContext } from "@tanstack/react-query";
+import type { MutationFunctionContext, QueryFunctionContext } from "@tanstack/react-query";
 
 import { ServiceError } from "@/api/errors";
 import { fetchFullState, fetchPublicState } from "@/api/state";
@@ -73,4 +73,19 @@ export function staffStateOptions(id: number, password: string) {
     queryFn: readFullState(password),
     ...STAFF_STATE_CACHE,
   });
+}
+
+/**
+ * `onError` of a write refused by the script for a reason that the state explains (seats or portions taken meanwhile,
+ * a-4, E-35): the state shown is read again, so the form checks the new counts.
+ */
+export function readStateAgainOn(isRefusal: (error: Error) => boolean) {
+  return (
+    error: Error,
+    _variables: unknown,
+    _onMutateResult: unknown,
+    { client }: MutationFunctionContext,
+  ) => {
+    if (isRefusal(error)) void client.invalidateQueries({ queryKey: stateKeys.all() });
+  };
 }

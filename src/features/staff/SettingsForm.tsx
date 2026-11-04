@@ -3,10 +3,10 @@ import type { MessageDescriptor } from "react-intl";
 
 import { changedSettings, settingErrors, settingsValues, SETTING_KEYS } from "@/domain/settings";
 import type { SettingError, SettingsValues } from "@/domain/settings";
-import type { FullState, SettingKey } from "@/domain/types";
+import type { SettingKey } from "@/domain/types";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { savingLabel } from "@/intl/common-messages";
 import { intl } from "@/intl/intl";
 import { SettingsPartialFailureError, useSaveSettings } from "@/mutations/staff/settings";
@@ -137,10 +137,14 @@ function failureText(error: unknown): string | null {
   });
 }
 
-function useSettingsForm() {
+/**
+ * Form of « Paramètres » (06 § 2.2, C-02): names, descriptions, cancellation contact and the three prices of the full
+ * state, on a grid of two columns. Only the changed fields go to the script, one request after the other.
+ */
+export function SettingsForm() {
   const save = useSaveSettings();
   const slowWrite = useSlowWrite();
-  const settings = useStaffState((state: FullState) => state.settings);
+  const { settings } = useFullState();
   const form = useAppForm({
     defaultValues: settingsValues(settings),
     validators: { onDynamic: ({ value }: { value: SettingsValues }) => settingsRules(value) },
@@ -166,15 +170,6 @@ function useSettingsForm() {
       }
     },
   });
-  return { form, slowWrite };
-}
-
-/**
- * Form of « Paramètres » (06 § 2.2, C-02): names, descriptions, cancellation contact and the three prices of the full
- * state, on a grid of two columns. Only the changed fields go to the script, one request after the other.
- */
-export function SettingsForm() {
-  const { form, slowWrite } = useSettingsForm();
   return (
     <Form form={form}>
       <div className={styles["grid"]}>

@@ -1,13 +1,13 @@
 import { defineMessage, useIntl } from "react-intl";
 
-import { dishDraftInput } from "@/domain/dishes";
+import { dishDraftInput, priceInputText, priceSuggestions } from "@/domain/dishes";
 import type { DishDraft } from "@/domain/dishes";
 import type { DishInput } from "@/domain/types";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { dishErrors } from "@/features/staff/dish-rules";
 import { FormActions } from "@/features/staff/FormActions";
-import { usePriceSuggestions } from "@/features/staff/price-suggestions";
+import { useFullState } from "@/features/staff/use-staff-state";
 import {
   dishNamePlaceholder,
   dishStockLabel,
@@ -38,7 +38,15 @@ const pricePlaceholder = defineMessage({
   description: "06 § 6.1 — placeholder du prix du plat",
 });
 
-export interface DishFieldsProps {
+/**
+ * Price suggestions of the dish price fields (`renderPriceSuggestions`, 08 § 6.4; 06 § 4.2, § 6.1): the prices already
+ * used by every R2 dish of the full state, all days together, as typed (« 4,50 »), for the `<datalist>` of `PriceField`.
+ */
+export function usePriceSuggestions(): string[] {
+  return priceSuggestions(useFullState().dishes).map((price) => priceInputText(price));
+}
+
+interface DishFieldsProps {
   initial: DishDraft;
   /** Portions already booked of the dish: the stock may not go under (D-19); 0 for a new dish. */
   booked: number;
@@ -54,13 +62,26 @@ export interface DishFieldsProps {
   id?: string | undefined;
 }
 
-/** Form state: every message at once after a submit (06 § 6.1, D-19, D-22), slow-write signal while sending (D-15). */
-function useDishForm({
+/**
+ * Dish form (`itemFormHtml`, 06 § 6.1): name and stock side by side, price with the suggestions (08 § 6.4),
+ * « Ticket restaurant » that empties and disables the price (06 § 4.3). Busy button while sending (E-04), « Annuler »
+ * disabled meanwhile.
+ */
+export function DishFields({
   initial,
   booked,
+  adding,
+  submitLabel,
+  pendingLabel,
   save,
-}: Pick<DishFieldsProps, "initial" | "booked" | "save">) {
+  cancel,
+  wrapperRef,
+  id,
+}: DishFieldsProps) {
+  const intl = useIntl();
+  const suggestions = usePriceSuggestions();
   const slowWrite = useSlowWrite();
+  // Every message at once after a submit (06 § 6.1, D-19, D-22), slow-write signal while sending (D-15).
   const form = useAppForm({
     defaultValues: initial,
     validators: {
@@ -78,19 +99,6 @@ function useDishForm({
       }
     },
   });
-  return { form, slowWrite };
-}
-
-/**
- * Dish form (`itemFormHtml`, 06 § 6.1): name and stock side by side, price with the suggestions (08 § 6.4),
- * « Ticket restaurant » that empties and disables the price (06 § 4.3). Busy button while sending (E-04), « Annuler »
- * disabled meanwhile.
- */
-export function DishFields(props: DishFieldsProps) {
-  const { adding, submitLabel, pendingLabel, cancel, wrapperRef, id } = props;
-  const intl = useIntl();
-  const suggestions = usePriceSuggestions();
-  const { form, slowWrite } = useDishForm(props);
   return (
     <div ref={wrapperRef} id={id}>
       <Form form={form} className={styles["form"]}>

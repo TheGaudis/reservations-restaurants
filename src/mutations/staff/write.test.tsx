@@ -9,7 +9,12 @@ import { BusinessError, PasswordRejectedError, ServiceError } from "@/api/errors
 import { fetchFullState } from "@/api/state";
 import type { EditDayR1Input, FullState } from "@/domain/types";
 import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
-import { staffErrorText, staffWriteKey, staffWriteOptions } from "@/mutations/staff/write";
+import {
+  isCapacityRefusal,
+  STAFF_WRITE_KEY,
+  staffErrorText,
+  staffWriteOptions,
+} from "@/mutations/staff/write";
 import { createQueryClient } from "@/queries/client";
 import { purgeStaffSession } from "@/queries/purge";
 import { stateKeys } from "@/queries/state";
@@ -47,11 +52,11 @@ async function renderEditDay(queryClient: QueryClient) {
   const { result } = await renderHook(
     () =>
       useMutation(
-        staffWriteOptions({
-          domain: "days",
-          action: "editR1",
-          write: editDayR1,
-          successToast: (variables: EditDayR1Input) => `Jour modifié : ${variables.date}`,
+        staffWriteOptions(editDayR1, {
+          success: (variables) => ({
+            id: "staff.editDay.success",
+            defaultMessage: `Jour modifié : ${variables.date}`,
+          }),
         }),
       ),
     { wrapper: wrapperOf(queryClient) },
@@ -68,10 +73,10 @@ function toastTitles(add: { mock: { calls: unknown[][] } }): unknown[] {
 }
 
 describe("staffWriteOptions (PLAN § 3.3.3)", () => {
-  it("keys the write by domain and action, in the scope of the writes", () => {
-    const options = staffWriteOptions({ domain: "days", action: "editR1", write: editDayR1 });
-    expect(options.mutationKey).toStrictEqual(["write", "days", "editR1"]);
-    expect(staffWriteKey("settings", "save")).toStrictEqual(["write", "settings", "save"]);
+  it("keys every staff write ['write','staff'], in the scope of the writes", () => {
+    const options = staffWriteOptions(editDayR1);
+    expect(options.mutationKey).toStrictEqual(["write", "staff"]);
+    expect(STAFF_WRITE_KEY).toStrictEqual(["write", "staff"]);
     expect(options.scope).toStrictEqual({ id: "write" });
   });
 
@@ -174,5 +179,21 @@ describe("staffErrorText (02 § 4.7, D-14)", () => {
     ["a refused password, already said by the logout", new PasswordRejectedError("x"), null],
   ])("words %s", (_case, error, text) => {
     expect(staffErrorText(error)).toBe(text);
+  });
+});
+
+describe("isCapacityRefusal (02 § 4.7)", () => {
+  it.each([
+    ["Il ne reste que 2 couvert(s) disponible(s) pour ce jour.", true],
+    ["Il ne reste que -1 couvert(s) disponible(s) pour ce jour.", true],
+    ["Il ne reste que 3 portion(s) disponible(s) pour ce plat.", true],
+    ["Il ne reste que 2 couvert(s) pour ce jour.", false],
+    ["Réservation introuvable.", false],
+  ])("%s → %s", (message, expected) => {
+    expect(isCapacityRefusal(new BusinessError(message))).toBe(expected);
+  });
+
+  it("is false for a failure of the service", () => {
+    expect(isCapacityRefusal(new ServiceError("down"))).toBe(false);
   });
 });

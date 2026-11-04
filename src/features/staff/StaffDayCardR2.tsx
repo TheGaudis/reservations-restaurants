@@ -3,7 +3,6 @@ import { defineMessage, useIntl } from "react-intl";
 import { useToday } from "@/background/clock";
 import { dishesForDay, findDay, remainingStock } from "@/domain/capacity";
 import { isPast } from "@/domain/cutoff";
-import type { FullState } from "@/domain/types";
 import {
   DayActions,
   DayCard,
@@ -14,12 +13,12 @@ import {
 import { useSelectedDay } from "@/features/calendar/page-search";
 import { PrintListButton } from "@/features/print/PrintListButton";
 import { DishRow } from "@/features/r2/DishRow";
-import { AddBookingButtonR2, AddBookingFormR2 } from "@/features/staff/AddBookingFormR2";
+import { AddBookingButton, AddBookingForm } from "@/features/staff/AddBookingForm";
 import { BookingListR2 } from "@/features/staff/BookingList";
 import { DeleteDayButton } from "@/features/staff/DeleteDayButton";
 import { AddDish, DishActions, EditDishForm } from "@/features/staff/DishForm";
 import { OpenedBy, StaffNoServiceCard } from "@/features/staff/StaffDayCard";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 
 import styles from "@/features/staff/StaffDayCard.module.css";
 
@@ -28,8 +27,6 @@ const noteMessage = defineMessage({
   defaultMessage: "Note",
   description: "05 § 4.4 — surtitre du bloc note de la fiche R2 collègue",
 });
-
-const whole = (state: FullState): FullState => state;
 
 /**
  * Staff card of the selected R2 day (05 § 6.2, § 6.3, C-20, C-10b): date, theme, note, « Ouvert par », each dish with
@@ -41,7 +38,7 @@ export function StaffDayCardR2() {
   const intl = useIntl();
   const iso = useSelectedDay("r2");
   const past = isPast(iso, useToday());
-  const state = useStaffState(whole);
+  const state = useFullState();
   const day = findDay(state.r2Days, iso);
   if (day === undefined) return <StaffNoServiceCard iso={iso} past={past} />;
   const dishes = dishesForDay(state, iso);
@@ -56,10 +53,10 @@ export function StaffDayCardR2() {
           {dishes.map((dish) => (
             <DishRow key={dish.id} dish={dish} remaining={remainingStock(state, dish)} past={past}>
               <div className={styles["dishActions"]}>
-                <AddBookingButtonR2 dish={dish} />
+                <AddBookingButton restaurant="r2" dish={dish} />
                 <DishActions dish={dish} />
               </div>
-              <AddBookingFormR2 dish={dish} />
+              <AddBookingForm restaurant="r2" dish={dish} />
               <EditDishForm dish={dish} />
               <BookingListR2 dish={dish} />
             </DishRow>

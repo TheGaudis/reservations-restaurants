@@ -78,8 +78,10 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Navigation par `<Link search={…}>`. `navigate` impératif seulement dans un gestionnaire (clavier, `onSuccess` passé à `mutate`)
   ou dans les tâches de fond de `background/` (déconnexion, 10 h) ; `background/` et `mutations/` peuvent appeler
   `ui/feedback/toast.ts` (gestionnaire sans composant), rien d'autre de `ui/`.
-- Mutations : cache mis à jour dans `useMutation({ onSuccess })` (`cancelQueries` puis `setQueryData`, après la garde de session
-  pour le mode collègue) ; toast, fermeture et focus dans `mutate(…, { onSuccess })` ; `mutateAsync` dans un `try/catch` de `onSubmit`.
+- Mutations : cache mis à jour dans `useMutation({ onSuccess })` (`cancelQueries` puis `setQueryData`). Écriture collègue :
+  `useStaffWrite(addDayR1, { success: message })` (`mutations/staff/write.ts`, clé `['write','staff']`) fait la garde de session,
+  le cache et le toast de succès ; relecture après un refus du script : `onError: readStateAgainOn(isCapacityRefusal)`. Fermeture,
+  focus et toast d'un ajout public dans `mutate(…, { onSuccess })` ; `mutateAsync` dans un `try/catch` de `onSubmit`.
 
 ## Textes et formats (react-intl, fr-FR seul)
 

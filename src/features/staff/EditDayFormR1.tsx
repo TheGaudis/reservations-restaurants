@@ -1,19 +1,23 @@
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
-import { BusinessError, PasswordRejectedError } from "@/api/errors";
+import { editDayR1 } from "@/api/actions";
 import { seatsBooked } from "@/domain/capacity";
 import type { EditDayR1Input, StaffServiceDayR1 } from "@/domain/types";
 import { compose, parseCount, positiveInteger, required } from "@/domain/validation";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
 import { useCloseForm, usePageNavigate, usePageSearch } from "@/features/calendar/page-search";
-import { capacityRequiredMessage, capacityLabel, menuLabel } from "@/features/staff/day-messages";
 import { FormActions } from "@/features/staff/FormActions";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
-import { themeLabel } from "@/intl/staff-messages";
-import { useEditDayR1 } from "@/mutations/staff/days";
-import { showStaffError } from "@/mutations/staff/write";
+import {
+  capacityLabel,
+  capacityRequiredMessage,
+  menuLabel,
+  themeLabel,
+} from "@/intl/staff-messages";
+import { isBusinessRefusal, showStaffError, useStaffWrite } from "@/mutations/staff/write";
+import { readStateAgainOn } from "@/queries/state";
 import { Button } from "@/ui/button/Button";
 import { useAppForm } from "@/ui/form/app-form";
 import { setServerErrors } from "@/ui/form/errors";
@@ -21,6 +25,12 @@ import { Form } from "@/ui/form/Form";
 import { focusById } from "@/ui/pending-focus";
 
 import styles from "@/features/staff/EditDayFormR1.module.css";
+
+const editedMessage = defineMessage({
+  id: "staff.editDay.success",
+  defaultMessage: "Jour modifié.",
+  description: "06 § 5.1, 02 § 4.7 — toast de succès de « Modifier ce jour »",
+});
 
 const capacityBelowBookedMessage = defineMessage<{ used: string }>({
   id: "staff.editDay.capacity.belowBooked",
@@ -80,24 +90,24 @@ function editDayR1Rules(value: EditDayR1Values, booked: number) {
   return capacity === undefined ? undefined : { fields: { capacity } };
 }
 
-/** `editJour` leaves the URL (`replace`); « Modifier ce jour » takes the focus first (E-48). */
-function useCloseEditDay() {
+/**
+ * The open form (06 § 5.1). Success: « Jour modifié. », form closed. A refusal of the script (seats booked in the
+ * meantime) goes under the capacity, and the state is read again (a-4).
+ */
+function EditDayFormOpen({ day }: EditDayR1Props) {
+  const { formatMessage } = useIntl();
+  const editDay = useStaffWrite(editDayR1, {
+    success: editedMessage,
+    onError: readStateAgainOn(isBusinessRefusal),
+  });
+  const slowWrite = useSlowWrite();
   const closeForm = useCloseForm();
-  return () => {
+  const booked = seatsBooked(useFullState(), day.date);
+  // `editJour` leaves the URL (`replace`); « Modifier ce jour » takes the focus first (E-48).
+  const close = () => {
     focusById(EDIT_BUTTON_ID);
     closeForm((previous) => ({ ...previous, editJour: undefined }));
   };
-}
-
-/**
- * State and sending of the form (06 § 5.1). Success: « Jour modifié. », form closed. A refusal of the script (seats
- * booked in the meantime) goes under the capacity, and the state is read again (a-4).
- */
-function useEditDayFormR1(day: StaffServiceDayR1) {
-  const editDay = useEditDayR1();
-  const slowWrite = useSlowWrite();
-  const close = useCloseEditDay();
-  const booked = useStaffState((state) => seatsBooked(state, day.date));
   const form = useAppForm({
     defaultValues: { capacity: String(day.capacity), theme: day.theme, menu: day.menu },
     validators: {
@@ -114,7 +124,7 @@ function useEditDayFormR1(day: StaffServiceDayR1) {
       try {
         await editDay.mutateAsync(input, { onSuccess: close });
       } catch (error) {
-        if (error instanceof BusinessError && !(error instanceof PasswordRejectedError)) {
+        if (isBusinessRefusal(error)) {
           setServerErrors(formApi, { capacity: error.message });
         } else {
           showStaffError(error);
@@ -124,12 +134,6 @@ function useEditDayFormR1(day: StaffServiceDayR1) {
       }
     },
   });
-  return { form, close, slowWrite };
-}
-
-function EditDayFormBody({ day }: EditDayR1Props) {
-  const { formatMessage } = useIntl();
-  const { form, close, slowWrite } = useEditDayFormR1(day);
   return (
     <Form form={form} className={styles["form"]}>
       <div className={styles["row"]}>
@@ -164,5 +168,5 @@ function EditDayFormBody({ day }: EditDayR1Props) {
 export function EditDayFormR1({ day }: EditDayR1Props) {
   const open = usePageSearch().editJour === "r1";
   if (!open) return null;
-  return <EditDayFormBody key={day.date} day={day} />;
+  return <EditDayFormOpen key={day.date} day={day} />;
 }

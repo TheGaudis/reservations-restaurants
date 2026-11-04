@@ -9,12 +9,6 @@ export const addingLabel = defineMessage({
   description: "08 § 4.2, 06 § 6.2, § 8.2, § 8.3 — libellé du bouton occupé d'un ajout",
 });
 
-export const addPersonSubmitAction = defineMessage({
-  id: "staff.addBooking.submit",
-  defaultMessage: "Ajouter cette personne",
-  description: "06 § 8.2, § 8.3 — bouton d'envoi de l'ajout d'une personne",
-});
-
 export const staffNameRequiredMessage = defineMessage({
   id: "staff.form.name.required",
   defaultMessage: "Indiquez le nom.",
@@ -95,4 +89,22 @@ export const dishZeroPriceMessage = defineMessage({
   defaultMessage: "Indiquez un prix supérieur à 0, ou laissez le champ vide.",
   description:
     "PLAN annexe F, D-22 — prix d'un plat à 0, négatif ou illisible (« Ouvrir un jour » R2, plats)",
+});
+
+export const capacityLabel = defineMessage({
+  id: "staff.day.capacity.label",
+  defaultMessage: "Nombre de couverts disponibles",
+  description: "06 § 4.1, § 5.1 — libellé de la capacité d'un jour R1",
+});
+
+export const capacityRequiredMessage = defineMessage({
+  id: "staff.day.capacity.required",
+  defaultMessage: "Indiquez un nombre de couverts supérieur à 0.",
+  description: "06 § 4.1, § 5.1 — capacité vide, nulle ou négative",
+});
+
+export const menuLabel = defineMessage({
+  id: "staff.day.menu.label",
+  defaultMessage: "Menu du jour (optionnel)",
+  description: "06 § 4.1, § 5.1 — libellé du menu d'un jour R1",
 });

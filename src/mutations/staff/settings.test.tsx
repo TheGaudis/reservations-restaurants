@@ -53,15 +53,14 @@ async function renderSave(queryClient: QueryClient) {
 }
 
 describe("useSaveSettings (06 § 2.2)", () => {
-  it("sends one request per field, keyed ['write','settings','save'], and keeps the last full state", async () => {
+  it("sends one request per field, keyed ['write','staff'], and keeps the last full state", async () => {
     const queryClient = createQueryClient();
     const id = await loggedIn(queryClient);
     const save = await renderSave(queryClient);
     await save.current.mutateAsync([NAME2, PRICE_STAFF]);
     expect(queryClient.getMutationCache().getAll()[0]?.options.mutationKey).toStrictEqual([
       "write",
-      "settings",
-      "save",
+      "staff",
     ]);
     expect(settingPosts()).toStrictEqual([
       ["setConfigField", SEED_PASSWORD, SETTINGS_API_KEYS.name2, "Le Bistrot"],

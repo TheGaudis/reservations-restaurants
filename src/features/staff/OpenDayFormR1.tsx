@@ -2,34 +2,41 @@ import { useSelector } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
+import { addDayR1 } from "@/api/actions";
 import { useToday } from "@/background/clock";
 import { openDateProblem } from "@/domain/days";
 import type { OpenDateProblem } from "@/domain/days";
 import { selectDay } from "@/domain/navigation";
 import type { PageSearchParams } from "@/domain/navigation";
-import type { FullState, IsoDate, OpenDayR1Input } from "@/domain/types";
+import type { OpenDayR1Input } from "@/domain/types";
 import { compose, parseCount, positiveInteger, required } from "@/domain/validation";
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 import { useSlowWrite } from "@/features/booking/use-slow-write";
-import { capacityRequiredMessage, capacityLabel, menuLabel } from "@/features/staff/day-messages";
-import { useOpenDate } from "@/features/staff/open-date";
-import { OpenDatePicker } from "@/features/staff/OpenDatePicker";
+import { OpenDatePicker, useOpenDate } from "@/features/staff/OpenDatePicker";
 import { OpenDayPanel } from "@/features/staff/OpenDayPanel";
-import { useStaffState } from "@/features/staff/use-staff-state";
+import { useFullState } from "@/features/staff/use-staff-state";
 import { intl } from "@/intl/intl";
 import {
+  capacityLabel,
+  capacityRequiredMessage,
+  menuLabel,
   pastDateMessage,
   openedByLabel,
   themeLabel,
   openingLabel,
   openDaySubmitAction,
 } from "@/intl/staff-messages";
-import { useOpenDayR1 } from "@/mutations/staff/days";
-import { showStaffError } from "@/mutations/staff/write";
+import { showStaffError, useStaffWrite } from "@/mutations/staff/write";
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
 import styles from "@/features/staff/OpenDayForm.module.css";
+
+const dayAddedMessage = defineMessage({
+  id: "staff.openDay.success",
+  defaultMessage: "Jour ajouté.",
+  description: "06 § 4.1, § 4.2 — toast de succès de « Ouvrir un jour »",
+});
 
 const openedByPlaceholder = defineMessage({
   id: "staff.openDay.r1.openedBy.placeholder",
@@ -70,8 +77,6 @@ interface OpenDayR1Values {
 
 const EMPTY: OpenDayR1Values = { openedBy: "", capacity: "", theme: "", menu: "" };
 
-const whole = (state: FullState): FullState => state;
-
 /** 06 § 4.1: the capacity is the only field to check; the date has its own rules (`openDateProblem`). */
 function openDayR1Rules(value: OpenDayR1Values) {
   const message = intl.formatMessage(capacityRequiredMessage);
@@ -87,12 +92,15 @@ function problemText(problem: OpenDateProblem): string {
 }
 
 /**
- * State and sending of the form (06 § 4.1). A refused date sends nothing (D-19). After « Jour ajouté. », the panel
+ * Content of the open panel: the date, then the fields of 06 § 4.1 in their order. A refused date sends nothing (D-19). After « Jour ajouté. », the panel
  * stays open on the date, the other fields are emptied and the R1 calendar selects the day opened (collegue.js
  * l. 276-277); `selectDay` keeps `ouvrir`.
  */
-function useOpenDayFormR1(date: IsoDate, problem: OpenDateProblem | null) {
-  const openDay = useOpenDayR1();
+function OpenDayBodyR1() {
+  const { formatMessage } = useIntl();
+  const date = useOpenDate("r1");
+  const problem = openDateProblem(useFullState(), "r1", date, useToday());
+  const openDay = useStaffWrite(addDayR1, { success: dayAddedMessage });
   const slowWrite = useSlowWrite();
   const navigate = useNavigate();
   const form = useAppForm({
@@ -128,15 +136,6 @@ function useOpenDayFormR1(date: IsoDate, problem: OpenDateProblem | null) {
     },
   });
   const sent = useSelector(form.store, (state) => state.submissionAttempts > 0);
-  return { form, sent, slowWrite };
-}
-
-/** Content of the open panel: the date, then the fields of 06 § 4.1 in their order. */
-function OpenDayBodyR1() {
-  const { formatMessage } = useIntl();
-  const date = useOpenDate("r1");
-  const problem = openDateProblem(useStaffState(whole), "r1", date, useToday());
-  const { form, sent, slowWrite } = useOpenDayFormR1(date, problem);
   return (
     <Form form={form} className={styles["form"]}>
       <OpenDatePicker
