@@ -4,7 +4,9 @@ import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
-// No tanstackStart() here: routes are tested with the committed routeTree.gen.ts.
+import { cssModules } from "./vite.config.ts";
+
+// No router plugin here: routes are tested with the committed routeTree.gen.ts.
 const executablePath = process.env["PLAYWRIGHT_CHROMIUM_EXECUTABLE"]; // cloud sessions: /opt/pw-browsers/chromium
 
 // One fresh object per project: Vitest must not share a browser config between projects.
@@ -30,6 +32,7 @@ const BROWSER_DIRS = "src/{background,ui,features,routes,mutations}/**";
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
+  css: { modules: cssModules }, // class names of the static skeleton of index.html
   plugins: [react(), formatjs({ ast: true, preserveWhitespace: true })],
   // Prebundled up front: a cold Vite cache otherwise reloads the browser page in the middle of a run.
   // Base UI: the components wrapped in ui/ (PLAN § 3.5).

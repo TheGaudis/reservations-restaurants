@@ -1,6 +1,6 @@
 import { Column } from "@/features/page/Column";
 import { ColumnSkeleton } from "@/features/page/ColumnSkeleton";
-import { columnTexts, useDefaultTexts, useSkeletonTexts } from "@/features/page/page-texts";
+import { columnTexts, useSkeletonTexts } from "@/features/page/page-texts";
 import type { PageTexts } from "@/features/page/page-texts";
 import { Columns, Main } from "@/features/page/PageLayout";
 
@@ -32,15 +32,6 @@ export function PageSkeleton() {
   return (
     <Main busy>
       <SkeletonColumns texts={useSkeletonTexts()} />
-    </Main>
-  );
-}
-
-/** The same `<main>` in the prerendered shell, with the default titles: Node has no storage to read. */
-export function ShellSkeleton() {
-  return (
-    <Main busy>
-      <SkeletonColumns texts={useDefaultTexts()} />
     </Main>
   );
 }

@@ -1,5 +1,5 @@
 /// <reference types="node" />
-// GitHub Pages emulator (R-03: `vite preview` does real SSR). Serves --root under --base like Pages does:
+// GitHub Pages emulator. Serves --root under --base like Pages does:
 // a folder without its trailing slash redirects to it, a folder serves its index.html, a file serves itself,
 // anything else gets 404.html with status 404 (the SPA shell for deep links).
 // Port: the environment variable named by --port-env when it is set (parallel E2E runs), otherwise --port.
@@ -11,7 +11,7 @@ import { parseArgs } from "node:util";
 
 const { values } = parseArgs({
   options: {
-    root: { type: "string", default: "dist/client" },
+    root: { type: "string", default: "dist" },
     base: { type: "string", default: "/reservations-restaurants/" },
     port: { type: "string", default: "4311" },
     // Local only by default (E2E); "0.0.0.0" lets a tablet on the same network open the build (docs/migration/validation.md).

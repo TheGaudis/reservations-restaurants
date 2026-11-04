@@ -1,7 +1,7 @@
 # Réservations — restaurants pédagogiques (frontend React)
 
-Site de réservation des deux restaurants pédagogiques du lycée Aristide Briand. Frontend React 19 + TanStack Start
-(mode SPA) publié sur GitHub Pages ; backend Google Apps Script (`Code.gs`) et Google Sheets, inchangés.
+Site de réservation des deux restaurants pédagogiques du lycée Aristide Briand. Frontend React 19 + TanStack Router
+(application Vite, sans rendu serveur) publié sur GitHub Pages ; backend Google Apps Script (`Code.gs`) et Google Sheets, inchangés.
 Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Références
@@ -19,7 +19,8 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - `pnpm install` : dépendances (pnpm 12, Node ≥ 22.18) et hooks git (`lefthook install`).
 - `pnpm dev` : serveur de développement sur le **faux script** (msw, `.env.development`). `pnpm dev:real` (vrai script,
   `.env.real.local`, bandeau « Données réelles ») est réservé au responsable, jamais lancé par un agent.
-- `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert (port 4311). Jamais `vite preview` (il fait du SSR).
+- `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert depuis `dist/` (port 4311, `404.html` pour un lien
+  profond). `vite preview` ne reproduit pas ce `404.html`.
 - `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node`.
 - `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et une passe de knip. Puis `pnpm build:e2e`,
   `git diff --exit-code src/routeTree.gen.ts translations/fr.json` et les E2E de ton périmètre.
@@ -53,10 +54,11 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Écritures jamais doublées, rejouées ni interrompues ; `requestId` créé au montage du formulaire, gardé pour un nouvel essai.
 - POST en `Content-Type: text/plain;charset=utf-8`, aucun autre en-tête ; GET sans en-tête.
 - Heure de référence : Europe/Paris (`domain/paris.ts`) ; jours métier = chaînes ISO ; jamais `new Date()` ni `Date.now()` au rendu.
-- Hydratation (arbitrage 16) : la racine (`routes/__root.tsx`) monte le cadre, l'en-tête et le sélecteur une seule fois et
-  rend les routes dans `BrowserOnly` (`features/page/BrowserOnly.tsx`, `use(browser())`) : aucune route n'est hydratée.
-  Dans la racine, ce qui lit l'URL, la session, `localStorage` ou l'horloge se rend dans `BrowserOnly`, avec en `fallback`
-  le balisage de la coquille. `defaultPendingMinMs: 0`. Jamais de `onRecoverableError` pour masquer l'erreur #418.
+- Coquille : `index.html`, écrit à la main, porte les balises du `<head>`, le script de lecture anticipée (placé avant la
+  CSS par le plugin `early-fetch` de `vite.config.ts`, texte dans `api/early-fetch.ts`) et un squelette statique dans
+  `#root`. `src/main.tsx` monte l'appli avec `createRoot` : ni prérendu, ni hydratation. La racine (`routes/__root.tsx`)
+  monte le cadre, l'en-tête et le sélecteur une seule fois. Le squelette statique reprend le balisage de la racine et de
+  `PageSkeleton` ; `features/page/static-skeleton.test.tsx` les compare. `defaultPendingMinMs: 0`.
 
 ## Où vit l'état
 
@@ -111,7 +113,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
   et par état, testée avec axe (projet `storybook`).
 - Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`).
 - E2E : `e2e/regression/` (projets `legacy` et `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
-  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, hydratation, impression PDF,
+  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, impression PDF,
   accessibilité) ; projet `production` en lecture seule (P8).
 - Pas de `test.skip`, pas de `retries` local pour masquer un test instable : le noter au journal.
 - Un test rangé dans `src/routes/` porte le préfixe `-` (`-routes.test.tsx`) : sinon le générateur le lit comme une route.

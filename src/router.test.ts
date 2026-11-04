@@ -1,4 +1,4 @@
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 import { PasswordRejectedError } from "@/api/errors";
 import { toLocalCacheV1 } from "@/queries/local-cache";
@@ -8,8 +8,6 @@ import { useSessionStore } from "@/session/session";
 import { publicState } from "@/test/domain-states";
 import { fakeScriptPerTest } from "@/test/fake-script-server";
 
-// getRouter() runs in Node when the shell is prerendered (R-02). The local copy below is valid: only the
-// typeof window guard keeps it out of the query cache, the try/catch of the storage read does not.
 const COPY = publicState({ etag: "ETAG" });
 
 // The timers and listeners of the background tasks need a document: Node only checks that getRouter() starts them.
@@ -28,29 +26,24 @@ function stubStorage() {
 const start = fakeScriptPerTest();
 const initialSession = useSessionStore.getState();
 
+// getRouter() listens to `vite:preloadError` on window (R-06): Node gets a stand-in.
+const addEventListener = vi.fn<(type: string, listener: unknown) => void>();
+beforeEach(() => {
+  vi.stubGlobal("window", { addEventListener });
+});
+
 afterEach(() => {
+  addEventListener.mockClear();
   vi.unstubAllGlobals();
   startBackgroundTasks.mockClear();
   useSessionStore.setState(initialSession, true);
 });
 
-it("neither reads nor writes the local copy without window", () => {
+it("restores the local copy, then writes each new public state", () => {
   const setItem = stubStorage();
-  const { queryClient } = getRouter().options.context;
-  expect(queryClient.getQueryData(publicStateOptions.queryKey)).toBeUndefined();
-  queryClient.setQueryData(publicStateOptions.queryKey, publicState({ etag: "NEW" }));
-  expect(setItem).not.toHaveBeenCalled();
-  expect(startBackgroundTasks).not.toHaveBeenCalled();
-});
-
-it("restores the local copy, then writes each new public state, when window exists", () => {
-  const setItem = stubStorage();
-  vi.stubGlobal("window", globalThis);
-  const addEventListener = vi.fn<(type: string, listener: unknown) => void>();
-  vi.stubGlobal("addEventListener", addEventListener);
   const router = getRouter();
   const { queryClient } = router.options.context;
-  // Clock, inactivity and logout steps (PLAN § 3.4), in the browser only (R-02).
+  // Clock, inactivity and logout steps (PLAN § 3.4).
   expect(startBackgroundTasks).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ router }));
   // Stale chunk after a deployment: one reload (R-06).
   expect(addEventListener).toHaveBeenCalledWith("vite:preloadError", expect.any(Function));
@@ -60,8 +53,12 @@ it("restores the local copy, then writes each new public state, when window exis
   expect(setItem).toHaveBeenCalledOnce();
 });
 
-it("sets no minimum time on the pending component: no route is hydrated (PLAN arbitrage 16)", () => {
+it("sets no minimum time on the pending component (G-01, G-02)", () => {
   expect(getRouter().options.defaultPendingMinMs).toBe(0);
+});
+
+it("reads the base path of the build (vite.config.ts)", () => {
+  expect(getRouter().options.basepath).toBe(import.meta.env.BASE_URL);
 });
 
 it("puts the staff session store in the router context (PLAN § 3.4)", () => {

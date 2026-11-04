@@ -1,5 +1,4 @@
-// Timers and global listeners of the app, outside React (PLAN § 3.4, R-25). Started from getRouter(), in the
-// browser only: the shell prerender runs getRouter() in Node (R-02).
+// Timers and global listeners of the app, outside React (PLAN § 3.4, R-25). Started from getRouter().
 import { startClock, watchR2Cutoff } from "@/background/clock";
 import type { BackgroundDeps } from "@/background/deps";
 import { startInactivity } from "@/background/inactivity";

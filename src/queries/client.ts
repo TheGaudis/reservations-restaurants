@@ -29,7 +29,7 @@ export function createQueryClient({ onPasswordRejected }: QueryClientOptions = {
   // Catch-up when the tab comes back (03 § 5.1): Query listens to `visibilitychange` on `window`, where an event
   // fired at `document` without bubbling never arrives (REG-08 hides and shows the tab that way); `document` hears both.
   focusManager.setEventListener((handleFocus) => {
-    // Node: prerender of the shell, tests of the `node` project.
+    // Node: tests of the `node` project.
     if (typeof document === "undefined") return;
     const listener = () => {
       handleFocus();

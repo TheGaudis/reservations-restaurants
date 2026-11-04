@@ -11,12 +11,8 @@ function subscribe(onChange: () => void): () => void {
 
 /**
  * `navigator.onLine`, which picks the text of a load failure (03 § 3.1). An external store: the text follows the
- * connection without an effect. The prerendered shell never shows that text: online there.
+ * connection without an effect.
  */
 export function useOnline(): boolean {
-  return useSyncExternalStore(
-    subscribe,
-    () => navigator.onLine,
-    () => true,
-  );
+  return useSyncExternalStore(subscribe, () => navigator.onLine);
 }

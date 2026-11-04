@@ -3,7 +3,7 @@
 // The msw worker is a development and test tool: it never ships (R-28).
 import { copyFileSync, rmSync } from "node:fs";
 
-const OUT_DIR = "dist/client";
+const OUT_DIR = "dist";
 
 copyFileSync(`${OUT_DIR}/index.html`, `${OUT_DIR}/404.html`);
 rmSync(`${OUT_DIR}/mockServiceWorker.js`, { force: true });

@@ -48,8 +48,8 @@ function withDefaults(texts: FallbackTexts | null, defaults: PageTexts): PageTex
   return { name1: pick("name1"), name2: pick("name2"), desc1: pick("desc1"), desc2: pick("desc2") };
 }
 
-/** Names before any data, also those of the prerendered shell (G-01, 01 § 4.1). */
-export function useDefaultTexts(): PageTexts {
+/** Names before any data, also those of the static skeleton of index.html (G-01, 01 § 4.1). */
+function useDefaultTexts(): PageTexts {
   const intl = useIntl();
   return {
     name1: intl.formatMessage(messages.name1),
@@ -61,7 +61,7 @@ export function useDefaultTexts(): PageTexts {
 
 /**
  * Texts before any data (G-01): the titles stored by the old site at the last visit (`reservations-textes`, 03 § 1.2,
- * E-18), otherwise the defaults. Reads the storage: render it inside `BrowserOnly` or a route.
+ * E-18), otherwise the defaults.
  */
 export function useSkeletonTexts(): PageTexts {
   return withDefaults(readFallbackTexts(), useDefaultTexts());

@@ -106,7 +106,7 @@ jobs:
           key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - run: pnpm exec playwright install --with-deps chromium
 
-      # react-only: new code (smoke, hydration, PDF printing, session); legacy and react: the whole regression
+      # react-only: new code (smoke, PDF printing, session); legacy and react: the whole regression
       # suite on the old site and on the React build (PLAN § 1.5 S1, P7). retries: 1 comes from playwright.config.ts
       # when CI is set.
       - name: E2E (react-only, legacy, react)
@@ -124,14 +124,14 @@ jobs:
           VITE_APPS_SCRIPT_URL: ${{ vars.VITE_APPS_SCRIPT_URL }}
       - name: No mock service worker in the build (PLAN § 7, R-28)
         run: |
-          test ! -e dist/client/mockServiceWorker.js
-          if grep -rl 'setupWorker\|mockServiceWorker' dist/client; then exit 1; fi
+          test ! -e dist/mockServiceWorker.js
+          if grep -rl 'setupWorker\|mockServiceWorker' dist; then exit 1; fi
       - run: pnpm budget
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: dist-client
-          path: dist/client
+          name: dist
+          path: dist
           retention-days: 30
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}
@@ -140,7 +140,7 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # Active from the switch (P8) only: a push to main publishes the dist/client artifact of this run.
+  # Active from the switch (P8) only: a push to main publishes the dist artifact of this run.
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [check, browser, e2e]
@@ -158,10 +158,10 @@ jobs:
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: dist-client
-          path: dist/client
+          name: dist
+          path: dist
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: dist/client
+          path: dist
       - id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

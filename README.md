@@ -53,6 +53,7 @@ Le site est une page statique unique, sans outil de compilation : du HTML, du CS
 | `legacy/js/calendrier.js`           | Calendriers et fiches du jour.                                                                                 |
 | `legacy/js/main.js`                 | Affichage de la page, démarrage et actualisation automatique.                                                  |
 | `Code.gs`                           | API JSON Google Apps Script (`doGet` pour lire l'état, `doPost` pour les actions), inchangée par la migration. |
+| `index.html`                        | Page servie : balises du `<head>`, lecture anticipée, squelette affiché avant React.                           |
 | `src/`                              | Nouveau site React : routes, composants, styles, textes (`src/intl/`), faux script de test (`src/mocks/`).     |
 | `translations/fr.json`              | Textes du nouveau site, extraits du code par `pnpm i18n:extract`.                                              |
 | `public/`                           | Fichiers copiés tels quels dans le build (`mockServiceWorker.js` du faux script, retiré du build final).       |
@@ -111,7 +112,7 @@ N'importe quel hébergement de fichiers statiques convient (GitHub Pages, Netlif
 
 ## 🧑‍💻 Développement (nouveau site React)
 
-Le nouveau site est une application React construite par Vite (TanStack Start en mode SPA) et publiée en fichiers statiques sur GitHub Pages. Il parle au même script Apps Script, sans le modifier.
+Le nouveau site est une application React construite par Vite (TanStack Router, sans rendu serveur) et publiée en fichiers statiques sur GitHub Pages. Il parle au même script Apps Script, sans le modifier.
 
 ### Prérequis
 
@@ -144,7 +145,7 @@ pnpm build
 pnpm serve
 ```
 
-`pnpm serve` sert `dist/client` sur http://127.0.0.1:4311/reservations-restaurants/ comme le fait GitHub Pages : types MIME, `404.html` pour un lien profond comme `/collegue`. N'utilisez pas `vite preview` : avec TanStack Start, il fait du rendu côté serveur et ne montre pas ce que Pages publie. Le build lit l'adresse du script dans la variable `VITE_APPS_SCRIPT_URL` (`VITE_APPS_SCRIPT_URL=https://script.google.com/macros/s/…/exec pnpm build`) ; sans elle, le build réussit quand même et le site affiche le bandeau « Configuration manquante ».
+`pnpm serve` sert `dist` sur http://127.0.0.1:4311/reservations-restaurants/ comme le fait GitHub Pages : types MIME, `404.html` pour un lien profond comme `/collegue`. N'utilisez pas `vite preview` : il ne renvoie pas `404.html` pour un lien profond, contrairement à Pages. Le build lit l'adresse du script dans la variable `VITE_APPS_SCRIPT_URL` (`VITE_APPS_SCRIPT_URL=https://script.google.com/macros/s/…/exec pnpm build`) ; sans elle, le build réussit quand même et le site affiche le bandeau « Configuration manquante ».
 
 ### Vérifier
 
@@ -161,7 +162,7 @@ pnpm serve
 
 ### Intégration continue
 
-`.github/workflows/ci.yml` vérifie chaque push sur `main` et sur la branche de migration, et chaque pull request : jobs `check` (textes, format, lint, types, tests Node, knip), `browser` (tests dans Chromium) et `e2e` (Playwright, build de production, budget). Le job `e2e` publie deux artefacts sur la page du run : `playwright-report` et `dist-client`, le site construit avec la variable de dépôt `VITE_APPS_SCRIPT_URL`. Pour essayer `dist-client` sur un poste : décompresser l'archive dans `dist/client/`, puis `pnpm serve`.
+`.github/workflows/ci.yml` vérifie chaque push sur `main` et sur la branche de migration, et chaque pull request : jobs `check` (textes, format, lint, types, tests Node, knip), `browser` (tests dans Chromium) et `e2e` (Playwright, build de production, budget). Le job `e2e` publie deux artefacts sur la page du run : `playwright-report` et `dist`, le site construit avec la variable de dépôt `VITE_APPS_SCRIPT_URL`. Pour essayer `dist` sur un poste : décompresser l'archive dans `dist/`, puis `pnpm serve`.
 
 Rien n'est déployé avant la bascule : le job `deploy` ne tourne que sur un push vers `main`, et GitHub Pages sert l'ancien site d'ici là. Une fois la migration fusionnée dans `main`, Dependabot (`.github/dependabot.yml`) proposera les mises à jour une semaine après leur publication, regroupées par famille de paquets.
 

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <!-- Title and description: 03 § 2.1. -->
+    <title>Réservations — Restaurants pédagogiques</title>
+    <meta
+      name="description"
+      content="Réservation des repas aux restaurants pédagogiques du Lycée professionnel Aristide Briand."
+    />
+    <!-- Favicon of legacy/index.html (03 § 2.1). -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff'/%3E%3Cpath d='M38 6h9L31 34h-9z' fill='%23A9C23F'/%3E%3Cpath d='M42 14h7L27 50H16z' fill='%231F4E9E'/%3E%3Cpath d='M12 44l40-15 4 7-40 15z' fill='%23A3237F'/%3E%3Cpath d='M41 36h7l8 16h-7z' fill='%23A9C23F'/%3E%3C/svg%3E"
+    />
+    <!-- The script redirects to script.googleusercontent.com; CORS fetches need crossorigin (R-12). -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin="anonymous" />
+    <!-- First read, before the stylesheets (03 § 2.1, PLAN § 3.3.1): the early-fetch plugin of vite.config.ts puts
+         `earlyFetchScript` of src/api/early-fetch.ts in place of the next comment. -->
+    <!-- early-fetch -->
+    <style>
+      @import "/src/styles/tokens.css";
+      @import "/src/styles/base.css";
+      @import "/src/styles/print.css";
+    </style>
+    <script type="module" src="/src/main.tsx"></script>
+  </head>
+  <body>
+    <!-- Static skeleton (G-01, 03 § 3): the frame of src/routes/__root.tsx without « Client / Collègue », around
+         PageSkeleton with the default names. React replaces it on its first render. Class names: `cssModules` of
+         vite.config.ts; src/features/page/static-skeleton.test.tsx compares this markup with the components. -->
+    <div id="root">
+      <div class="app-root">
+        <div class="PageLayout-stripe" aria-hidden="true"></div>
+        <div class="PageLayout-wrap">
+          <header class="Header-header">
+            <div class="Header-brand">
+              <img
+                class="Header-logo"
+                src="/src/features/page/logo.png"
+                width="161"
+                height="144"
+                alt="Lycée Aristide Briand"
+              />
+              <div class="Header-text">
+                <span class="kicker Header-kicker">Lycée professionnel Aristide Briand</span>
+                <h1 class="Header-title">Réservations des restaurants pédagogiques et Aristide</h1>
+                <p class="Header-subtitle">
+                  Table côté Restaurant Pédagogique · Plats à emporter ou sur place côté Aristide
+                </p>
+              </div>
+            </div>
+          </header>
+          <main class="PageLayout-main" aria-busy="true">
+            <div class="PageLayout-columns">
+              <section class="Column-column" data-accent="r1">
+                <h2 class="Column-title">Restaurant Pédagogique</h2>
+                <p class="Column-description">
+                  Table réservée par nombre de couverts, avec le menu du jour.
+                </p>
+                <div class="ColumnSkeleton-skeleton" aria-hidden="true">
+                  <div class="ColumnSkeleton-header">
+                    <span class="Skeleton-skeleton" data-shape="circle" aria-hidden="true"></span>
+                    <span
+                      class="Skeleton-skeleton"
+                      data-shape="line"
+                      style="width: 40%"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="Skeleton-skeleton" data-shape="circle" aria-hidden="true"></span>
+                  </div>
+                  <div class="ColumnSkeleton-label">
+                    <span
+                      class="Skeleton-skeleton"
+                      data-shape="title"
+                      style="width: 55%"
+                      aria-hidden="true"
+                    ></span>
+                  </div>
+                  <div class="ColumnSkeleton-grid">
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                  </div>
+                  <span class="Skeleton-skeleton" data-shape="card" aria-hidden="true"></span>
+                </div>
+              </section>
+              <section class="Column-column" data-accent="r2">
+                <h2 class="Column-title">Aristide</h2>
+                <p class="Column-description">
+                  Plats à emporter ou sur place, chacun avec son propre stock.
+                </p>
+                <div class="ColumnSkeleton-skeleton" aria-hidden="true">
+                  <div class="ColumnSkeleton-header">
+                    <span class="Skeleton-skeleton" data-shape="circle" aria-hidden="true"></span>
+                    <span
+                      class="Skeleton-skeleton"
+                      data-shape="line"
+                      style="width: 40%"
+                      aria-hidden="true"
+                    ></span>
+                    <span class="Skeleton-skeleton" data-shape="circle" aria-hidden="true"></span>
+                  </div>
+                  <div class="ColumnSkeleton-label">
+                    <span
+                      class="Skeleton-skeleton"
+                      data-shape="title"
+                      style="width: 55%"
+                      aria-hidden="true"
+                    ></span>
+                  </div>
+                  <div class="ColumnSkeleton-grid">
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                    <span class="Skeleton-skeleton" data-shape="cell" aria-hidden="true"></span>
+                  </div>
+                  <span class="Skeleton-skeleton" data-shape="card" aria-hidden="true"></span>
+                </div>
+              </section>
+            </div>
+          </main>
+          <footer class="Footer-footer">
+            <p class="Footer-note">
+              Les places se mettent à jour automatiquement toutes les 3 minutes. Vous pouvez aussi
+              actualiser la page.
+            </p>
+            <p class="Footer-signature">
+              Lycée professionnel Aristide Briand · Restaurants pédagogiques
+            </p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

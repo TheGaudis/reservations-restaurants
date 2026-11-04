@@ -3,10 +3,8 @@ import type { ReactNode } from "react";
 import { FormattedMessage, useIntl, defineMessages } from "react-intl";
 
 import { LOGO_CLICK_WINDOW_MS, LOGO_CLICKS } from "@/domain/constants";
-import { BrowserOnly } from "@/features/page/BrowserOnly";
 import logoUrl from "@/features/page/logo.png";
-import { useDefaultTexts, usePageTexts } from "@/features/page/page-texts";
-import type { PageTexts } from "@/features/page/page-texts";
+import { usePageTexts } from "@/features/page/page-texts";
 
 import styles from "@/features/page/Header.module.css";
 
@@ -34,7 +32,8 @@ function useEasterEgg(): () => void {
 }
 
 /** Title derived from `name2` (D-24) and subtitle (04 § 2). */
-function HeaderTitles({ texts }: { texts: PageTexts }) {
+function HeaderTitles() {
+  const texts = usePageTexts();
   return (
     <>
       <h1 className={styles["title"]}>
@@ -57,18 +56,10 @@ function HeaderTitles({ texts }: { texts: PageTexts }) {
   );
 }
 
-function DefaultTitles() {
-  return <HeaderTitles texts={useDefaultTexts()} />;
-}
-
-function PageTitles() {
-  return <HeaderTitles texts={usePageTexts()} />;
-}
-
 /**
  * Header of the page (04 § 2, 08 § 7.2): logo, school, title and subtitle with the names of the state shown, then
- * `children` (`HeaderMode`). The shell holds the default names; the browser renders those of the state or of the last
- * visit (03 § 1.2).
+ * `children` (`HeaderMode`). The names are those of the state or of the last visit (03 § 1.2); the static skeleton of
+ * index.html holds the default ones.
  */
 export function Header({ children }: { children?: ReactNode }) {
   const intl = useIntl();
@@ -92,9 +83,7 @@ export function Header({ children }: { children?: ReactNode }) {
               description="03 § 2.2, 04 § 2 — surtitre de l'en-tête"
             />
           </span>
-          <BrowserOnly fallback={<DefaultTitles />}>
-            <PageTitles />
-          </BrowserOnly>
+          <HeaderTitles />
         </div>
       </div>
       {children}
