@@ -71,6 +71,8 @@ test.describe("openDayR1WithPicker (REG-33)", () => {
 
       // Enter chooses the focused day, closes the picker and gives the focus back to the field.
       await dateButton.click();
+      // Base UI moves the focus into the popup after the click has resolved.
+      await expect(pickerDay(page, TODAY)).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(pickerDay(page, "2026-10-12")).toBeFocused();
       await page.keyboard.press("Enter");

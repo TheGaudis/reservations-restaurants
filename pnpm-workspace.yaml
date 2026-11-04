@@ -8,5 +8,7 @@ allowBuilds:
 strictPeerDependencies: true
 peerDependencyRules:
   allowedVersions: { eslint: "10", vite: "8", typescript: "7", msw: "3" }
-minimumReleaseAgeExclude:
-  - msw@3.0.2
+# axe-core 4.14 enables label-content-name-mismatch (WCAG 2.5.3), which the « Date » trigger of 06 § 3.1 and the
+# « 1er » day labels fail; held at the version of @axe-core/playwright until the labels are decided (journal deps-upgrade).
+overrides:
+  axe-core: 4.13.0

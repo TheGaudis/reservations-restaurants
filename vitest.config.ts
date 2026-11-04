@@ -12,15 +12,17 @@ const executablePath = process.env["PLAYWRIGHT_CHROMIUM_EXECUTABLE"]; // cloud s
 // collision fail instead of loading another checkout's files.
 const browserPort = Number(process.env["VITEST_BROWSER_PORT"] ?? "63315");
 
-const browser = (portOffset: number) => ({
-  enabled: true,
-  headless: true,
+const browserMode = (portOffset: number) => ({
   api: { port: browserPort + portOffset, strictPort: true },
-  provider: playwright({
-    contextOptions: { locale: "fr-FR", timezoneId: "Europe/Paris" },
-    ...(executablePath === undefined ? {} : { launchOptions: { executablePath } }),
-  }),
-  instances: [{ browser: "chromium" as const }],
+  browser: {
+    enabled: true,
+    headless: true,
+    provider: playwright({
+      contextOptions: { locale: "fr-FR", timezoneId: "Europe/Paris" },
+      ...(executablePath === undefined ? {} : { launchOptions: { executablePath } }),
+    }),
+    instances: [{ browser: "chromium" as const }],
+  },
 });
 
 // Directories whose tests need a DOM (PLAN § 3.1); a .tsx test runs in the browser wherever it lives.
@@ -85,7 +87,7 @@ export default defineConfig({
           name: "browser",
           include: ["src/**/*.test.tsx", `${BROWSER_DIRS}/*.test.ts`],
           setupFiles: ["src/test/setup-browser.ts"],
-          browser: browser(0),
+          ...browserMode(0),
         },
       },
       // storybookTest replaces test.include with the stories of .storybook/main.ts: a project of its own, without
@@ -93,7 +95,7 @@ export default defineConfig({
       {
         extends: true,
         plugins: [storybookTest({ configDir: ".storybook" })],
-        test: { name: "storybook", browser: browser(1) },
+        test: { name: "storybook", ...browserMode(1) },
       },
     ],
   },
