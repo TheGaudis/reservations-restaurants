@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BackgroundDeps } from "@/background/deps";
 import { afterLogout, watchLogout } from "@/background/logout";
 import { stopBackgroundTasks } from "@/background/start";
-import { printListR1 } from "@/features/print/print-documents";
+import { printDay } from "@/features/print/print-day";
 import { stateKeys } from "@/queries/state";
 import { getRouter } from "@/router";
 import { useSessionStore } from "@/session/session";
@@ -128,7 +128,7 @@ describe("afterLogout and the printed document (invariant 1, S8)", () => {
     const opener = document.createElement("button");
     document.body.append(opener);
     const state = fullState({ r1Days: [seedDayR1()], r1Bookings: [UNGERER, MARTIN, PETIT] });
-    await printListR1(state, DAY, opener);
+    await printDay({ restaurant: "r1", state, iso: DAY, tomorrow: false, opener });
     expect(document.body.textContent).toContain("Cyrille Ungerer");
 
     const { deps } = await depsAt("/");

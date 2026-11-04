@@ -1,36 +1,26 @@
 import { listR1 } from "@/domain/print";
-import { ListDocumentR1 } from "@/features/print/ListDocumentR1";
+import { PrintListR1 } from "@/features/print/PrintListR1";
 import { TEST_NOW } from "@/test/clock";
 import { fullState } from "@/test/domain-states";
 import { DAY, MARTIN, PETIT, UNGERER, longBookingsR1, seedDayR1 } from "@/test/print-lists";
 
 import preview from "../../../.storybook/preview";
 
-// Document A, list of an R1 day (07 § 3; 09 I-01), shown as on paper; printing itself: e2e/print-pdf.spec.ts.
+// Documents A (07 § 3; 09 I-01) and C (07 § 6; 09 I-03), shown as on paper; printing itself: e2e/print-pdf.spec.ts.
+
+const SEED = listR1(
+  fullState({ r1Days: [seedDayR1()], r1Bookings: [UNGERER, MARTIN, PETIT] }),
+  DAY,
+);
+const NO_DAY = listR1(fullState(), DAY);
 
 const meta = preview.meta({
-  component: ListDocumentR1,
-  args: {
-    printedAt: TEST_NOW,
-    list: listR1(fullState({ r1Days: [seedDayR1()], r1Bookings: [UNGERER, MARTIN, PETIT] }), DAY),
-  },
+  component: PrintListR1,
+  args: { printedAt: TEST_NOW, tomorrow: false, list: SEED },
 });
 
 /** I-01: menu, « Ouvert par », « Places », framed table, total without the detail, signature. */
-export const Bookings = meta.story();
-
-/** Every count filled: the total gives the detail (07 § 3). */
-export const DetailedTotal = meta.story({
-  args: {
-    list: listR1(
-      fullState({
-        r1Days: [seedDayR1({ theme: "Automne" })],
-        r1Bookings: [UNGERER, MARTIN, ...longBookingsR1(2)],
-      }),
-      DAY,
-    ),
-  },
-});
+export const List = meta.story();
 
 /** Longer than one A4 landscape page: header repeated, rows never split (07 § 2.4). */
 export const LongList = meta.story({
@@ -47,6 +37,9 @@ export const NoBookings = meta.story({
 });
 
 /** Day deleted between the display and the click (PLAN annexe F, a-24). */
-export const DayClosed = meta.story({
-  args: { list: listR1(fullState(), DAY) },
-});
+export const DayClosed = meta.story({ args: { list: NO_DAY } });
+
+/** I-03: « Ouvert par », « Places », plain table, total without the detail, no signature. */
+export const Tomorrow = meta.story({ args: { tomorrow: true } });
+
+export const TomorrowNoDay = meta.story({ args: { tomorrow: true, list: NO_DAY } });

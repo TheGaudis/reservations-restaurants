@@ -6,7 +6,7 @@ import { hasAmounts } from "@/domain/pricing";
 import { listR1, listR2 } from "@/domain/print";
 import type { DishTotal, ListR1, ListR2 } from "@/domain/print";
 import type { FullState, IsoDate, Restaurant } from "@/domain/types";
-import { printTomorrowR1, printTomorrowR2 } from "@/features/print/print-documents";
+import { printDay } from "@/features/print/print-day";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { amountsText, formatEuros, withPrice } from "@/intl/amounts";
 import { IconButton } from "@/ui/button/IconButton";
@@ -246,7 +246,7 @@ export function TomorrowBlocks({ tomorrow }: TomorrowBlocksProps) {
           name={r1.restaurantName}
           openedBy={r1.day.openedBy}
           onPrint={(opener) => {
-            void printTomorrowR1(state, tomorrow, opener);
+            void printDay({ restaurant: "r1", state, iso: tomorrow, tomorrow: true, opener });
           }}
         >
           <LinesR1 list={r1} />
@@ -258,7 +258,7 @@ export function TomorrowBlocks({ tomorrow }: TomorrowBlocksProps) {
           name={r2.restaurantName}
           openedBy={r2.day.openedBy}
           onPrint={(opener) => {
-            void printTomorrowR2(state, tomorrow, opener);
+            void printDay({ restaurant: "r2", state, iso: tomorrow, tomorrow: true, opener });
           }}
         >
           <LinesR2 list={r2} />

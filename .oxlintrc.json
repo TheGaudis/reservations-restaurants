@@ -64,6 +64,12 @@
       "rules": { "import/no-nodejs-modules": "off" }
     },
     {
+      // Cases « N° table » et « Chef de rang » de la liste R1, laissées vides pour être remplies à la main (07 § 3).
+      // Un <td> d'un <table> sans rôle a le rôle `cell` : ce n'est pas une commande à étiqueter.
+      "files": ["src/features/print/PrintListR1.tsx"],
+      "rules": { "jsx-a11y/control-has-associated-label": ["error", { "ignoreElements": ["td"] }] }
+    },
+    {
       // Grille du calendrier : <table role="grid"> du motif « Date Picker Dialog » de l'APG (PLAN § 3.5, E-05).
       "files": ["src/ui/calendar/*.tsx"],
       "rules": {

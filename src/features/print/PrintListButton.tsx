@@ -1,7 +1,7 @@
 import { FormattedMessage } from "react-intl";
 
 import type { FullState, IsoDate, Restaurant } from "@/domain/types";
-import { printListR1, printListR2 } from "@/features/print/print-documents";
+import { printDay } from "@/features/print/print-day";
 import { useStaffState } from "@/features/staff/use-staff-state";
 import { Button } from "@/ui/button/Button";
 import { PrintIcon } from "@/ui/icons";
@@ -26,8 +26,7 @@ export function PrintListButton({ restaurant, iso }: PrintListButtonProps) {
     <Button
       size="small"
       onClick={(event) => {
-        const print = restaurant === "r1" ? printListR1 : printListR2;
-        void print(state, iso, event.currentTarget);
+        void printDay({ restaurant, state, iso, tomorrow: false, opener: event.currentTarget });
       }}
     >
       <PrintIcon />
