@@ -2,10 +2,8 @@ import type { Locator, Page } from "@playwright/test";
 
 import { reserveButton } from "./day-card";
 import { column } from "./home";
-import { currentTarget } from "./target";
 
-// R2 order form (09 § 3: P-13; 04 § 5.3). Service mode: segmented buttons with `aria-pressed` on the legacy
-// site, radios on the React one (`SegmentedRadio`, PLAN § 3.5).
+// R2 order form (09 § 3: P-13; 04 § 5.3). Service mode: radios (`SegmentedRadio`, PLAN § 3.5).
 
 export interface OrderR2Input {
   /** Quantity typed per dish name. */
@@ -45,16 +43,12 @@ export function quantityField(page: Page, dish: string): Locator {
 
 /** Option of the service mode (« Sur place », « À emporter »). */
 export function serviceModeOption(page: Page, mode: "dineIn" | "takeaway"): Locator {
-  const role = currentTarget() === "legacy" ? "button" : "radio";
-  return orderR2Form(page).getByRole(role, { name: MODE_LABELS[mode], exact: true });
+  return orderR2Form(page).getByRole("radio", { name: MODE_LABELS[mode], exact: true });
 }
 
 /** The selected service mode option. */
 export function selectedServiceMode(page: Page): Locator {
-  const form = orderR2Form(page);
-  return currentTarget() === "legacy"
-    ? form.getByRole("button", { name: /^(?:Sur place|À emporter)$/u, pressed: true })
-    : form.getByRole("radio", { checked: true });
+  return orderR2Form(page).getByRole("radio", { checked: true });
 }
 
 /** Live total (« Total : 9,00 € + 1 ticket restaurant », 04 § 5.3). */

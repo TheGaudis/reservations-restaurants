@@ -5,16 +5,8 @@ import { TEST_NOW } from "@/test/clock";
 import { expect, test } from "../fixtures";
 import { dayButton } from "../pages/calendar";
 import { reserveButton, seatsPill } from "../pages/day-card";
-import {
-  BLOCKED_FONT_PRELOAD,
-  columnTitle,
-  gotoHome,
-  loadError,
-  retryButton,
-  retryLoad,
-} from "../pages/home";
+import { columnTitle, gotoHome, loadError, retryButton, retryLoad } from "../pages/home";
 import { readLocalCache, seedLocalCache, seedStoredTexts } from "../pages/storage";
-import { target } from "../pages/target";
 import { reads, windowValue } from "./helpers";
 
 // First load, local copy and load errors (09 § 2: G-01 to G-05; 03 § 1-3). Reads under a fake clock:
@@ -28,10 +20,6 @@ const COPY_SUFFIX =
   "Le calendrier affiché date de votre dernière visite : les places restantes ont pu changer depuis.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Load error text as read (the `<br>` of 03 § 3.1 becomes a space). */
 async function expectLoadError(page: Page, text: string): Promise<void> {
@@ -80,19 +68,16 @@ test(
   { tag: ["@changed:E-47", "@G-02", "@p4"] },
   async ({ page, fakeScript }) => {
     await seedLocalCache(page, fakeScript.db, TEST_NOW - DAY);
-    // First day button of the page: present when the document is parsed (legacy), or in ms after the static
-    // skeleton of index.html (`main[aria-busy="true"]`) entered the DOM (React).
+    // First day button of the page, in ms after the static skeleton of index.html (`main[aria-busy="true"]`)
+    // entered the DOM.
     await page.addInitScript(() => {
-      const marks = { skeletonAt: -1, shownAt: -1, shownWhenParsed: false };
+      const marks = { skeletonAt: -1, shownAt: -1 };
       const skeleton = () => document.querySelector('main[aria-busy="true"]') !== null;
       const shown = () => document.querySelector('button[aria-label*=" 2026, "]') !== null;
       new MutationObserver(() => {
         if (marks.skeletonAt < 0 && skeleton()) marks.skeletonAt = performance.now();
         if (marks.shownAt < 0 && shown()) marks.shownAt = performance.now();
       }).observe(document, { childList: true, subtree: true });
-      document.addEventListener("DOMContentLoaded", () => {
-        marks.shownWhenParsed = shown();
-      });
       Object.assign(window, { e2eMarks: marks });
     });
     const release = fakeScript.hold();
@@ -108,19 +93,13 @@ test(
     const marks = await windowValue<{
       skeletonAt: number;
       shownAt: number;
-      shownWhenParsed: boolean;
     }>(page, "e2eMarks");
-    if (target(test.info()) === "legacy") {
-      // The copy replaces the skeleton while the document is parsed (03 § 2.3).
-      expect(marks.shownWhenParsed).toBe(true);
-    } else {
-      // E-47, S4: static skeleton of index.html until React's first render, shown 600 ms at most. Counted from the moment
-      // the skeleton enters the DOM, before its first paint: the time spent before (document and stylesheets routed
-      // through the test runner, Playwright's clock script) is not skeleton time.
-      expect(marks.skeletonAt).toBeGreaterThan(0);
-      expect(marks.shownAt).toBeGreaterThan(marks.skeletonAt);
-      expect(marks.shownAt - marks.skeletonAt).toBeLessThanOrEqual(600);
-    }
+    // E-47, S4: static skeleton of index.html until React's first render, shown 600 ms at most. Counted from the moment
+    // the skeleton enters the DOM, before its first paint: the time spent before (document and stylesheets routed
+    // through the test runner, Playwright's clock script) is not skeleton time.
+    expect(marks.skeletonAt).toBeGreaterThan(0);
+    expect(marks.shownAt).toBeGreaterThan(marks.skeletonAt);
+    expect(marks.shownAt - marks.skeletonAt).toBeLessThanOrEqual(600);
 
     release();
     // { unchanged }: the copy becomes the current state and is written again with a new date.
@@ -183,30 +162,12 @@ test(
 
 test(
   "configMissingBanner (REG-07)",
-  { tag: ["@changed:E-29", "@G-05", "@p4", "@legacy-only"] },
+  { tag: ["@changed:E-29", "@G-05", "@p4"] },
   async ({ page }) => {
-    const banner = page.getByText(/Configuration manquante/u);
-    if (target(test.info()) === "react") {
-      // The script URL is fixed at build time (.env.test): the banner and its D-05 text are covered by the
-      // story and the Vitest test of `ConfigBanner` (F-07). Here, a valid URL shows no banner.
-      await gotoHome(page);
-      await expect(columnTitle(page, "r1")).toHaveText("Restaurant Pédagogique");
-      await expect(banner).toBeHidden();
-      return;
-    }
-    // Legacy: the page served with the placeholder of the original setup (03 § 3).
-    await page.route("**/reservations-restaurants/", async (route) => {
-      const response = await route.fetch();
-      const original = await response.text();
-      const html = original.replace(
-        /const APPS_SCRIPT_URL = "[^"]*";/u,
-        'const APPS_SCRIPT_URL = "https://script.google.com/macros/s/COLLE_ICI/exec";',
-      );
-      await route.fulfill({ response, body: html });
-    });
+    // The script URL is fixed at build time (.env.test): the banner and its D-05 text are covered by the story
+    // and the Vitest test of `ConfigBanner` (F-07). Here, a valid URL shows no banner.
     await gotoHome(page);
-    await expect(banner).toHaveText(
-      "⚠ Configuration manquante : ouvre ce fichier et remplace APPS_SCRIPT_URL par l'URL de ton déploiement Apps Script (tout en haut du fichier, dans le <head>).",
-    );
+    await expect(columnTitle(page, "r1")).toHaveText("Restaurant Pédagogique");
+    await expect(page.getByText(/Configuration manquante/u)).toBeHidden();
   },
 );

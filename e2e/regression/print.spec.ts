@@ -2,7 +2,8 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "../fixtures";
 import { selectDay, showPeriod } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, column, toast } from "../pages/home";
+import { column, toast } from "../pages/home";
+import type { Restaurant } from "../pages/home";
 import {
   closePrintedDocument,
   printedDocument,
@@ -10,8 +11,6 @@ import {
   printedRow,
   stubPrint,
 } from "../pages/print";
-import { target } from "../pages/target";
-import type { Restaurant } from "../pages/target";
 import { rawTexts } from "./helpers";
 import { NAME1, NAME2, enterStaffMode } from "./print-helpers";
 
@@ -21,8 +20,7 @@ const PRINTED_ON = "Imprimé le 5 octobre 2026";
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await stubPrint(page);
 });
 
@@ -110,14 +108,14 @@ test(
     await expect(list.getByText("15 couverts · 95,20 €", { exact: true })).toBeVisible();
     await expect(list.getByText("Nom du responsable", { exact: true })).toBeVisible();
     await expect(list.getByText("Signature", { exact: true })).toBeVisible();
-    // E-15: the legacy footer is screen-only; the React document has none at all.
+    // E-15: the document has no screen footer.
     await expect(list.getByText(/Aristide Briand · Restaurants pédagogiques/u)).toBeHidden();
     await closePrintedDocument(list);
 
-    // E-20: amounts above 999 € (legacy `formatEuro`, or the `euro` format with its thousands separator).
+    // E-20: amounts above 999 €, in the `euro` format with its thousands separator.
     await showPeriod(page, "r1", "next");
     const gala = await printDay(page, "r1", "2026-10-12");
-    const amount = target(test.info()) === "legacy" ? "1188,00\u00A0€" : "1\u202F188,00\u00A0€";
+    const amount = "1\u202F188,00\u00A0€";
     expect(await rawTexts(gala, /^120 couverts/u)).toStrictEqual([
       `120 couverts · 120 extérieurs · ${amount}`,
     ]);
@@ -128,7 +126,7 @@ test(
 
 test(
   "printR1List (REG-40) — popup blocked",
-  { tag: ["@changed:E-15", "@I-00", "@p6", "@legacy-only"] },
+  { tag: ["@changed:E-15", "@I-00", "@p6"] },
   async ({ page }) => {
     await page.addInitScript(() => {
       window.open = () => null;
@@ -136,11 +134,6 @@ test(
     await enterStaffMode(page);
     await selectDay(page, "r1", "2026-10-06");
     const button = column(page, "r1").getByRole("button", { name: "Imprimer la liste" });
-    if (target(test.info()) === "legacy") {
-      await button.click();
-      await expect(toast(page)).toHaveText("Autorisez les fenêtres de ce site pour imprimer.");
-      return;
-    }
     // E-15: no window to open, I-00 is gone.
     const list = await printedDocument(page, async () => button.click());
     await expect(list.getByRole("heading", { level: 1 })).toHaveText(NAME1);
@@ -184,7 +177,7 @@ test("printR2List (REG-41)", { tag: ["@changed:E-16", "@I-02", "@p6"] }, async (
   // Dish line, then the customer's observation (07 § 4.2).
   expect(bernard[2]).toMatch(/^1× Lasagnes\s—\s4,50\s€\s*Sans fromage$/u);
   expect(bernard.slice(3)).toStrictEqual(["1", "4,50\u00A0€", "Sur place", "n.bernard@exemple.fr"]);
-  const voucher = target(test.info()) === "legacy" ? "3 tickets restaurant" : "1 ticket restaurant";
+  const voucher = "1 ticket restaurant";
   const gsell = await printedRow(customers, "Ariele Gsell");
   expect(gsell.slice(0, 2)).toStrictEqual(["Ariele Gsell", "Vie scolaire"]);
   expect(gsell[2]).toMatch(/^3× Bowl/u);

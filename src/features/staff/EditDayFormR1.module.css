@@ -1,4 +1,4 @@
-/* .booking-form and .row2 of legacy/app.css (06 § 5.1): under the actions of the card, above a thin rule; capacity
+/* .booking-form and .row2 of v1-final:app.css (06 § 5.1): under the actions of the card, above a thin rule; capacity
    and theme side by side, one under the other on a narrow screen. */
 .form {
   margin-top: var(--space-4);

@@ -4,19 +4,14 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "../fixtures";
 import { selectDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast, toastKind } from "../pages/home";
+import { toast, toastKind } from "../pages/home";
 import { bookingLines, bookingRow, openAddPerson, staffCard, staffDish } from "../pages/staff";
-import { target } from "../pages/target";
 import { otherOrderR2 } from "./helpers";
-import { actionBodies, loginAsStaff, veilGone } from "./staff-helpers";
+import { actionBodies, loginAsStaff } from "./staff-helpers";
 
 // Staff card of R2: dishes, bookings of a dish (09 § 4: C-14, C-20 to C-24; 05 § 6.3; 06 § 6-8).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 async function tomorrowR2(page: Page): Promise<Locator> {
   await loginAsStaff(page);
@@ -94,7 +89,6 @@ test.describe("r2StaffCardDishes (REG-37)", () => {
     "r2StaffCardDishes (REG-37) — stock below the booked portions, dish deletion",
     { tag: ["@changed:E-36", "@changed:E-38", "@C-22", "@C-14", "@p5"] },
     async ({ page, fakeScript }) => {
-      const legacy = target(test.info()) === "legacy";
       await tomorrowR2(page);
       const bowl = staffDish(page, "Bowl");
       await bowl.getByRole("button", { name: "Modifier ce plat", exact: true }).click();
@@ -104,46 +98,26 @@ test.describe("r2StaffCardDishes (REG-37)", () => {
       await expect(bowl.getByLabel("Prix (optionnel)")).toHaveAttribute("placeholder", "Ticket");
       await bowl.getByLabel("Stock", { exact: true }).fill("2");
       await bowl.getByRole("button", { name: "Enregistrer", exact: true }).click();
-      if (legacy) {
-        // 06 PA 9: accepted under the 3 booked portions.
-        await expect(toast(page)).toHaveText("Plat modifié.");
-        expect(actionBodies(fakeScript.requests, "editItemR2")).toStrictEqual([
-          {
-            action: "editItemR2",
-            password: SEED_PASSWORD,
-            itemId: "r2i-d+1-bowl",
-            name: "Bowl (ticket restaurant)",
-            stock: 2,
-            price: "",
-          },
-        ]);
-        await expect(staffDish(page, "Bowl")).toContainText("-1 / 2");
-      } else {
-        // E-36 (D-19).
-        await expect(
-          bowl.getByText(
-            "Impossible : 3 portions déjà réservées pour ce plat, le stock ne peut pas être inférieur.",
-            { exact: true },
-          ),
-        ).toBeVisible();
-        expect(actionBodies(fakeScript.requests, "editItemR2")).toStrictEqual([]);
-      }
+      // E-36 (D-19).
+      await expect(
+        bowl.getByText(
+          "Impossible : 3 portions déjà réservées pour ce plat, le stock ne peut pas être inférieur.",
+          { exact: true },
+        ),
+      ).toBeVisible();
+      expect(actionBodies(fakeScript.requests, "editItemR2")).toStrictEqual([]);
 
       // Deletion of a dish with a booking: E-38 (D-21) details it.
-      const detail = legacy
-        ? "Confirmer la suppression de ce plat"
-        : "Confirmer la suppression de ce plat (1 réservation ne sera plus affichée, les personnes ne seront pas prévenues)";
+      const detail =
+        "Confirmer la suppression de ce plat (1 réservation ne sera plus affichée, les personnes ne seront pas prévenues)";
       const remove = staffDish(page, "Lasagnes").getByRole("button", {
         name: /^(?:Supprimer ce plat|Confirmer la suppression de ce plat.*)$/u,
       });
       await remove.click();
       await expect(remove).toHaveText("Confirmer ?");
       await expect(remove).toHaveAccessibleName(detail);
-      await expect(staffCard(page, "r2").getByText(detail, { exact: true })).toHaveCount(
-        legacy ? 0 : 1,
-      );
+      await expect(staffCard(page, "r2").getByText(detail, { exact: true })).toHaveCount(1);
       await remove.click();
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Plat supprimé.");
       expect(actionBodies(fakeScript.requests, "deleteItemR2")).toStrictEqual([
         { action: "deleteItemR2", password: SEED_PASSWORD, itemId: "r2i-d+1-lasagnes" },
@@ -155,15 +129,8 @@ test.describe("r2StaffCardDishes (REG-37)", () => {
   );
 });
 
-/** Service modes offered by the open staff form: a `<select>` on the legacy site, radios on React (E-50). */
-async function expectServiceModes(scope: Locator, legacyValue: string): Promise<void> {
-  if (target(test.info()) === "legacy") {
-    // 06 PA 15: « À emporter » offered on a voucher day too.
-    const select = scope.getByLabel("Mode de service");
-    await expect(select).toHaveValue(legacyValue);
-    await expect(select.locator("option")).toHaveText(["À emporter", "Sur place"]);
-    return;
-  }
+/** Service modes offered by the open staff form, as radios (E-50). */
+async function expectServiceModes(scope: Locator): Promise<void> {
   // E-36: « Sur place » alone on a voucher day (invariant 5).
   await expect(scope.getByRole("radio")).toHaveCount(1);
   await expect(scope.getByRole("radio", { name: "Sur place", exact: true })).toBeChecked();
@@ -183,7 +150,7 @@ test.describe("r2StaffBookings (REG-38)", () => {
       await openAddPerson(page, "r2", "Lasagnes");
       await expect(lasagnes.getByLabel("Nom et prénom")).toBeFocused();
       await expect(lasagnes.getByLabel("Portions (4 au maximum)")).toHaveValue("1");
-      await expectServiceModes(lasagnes, "emporter");
+      await expectServiceModes(lasagnes);
 
       await lasagnes.getByLabel("Nom et prénom").fill("Inès Haddad");
       await lasagnes.getByLabel("Classe ou service").fill("BTS2");
@@ -203,7 +170,7 @@ test.describe("r2StaffBookings (REG-38)", () => {
           nom: "Inès Haddad",
           contact: "",
           classe: "BTS2",
-          mode: target(test.info()) === "legacy" ? "emporter" : "surplace",
+          mode: "surplace",
           items: [{ itemId: "r2i-d0-lasagnes", qte: 4 }],
           observation: "",
           requestId: expect.any(String),
@@ -226,23 +193,15 @@ test.describe("r2StaffBookings (REG-38)", () => {
       await expect(lasagnes.getByLabel("Téléphone ou email")).toHaveValue("c.ungerer@exemple.fr");
       const portions = lasagnes.getByLabel(/^Portions/u);
       await expect(portions).toHaveValue("4");
-      await expectServiceModes(lasagnes, "surplace");
+      await expectServiceModes(lasagnes);
 
       // More than the 4 portions left plus its own 4.
       const save = lasagnes.getByRole("button", { name: "Enregistrer", exact: true });
       await portions.fill("9");
       await save.click();
-      if (target(test.info()) === "legacy") {
-        // 06 § 7.4: no check on the page, the script refuses.
-        await expect(toast(page)).toHaveText(
-          "Il ne reste que 8 portion(s) disponible(s) pour ce plat.",
-        );
-        expect(await toastKind(page)).toBe("error");
-      } else {
-        // E-36 (D-19): bounded before sending.
-        await expect(portions).toHaveAttribute("aria-invalid", "true");
-        expect(actionBodies(fakeScript.requests, "editBookingR2")).toStrictEqual([]);
-      }
+      // E-36 (D-19): bounded before sending.
+      await expect(portions).toHaveAttribute("aria-invalid", "true");
+      expect(actionBodies(fakeScript.requests, "editBookingR2")).toStrictEqual([]);
 
       await portions.fill("3");
       await save.click();

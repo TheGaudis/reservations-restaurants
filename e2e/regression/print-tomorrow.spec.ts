@@ -1,5 +1,4 @@
 import { expect, test } from "../fixtures";
-import { BLOCKED_FONT_PRELOAD } from "../pages/home";
 import {
   closePrintedDocument,
   printedDocument,
@@ -11,7 +10,6 @@ import {
   tomorrowPrintButton,
   tomorrowSummary,
 } from "../pages/print";
-import { target } from "../pages/target";
 import { NAME1, NAME2, enterStaffMode } from "./print-helpers";
 
 // Tomorrow panel and its printed summaries (09 § 4: C-01, C-03; 09 § 5: I-03, I-04; 06 § 2.1, 07 § 5-7). Tomorrow
@@ -21,8 +19,7 @@ const TOMORROW = "mardi 6 octobre 2026";
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await stubPrint(page);
 });
 
@@ -31,14 +28,13 @@ test(
   { tag: ["@changed:E-30", "@changed:E-44", "@C-01", "@C-03", "@p6"] },
   async ({ page }) => {
     await enterStaffMode(page);
-    const legacy = target(test.info()) === "legacy";
     const panel = tomorrowPanel(page);
     await expect(panel.getByRole("heading", { name: `Demain (${TOMORROW})` })).toBeVisible();
     await expect(panel.getByText(`${NAME1} : 15 couverts réservés`)).toBeVisible();
-    // E-30: the orphan booking (2 portions of a deleted dish) counts on the legacy panel only.
-    await expect(panel.getByText(`${NAME2} : ${legacy ? 6 : 4} portions réservées`)).toBeVisible();
-    // E-30: two panels on the legacy site, one merged panel on the React one (D-07).
-    await expect(page.getByText(`Résumé pour demain (${TOMORROW})`)).toHaveCount(legacy ? 1 : 0);
+    // E-30: the orphan booking (2 portions of a deleted dish) does not count.
+    await expect(panel.getByText(`${NAME2} : 4 portions réservées`)).toBeVisible();
+    // E-30: one merged panel (D-07).
+    await expect(page.getByText(`Résumé pour demain (${TOMORROW})`)).toHaveCount(0);
 
     const r1 = tomorrowBlock(page, NAME1);
     await expect(r1.getByText("Ouvert par M. Dupont")).toBeVisible();
@@ -52,18 +48,10 @@ test(
     await expect(r2.getByText("Ouvert par M. Dupont")).toBeVisible();
     await expect(tomorrowPrintButton(page, NAME2)).toBeVisible();
     await expect(r2.getByText(/Paul Durand/u)).toHaveCount(0);
-    if (legacy) {
-      await expect(r2.getByText("• Lasagnes: 1 portion(s) — 4,50 € (Noah Bernard)")).toBeVisible();
-      await expect(
-        r2.getByText("• Bowl: 3 portion(s) — 3 tickets restaurant (Ariele Gsell)"),
-      ).toBeVisible();
-      await expect(r2.getByText(`Total ${NAME2} : 4,50 € + 3 tickets restaurant`)).toBeVisible();
-    } else {
-      // E-44: ICU plurals and « {name} : » (annexe F); E-30: one voucher for the 3-Bowl order.
-      await expect(r2.getByText("• Lasagnes : 1 portion — 4,50 € (Noah Bernard)")).toBeVisible();
-      await expect(r2.getByText(/^• Bowl : 3 portions\b.*\(Ariele Gsell\)$/u)).toBeVisible();
-      await expect(r2.getByText(`Total ${NAME2} : 4,50 € + 1 ticket restaurant`)).toBeVisible();
-    }
+    // E-44: ICU plurals and « {name} : » (annexe F); E-30: one voucher for the 3-Bowl order.
+    await expect(r2.getByText("• Lasagnes : 1 portion — 4,50 € (Noah Bernard)")).toBeVisible();
+    await expect(r2.getByText(/^• Bowl : 3 portions\b.*\(Ariele Gsell\)$/u)).toBeVisible();
+    await expect(r2.getByText(`Total ${NAME2} : 4,50 € + 1 ticket restaurant`)).toBeVisible();
   },
 );
 
@@ -94,7 +82,6 @@ test(
   { tag: ["@changed:E-16", "@changed:E-44", "@I-03", "@I-04", "@p6"] },
   async ({ page }) => {
     await enterStaffMode(page);
-    const legacy = target(test.info()) === "legacy";
 
     // Document C (07 § 6): short table, no theme, menu, detail nor signature.
     const r1 = await printedDocument(page, async () => tomorrowPrintButton(page, NAME1).click());
@@ -121,13 +108,12 @@ test(
     await expect(r1.getByText("Nom du responsable")).toHaveCount(0);
     await closePrintedDocument(r1);
 
-    // E-44: the summary line next to the R2 button (annexe F on the React site).
-    const lasagnes = legacy ? "• Lasagnes: 1 portion(s)" : "• Lasagnes : 1 portion —";
-    await expect(tomorrowBlock(page, NAME2).getByText(lasagnes)).toBeVisible();
+    // E-44: the summary line next to the R2 button (annexe F).
+    await expect(tomorrowBlock(page, NAME2).getByText("• Lasagnes : 1 portion —")).toBeVisible();
 
     // Document D (07 § 7): one heading and one table per dish; E-16: one voucher per order.
     const r2 = await printedDocument(page, async () => tomorrowPrintButton(page, NAME2).click());
-    const voucher = legacy ? "3 tickets restaurant" : "1 ticket restaurant";
+    const voucher = "1 ticket restaurant";
     await expect(r2.page()).toHaveTitle(`${NAME2} — demain ${TOMORROW}`);
     await expect(r2.getByText(`Demain, ${TOMORROW}`, { exact: true })).toBeVisible();
     await expect(r2.getByRole("term")).toHaveText(["Ouvert par"]);

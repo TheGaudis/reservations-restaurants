@@ -10,8 +10,7 @@ import {
 } from "../pages/booking-r1";
 import { selectDay } from "../pages/calendar";
 import { bookingSummary, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, loadError, retryLoad } from "../pages/home";
-import { target } from "../pages/target";
+import { gotoHome, loadError, retryLoad } from "../pages/home";
 import {
   otherBookingR1,
   pauseClock,
@@ -30,10 +29,6 @@ const ONLINE_ERROR =
 const OFFLINE_ERROR = "Vous semblez hors ligne. Vérifiez votre connexion internet, puis réessayez.";
 
 test.use({ reducedMotion: "reduce", fixedTime: null });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Load error text as read (the `<br>` of 03 § 3.1 becomes a space). */
 async function expectLoadError(page: Page, text: string): Promise<void> {
@@ -121,19 +116,11 @@ test(
 
     await page.clock.runFor("01:30");
     await settle(page);
-    if (target(test.info()) === "legacy") {
-      // No time limit: the first read and its double wait for ever.
-      expect(reads(fakeScript.requests)).toStrictEqual(["", ""]);
-      await expect(loadError(page)).toBeHidden();
-    } else {
-      // E-45: each read gives up after 30 s, then fails like any other read.
-      await expectLoadError(page, ONLINE_ERROR);
-    }
+    // E-45: each read gives up after 30 s, then fails like any other read.
+    await expectLoadError(page, ONLINE_ERROR);
     for (const release of releases) release();
-    if (target(test.info()) === "react") {
-      // E-45: the abandoned reads answer no one; « Réessayer » starts a new read (03 § 3.2).
-      await retryLoad(page);
-    }
+    // E-45: the abandoned reads answer no one; « Réessayer » starts a new read (03 § 3.2).
+    await retryLoad(page);
     await expect(seatsPill(page)).toHaveText("12 / 20 couverts");
   },
 );
@@ -177,8 +164,8 @@ test(
     await page.clock.runFor(20_000);
     await expectLoadError(page, ONLINE_ERROR);
     const marks = await windowValue<{ announced: number }>(page, "e2eMarks");
-    // Legacy: written again at each refresh; React: once (E-42).
-    expect(marks.announced).toBe(target(test.info()) === "legacy" ? 3 : 1);
+    // E-42: announced once.
+    expect(marks.announced).toBe(1);
   },
 );
 
@@ -214,15 +201,9 @@ test(
     db.r1Bookings.push(otherBookingR1("2026-10-06", 2));
     await page.clock.runFor("02:00");
     await settle(page);
-    if (target(test.info()) === "legacy") {
-      // Typing in an open form: the refresh is skipped (03 § 5.1).
-      expect(reads(fakeScript.requests)).toStrictEqual([""]);
-      await expect(legend).toHaveAccessibleName("Nombre de personnes (5 au maximum)");
-    } else {
-      // E-08: the refresh goes on under the form.
-      await expect.poll(() => reads(fakeScript.requests).length).toBe(2);
-      await expect(legend).toHaveAccessibleName("Nombre de personnes (3 au maximum)");
-    }
+    // E-08: the refresh goes on under the form.
+    await expect.poll(() => reads(fakeScript.requests).length).toBe(2);
+    await expect(legend).toHaveAccessibleName("Nombre de personnes (3 au maximum)");
     // Input and focus kept (03 § 5.4).
     await expect(name).toHaveValue("Jean Dupuis");
     await expect(name).toBeFocused();

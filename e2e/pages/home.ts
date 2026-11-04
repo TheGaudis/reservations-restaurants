@@ -1,18 +1,10 @@
 import type { Locator, Page } from "@playwright/test";
 
-import { currentTarget } from "./target";
-import type { Restaurant } from "./target";
+// Page as a whole (09 § 2: G-01 to G-05, G-07).
 
-// Page as a whole (09 § 2: G-01 to G-05, G-07). Same roles and texts on both sites unless stated.
+export type Restaurant = "r1" | "r2";
 
-/**
- * Warning of the legacy page when the Google Fonts stylesheet it preloads never arrives (blocked by the network
- * isolation): Chromium writes it once the page has been loaded a few seconds.
- */
-export const BLOCKED_FONT_PRELOAD =
-  /^The resource https:\/\/fonts\.googleapis\.com\/.* was preloaded using link preload but not used/u;
-
-/** Opens the public page; `search` (09 § 1) only means something to the React site, the legacy one ignores it. */
+/** Opens the public page with the given search params (09 § 1). */
 export async function gotoHome(page: Page, search: Record<string, string> = {}): Promise<void> {
   const query = new URLSearchParams(search).toString();
   await page.goto(query === "" ? "./" : `./?${query}`);
@@ -20,7 +12,7 @@ export async function gotoHome(page: Page, search: Record<string, string> = {}):
 
 /**
  * Title of a column: `name1` or `name2`, the only level-2 headings of the public page (04 § 2). In staff mode, the
- * React site titles the panel « Demain (…) » with a level-2 heading as well (heading order under the h1, S5): it is
+ * site titles the panel « Demain (…) » with a level-2 heading as well (heading order under the h1, S5): it is
  * left out.
  */
 export function columnTitle(page: Page, restaurant: Restaurant): Locator {
@@ -54,32 +46,21 @@ export async function retryLoad(page: Page): Promise<void> {
 }
 
 /**
- * Toast (G-07). Legacy: the `role="status"` outside the columns, whose text stays after it fades (check its
- * text, not its visibility). React: the « Notifications » viewport of Base UI (a-8), always in the page; hidden
- * included, because print media hides everything but the printed document (styles/print.css, REG-40 I-00).
+ * Toast (G-07): the « Notifications » viewport of Base UI (a-8), always in the page; hidden included, because
+ * print media hides everything but the printed document (styles/print.css, REG-40 I-00).
  */
 export function toast(page: Page): Locator {
-  if (currentTarget() === "react") {
-    return page.getByRole("region", { name: "Notifications", includeHidden: true });
-  }
-  // The booking summary is another status of the page, with a « Fermer » button; the loading veil (G-06) has one
-  // too, exposed during a login or a deletion. Only the toast is a live region of its own (`aria-live`).
-  return page
-    .getByRole("status")
-    .filter({ hasNot: page.getByRole("button") })
-    .and(page.locator("[aria-live]"));
+  return page.getByRole("region", { name: "Notifications", includeHidden: true });
 }
 
 /** Kind of the last toast: green (success or neutral, 04 § 9) or red (error). */
 export async function toastKind(page: Page): Promise<"success" | "error"> {
+  // Newest toast first; an error toast is an `alertdialog` hidden from the accessibility tree (Base UI).
   const isError =
-    currentTarget() === "legacy"
-      ? await toast(page).evaluate((element) => element.classList.contains("error"))
-      : // Newest toast first; an error toast is an `alertdialog` hidden from the accessibility tree (Base UI).
-        (await toast(page)
-          .locator('[role="dialog"], [role="alertdialog"]')
-          .first()
-          .getAttribute("data-type")) === "error";
+    (await toast(page)
+      .locator('[role="dialog"], [role="alertdialog"]')
+      .first()
+      .getAttribute("data-type")) === "error";
   return isError ? "error" : "success";
 }
 

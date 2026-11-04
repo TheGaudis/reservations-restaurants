@@ -44,11 +44,6 @@ export function bookingR1Field(page: Page, field: keyof BookingR1Input): Locator
   return bookingR1Form(page).getByLabel(FIELD_LABELS[field]);
 }
 
-/** Live total (« 3 couverts · Total : 16,00 € », 04 § 5.2). */
-export function bookingR1Total(page: Page): Locator {
-  return bookingR1Form(page).getByText(/Total :/u);
-}
-
 /** Clicks « Réserver » on the R1 card. */
 export async function openBookingR1(page: Page): Promise<void> {
   await reserveButton(page, "r1").click();

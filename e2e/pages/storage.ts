@@ -20,7 +20,7 @@ const CONFIG_KEYS = [
 ] as const;
 const VOUCHER_MARK = /\s*\(ticket restaurant\)\s*$/iu;
 
-/** Local copy v1 (03 § 1.1) of the public state of `db`, as the legacy `saveCache` writes it. */
+/** Local copy v1 (03 § 1.1) of the public state of `db`, as the old site wrote it. */
 function localCacheOf(db: FakeDb, savedAt: number): object {
   const content = publicContent(db);
   return {

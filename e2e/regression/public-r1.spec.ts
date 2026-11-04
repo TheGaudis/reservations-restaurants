@@ -2,7 +2,6 @@ import { expect, test } from "../fixtures";
 import {
   bookingR1Field,
   bookingR1Form,
-  bookingR1Total,
   cancelBookingR1,
   fillBookingR1,
   openBookingR1,
@@ -10,9 +9,8 @@ import {
 } from "../pages/booking-r1";
 import { longDate, selectDay, showPeriod } from "../pages/calendar";
 import { bookingSummary, dayCard, reserveButton, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome } from "../pages/home";
+import { gotoHome } from "../pages/home";
 import { openOrderR2, orderR2Form } from "../pages/order-r2";
-import { target } from "../pages/target";
 import { posts, rawTexts, windowValue } from "./helpers";
 
 // R1 card, form and validation (09 § 3: P-03 to P-08; 04 § 4.2, § 5.1-5.2, § 5.4). Sending: public-r1-send.spec.ts.
@@ -27,15 +25,10 @@ const FIELD_ERRORS = [
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
-
 test(
   "columnsIndependent (REG-13)",
   { tag: ["@changed:E-32", "@changed:E-31", "@P-05", "@P-06", "@P-13", "@p4"] },
   async ({ page }) => {
-    const site = target(test.info());
     await gotoHome(page);
 
     // A summary in the R1 column, then a day chosen in the R2 column.
@@ -44,10 +37,10 @@ test(
     await submitBookingR1(page);
     await expect(bookingSummary(page, "r1")).toBeVisible();
     await selectDay(page, "r2", "2026-10-06");
-    // E-32: legacy clears every summary of the page; React keeps the other column's.
-    await expect(bookingSummary(page, "r1")).toHaveCount(site === "legacy" ? 0 : 1);
+    // E-32: the other column's summary stays.
+    await expect(bookingSummary(page, "r1")).toHaveCount(1);
 
-    // A filled R1 form, then the R2 form: one public form at a time on both sites.
+    // A filled R1 form, then the R2 form: one public form at a time.
     await openBookingR1(page);
     await fillBookingR1(page, {
       name: "Léa Test",
@@ -57,12 +50,11 @@ test(
     await openOrderR2(page);
     await expect(bookingR1Form(page)).toHaveCount(0);
     await expect(orderR2Form(page)).toBeVisible();
-    // E-31: legacy copies the identity typed in R1 (shared field ids, 04 PA 9); React starts empty.
+    // E-31: the R2 form starts empty, the identity typed in R1 is not copied.
     const r2 = orderR2Form(page);
-    const copied = site === "legacy";
-    await expect(r2.getByLabel("Nom et prénom")).toHaveValue(copied ? "Léa Test" : "");
-    await expect(r2.getByLabel("Adresse email")).toHaveValue(copied ? "lea.test@exemple.fr" : "");
-    await expect(r2.getByLabel("Classe ou service")).toHaveValue(copied ? "BTS1" : "");
+    await expect(r2.getByLabel("Nom et prénom")).toHaveValue("");
+    await expect(r2.getByLabel("Adresse email")).toHaveValue("");
+    await expect(r2.getByLabel("Classe ou service")).toHaveValue("");
   },
 );
 
@@ -70,7 +62,6 @@ test(
   "r1DayCardStates (REG-14)",
   { tag: ["@changed:E-27", "@changed:E-21", "@P-03", "@P-04", "@P-07", "@P-08", "@p4"] },
   async ({ page }) => {
-    const react = target(test.info()) === "react";
     await gotoHome(page);
     const card = dayCard(page, "r1");
     const statusWord = (word: string) => card.getByText(word, { exact: true });
@@ -87,12 +78,12 @@ test(
     await expect(reserveButton(page, "r1")).toBeVisible();
     await expect(statusWord("Bientôt complet")).toHaveCount(0);
 
-    // P-04, almost full: 5 seats left out of 20; E-27: the state in words on React.
+    // P-04, almost full: 5 seats left out of 20; E-27: the state in words.
     await selectDay(page, "r1", "2026-10-06");
     await expect(seatsPill(page)).toHaveText("5 / 20 couverts");
     await expect(card.getByText("Thème du jour", { exact: true })).toHaveCount(0);
     await expect(reserveButton(page, "r1")).toBeVisible();
-    await expect(statusWord("Bientôt complet")).toHaveCount(react ? 1 : 0);
+    await expect(statusWord("Bientôt complet")).toHaveCount(1);
 
     // P-03, no service.
     await selectDay(page, "r1", "2026-10-07");
@@ -101,17 +92,17 @@ test(
     await expect(seatsPill(page)).toHaveCount(0);
     await expect(reserveButton(page, "r1")).toHaveCount(0);
 
-    // P-07, full: no button; E-27: « Complet » by the pill and « Complet. » under the card on React only.
+    // P-07, full: no button; E-27: « Complet » by the pill and « Complet. » under the card.
     await selectDay(page, "r1", "2026-10-09");
     await expect(seatsPill(page)).toHaveText("0 / 10 couverts");
     await expect(reserveButton(page, "r1")).toHaveCount(0);
-    await expect(statusWord("Complet")).toHaveCount(react ? 1 : 0);
-    await expect(statusWord("Complet.")).toHaveCount(react ? 1 : 0);
+    await expect(statusWord("Complet")).toHaveCount(1);
+    await expect(statusWord("Complet.")).toHaveCount(1);
 
-    // P-08, past day: no button and no sentence. E-21: « 1 » or « 1er ».
+    // P-08, past day: no button and no sentence. E-21: « 1er ».
     await showPeriod(page, "r1", "previous");
     await selectDay(page, "r1", "2026-10-01");
-    await expect(card).toContainText(react ? "jeudi 1er octobre 2026" : "jeudi 1 octobre 2026");
+    await expect(card).toContainText("jeudi 1er octobre 2026");
     await expect(seatsPill(page)).toHaveText("16 / 20 couverts");
     await expect(reserveButton(page, "r1")).toHaveCount(0);
     await expect(statusWord("Complet.")).toHaveCount(0);
@@ -132,7 +123,6 @@ test(
     ],
   },
   async ({ page, fakeScript }) => {
-    const react = target(test.info()) === "react";
     // Every text ever written in the live total, the replaced ones included.
     await page.addInitScript(() => {
       const totals: string[] = [];
@@ -158,15 +148,15 @@ test(
     const form = bookingR1Form(page);
     await expect(bookingR1Field(page, "name")).toBeFocused();
 
-    // E-28: legacy first writes « Total : 0,00 € » (plain space), replaced at once; React renders the exact total.
+    // E-28: the exact total from the first render, never « Total : 0,00 € » with a plain space.
     expect(await rawTexts(page, /Total :/u)).toStrictEqual(["0 couvert · Total : 0,00\u00A0€"]);
     const totals = await windowValue<string[]>(page, "e2eTotals");
-    expect(totals.some((text) => text.startsWith("Total : 0,00"))).toBe(!react);
+    expect(totals.some((text) => text.startsWith("Total : 0,00"))).toBe(false);
 
-    // E-03: Enter submits the form on React only.
+    // E-03: Enter submits the form.
     await page.keyboard.press("Enter");
     for (const message of FIELD_ERRORS) {
-      await expect(form.getByText(message, { exact: true })).toHaveCount(react ? 1 : 0);
+      await expect(form.getByText(message, { exact: true })).toHaveCount(1);
     }
 
     await submitBookingR1(page);
@@ -176,7 +166,7 @@ test(
     await expect(bookingR1Field(page, "name")).toBeFocused();
     await expect(bookingR1Field(page, "name")).toHaveAttribute("aria-invalid", "true");
 
-    // E-46: legacy drops the message at the first keystroke; React keeps a message until the value is valid.
+    // E-46: a message stays until the value is valid.
     const contact = bookingR1Field(page, "contact");
     await contact.pressSequentially("jean");
     await expect(form.getByText("Indiquez votre adresse email.", { exact: true })).toHaveCount(0);
@@ -184,28 +174,24 @@ test(
       form.getByText("Vérifiez votre adresse email (ex. Ariele.gsell@exemple.fr).", {
         exact: true,
       }),
-    ).toHaveCount(react ? 1 : 0);
+    ).toHaveCount(1);
     await contact.pressSequentially(".dupuis@exemple.fr");
     await expect(form.getByText(/adresse email/u)).toHaveCount(0);
     await expect(form.getByText("Indiquez vos nom et prénom.", { exact: true })).toBeVisible();
 
-    // E-19: a decimal count is truncated by `parseInt` (legacy), refused by an integer field (React).
+    // E-19: a decimal count is refused by an integer field.
     await fillBookingR1(page, { students: "2.7", staffMembers: "abc" });
     await bookingR1Field(page, "externals").focus();
     await expect(bookingR1Field(page, "staffMembers")).toHaveValue("");
-    await (react
-      ? expect(bookingR1Field(page, "students")).toHaveValue(/^\d*$/u)
-      : expect(bookingR1Total(page)).toHaveText("2 couverts · Total : 9,90 €"));
+    await expect(bookingR1Field(page, "students")).toHaveValue(/^\d*$/u);
 
-    // E-34: − / + buttons on React only.
+    // E-34: − / + buttons.
     const increase = form.getByRole("button", { name: "Augmenter : Extérieurs" });
-    await expect(increase).toHaveCount(react ? 1 : 0);
-    if (react) {
-      await increase.click();
-      await expect(bookingR1Field(page, "externals")).toHaveValue("1");
-      await form.getByRole("button", { name: "Diminuer : Extérieurs" }).click();
-      await expect(bookingR1Field(page, "externals")).toHaveValue(/^0?$/u);
-    }
+    await expect(increase).toHaveCount(1);
+    await increase.click();
+    await expect(bookingR1Field(page, "externals")).toHaveValue("1");
+    await form.getByRole("button", { name: "Diminuer : Extérieurs" }).click();
+    await expect(bookingR1Field(page, "externals")).toHaveValue(/^0?$/u);
 
     await fillBookingR1(page, { students: "2", staffMembers: "1", externals: "" });
     expect(await rawTexts(page, /Total :/u)).toStrictEqual(["3 couverts · Total : 16,00\u00A0€"]);

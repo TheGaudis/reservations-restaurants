@@ -2,9 +2,8 @@ import { expect, test } from "../fixtures";
 import { fillBookingR1, bookingR1Form, openBookingR1, submitBookingR1 } from "../pages/booking-r1";
 import { dayButton, goToToday, longDate, selectDay, selectedDay } from "../pages/calendar";
 import { dayCard, reserveButton } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome } from "../pages/home";
-import { target } from "../pages/target";
-import { pauseClock, posts, reads, settle } from "./helpers";
+import { gotoHome } from "../pages/home";
+import { pauseClock, posts, reads } from "./helpers";
 
 // Midnight without reloading the page (PLAN § 3.4 « Minuit », R-26; 01 § 3.7): the new day reaches the calendars,
 // a form already open keeps its date. Variants of the clock scenario REG-25 (invariant 4); E-54 for what differs.
@@ -19,8 +18,7 @@ function startsWithDay(iso: string): RegExp {
 
 test.use({ reducedMotion: "reduce", fixedTime: null });
 
-test.beforeEach(async ({ page, consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
+test.beforeEach(async ({ page }) => {
   await pauseClock(page, BEFORE_MIDNIGHT);
 });
 
@@ -56,21 +54,6 @@ test(
     await expect(selectedDay(page, "r1")).toHaveAccessibleName(startsWithDay("2026-10-05"));
 
     await page.clock.runFor(60_000);
-    if (target(test.info()) === "legacy") {
-      // Nothing renders: Monday stays selected, neither past nor closed to bookings.
-      await expect(selectedDay(page, "r1")).toHaveAccessibleName(startsWithDay("2026-10-05"));
-      await expect(dayButton(page, "r1", "2026-10-05")).not.toHaveAccessibleName(PAST);
-      await expect(dayCard(page, "r1").getByText(longDate("2026-10-05"))).toBeVisible();
-      await expect(reserveButton(page, "r1")).toBeVisible();
-      // The refresh 3 min after loading (00:02:30) answers { unchanged }, which renders nothing either. The clock
-      // stops before the hedged read of 6 s.
-      await page.clock.runFor(122_000);
-      await settle(page);
-      expect(reads(fakeScript.requests)).toStrictEqual(["", "?since=E1"]);
-      await expect(selectedDay(page, "r1")).toHaveAccessibleName(startsWithDay("2026-10-05"));
-      await expect(reserveButton(page, "r1")).toBeVisible();
-      return;
-    }
     // E-54: both calendars move to Tuesday at midnight, without any click or read.
     await expect(selectedDay(page, "r1")).toHaveAccessibleName(startsWithDay("2026-10-06"));
     await expect(dayButton(page, "r1", "2026-10-05")).toHaveAccessibleName(PAST);

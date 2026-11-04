@@ -1,4 +1,4 @@
-/* .seg-group / .seg-btn / .seg-check of legacy/design-system.css (08 § 4.5), composed by ViewToggle (state from
+/* .seg-group / .seg-btn / .seg-check of v1-final:design-system.css (08 § 4.5), composed by ViewToggle (state from
    Base UI's data-pressed) and SegmentedRadio (data-checked). The segments of a group are elements of one type, so the
    segment rules count types (:first-of-type…): each Radio.Root is a <span> followed by a hidden <input>. */
 .group {

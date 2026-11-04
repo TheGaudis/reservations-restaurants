@@ -3,18 +3,15 @@ import type { Locator, Page } from "@playwright/test";
 
 import { calendarDays } from "./calendar";
 import { column } from "./home";
-import { currentTarget } from "./target";
-import type { Restaurant } from "./target";
+import type { Restaurant } from "./home";
 
-// Staff mode (09 § 4: C-01 to C-30; 06 § 2-8; 05 § 4.6, § 5.3, § 6.3). Panels open from their title: a <summary> on the
-// legacy site (not a button for Playwright), a disclosure button on the React one (`Collapsible`, PLAN § 3.5).
+// Staff mode (09 § 4: C-01 to C-30; 06 § 2-8; 05 § 4.6, § 5.3, § 6.3). Panels open from their title, a disclosure
+// button (`Collapsible`, PLAN § 3.5).
 
-// Closest ancestor of a title that holds more than the title: the <details> of a legacy <summary>, the root of a React
-// `Collapsible` around its trigger, the panel around a heading.
+// Closest ancestor of a title that holds more than the title: the root of a `Collapsible` around its trigger, the
+// panel around a heading.
 function panelOf(title: Locator): Locator {
-  return title.locator(
-    "xpath=ancestor::*[count(*) > 1 and not(self::summary) and not(self::button)][1]",
-  );
+  return title.locator("xpath=ancestor::*[count(*) > 1 and not(self::button)][1]");
 }
 
 function titleText(scope: Page | Locator, title: string | RegExp): Locator {
@@ -37,12 +34,7 @@ export function openDayPanel(page: Page, restaurant: Restaurant): Locator {
 }
 
 async function openDisclosure(scope: Page | Locator, title: string | RegExp): Promise<void> {
-  if (currentTarget() === "react") {
-    const trigger = scope.getByRole("button", { name: title, expanded: false });
-    await trigger.click();
-    return;
-  }
-  await titleText(scope, title).click();
+  await scope.getByRole("button", { name: title, expanded: false }).click();
 }
 
 /** Opens « Paramètres » (C-02). */

@@ -5,10 +5,9 @@ import { TEST_NOW } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast } from "../pages/home";
+import { toast } from "../pages/home";
 import { bookingLines, bookingRow, confirmDelete, staffCard } from "../pages/staff";
-import { target } from "../pages/target";
-import { actionBodies, loginAsStaff, veil, veilGone } from "./staff-helpers";
+import { actionBodies, loginAsStaff, veil } from "./staff-helpers";
 
 // Staff card of R1: bookings, their edition and deletion, the day (09 § 4: C-10, C-10b, C-11, C-13, C-14;
 // 05 § 4.6, § 5.3; 06 § 5, § 7).
@@ -17,25 +16,14 @@ const TOMORROW = "2026-10-06";
 
 test.use({ reducedMotion: "reduce" });
 
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
-
 async function tomorrowCard(page: Page) {
   await loginAsStaff(page);
   await selectDay(page, "r1", TOMORROW);
   return staffCard(page, "r1");
 }
 
-/**
- * Legacy: the veil makes the page inert during the deletion and the deleted button has no key (03 § 5.4): the focus
- * falls on body. React (E-04, no veil): on the date of the card (03 § 5.4, 08 § 7.6).
- */
+/** After a deletion, the focus is on the date of the card (E-04, 03 § 5.4, 08 § 7.6). */
 async function expectFocusAfterDeletion(page: Page): Promise<void> {
-  if (target(test.info()) === "legacy") {
-    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
-    return;
-  }
   await expect(staffCard(page, "r1").getByText(longDate(TOMORROW), { exact: true })).toBeFocused();
 }
 
@@ -120,13 +108,8 @@ test.describe("r1StaffCard (REG-35)", () => {
 
       await card.getByRole("button", { name: "Annuler", exact: true }).click();
       await expect(card.getByLabel("Nom", { exact: true })).toHaveCount(0);
-      if (target(test.info()) === "legacy") {
-        // 03 § 5.4: « Annuler » has no key to find again, the focus falls on body.
-        expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
-      } else {
-        // E-48: back to the button that opened the form.
-        await expect(edit).toBeFocused();
-      }
+      // E-48: back to the button that opened the form.
+      await expect(edit).toBeFocused();
 
       // A booking written before the prices: empty counters and help (06 § 7.3).
       await editButton(page, "Jean Petit").click();
@@ -245,7 +228,6 @@ test.describe("r1StaffCard (REG-35)", () => {
         expect(actionBodies(fakeScript.requests, "deleteBookingR1")).toStrictEqual([]);
 
         await confirmDelete(remove);
-        await veilGone(page);
         await expect(toast(page)).toHaveText("Réservation supprimée.");
         expect(actionBodies(fakeScript.requests, "deleteBookingR1")).toStrictEqual([
           { action: "deleteBookingR1", password: SEED_PASSWORD, id: "r1b-d+1-martin" },
@@ -261,32 +243,25 @@ test.describe("r1StaffCard (REG-35)", () => {
     "r1StaffCard (REG-35) — delete a day with bookings",
     { tag: ["@changed:E-04", "@changed:E-38", "@G-06", "@C-14", "@p5"] },
     async ({ page, fakeScript }) => {
-      const legacy = target(test.info()) === "legacy";
       const card = await tomorrowCard(page);
-      const detail = legacy
-        ? "Confirmer la suppression du jour et de toutes ses réservations"
-        : "Confirmer la suppression du jour et de ses 3 réservations (les personnes ne seront pas prévenues)";
+      const detail =
+        "Confirmer la suppression du jour et de ses 3 réservations (les personnes ne seront pas prévenues)";
       const remove = card.getByRole("button", {
         name: /^(?:Supprimer ce jour|Confirmer la suppression du jour.*)$/u,
       });
       await remove.click();
       await expect(remove).toHaveText("Confirmer ?");
       await expect(remove).toHaveAccessibleName(detail);
-      // E-38 (D-21): a visible note on React.
-      await expect(card.getByText(detail, { exact: true })).toHaveCount(legacy ? 0 : 1);
+      // E-38 (D-21): a visible note.
+      await expect(card.getByText(detail, { exact: true })).toHaveCount(1);
 
       const release = fakeScript.hold();
       await remove.click();
       await expect.poll(() => actionBodies(fakeScript.requests, "deleteDayR1").length).toBe(1);
-      if (legacy) {
-        await expect(veil(page)).toBeVisible();
-      } else {
-        // E-04: the button is busy, nothing else.
-        await expect(veil(page)).toHaveCount(0);
-        await expect(remove).toHaveAttribute("aria-busy", "true");
-      }
+      // E-04: the button is busy, nothing else.
+      await expect(veil(page)).toHaveCount(0);
+      await expect(remove).toHaveAttribute("aria-busy", "true");
       release();
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Jour supprimé.");
       expect(actionBodies(fakeScript.requests, "deleteDayR1")).toStrictEqual([
         { action: "deleteDayR1", password: SEED_PASSWORD, date: TOMORROW },

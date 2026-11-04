@@ -10,7 +10,7 @@ import styles from "@/features/page/PageSkeleton.module.css";
 const RESTAURANTS: readonly Restaurant[] = ["r1", "r2"];
 const WEEK = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
-/** Calendar and card of a column before any data (legacy/index.html, 08 § 4.16): no text, hidden from assistive tech. */
+/** Calendar and card of a column before any data (v1-final:index.html, 08 § 4.16): no text, hidden from assistive tech. */
 function ColumnSkeleton({ still }: { still: boolean }) {
   return (
     <div className={styles["skeleton"]} aria-hidden="true">

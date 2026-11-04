@@ -1,8 +1,7 @@
 import type { Locator, Page } from "@playwright/test";
 
-// Client / Collègue switch and login panel (09 § 3: L-01; 06 § 1.1-1.2). Same roles and names on both sites:
-// segments with `aria-pressed` in the group « Mode d'accès » (`segGroup` on the legacy site, `ViewToggle` on the
-// React one), password field named by its `aria-label`.
+// Client / Collègue switch and login panel (09 § 3: L-01; 06 § 1.1-1.2): segments with `aria-pressed` in the group
+// « Mode d'accès » (`ViewToggle`), password field named by its `aria-label`.
 
 const MODE_LABELS = { client: "Client", staff: "Collègue" } as const;
 
@@ -25,7 +24,7 @@ export async function openLogin(page: Page): Promise<void> {
 
 /** Opens the panel if needed, types the password and validates (« Valider »). */
 export async function login(page: Page, password: string): Promise<void> {
-  // A closed panel keeps its field in the page (legacy, `inert`): « Collègue » says whether it is open.
+  // « Collègue » says whether the panel is open (`aria-expanded`).
   if ((await modeButton(page, "staff").getAttribute("aria-expanded")) !== "true") {
     await openLogin(page);
   }

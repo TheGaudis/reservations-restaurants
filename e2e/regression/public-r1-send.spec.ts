@@ -9,8 +9,7 @@ import {
 } from "../pages/booking-r1";
 import { longDate, selectDay } from "../pages/calendar";
 import { bookingSummary, reserveButton, seatsPill } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, gotoHome, toast, toastKind } from "../pages/home";
-import { target } from "../pages/target";
+import { gotoHome, toast, toastKind } from "../pages/home";
 import { otherBookingR1, pauseClock, posts } from "./helpers";
 
 // R1 booking sent to the script, summary, errors and new attempts (09 § 3: P-05, P-06; 04 § 6-7; invariant 3).
@@ -21,10 +20,6 @@ const DUPLICATE =
   "Cette réservation était déjà enregistrée : elle n'a pas été ajoutée une seconde fois.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test.describe("r1MaxSeats (REG-16)", () => {
   test(
@@ -37,20 +32,13 @@ test.describe("r1MaxSeats (REG-16)", () => {
       await fillBookingR1(page, { ...PERSON, students: "6" });
       await submitBookingR1(page);
 
-      if (target(test.info()) === "legacy") {
-        // Sent, refused by the script, shown in a toast; the form stays.
-        await expect(toast(page)).toHaveText("Il ne reste que 5 couvert(s) pour ce jour.");
-        expect(await toastKind(page)).toBe("error");
-        expect(posts(fakeScript.requests)).toHaveLength(1);
-      } else {
-        // E-35: blocked before sending, message under the row (text of 06 § 8.2).
-        await expect(
-          bookingR1Form(page).getByText("5 couverts au maximum (places restantes ce jour-là).", {
-            exact: true,
-          }),
-        ).toBeVisible();
-        expect(posts(fakeScript.requests)).toStrictEqual([]);
-      }
+      // E-35: blocked before sending, message under the row (text of 06 § 8.2).
+      await expect(
+        bookingR1Form(page).getByText("5 couverts au maximum (places restantes ce jour-là).", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(posts(fakeScript.requests)).toStrictEqual([]);
       await expect(bookingR1Field(page, "name")).toHaveValue(PERSON.name);
     },
   );
@@ -71,15 +59,9 @@ test.describe("r1MaxSeats (REG-16)", () => {
 
       const refusal = "Il ne reste que 2 couvert(s) pour ce jour.";
       await expect.poll(() => posts(fakeScript.requests).length).toBe(1);
-      if (target(test.info()) === "legacy") {
-        await expect(toast(page)).toHaveText(refusal);
-        // The state is not read again after the refusal (04 PA 1).
-        await expect(legend).toHaveAccessibleName("Nombre de personnes (5 au maximum)");
-      } else {
-        // E-35: the script's refusal under the row, and the state read again.
-        await expect(bookingR1Form(page).getByText(refusal, { exact: true })).toBeVisible();
-        await expect(legend).toHaveAccessibleName("Nombre de personnes (2 au maximum)");
-      }
+      // E-35: the script's refusal under the row, and the state read again.
+      await expect(bookingR1Form(page).getByText(refusal, { exact: true })).toBeVisible();
+      await expect(legend).toHaveAccessibleName("Nombre de personnes (2 au maximum)");
       await expect(bookingR1Field(page, "students")).toHaveValue("3");
     },
   );
@@ -89,7 +71,6 @@ test(
   "r1BookingSuccess (REG-17)",
   { tag: ["@changed:E-12", "@changed:E-13", "@P-05", "@P-06", "@G-07", "@p4"] },
   async ({ page, fakeScript }) => {
-    const react = target(test.info()) === "react";
     const { db } = fakeScript;
     db.mailError = "Service invoked too many times for one day: email.";
     await gotoHome(page);
@@ -105,13 +86,13 @@ test(
     const release = fakeScript.hold();
     await submitBookingR1(page);
 
-    // Busy button; E-13: « Annuler » stays active on legacy, disabled on React.
+    // Busy button; E-13: « Annuler » disabled.
     const form = bookingR1Form(page);
     const busy = form.getByRole("button", { name: "Envoi en cours…" });
     await expect(busy).toBeDisabled();
     await expect(busy).toHaveAttribute("aria-busy", "true");
     const cancel = form.getByRole("button", { name: "Annuler", exact: true });
-    await (react ? expect(cancel).toBeDisabled() : expect(cancel).toBeEnabled());
+    await expect(cancel).toBeDisabled();
 
     // Body of 02 § 4.4, every text trimmed, with the requestId created at the opening.
     await expect.poll(() => posts(fakeScript.requests).length).toBe(1);
@@ -157,12 +138,8 @@ test(
     await expect(seatsPill(page)).toHaveText("9 / 20 couverts");
     await expect(reserveButton(page, "r1")).toBeVisible();
 
-    // E-12: focus on body (legacy) or on the summary title (React).
-    if (react) {
-      await expect(summary.getByText("Réservation enregistrée", { exact: true })).toBeFocused();
-    } else {
-      expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
-    }
+    // E-12: focus on the summary title.
+    await expect(summary.getByText("Réservation enregistrée", { exact: true })).toBeFocused();
 
     await summary.getByRole("button", { name: "Fermer" }).click();
     await expect(bookingSummary(page, "r1")).toHaveCount(0);
@@ -210,7 +187,6 @@ test(
   "duplicateAfterLostResponse (REG-19)",
   { tag: ["@changed:E-10", "@changed:E-33", "@P-06", "@p4"] },
   async ({ page, fakeScript }) => {
-    const react = target(test.info()) === "react";
     await gotoHome(page);
     await openBookingR1(page);
     await fillBookingR1(page, { ...PERSON, students: "2" });
@@ -218,11 +194,9 @@ test(
     fakeScript.failNext("network");
     await submitBookingR1(page);
 
-    // E-10: the browser's raw message (legacy), the text of D-14 (React).
+    // E-10: the text of D-14.
     await expect(toast(page)).toHaveText(
-      react
-        ? "Le service de réservation ne répond pas. Réessayez dans un instant : une même réservation n'est jamais enregistrée deux fois."
-        : "Failed to fetch",
+      "Le service de réservation ne répond pas. Réessayez dans un instant : une même réservation n'est jamais enregistrée deux fois.",
     );
     expect(await toastKind(page)).toBe("error");
     await expect(bookingR1Field(page, "name")).toHaveValue(PERSON.name);
@@ -231,14 +205,10 @@ test(
     await expect(toast(page)).toHaveText(DUPLICATE);
     expect(await toastKind(page)).toBe("success");
     await expect(bookingR1Form(page)).toHaveCount(0);
-    // E-33: toast only (legacy), toast and summary « Réservation déjà enregistrée » (React).
+    // E-33: toast and summary « Réservation déjà enregistrée ».
     const summary = bookingSummary(page, "r1");
-    if (react) {
-      await expect(summary).toContainText("Réservation déjà enregistrée");
-      await expect(summary).toContainText(DUPLICATE);
-    } else {
-      await expect(summary).toHaveCount(0);
-    }
+    await expect(summary).toContainText("Réservation déjà enregistrée");
+    await expect(summary).toContainText(DUPLICATE);
 
     const ids = posts(fakeScript.requests).map((body) => body["requestId"]);
     expect(ids).toHaveLength(2);
@@ -268,8 +238,8 @@ test.describe("slowWriteNeverReplayed (REG-20)", () => {
       await page.clock.runFor(19_000);
       await expect(slow).toHaveCount(0);
       await page.clock.runFor(1000);
-      // E-10: the D-15 message at 20 s on React; nothing on legacy.
-      await expect(slow).toHaveCount(target(test.info()) === "react" ? 1 : 0);
+      // E-10: the D-15 message at 20 s.
+      await expect(slow).toHaveCount(1);
       await page.clock.runFor(5000);
       await expect(
         bookingR1Form(page).getByRole("button", { name: "Envoi en cours…" }),

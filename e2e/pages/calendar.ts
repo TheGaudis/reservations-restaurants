@@ -1,11 +1,10 @@
 import type { Locator, Page } from "@playwright/test";
 
 import { column } from "./home";
-import { currentTarget } from "./target";
-import type { Restaurant } from "./target";
+import type { Restaurant } from "./home";
 
-// Calendar of a column (09 § 3: P-01, P-01b, P-02, P-02b; 05 § 2-3): `role="group"` + `aria-pressed` on the
-// legacy site, `role="grid"` + `gridcell` `aria-selected` on the React one (E-05, PLAN § 3.5).
+// Calendar of a column (09 § 3: P-01, P-01b, P-02, P-02b; 05 § 2-3): `role="grid"` + `gridcell` `aria-selected`
+// (E-05, PLAN § 3.5).
 
 const LONG_DATE = new Intl.DateTimeFormat("fr-FR", {
   weekday: "long",
@@ -19,21 +18,15 @@ function escapeRegExp(text: string): string {
   return text.replaceAll(/[$()*+.?[\\\]^{|}]/gu, String.raw`\$&`);
 }
 
-/**
- * Long date of a day as the site writes it: « jeudi 1 octobre 2026 » on the legacy site (04 § 8), « jeudi 1er
- * octobre 2026 » on the React one (E-21).
- */
+/** Long date of a day as the site writes it: « jeudi 1er octobre 2026 » (04 § 8, E-21). */
 export function longDate(iso: string): string {
   const text = LONG_DATE.format(new Date(`${iso}T00:00:00Z`));
-  return currentTarget() === "react" ? text.replace(/^(\S+) 1 /u, "$1 1er ") : text;
+  return text.replace(/^(\S+) 1 /u, "$1 1er ");
 }
 
-/** Days of the calendar: the group (legacy) or the grid (React). */
+/** Days of the calendar: the grid. */
 export function calendarDays(page: Page, restaurant: Restaurant): Locator {
-  const days = column(page, restaurant);
-  return currentTarget() === "legacy"
-    ? days.getByRole("group", { name: /^Jours (?:de la semaine|du mois) — /u })
-    : days.getByRole("grid");
+  return column(page, restaurant).getByRole("grid");
 }
 
 /** Button of one day (ISO date), named « {date longue}, {état}[, passé] » (05 § 2.5). */
@@ -42,12 +35,11 @@ export function dayButton(page: Page, restaurant: Restaurant, iso: string): Loca
   return calendarDays(page, restaurant).getByRole("button", { name });
 }
 
-/** Button of the selected day: `aria-pressed` (legacy) or inside the `aria-selected` gridcell (React). */
+/** Button of the selected day, inside the `aria-selected` gridcell. */
 export function selectedDay(page: Page, restaurant: Restaurant): Locator {
-  const days = calendarDays(page, restaurant);
-  return currentTarget() === "legacy"
-    ? days.getByRole("button", { pressed: true })
-    : days.getByRole("gridcell", { selected: true }).getByRole("button");
+  return calendarDays(page, restaurant)
+    .getByRole("gridcell", { selected: true })
+    .getByRole("button");
 }
 
 /** Selects a day by clicking it. */

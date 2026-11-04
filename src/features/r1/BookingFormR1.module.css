@@ -1,4 +1,4 @@
-/* .form-reveal and .booking-form of legacy/app.css (04 § 5.1): the form opens under the card's text, above a thin
+/* .form-reveal and .booking-form of v1-final:app.css (04 § 5.1): the form opens under the card's text, above a thin
    rule, and rises in. */
 .reveal {
   scroll-margin-top: var(--space-4);

@@ -1,4 +1,4 @@
-/* .panel of legacy/design-system.css, .dash-title, .summary-row, .summary-item of legacy/app.css (06 § 2.1). */
+/* .panel of v1-final:design-system.css, .dash-title, .summary-row, .summary-item of v1-final:app.css (06 § 2.1). */
 .panel {
   margin-bottom: var(--space-4);
   padding: var(--space-4);
@@ -30,7 +30,7 @@
 }
 
 /* Blocks per restaurant: .summary-block, .summary-head, .summary-name, .summary-meta, .summary-line and
-   .summary-total of legacy/app.css (07 § 5). */
+   .summary-total of v1-final:app.css (07 § 5). */
 .blocks {
   margin-top: var(--space-2);
 }

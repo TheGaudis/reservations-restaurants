@@ -1,4 +1,4 @@
-/* .booking-form and .row2 of legacy/app.css (06 § 7.3, § 7.4): the form opens under its booking row, above a thin
+/* .booking-form and .row2 of v1-final:app.css (06 § 7.3, § 7.4): the form opens under its booking row, above a thin
    rule, and rises in. */
 .form {
   margin: var(--space-2) 0;

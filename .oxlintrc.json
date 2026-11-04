@@ -38,7 +38,6 @@
     "no-underscore-dangle": "off", // champs du script (`_bookingResult`, 02 § 5.4) et `__EARLY_FETCH__`
     "import/no-unassigned-import": "off", // feuilles de style et `setupFiles` importés pour leur effet
     "unicorn/consistent-function-scoping": "off", // aides locales des tests, près de leur cas
-    "vitest/no-conditional-expect": "off", // un même scénario vérifie l'ancien site et React (e2e/pages/target.ts)
     "vitest/require-mock-type-parameters": "off", // `tsc` infère le type des `vi.fn()`
     "vitest/require-to-throw-message": "off" // `toThrow(ServiceError)` nomme déjà l'erreur
   },
@@ -59,8 +58,8 @@
       "rules": { "import/no-nodejs-modules": "off", "react/rules-of-hooks": "off" }
     },
     {
-      // Garde réseau de Node (node:net, R-33) et tests dorés qui exécutent legacy/js/ dans node:vm (PLAN P2).
-      "files": ["src/test/setup-node.ts", "src/test/legacy-scripts.ts"],
+      // Garde réseau de Node (node:net, R-33).
+      "files": ["src/test/setup-node.ts"],
       "rules": { "import/no-nodejs-modules": "off" }
     },
     {
@@ -95,7 +94,6 @@
   ],
   // Identiques dans .oxfmtrc.json et knip.json (PLAN P0).
   "ignorePatterns": [
-    "legacy/**",
     "docs/**",
     ".claude/**",
     "translations/**",

@@ -1,5 +1,5 @@
-/* Days of a calendar (05 § 2.5, legacy/app.css « Calendrier ») and of the date picker (06 § 3.2,
-   legacy/design-system.css « Sélecteur de date »). A real table: its rows and cells keep their roles. */
+/* Days of a calendar (05 § 2.5, v1-final:app.css « Calendrier ») and of the date picker (06 § 3.2,
+   v1-final:design-system.css « Sélecteur de date »). A real table: its rows and cells keep their roles. */
 
 .grid {
   width: calc(100% + 2 * var(--space-1));

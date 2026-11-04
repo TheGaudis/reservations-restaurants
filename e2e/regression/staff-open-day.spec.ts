@@ -3,18 +3,13 @@ import { TODAY } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectDay, selectedDay, showPeriod } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast } from "../pages/home";
+import { toast } from "../pages/home";
 import { datePicker, staffCard } from "../pages/staff";
-import { target } from "../pages/target";
 import { actionBodies, loginAsStaff, openDayFormOf, pickerDay } from "./staff-helpers";
 
 // « Ouvrir un jour » of R1 and its date picker (09 § 4: C-04, C-05, C-10; 06 § 3, § 4.1; D-19).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 const R1_FIELDS = {
   staffName: "Votre nom (collègue qui ouvre ce jour)",
@@ -38,15 +33,10 @@ test.describe("openDayR1WithPicker (REG-33)", () => {
       await expect(picker).toBeVisible();
       await expect(picker.getByText(/^octobre 2026$/iu)).toBeVisible();
       await expect(pickerDay(page, TODAY)).toBeFocused();
-      if (target(test.info()) === "legacy") {
-        // 06 § 3.2: buttons with `aria-pressed`.
-        await expect(pickerDay(page, TODAY)).toHaveAttribute("aria-pressed", "true");
-      } else {
-        // E-05: a grid, the chosen day in the selected gridcell.
-        await expect(
-          picker.getByRole("gridcell", { selected: true }).getByRole("button"),
-        ).toHaveAccessibleName(new RegExp(`^${longDate(TODAY)}`, "u"));
-      }
+      // E-05: a grid, the chosen day in the selected gridcell.
+      await expect(
+        picker.getByRole("gridcell", { selected: true }).getByRole("button"),
+      ).toHaveAccessibleName(new RegExp(`^${longDate(TODAY)}`, "u"));
       await expect(pickerDay(page, "2026-10-01")).toHaveAccessibleName(
         `${longDate("2026-10-01")}, déjà ouvert, passé`,
       );
@@ -138,21 +128,13 @@ test.describe("openDayR1WithPicker (REG-33)", () => {
       await form.getByLabel(R1_FIELDS.capacity).fill("10");
       await form.getByRole("button", { name: "Ouvrir ce jour", exact: true }).click();
 
-      if (target(test.info()) === "legacy") {
-        // 06 PA 5: only a missing date is checked.
-        await expect(toast(page)).toHaveText("Jour ajouté.");
-        expect(actionBodies(fakeScript.requests, "addDayR1")[0]).toMatchObject({
-          date: "2026-10-02",
-        });
-      } else {
-        // E-36 (D-19).
-        await expect(
-          form.getByText("Choisissez la date d'aujourd'hui ou une date ultérieure.", {
-            exact: true,
-          }),
-        ).toBeVisible();
-        expect(actionBodies(fakeScript.requests, "addDayR1")).toStrictEqual([]);
-      }
+      // E-36 (D-19).
+      await expect(
+        form.getByText("Choisissez la date d'aujourd'hui ou une date ultérieure.", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(actionBodies(fakeScript.requests, "addDayR1")).toStrictEqual([]);
     },
   );
 
@@ -169,22 +151,15 @@ test.describe("openDayR1WithPicker (REG-33)", () => {
       await form.getByRole("button", { name: "Ouvrir ce jour", exact: true }).click();
 
       const card = staffCard(page, "r1");
-      if (target(test.info()) === "legacy") {
-        // 06 PA 4: the day is overwritten, below its 15 booked seats, « ouvert par » included.
-        await expect(toast(page)).toHaveText("Jour ajouté.");
-        await expect(card).toContainText("-5 / 10 couverts");
-        await expect(card).toContainText("Ouvert par Mme Roux");
-      } else {
-        // E-36 (D-19): sending blocked.
-        await expect(
-          form.getByText("Ce jour est déjà ouvert : utilisez « Modifier ce jour ».", {
-            exact: true,
-          }),
-        ).toBeVisible();
-        expect(actionBodies(fakeScript.requests, "addDayR1")).toStrictEqual([]);
-        await expect(card).toContainText("5 / 20 couverts");
-        await expect(card).toContainText("Ouvert par M. Dupont");
-      }
+      // E-36 (D-19): sending blocked.
+      await expect(
+        form.getByText("Ce jour est déjà ouvert : utilisez « Modifier ce jour ».", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(actionBodies(fakeScript.requests, "addDayR1")).toStrictEqual([]);
+      await expect(card).toContainText("5 / 20 couverts");
+      await expect(card).toContainText("Ouvert par M. Dupont");
     },
   );
 });

@@ -1,4 +1,4 @@
-/* Base rules: legacy/design-system.css § 3, § 5 (shared keyframes) and § 6 (touch comfort, reduced motion),
+/* Base rules: v1-final:design-system.css § 3, § 5 (shared keyframes) and § 6 (touch comfort, reduced motion),
    docs/spec/08 § 3 and § 5. Component rules live in CSS Modules next to their component. */
 
 /* Self-hosted fonts (D-23): latin subset of the variable fonts, same family names as the tokens. */

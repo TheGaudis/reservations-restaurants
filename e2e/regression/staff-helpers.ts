@@ -6,10 +6,9 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 import { expect } from "../fixtures";
 import { calendarDays, longDate } from "../pages/calendar";
 import { gotoHome, toast } from "../pages/home";
+import type { Restaurant } from "../pages/home";
 import { login } from "../pages/login";
 import { datePicker, openDayForm, openDayPanel } from "../pages/staff";
-import { currentTarget } from "../pages/target";
-import type { Restaurant } from "../pages/target";
 
 // Helpers shared by the staff scenarios (09 § 4; 06).
 
@@ -25,17 +24,9 @@ const SEED_NAMES = [
   "Association des anciens",
 ];
 
-/** Full-page veil of the legacy site (G-06, 06 conventions): its spinner, exposed while the veil is up. */
+/** Spinner of the full-page veil of 06 conventions (G-06), which the site never shows (E-04). */
 export function veil(page: Page): Locator {
   return page.getByRole("progressbar", { name: "Chargement en cours" });
-}
-
-/**
- * Waits until the veil is gone. While it is up, the legacy page has a second `role="status"` (« Chargement… »),
- * which `toast(page)` would also match. The React site has no veil (E-04).
- */
-export async function veilGone(page: Page): Promise<void> {
-  await expect(veil(page)).toHaveCount(0);
 }
 
 /** Opens the page, waits for the first data, logs in with the seed password: « Mode collègue activé. ». */
@@ -43,7 +34,6 @@ export async function loginAsStaff(page: Page): Promise<void> {
   await gotoHome(page);
   await expect(calendarDays(page, "r1")).toBeVisible();
   await login(page, SEED_PASSWORD);
-  await veilGone(page);
   await expect(toast(page)).toHaveText("Mode collègue activé.");
 }
 
@@ -70,11 +60,8 @@ export async function expectNoPersonalData(page: Page, extra: string[] = []): Pr
   }
 }
 
-/** True while a toast is displayed: the `show` state of the legacy `#toast`, a toast of the React viewport. */
+/** True while a toast of the viewport is displayed. */
 export async function toastShown(page: Page): Promise<boolean> {
-  if (currentTarget() === "legacy") {
-    return toast(page).evaluate((element) => element.classList.contains("show"));
-  }
   return (await toast(page).locator('[role="dialog"], [role="alertdialog"]').count()) > 0;
 }
 

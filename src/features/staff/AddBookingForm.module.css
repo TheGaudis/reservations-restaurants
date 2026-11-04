@@ -1,4 +1,4 @@
-/* .booking-form and .row2 of legacy/app.css (06 § 8.2, § 8.3): the form opens under the actions, above a thin rule,
+/* .booking-form and .row2 of v1-final:app.css (06 § 8.2, § 8.3): the form opens under the actions, above a thin rule,
    and rises in. */
 .reveal {
   scroll-margin-top: var(--space-4);

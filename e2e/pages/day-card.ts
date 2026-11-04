@@ -1,8 +1,7 @@
 import type { Locator, Page } from "@playwright/test";
 
 import { column } from "./home";
-import { currentTarget } from "./target";
-import type { Restaurant } from "./target";
+import type { Restaurant } from "./home";
 
 // Day card under a calendar, and the summary above it (09 § 3: P-03, P-04, P-06 to P-08, P-10 to P-12,
 // P-14 to P-17; 05 § 4-6).
@@ -17,10 +16,7 @@ const PILL_TEXT = /-?\d+ \/ \d+/u;
  */
 export function dayCard(page: Page, restaurant: Restaurant): Locator {
   // Searched inside each candidate: a locator that starts from the column would never match there.
-  const calendar =
-    currentTarget() === "legacy"
-      ? page.getByRole("group", { name: /^Jours (?:de la semaine|du mois) — /u })
-      : page.getByRole("grid");
+  const calendar = page.getByRole("grid");
   return column(page, restaurant)
     .locator("*")
     .filter({ hasText: LONG_DATE_TEXT })

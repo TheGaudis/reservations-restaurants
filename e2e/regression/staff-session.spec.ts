@@ -3,7 +3,7 @@ import { TEST_NOW, TODAY } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectedDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast, toastKind } from "../pages/home";
+import { toast, toastKind } from "../pages/home";
 import { login, logout, modeButton, passwordField } from "../pages/login";
 import {
   bookingRow,
@@ -16,23 +16,12 @@ import {
   staffPanel,
 } from "../pages/staff";
 import { readLocalCache } from "../pages/storage";
-import { target } from "../pages/target";
 import { exposed, settle } from "./helpers";
-import {
-  actionBodies,
-  expectNoPersonalData,
-  loginAsStaff,
-  readCount,
-  veilGone,
-} from "./staff-helpers";
+import { actionBodies, expectNoPersonalData, loginAsStaff, readCount } from "./staff-helpers";
 
 // End of a staff session: « Client », inactivity, password changed (09 § 4: C-30; 06 § 1.5-1.8; invariant 1).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 test.describe("logoutPurgeAndPanels (REG-29)", () => {
   test.use({ fixedTime: null });
@@ -43,7 +32,6 @@ test.describe("logoutPurgeAndPanels (REG-29)", () => {
       tag: ["@changed:E-24", "@changed:E-17", "@changed:E-08", "@C-30", "@C-02", "@C-05", "@p5"],
     },
     async ({ page, fakeScript }) => {
-      const legacy = target(test.info()) === "legacy";
       await page.clock.install({ time: TEST_NOW });
       await loginAsStaff(page);
       await expect(staffCard(page, "r1")).toContainText("Ariele Gsell");
@@ -62,40 +50,25 @@ test.describe("logoutPurgeAndPanels (REG-29)", () => {
       const readsAfterLogout = readCount(fakeScript.requests);
       const staffReads = actionBodies(fakeScript.requests, "getAdminState").length;
 
-      // Refresh 3 min later: blocked by the picker left open on the legacy site (a-13), public read on React.
+      // Refresh 3 min later: a public read.
       await page.clock.runFor("03:00");
       await settle(page);
-      if (legacy) {
-        expect(readCount(fakeScript.requests)).toBe(readsAfterLogout);
-      } else {
-        await expect.poll(() => readCount(fakeScript.requests)).toBeGreaterThan(readsAfterLogout);
-      }
+      await expect.poll(() => readCount(fakeScript.requests)).toBeGreaterThan(readsAfterLogout);
       expect(actionBodies(fakeScript.requests, "getAdminState")).toHaveLength(staffReads);
 
       // Login again, with the keyboard too (06 § 1.2: Entrée in the field).
       await modeButton(page, "staff").press("Enter");
       await passwordField(page).fill(SEED_PASSWORD);
       await passwordField(page).press("Enter");
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Mode collègue activé.");
       await expect(staffCard(page, "r1")).toContainText("Ariele Gsell");
-      if (legacy) {
-        // 06 PA 2-3 (a-13, a-14): the panels come back as they were.
-        await expect(restaurantName).toBeVisible();
-        await expect(datePicker(page)).toBeVisible();
-      } else {
-        // E-24: the logout closed them.
-        await expect.poll(async () => exposed(restaurantName)).toBe(false);
-        await expect.poll(async () => exposed(datePicker(page))).toBe(false);
-      }
+      // E-24: the logout closed the panels.
+      await expect.poll(async () => exposed(restaurantName)).toBe(false);
+      await expect.poll(async () => exposed(datePicker(page))).toBe(false);
 
-      // E-17: the legacy page saves its copy from the full state too (no etag); React only from the public one.
+      // E-17: the copy is saved from the public state only.
       const copy = await readLocalCache(page);
-      if (legacy) {
-        expect(copy).not.toHaveProperty("etag");
-      } else {
-        expect(copy).toHaveProperty("etag", "E1");
-      }
+      expect(copy).toHaveProperty("etag", "E1");
     },
   );
 });
@@ -120,11 +93,8 @@ test(
       .poll(() => fakeScript.db.r1Days.find((day) => day.Date === TODAY)?.Capacite)
       .toBe(18);
     await settle(page);
-    // The legacy page announces the write it no longer shows; on React the session guard throws the answer away,
-    // toast included (E-55).
-    await (target(test.info()) === "legacy"
-      ? expect(toast(page)).toHaveText("Jour modifié.")
-      : expect(page.getByText("Jour modifié.", { exact: true })).toHaveCount(0));
+    // The session guard throws the answer away, toast included (E-55).
+    await expect(page.getByText("Jour modifié.", { exact: true })).toHaveCount(0);
     await expectNoPersonalData(page);
     await expect(modeButton(page, "client")).toHaveAttribute("aria-pressed", "true");
     expect(new URL(page.url()).pathname).toBe("/reservations-restaurants/");
@@ -208,7 +178,6 @@ test.describe("inactivity and password", () => {
       await expect(modeButton(page, "client")).toHaveAttribute("aria-pressed", "true");
       await expectNoPersonalData(page);
       await login(page, "autre");
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Mode collègue activé.");
     },
   );

@@ -11,20 +11,14 @@ import {
   showPeriod,
 } from "../pages/calendar";
 import { dayCard } from "../pages/day-card";
-import { BLOCKED_FONT_PRELOAD, column, gotoHome } from "../pages/home";
-import { target } from "../pages/target";
-import type { Restaurant } from "../pages/target";
+import { column, gotoHome } from "../pages/home";
+import type { Restaurant } from "../pages/home";
 
 // Calendars (09 § 3: P-01, P-01b, P-02, P-02b; 05 § 2-3). Seed of parite.md § 2, dated from 2026-10-05.
 
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
-
-/** Cells of the calendar: buttons of the group (legacy), gridcells (React). */
+/** Cells of the calendar: its gridcells. */
 function cells(page: Parameters<typeof calendarDays>[0], restaurant: Restaurant) {
-  const days = calendarDays(page, restaurant);
-  return target(test.info()) === "legacy" ? days.getByRole("button") : days.getByRole("gridcell");
+  return calendarDays(page, restaurant).getByRole("gridcell");
 }
 
 test.describe("at 9:00 on Wednesday 30 September 2026", () => {
@@ -34,12 +28,11 @@ test.describe("at 9:00 on Wednesday 30 September 2026", () => {
     "calendarWeekNavigation (REG-09)",
     { tag: ["@changed:E-05", "@changed:E-06", "@P-01", "@P-01b", "@p4"] },
     async ({ page }) => {
-      const site = target(test.info());
       await gotoHome(page);
 
       for (const restaurant of ["r1", "r2"] as const) {
         // E-06: the month of the Monday is written when it differs from the Sunday's.
-        const week = site === "legacy" ? "28 – 4 oct. 2026" : "28 sept. – 4 oct. 2026";
+        const week = "28 sept. – 4 oct. 2026";
         await expect(periodLabel(page, restaurant)).toHaveText(week);
         await expect(selectedDay(page, restaurant)).toHaveAccessibleName(
           `${longDate("2026-09-30")}, aucun service`,
@@ -65,19 +58,11 @@ test.describe("at 9:00 on Wednesday 30 September 2026", () => {
         );
       }
 
-      // E-05: a group of toggle buttons (legacy), a grid of selectable cells (React).
+      // E-05: a grid of selectable cells.
       const days = calendarDays(page, "r1");
-      if (site === "legacy") {
-        await expect(days).toHaveAccessibleName(
-          "Jours de la semaine — flèches pour changer de jour",
-        );
-        await expect(days.getByRole("button", { pressed: true })).toHaveCount(1);
-        await expect(days.getByRole("button", { pressed: false })).toHaveCount(6);
-      } else {
-        await expect(days.getByRole("gridcell")).toHaveCount(7);
-        await expect(days.getByRole("gridcell", { selected: true })).toHaveCount(1);
-        await expect(days.getByRole("gridcell", { selected: false })).toHaveCount(6);
-      }
+      await expect(days.getByRole("gridcell")).toHaveCount(7);
+      await expect(days.getByRole("gridcell", { selected: true })).toHaveCount(1);
+      await expect(days.getByRole("gridcell", { selected: false })).toHaveCount(6);
     },
   );
 });
@@ -118,20 +103,12 @@ test(
       await setView(page, restaurant, "month");
     }
 
-    // E-23: the view lives in the URL on the React site only.
+    // E-23: the view lives in the URL.
     await page.reload();
-    if (target(test.info()) === "legacy") {
-      await expect(periodLabel(page, "r1")).toHaveText("5 – 11 oct. 2026");
-      await expect(cells(page, "r1")).toHaveCount(7);
-      await expect(selectedDay(page, "r1")).toHaveAccessibleName(
-        `${longDate("2026-10-05")}, places disponibles`,
-      );
-    } else {
-      await expect(cells(page, "r1")).toHaveCount(42);
-      await expect(selectedDay(page, "r1")).toHaveAccessibleName(
-        `${longDate("2026-11-01")}, aucun service`,
-      );
-    }
+    await expect(cells(page, "r1")).toHaveCount(42);
+    await expect(selectedDay(page, "r1")).toHaveAccessibleName(
+      `${longDate("2026-11-01")}, aucun service`,
+    );
   },
 );
 
@@ -174,9 +151,8 @@ test(
     await press("End", "2027-01-31");
     await expect(dayCard(page, "r1")).toContainText(longDate("2027-01-31"));
 
-    // E-07: legacy overflows (31 January + 1 month = 3 March), React stops at the last day of February.
-    const nextMonth = target(test.info()) === "legacy" ? "2027-03-03" : "2027-02-28";
-    await press("PageDown", nextMonth);
+    // E-07: 31 January + 1 month stops at the last day of February.
+    await press("PageDown", "2027-02-28");
     await expect(days.locator('[tabindex="0"]')).toHaveCount(1);
   },
 );
@@ -188,7 +164,6 @@ test.describe("at 10:30 on Monday 5 October 2026", () => {
     "calendarDayAriaLabels (REG-12)",
     { tag: ["@changed:E-21", "@changed:E-43", "@P-01", "@P-02b", "@P-15", "@p4"] },
     async ({ page }) => {
-      const site = target(test.info());
       await gotoHome(page);
 
       const label = async (restaurant: Restaurant, iso: string, state: string) => {
@@ -203,20 +178,14 @@ test.describe("at 10:30 on Monday 5 October 2026", () => {
       await label("r1", "2026-10-11", "aucun service");
       await showPeriod(page, "r1", "previous");
       await label("r1", "2026-09-30", "aucun service, passé");
-      // E-21: « jeudi 1 octobre 2026 » (legacy), « jeudi 1er octobre 2026 » (React).
+      // E-21: « jeudi 1er octobre 2026 ».
       await label("r1", "2026-10-01", "places disponibles, passé");
       await expect(dayButton(page, "r1", "2026-10-01")).toHaveAccessibleName(
-        site === "legacy"
-          ? "jeudi 1 octobre 2026, places disponibles, passé"
-          : "jeudi 1er octobre 2026, places disponibles, passé",
+        "jeudi 1er octobre 2026, places disponibles, passé",
       );
 
-      // E-43: after 10:00, today's R2 day says its orders are closed on the React site only.
-      await label(
-        "r2",
-        "2026-10-05",
-        site === "legacy" ? "places disponibles" : "places disponibles, commandes closes",
-      );
+      // E-43: after 10:00, today's R2 day says its orders are closed.
+      await label("r2", "2026-10-05", "places disponibles, commandes closes");
       await label("r2", "2026-10-06", "places disponibles");
       // A day open without any dish has no service in the calendar (05 § 6.5).
       await label("r2", "2026-10-10", "aucun service");

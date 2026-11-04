@@ -1,4 +1,4 @@
-/* View transitions of the calendars (05 § 3.4, legacy/app.css « Transitions Material 3 du calendrier »). Global
+/* View transitions of the calendars (05 § 3.4, v1-final:app.css « Transitions Material 3 du calendrier »). Global
    rules: the ::view-transition-* pseudo-elements hang from :root, out of reach of a CSS Module. The router passes two
    types, the restaurant and the kind of move, such as « r1 » and « next » (features/calendar/page-search.ts).
    base.css cannot reach these pseudo-elements: every motion stays inside prefers-reduced-motion: no-preference

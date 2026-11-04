@@ -11,7 +11,7 @@ import { login } from "../pages/login";
 export const NAME1 = "Restaurant Pédagogique";
 export const NAME2 = "Aristide";
 
-/** Opens the public page and logs in with the seed password (06 § 1.3), through « Collègue » on both sites. */
+/** Opens the public page and logs in with the seed password (06 § 1.3), through « Collègue ». */
 export async function enterStaffMode(page: Page): Promise<void> {
   await gotoHome(page);
   await login(page, SEED_PASSWORD);

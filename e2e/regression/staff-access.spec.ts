@@ -1,13 +1,12 @@
 import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
-import { TEST_NOW, TODAY } from "@/test/clock";
+import { TEST_NOW } from "@/test/clock";
 
 import { expect, test } from "../fixtures";
-import { calendarDays, longDate, selectDay, selectedDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, gotoHome, toast, toastKind } from "../pages/home";
+import { calendarDays, selectDay } from "../pages/calendar";
+import { gotoHome, toast, toastKind } from "../pages/home";
 import { login, modeButton, openLogin, passwordField } from "../pages/login";
 import { bookingRow, staffCard } from "../pages/staff";
 import { readLocalCache, seedLocalCache } from "../pages/storage";
-import { target } from "../pages/target";
 import { exposed } from "./helpers";
 import {
   actionBodies,
@@ -15,7 +14,6 @@ import {
   loginAsStaff,
   toastShown,
   veil,
-  veilGone,
 } from "./staff-helpers";
 
 // Access to the staff mode: login panel, login, guard of /collegue (09 § 2: G-02, G-06, G-08; 09 § 3: L-01; 06 § 1).
@@ -23,10 +21,6 @@ import {
 const DAY = 24 * 60 * 60 * 1000;
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 function searchOf(url: string): Record<string, string> {
   return Object.fromEntries(new URL(url).searchParams);
@@ -57,7 +51,6 @@ test.describe("loginPanel (REG-27)", () => {
         })
         .toBe(TEST_NOW);
       await login(page, SEED_PASSWORD);
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Mode collègue activé.");
     },
   );
@@ -112,7 +105,6 @@ test.describe("loginPanel (REG-27)", () => {
       await expect(calendarDays(page, "r1")).toBeVisible();
 
       await login(page, "faux");
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Mot de passe incorrect.");
       expect(await toastKind(page)).toBe("error");
       const firstShown = Date.now();
@@ -121,27 +113,16 @@ test.describe("loginPanel (REG-27)", () => {
       await page.waitForTimeout(firstShown + 2000 - Date.now());
       await page.getByRole("button", { name: "Valider", exact: true }).click();
       await expect.poll(() => actionBodies(fakeScript.requests, "getAdminState").length).toBe(2);
-      await veilGone(page);
       await expect.poll(async () => toastShown(page)).toBe(true);
-      const secondShown = Date.now();
       await expect(toast(page)).toHaveText("Mot de passe incorrect.");
-      if (target(test.info()) === "legacy") {
-        // 06 PA 16: the timer of the first toast hides the second one before its 3,5 s.
-        await expect
-          .poll(async () => toastShown(page), { timeout: 3000, intervals: [100] })
-          .toBe(false);
-        expect(Date.now() - secondShown).toBeLessThan(3000);
-      } else {
-        // E-02: one toast at a time, the new one replaces the old one with its full time.
-        await page.waitForTimeout(1500);
-        expect(await toastShown(page)).toBe(true);
-        await expect(toast(page).locator('[role="dialog"], [role="alertdialog"]')).toHaveCount(1);
-      }
+      // E-02: one toast at a time, the new one replaces the old one with its full time.
+      await page.waitForTimeout(1500);
+      expect(await toastShown(page)).toBe(true);
+      await expect(toast(page).locator('[role="dialog"], [role="alertdialog"]')).toHaveCount(1);
 
       // Any other failure: « Erreur de connexion. Réessayez. » (06 § 1.3).
       fakeScript.failNext("network");
       await login(page, SEED_PASSWORD);
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Erreur de connexion. Réessayez.");
       expect(await toastKind(page)).toBe("error");
       expect(actionBodies(fakeScript.requests, "getAdminState")).toStrictEqual([
@@ -162,33 +143,20 @@ test.describe("loginPanel (REG-27)", () => {
       await login(page, SEED_PASSWORD);
       await expect.poll(() => actionBodies(fakeScript.requests, "getAdminState").length).toBe(1);
 
-      if (target(test.info()) === "legacy") {
-        // G-06: full-page veil, the button keeps its label.
-        await expect(veil(page)).toBeVisible();
-        await expect(page.locator('button[aria-busy="true"]')).toHaveCount(0);
-      } else {
-        // E-04: busy button, no veil.
-        await expect(veil(page)).toHaveCount(0);
-        await expect(page.locator('button[aria-busy="true"]')).toHaveCount(1);
-      }
+      // E-04: busy button, no veil.
+      await expect(veil(page)).toHaveCount(0);
+      await expect(page.locator('button[aria-busy="true"]')).toHaveCount(1);
       release();
 
-      await veilGone(page);
       await expect(toast(page)).toHaveText("Mode collègue activé.");
       expect(await toastKind(page)).toBe("success");
       const staff = modeButton(page, "staff");
       await expect(staff).toHaveAttribute("aria-pressed", "true");
       await expect(staff).toHaveAttribute("aria-expanded", "false");
-      if (target(test.info()) === "legacy") {
-        // 06 § 1.3 (5) focuses « Collègue » while the veil keeps the page inert: the focus falls on body.
-        expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
-        expect(new URL(page.url()).pathname).toBe("/reservations-restaurants/");
-      } else {
-        // E-04: nothing inert, the focus reaches « Collègue ».
-        await expect(staff).toBeFocused();
-        // E-23: the staff mode has its own URL (G-08).
-        await expect(page).toHaveURL(/\/reservations-restaurants\/collegue(?:\?|$)/u);
-      }
+      // E-04: nothing inert, the focus reaches « Collègue ».
+      await expect(staff).toBeFocused();
+      // E-23: the staff mode has its own URL (G-08).
+      await expect(page).toHaveURL(/\/reservations-restaurants\/collegue(?:\?|$)/u);
     },
   );
 });
@@ -204,17 +172,6 @@ test("staffGuardReload (REG-28)", { tag: ["@changed:E-23", "@G-08", "@p5"] }, as
   const before = page.url();
 
   await page.reload();
-  if (target(test.info()) === "legacy") {
-    // One URL, state in memory: a reload is back to the client mode, on today (06 § 1.4).
-    await expect(calendarDays(page, "r1")).toBeVisible();
-    await expect(modeButton(page, "client")).toHaveAttribute("aria-pressed", "true");
-    await expect(selectedDay(page, "r1")).toHaveAccessibleName(
-      new RegExp(`^${longDate(TODAY)},`, "u"),
-    );
-    await expect(nameField).toHaveCount(0);
-    await expectNoPersonalData(page);
-    return;
-  }
   // E-23: the URL holds the day and the open form; the guard asks for the password, then returns there.
   expect(new URL(before).pathname).toBe("/reservations-restaurants/collegue");
   expect(searchOf(before)).toMatchObject({ r1: "2026-10-06", editResa: "r1:r1b-d+1-ungerer" });

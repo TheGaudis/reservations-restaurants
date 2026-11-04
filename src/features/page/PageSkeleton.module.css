@@ -1,5 +1,5 @@
-/* .wrap > main, .columns, .col, .col-head, .desc, .skeleton, .sk-row, .sk-grid of legacy/app.css, .slash-mark of
-   legacy/design-system.css and the calendar skeleton of legacy/index.html (08 § 4.16, § 4.18, § 7.1, § 7.3). */
+/* .wrap > main, .columns, .col, .col-head, .desc, .skeleton, .sk-row, .sk-grid of v1-final:app.css, .slash-mark of
+   v1-final:design-system.css and the calendar skeleton of v1-final:index.html (08 § 4.16, § 4.18, § 7.1, § 7.3). */
 .main {
   display: grid;
   gap: var(--space-4);

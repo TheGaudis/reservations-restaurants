@@ -1,4 +1,4 @@
-/* .toast of legacy/design-system.css (08 § 4.14): bottom centre, tinted with the state colour, round mark with a
+/* .toast of v1-final:design-system.css (08 § 4.14): bottom centre, tinted with the state colour, round mark with a
    cut-out glyph. Like the legacy toast, it never takes a click meant for the page below. */
 .viewport {
   position: fixed;

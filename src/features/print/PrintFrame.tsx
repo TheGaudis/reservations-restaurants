@@ -8,7 +8,7 @@ import { formatLongDate } from "@/intl/dates";
 
 import styles from "@/features/print/PrintFrame.module.css";
 
-// Frame of the four printed documents (07 § 2.2, `printDoc` of legacy/js/impression.js) and the pieces that both
+// Frame of the four printed documents (07 § 2.2, `printDoc` of v1-final:js/impression.js) and the pieces that both
 // restaurants print. The footer prints in the page margin (styles/print.css), not here.
 
 const logoAltMessage = defineMessage({

@@ -1,12 +1,9 @@
 import type { Locator, Page } from "@playwright/test";
 
-import { currentTarget } from "./target";
-
 // Printed documents (09 § 5: I-00 to I-04; 07) and the tomorrow panel (09 § 4: C-01, C-03; 06 § 2.1, 07 § 5).
-// Legacy: a popup window per document, left open (07 § 8). React: the same document, `window.print` intercepted
-// (E-15, PLAN § 3.8), the printed document being the page's only article. Either way, `print()` only counts its
-// calls and the document is read in print media: what the printer receives, without the screen-only footer of the
-// legacy popup (07 § 2.2).
+// The document is printed from the page, `window.print` intercepted (E-15, PLAN § 3.8), the printed document being
+// the page's only article. `print()` only counts its calls and the document is read in print media: what the
+// printer receives.
 
 interface PrintWindow {
   e2ePrintCalls?: number;
@@ -31,14 +28,6 @@ export async function stubPrint(page: Page): Promise<void> {
  * print media. Its page title is the document title, offered as the PDF name (07 § 3, 4, 6, 7).
  */
 export async function printedDocument(page: Page, trigger: () => Promise<void>): Promise<Locator> {
-  if (currentTarget() === "legacy") {
-    const popup = page.waitForEvent("popup");
-    await trigger();
-    const window = await popup;
-    await window.waitForFunction(() => ((globalThis as PrintWindow).e2ePrintCalls ?? 0) > 0);
-    await window.emulateMedia({ media: "print" });
-    return window.locator("body");
-  }
   const before = await printCalls(page);
   await trigger();
   await page.waitForFunction(
@@ -49,13 +38,9 @@ export async function printedDocument(page: Page, trigger: () => Promise<void>):
   return page.getByRole("article");
 }
 
-/** Ends the printing of `printed`: closes the popup (legacy), or leaves print media and fires `afterprint`. */
+/** Ends the printing of `printed`: leaves print media and fires `afterprint`. */
 export async function closePrintedDocument(printed: Locator): Promise<void> {
   const page = printed.page();
-  if (currentTarget() === "legacy") {
-    await page.close();
-    return;
-  }
   await page.emulateMedia({ media: null });
   await page.evaluate(() => globalThis.dispatchEvent(new Event("afterprint")));
 }
@@ -73,22 +58,14 @@ export async function printedRow(printed: Locator, text: string): Promise<string
   return printed.getByRole("row").filter({ hasText: text }).getByRole("cell").allTextContents();
 }
 
-/**
- * Panel « Demain ({date}) » (C-01): the totals panel of the legacy site, the single merged panel of the React
- * one (D-07, E-30), a region named by its title.
- */
+/** Panel « Demain ({date}) » (C-01): a single merged panel (D-07, E-30), a region named by its title. */
 export function tomorrowPanel(page: Page): Locator {
-  const title = /^Demain \(/u;
-  return currentTarget() === "legacy"
-    ? page.getByRole("heading", { name: title }).locator("xpath=..")
-    : page.getByRole("region", { name: title });
+  return page.getByRole("region", { name: /^Demain \(/u });
 }
 
-/** Tomorrow summary with its print buttons (C-03): « Résumé pour demain » (legacy), the merged panel (React). */
+/** Tomorrow summary with its print buttons (C-03): the merged panel. */
 export function tomorrowSummary(page: Page): Locator {
-  return currentTarget() === "legacy"
-    ? page.getByText(/^Résumé pour demain \(/u).locator("xpath=..")
-    : tomorrowPanel(page);
+  return tomorrowPanel(page);
 }
 
 /** Block of a restaurant in the tomorrow summary (07 § 5), found by the restaurant's name. */

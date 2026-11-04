@@ -1,5 +1,5 @@
 /**
- * Icons of docs/spec/08 § 6.2, SVG paths copied from legacy/js and legacy/index.html. Decorative: `aria-hidden`,
+ * Icons of docs/spec/08 § 6.2, SVG paths copied from v1-final:js and v1-final:index.html. Decorative: `aria-hidden`,
  * colour from `currentColor`; the button or the text next to an icon carries the accessible name. The CSS of the
  * component sets the size (attributes below: legacy defaults).
  */
@@ -26,7 +26,7 @@ function MaterialIcon({ path, className }: IconProps & { path: string }) {
   );
 }
 
-// Stroke icons of the legacy `ICONS` object (ICON_ATTRS, legacy/js/interface.js): viewBox 24, stroke 2.
+// Stroke icons of the legacy `ICONS` object (ICON_ATTRS, v1-final:js/interface.js): viewBox 24, stroke 2.
 function StrokeIcon({ className, children }: IconProps & { children: ReactNode }) {
   return (
     <svg

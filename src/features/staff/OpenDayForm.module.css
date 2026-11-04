@@ -3,7 +3,7 @@
   min-width: 0;
 }
 
-/* .field-group of legacy/design-system.css: « Plats disponibles ce jour-là » (06 § 4.2). */
+/* .field-group of v1-final:design-system.css: « Plats disponibles ce jour-là » (06 § 4.2). */
 .dishes {
   min-width: 0;
   margin: 0 0 var(--space-3);

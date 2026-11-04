@@ -3,9 +3,8 @@ import type { Page } from "@playwright/test";
 import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "../fixtures";
-import { BLOCKED_FONT_PRELOAD, columnTitle, toast, toastKind } from "../pages/home";
+import { columnTitle, toast, toastKind } from "../pages/home";
 import { openSettings, staffPanel } from "../pages/staff";
-import { target } from "../pages/target";
 import { settle } from "./helpers";
 import { actionBodies, loginAsStaff, storedJson } from "./staff-helpers";
 
@@ -14,10 +13,6 @@ import { actionBodies, loginAsStaff, storedJson } from "./staff-helpers";
 const LOCK_BUSY = "Le serveur est très sollicité : réessayez dans quelques secondes.";
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 async function openSettingsPanel(page: Page) {
   await loginAsStaff(page);
@@ -72,14 +67,9 @@ test.describe("settingsPanel (REG-32)", () => {
 
       const heading = page.getByRole("heading", { level: 1 });
       const storedTexts = await storedJson(page, "reservations-textes");
-      if (target(test.info()) === "legacy") {
-        // E-40: « … et Aristide » written in the page; E-18: the titles saved for the next visit.
-        await expect(heading).toHaveText("Réservations des restaurants pédagogiques et Aristide");
-        expect(storedTexts).toMatchObject({ name1: "Restaurant Pédagogique", name2: "Le Bistrot" });
-      } else {
-        await expect(heading).toHaveText("Réservations des restaurants pédagogiques et Le Bistrot");
-        expect(storedTexts).toBeNull();
-      }
+      // E-40: the heading follows `name2`; E-18: the titles are never stored.
+      await expect(heading).toHaveText("Réservations des restaurants pédagogiques et Le Bistrot");
+      expect(storedTexts).toBeNull();
     },
   );
 
@@ -90,17 +80,11 @@ test.describe("settingsPanel (REG-32)", () => {
       const { field, save } = await openSettingsPanel(page);
       await field("Description du restaurant 2").fill("");
       await save();
-      if (target(test.info()) === "legacy") {
-        // 06 § 2.2 (1): an emptied field is ignored.
-        await expect(toast(page)).toHaveText("Aucune modification à enregistrer.");
-        expect(actionBodies(fakeScript.requests, "setConfigField")).toStrictEqual([]);
-      } else {
-        // E-37: sent empty, the script puts its default text back (b-9).
-        await expect(toast(page)).toHaveText("Paramètre enregistré.");
-        expect(actionBodies(fakeScript.requests, "setConfigField")).toStrictEqual([
-          { action: "setConfigField", password: SEED_PASSWORD, key: "desc2", value: "" },
-        ]);
-      }
+      // E-37: sent empty, the script puts its default text back (b-9).
+      await expect(toast(page)).toHaveText("Paramètre enregistré.");
+      expect(actionBodies(fakeScript.requests, "setConfigField")).toStrictEqual([
+        { action: "setConfigField", password: SEED_PASSWORD, key: "desc2", value: "" },
+      ]);
     },
   );
 
@@ -119,15 +103,10 @@ test.describe("settingsPanel (REG-32)", () => {
       release();
 
       await expect.poll(() => actionBodies(fakeScript.requests, "setConfigField").length).toBe(2);
-      if (target(test.info()) === "legacy") {
-        // 06 § 2.2 (6): the script's message alone.
-        await expect(toast(page)).toHaveText(LOCK_BUSY);
-      } else {
-        // E-37 (D-20): what was saved and what was not.
-        await expect(toast(page)).toHaveText(
-          `Enregistré : Contact à indiquer pour une annulation (affiché dans les emails). Non enregistré : Tarif professeur/personnel (€) (${LOCK_BUSY}).`,
-        );
-      }
+      // E-37 (D-20): what was saved and what was not.
+      await expect(toast(page)).toHaveText(
+        `Enregistré : Contact à indiquer pour une annulation (affiché dans les emails). Non enregistré : Tarif professeur/personnel (€) (${LOCK_BUSY}).`,
+      );
       expect(await toastKind(page)).toBe("error");
       expect(fakeScript.db.config["contactAnnulation"]).toBe(contact);
       expect(fakeScript.db.config["priceProf"]).toBe("6.10");
@@ -142,22 +121,14 @@ test.describe("settingsPanel (REG-32)", () => {
       await field("Nom du restaurant 1").fill("");
       await field("Tarif extérieur (€)").fill("-1");
       await save();
-      if (target(test.info()) === "legacy") {
-        // No check (06 § 2.2): the emptied name is ignored, the negative price sent.
-        await expect(toast(page)).toHaveText("Paramètre enregistré.");
-        expect(actionBodies(fakeScript.requests, "setConfigField")).toStrictEqual([
-          { action: "setConfigField", password: SEED_PASSWORD, key: "priceExterieur", value: "-1" },
-        ]);
-      } else {
-        // E-37 (D-20): both refused under their field, nothing sent.
-        await expect(
-          panel.getByText("Indiquez le nom du restaurant.", { exact: true }),
-        ).toBeVisible();
-        await expect(
-          panel.getByText("Indiquez un tarif positif ou nul (ex. 4,95).", { exact: true }),
-        ).toBeVisible();
-        expect(actionBodies(fakeScript.requests, "setConfigField")).toStrictEqual([]);
-      }
+      // E-37 (D-20): both refused under their field, nothing sent.
+      await expect(
+        panel.getByText("Indiquez le nom du restaurant.", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        panel.getByText("Indiquez un tarif positif ou nul (ex. 4,95).", { exact: true }),
+      ).toBeVisible();
+      expect(actionBodies(fakeScript.requests, "setConfigField")).toStrictEqual([]);
     },
   );
 });

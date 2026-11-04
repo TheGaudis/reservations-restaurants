@@ -4,18 +4,13 @@ import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 
 import { expect, test } from "../fixtures";
 import { longDate, selectedDay } from "../pages/calendar";
-import { BLOCKED_FONT_PRELOAD, toast } from "../pages/home";
+import { toast } from "../pages/home";
 import { openDayPanel, staffCard } from "../pages/staff";
-import { target } from "../pages/target";
 import { actionBodies, loginAsStaff, openDayFormOf, pickerDay } from "./staff-helpers";
 
 // « Ouvrir un jour » of R2 and its dish lines (09 § 4: C-06; 06 § 4.2-4.3; D-19, D-22).
 
 test.use({ reducedMotion: "reduce" });
-
-test.beforeEach(({ consoleLog }) => {
-  consoleLog.allow(BLOCKED_FONT_PRELOAD);
-});
 
 /** Field of dish line `index` (06 § 4.2): « Plat 1 : nom », « … : stock », « … : prix en euros (optionnel) »… */
 function dishLine(page: Page, index: number, part: string) {
@@ -107,27 +102,18 @@ test.describe("openDayR2DishLines (REG-34)", () => {
       await dishLine(page, 2, "nom").fill("Salade");
       await form.getByRole("button", { name: "Ouvrir ce jour", exact: true }).click();
 
-      if (target(test.info()) === "legacy") {
-        // 06 PA 7-8: the incomplete line is dropped in silence; price 0 is stored as no price (b-8).
-        await expect(toast(page)).toHaveText("Jour ajouté.");
-        expect(actionBodies(fakeScript.requests, "addDayR2")[0]?.["items"]).toStrictEqual([
-          { name: "Lasagnes", stock: 8, price: 0 },
-        ]);
-        expect(fakeScript.db.r2Items.find((dish) => dish.Date === "2026-10-20")?.Prix).toBe("");
-      } else {
-        // E-36, E-39 (D-19, D-22): both lines refused, nothing sent.
-        await expect(
-          form.getByText("Indiquez un prix supérieur à 0, ou laissez le champ vide.", {
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(
-          form.getByText("Indiquez le nom et le stock de ce plat, ou retirez la ligne.", {
-            exact: true,
-          }),
-        ).toBeVisible();
-        expect(actionBodies(fakeScript.requests, "addDayR2")).toStrictEqual([]);
-      }
+      // E-36, E-39 (D-19, D-22): both lines refused, nothing sent.
+      await expect(
+        form.getByText("Indiquez un prix supérieur à 0, ou laissez le champ vide.", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        form.getByText("Indiquez le nom et le stock de ce plat, ou retirez la ligne.", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      expect(actionBodies(fakeScript.requests, "addDayR2")).toStrictEqual([]);
     },
   );
 });

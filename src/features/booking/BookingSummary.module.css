@@ -1,4 +1,4 @@
-/* .panel.card-top-accent.confirm-card and .confirm-* of legacy/app.css and design-system.css (04 § 7, 08 § 6.1). */
+/* .panel.card-top-accent.confirm-card and .confirm-* of v1-final:app.css and design-system.css (04 § 7, 08 § 6.1). */
 .card {
   display: block;
   margin-bottom: var(--space-4);
