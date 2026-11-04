@@ -24,28 +24,34 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node`.
 - `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et une passe de knip. Puis `pnpm build:e2e`,
   `git diff --exit-code src/routeTree.gen.ts translations/fr.json` et les E2E de ton périmètre.
-- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`), `pnpm test:e2e:legacy`,
+- `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`),
   `pnpm storybook` (dès P3), `pnpm budget` (après `pnpm build`). Un projet Playwright s'écrit avec `=` :
-  `pnpm test:e2e --project=react-only e2e/smoke.spec.ts`. Deux sessions en parallèle : `E2E_REACT_PORT` et `E2E_LEGACY_PORT`.
+  `pnpm test:e2e --project=react-only e2e/print-pdf.spec.ts`. Deux sessions en parallèle : `E2E_REACT_PORT`.
+- `pnpm test:e2e:production` (projet `production`, qui n'existe qu'avec `E2E_PRODUCTION`) lit le site publié et le vrai
+  script : réservé au responsable, après un déploiement, jamais lancé par un agent ni par la CI.
+- `pnpm serve --host 0.0.0.0` : le build ouvert depuis une tablette du même réseau (validation par les collègues).
 - oxlint et oxfmt passent par les scripts (`pnpm lint`, `pnpm format`, `pnpm lint:fix`), qui ajoutent `--disable-nested-config` :
   sans lui, les deux outils lisent la configuration du projet d'essai de `docs/migration/recherche/`.
 - `pnpm i18n:extract` après tout ajout ou changement de message.
-- CI (`.github/workflows/ci.yml`) : jobs `check`, `browser`, `e2e` sur chaque PR ; `deploy` sur un push vers `main` seulement.
+- CI (`.github/workflows/ci.yml`) : jobs `check`, `browser`, `e2e` sur chaque PR ; `deploy` (GitHub Pages) sur un push vers
+  `main` ou un lancement manuel sur `main`, jamais depuis une autre branche. Retour arrière : README, « Retour à l'ancien site ».
 
 ## Environnement
 
 - Navigateurs : dans les sessions cloud, Chromium préinstallé désigné par `PLAYWRIGHT_CHROMIUM_EXECUTABLE`
   (`/opt/pw-browsers/chromium`), lu par `vitest.config.ts` et `playwright.config.ts`. Ne jamais lancer `playwright install`
   en session ; la CI l'installe elle-même.
-- Le vrai Apps Script n'est jamais appelé par un test, une story, l'E2E ni un agent. Faux script : `src/mocks/apps-script.ts`
+- Le vrai Apps Script n'est jamais appelé par un test, une story, l'E2E ni un agent (seule exception : `pnpm test:e2e:production`,
+  lancé à la main par le responsable, en lecture seule). Faux script : `src/mocks/apps-script.ts`
   (`createFakeAppsScript`, une instance par test) ; isolation réseau : `e2e/fixtures.ts` (tout ce qui n'est pas localhost
   est avorté) ; Vitest, Storybook et `build:e2e` : `.env.test` (URL factice). Ne crée jamais de `.env.real.local`.
 - Date de référence des tests : `TEST_NOW` de `src/test/clock.ts` (lundi 5 octobre 2026, 9 h 30 à Paris).
 
 ## Règles absolues
 
-- Ne jamais modifier `Code.gs`, `legacy/`, `docs/spec/`, `docs/migration/recherche/`, `.claude/`. Contrat d'API : `docs/spec/02-contrat-api.md`.
-- Un comportement de l'ancien site ne change que s'il figure au PLAN § 4.2 (identifiant E-xx) avec son scénario
+- Ne jamais modifier `Code.gs`, `docs/spec/`, `docs/migration/recherche/`, `.claude/`. Contrat d'API : `docs/spec/02-contrat-api.md`.
+  Ancien site : tag `v1-final` ; un commentaire de provenance le cite sous la forme `v1-final:app.css` (`git show v1-final:app.css`).
+- Un comportement de l'ancien site ne change que s'il figure au PLAN § 4.2 (identifiant E-xx), avec un scénario étiqueté
   `@changed:E-xx` dans `e2e/regression/`. Les assertions des scénarios ne se modifient pas pour faire passer un test.
 - Aucune donnée personnelle dans le navigateur hors session collègue : mot de passe et état complet en mémoire seulement ;
   jamais dans l'URL, `localStorage`, `sessionStorage`, une clé de requête ou un log ; purge complète à la déconnexion ;
@@ -120,8 +126,9 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
   s'affirme dans le `.test.tsx`.
 - Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`) ;
   `localStorage` et `sessionStorage` vidés avant chaque test du navigateur (`src/test/setup-browser.ts`).
-- E2E : `e2e/regression/` (projets `legacy` et `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
-  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (impression PDF, accessibilité).
+- E2E : `e2e/regression/` (projet `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
+  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le reste (impression PDF, accessibilité) ; projet
+  `production` en lecture seule (`e2e/smoke-production.spec.ts`, sans les fixtures de `e2e/fixtures.ts`).
 - Pas de `test.skip`, pas de `retries` local pour masquer un test instable : le noter au journal.
 - Un test rangé dans `src/routes/` porte le préfixe `-` (`-routes.test.tsx`) : sinon le générateur le lit comme une route.
 
