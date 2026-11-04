@@ -28,9 +28,9 @@ updates:
       storybook:
         patterns: ["storybook", "@storybook/*", "msw-storybook-addon"]
       formatjs:
-        patterns: ["@formatjs/*", "react-intl", "eslint-plugin-formatjs"]
+        patterns: ["@formatjs/*", "react-intl"]
       oxc:
-        patterns: ["oxlint", "oxlint-tsgolint", "oxfmt"]
+        patterns: ["oxlint", "oxfmt"]
       playwright:
         patterns: ["playwright", "@playwright/*", "@axe-core/playwright"]
 

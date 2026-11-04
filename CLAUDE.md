@@ -118,9 +118,13 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Lint et types
 
-- `pnpm check` doit passer. Corrige le code. Faux positif prouvé par un exemple minimal : override par motif de fichiers dans
-  `.oxlintrc.json`, commenté, noté au journal. Jamais de directive `oxlint-disable` en ligne, de catégorie abaissée ni d'option
-  `tsconfig` assouplie (seule exception prévue : `exactOptionalPropertyTypes`, PLAN § 6.1, décision notée ici).
+- `pnpm check` doit passer. Corrige le code.
+- `.oxlintrc.json` : catégories `correctness` et `suspicious` en erreur, `perf` en avertissement, plus les quelques règles
+  qui portent une contrainte du projet, chacune avec son commentaire. Ni plugin ESLint (`jsPlugins`) ni lint typé : les
+  types relèvent de `tsc`.
+- Faux positif prouvé par un exemple minimal : override par motif de fichiers dans `.oxlintrc.json`, commenté, noté au
+  journal. Jamais de directive `oxlint-disable` en ligne ni d'option `tsconfig` assouplie (seule exception prévue :
+  `exactOptionalPropertyTypes`, PLAN § 6.1, décision notée ici).
 
 ## Travail en session
 
