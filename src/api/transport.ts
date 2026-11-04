@@ -9,7 +9,6 @@ import { APPS_SCRIPT_URL } from "@/config";
 
 /**
  * Public read URL, with the etag of the displayed state when there is one (`stateUrl`, 02 § 1.2, § 5.1).
- * @internal exported for its tests only (knip --production)
  */
 export function stateUrl(since: string): string {
   return since === "" ? APPS_SCRIPT_URL : `${APPS_SCRIPT_URL}?since=${encodeURIComponent(since)}`;

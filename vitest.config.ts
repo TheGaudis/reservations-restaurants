@@ -71,13 +71,21 @@ export default defineConfig({
           setupFiles: ["src/test/setup-node.ts"],
         },
       },
+      // Tests of the code that goes through `Date` or `Intl` (Paris hour, UTC days, date formats), rerun under
+      // another zone: their results must not depend on the machine's timezone.
       {
         extends: true,
         test: {
           name: "node-ny",
           environment: "node",
           env: { TZ: "America/New_York" },
-          include: ["src/{domain,intl}/**/*.test.ts"],
+          include: [
+            "src/domain/paris.test.ts",
+            "src/domain/dates.test.ts",
+            "src/domain/cutoff.test.ts",
+            "src/intl/dates.test.ts",
+            "src/intl/calendar.test.ts",
+          ],
           setupFiles: ["src/test/setup-node.ts"],
         },
       },

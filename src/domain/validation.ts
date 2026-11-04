@@ -12,7 +12,6 @@ export type Validator<M> = (field: { value: string }) => M | undefined;
 /** E-mail shape checked by the page (`emailError`, 00 § 3); the script uses a looser one (01 point 8). */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
 
-/** @internal exported for its tests and the fake script of src/mocks (knip --production) */
 export function isEmail(value: string): boolean {
   return EMAIL_RE.test(value.trim());
 }

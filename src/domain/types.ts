@@ -184,7 +184,6 @@ export interface BookingR1Input {
 
 /**
  * One dish of an R2 order (`items` of 02 § 4.5).
- * @internal exported for its tests only (knip --production)
  */
 export interface OrderItem {
   dishId: string;

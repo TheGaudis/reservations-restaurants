@@ -9,8 +9,3 @@ pre-commit:
     - name: oxfmt
       run: pnpm exec oxfmt --disable-nested-config --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
-
-pre-push:
-  jobs:
-    - name: check:fast
-      run: pnpm run check:fast

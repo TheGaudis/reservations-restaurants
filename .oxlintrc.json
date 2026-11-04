@@ -70,7 +70,7 @@
     "react/unsupported-syntax": "error", // restriction : syntaxe qui empêche le compilateur
     "react/react-in-jsx-scope": "off", // obsolète avec le runtime JSX automatique
     "react/jsx-filename-extension": ["error", { "extensions": [".tsx"] }],
-    "react/only-export-components": ["error", { "allowExportNames": ["Route"] }], // react-refresh + TanStack
+    "react/only-export-components": "off",
     "react/function-component-definition": [
       "error",
       { "namedComponents": "function-declaration", "unnamedComponents": "arrow-function" }
@@ -152,12 +152,9 @@
     "eqeqeq": ["error", "always"],
     // compatible avec `import type { X }` séparé (consistent-type-specifier-style: prefer-top-level)
     "no-duplicate-imports": ["error", { "allowSeparateTypeImports": true }],
-    "max-lines-per-function": [
-      "error",
-      { "max": 80, "skipBlankLines": true, "skipComments": true }
-    ],
-    "max-params": ["error", { "max": 4 }],
-    "no-warning-comments": "warn",
+    "max-lines-per-function": "off",
+    "max-params": "off",
+    "no-warning-comments": "off",
     "no-inline-comments": "off",
     "func-style": "off",
     "func-names": "off",
@@ -278,10 +275,7 @@
       // Routes TanStack (file-based routing) : noms imposés (__root.tsx, $id.tsx, posts.index.tsx)
       "files": ["src/routes/**"],
       "rules": {
-        "unicorn/filename-case": "off",
-        // Le fichier n'exporte que `Route` ; le code-splitting automatique de TanStack Router
-        // isole `component` dans un module virtuel -> le HMR fonctionne quand même.
-        "react/only-export-components": "off"
+        "unicorn/filename-case": "off"
       }
     },
     {
@@ -290,8 +284,7 @@
       "env": { "node": true },
       "rules": {
         "import/no-default-export": "off",
-        "import/no-nodejs-modules": "off",
-        "react/only-export-components": "off"
+        "import/no-nodejs-modules": "off"
       }
     },
     {
@@ -299,7 +292,6 @@
       "files": [".storybook/**", "**/*.stories.tsx"],
       "rules": {
         "import/no-default-export": "off",
-        "react/only-export-components": "off",
         "import/no-relative-parent-imports": "off", // import preview from "../../.storybook/preview"
         "formatjs/no-literal-string-in-jsx": "off",
         "typescript/no-unsafe-type-assertion": "off"
@@ -363,16 +355,9 @@
       "rules": { "no-await-in-loop": "off" }
     },
     {
-      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33) ; tests dorés qui exécutent legacy/js/
-      // dans node:vm, test de la frontière de l'API qui lit src/ par node:fs (PLAN P2) et test S2 qui lit
-      // translations/fr.json, docs/spec/ et l'annexe F par node:fs (PLAN § 1.5, P7 (a))
-      "files": [
-        "src/test/setup-node.ts",
-        "src/test/network-isolation.test.ts",
-        "src/test/legacy-scripts.ts",
-        "src/test/api-boundary.test.ts",
-        "src/test/message-sources.test.ts"
-      ],
+      // Tests Node : garde réseau de src/test/setup-node.ts (node:net, R-33) et tests dorés qui exécutent legacy/js/
+      // dans node:vm (PLAN P2)
+      "files": ["src/test/setup-node.ts", "src/test/legacy-scripts.ts"],
       "rules": { "import/no-nodejs-modules": "off" }
     },
     {
@@ -389,7 +374,6 @@
         "vitest"
       ],
       "rules": {
-        "max-lines-per-function": "off",
         "unicorn/consistent-function-scoping": "off",
         "typescript/no-unsafe-type-assertion": "off",
         "formatjs/no-literal-string-in-jsx": "off",

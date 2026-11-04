@@ -20,7 +20,6 @@ export type StaffWriteDomain = "days" | "dishes" | "bookings" | "settings";
 
 /**
  * `['write', domain, action]` (PLAN § 3.3): never a password nor a name in it.
- * @internal exported for its tests only (knip --production)
  */
 export function staffWriteKey(domain: StaffWriteDomain, action: string) {
   return ["write", domain, action] as const;

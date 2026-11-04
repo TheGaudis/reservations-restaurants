@@ -125,7 +125,7 @@ Le nouveau site est une application React construite par Vite (TanStack Start en
 pnpm install
 ```
 
-pnpm installe les versions exactes de `pnpm-lock.yaml` et branche les hooks git (lefthook) : avant chaque commit, oxlint et oxfmt corrigent les fichiers indexés ; avant chaque push, `pnpm check:fast` doit passer.
+pnpm installe les versions exactes de `pnpm-lock.yaml` et branche les hooks git (lefthook) : avant chaque commit, oxlint et oxfmt corrigent les fichiers indexés.
 
 ### Lancer le site en développement
 

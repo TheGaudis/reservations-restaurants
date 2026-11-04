@@ -20,8 +20,8 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - `pnpm dev` : serveur de développement sur le **faux script** (msw, `.env.development`). `pnpm dev:real` (vrai script,
   `.env.real.local`, bandeau « Données réelles ») est réservé au responsable, jamais lancé par un agent.
 - `pnpm build` puis `pnpm serve` : le site tel que GitHub Pages le sert (port 4311). Jamais `vite preview` (il fait du SSR).
-- `pnpm check:fast` (avant chaque commit, et hook pre-push) : extraction i18n, format, lint, `tsc`, tests `node` et `node-ny`.
-- `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et knip. Puis `pnpm build:e2e`,
+- `pnpm check:fast` (avant chaque commit) : extraction i18n, format, lint, `tsc`, tests `node` et `node-ny`.
+- `pnpm check` (avant une PR) : idem + tous les projets Vitest (navigateur, stories dès P3) et une passe de knip. Puis `pnpm build:e2e`,
   `git diff --exit-code src/routeTree.gen.ts translations/fr.json` et les E2E de ton périmètre.
 - `pnpm test:node`, `pnpm test:browser`, `pnpm test`, `pnpm test:e2e` (sur le build de `pnpm build:e2e`), `pnpm test:e2e:legacy`,
   `pnpm storybook` (dès P3), `pnpm budget` (après `pnpm build`). Un projet Playwright s'écrit avec `=` :
@@ -68,7 +68,7 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## React
 
-- 0 à 2 `useEffect` dans toute l'appli, chacun commenté sur la ligne au-dessus (système extérieur à synchroniser ; vérifié en CI).
+- Un `useEffect` synchronise seulement un système extérieur, et le commentaire au-dessus nomme ce système.
 - Pas de `useMemo`, `useCallback`, `memo` par réflexe (React Compiler) ; pas de `forwardRef`.
 - Minuteurs et écouteurs globaux (horloge, inactivité, actualisation) dans `background/`, au niveau module. Minuteur local d'un
   composant (`ConfirmButton`, signal de lenteur D-15) : armé dans un gestionnaire, gardé dans une `ref`, annulé par le
@@ -76,7 +76,6 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - Navigation par `<Link search={…}>`. `navigate` impératif seulement dans un gestionnaire (clavier, `onSuccess` passé à `mutate`)
   ou dans les tâches de fond de `background/` (déconnexion, 10 h) ; `background/` et `mutations/` peuvent appeler
   `ui/feedback/toast.ts` (gestionnaire sans composant), rien d'autre de `ui/`.
-- Composants de route < 40 lignes ; aucune fonction > 80 lignes (oxlint).
 - Mutations : cache mis à jour dans `useMutation({ onSuccess })` (`cancelQueries` puis `setQueryData`, après la garde de session
   pour le mode collègue) ; toast, fermeture et focus dans `mutate(…, { onSuccess })` ; `mutateAsync` dans un `try/catch` de `onSubmit`.
 
@@ -107,9 +106,10 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 
 ## Tests
 
-- Écrits avec le code. Logique pure : tables `it.each` tirées de la spec (projets `node` et `node-ny`). Composants, routes et
-  tâches de fond : Vitest Browser Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Une story CSF Next par composant
-  et par état, testée avec axe (projet `storybook`).
+- Écrits avec le code. Logique pure : tables `it.each` tirées de la spec (projet `node` ; `node-ny` relance sous
+  `TZ=America/New_York` les tests de dates sensibles au fuseau). Composants, routes et tâches de fond : Vitest Browser
+  Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Une story CSF Next par composant et par état, testée avec
+  axe (projet `storybook`).
 - Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`).
 - E2E : `e2e/regression/` (projets `legacy` et `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
   `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, hydratation, impression PDF,
@@ -122,7 +122,6 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 - `pnpm check` doit passer. Corrige le code. Faux positif prouvé par un exemple minimal : override par motif de fichiers dans
   `.oxlintrc.json`, commenté, noté au journal. Jamais de directive `oxlint-disable` en ligne, de catégorie abaissée ni d'option
   `tsconfig` assouplie (seule exception prévue : `exactOptionalPropertyTypes`, PLAN § 6.1, décision notée ici).
-- `no-warning-comments` est actif : pas de `TODO` dans le code ; ce qui reste à faire va au journal ou dans la PR.
 
 ## Travail en session
 

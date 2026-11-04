@@ -58,7 +58,7 @@ export function formatLongDate(iso: IsoDate): string {
 /**
  * Label of the week of `anchor`, Monday to Sunday (05 § 2.3): « 5 – 11 oct. 2026 » ; the Monday's month when it
  * differs, and its year when that differs too (a-23, E-06).
- * @internal exported for the tests; pages use `formatPeriodLabel`
+ * Pages use `formatPeriodLabel`.
  */
 export function formatWeekLabel(anchor: IsoDate): string {
   const monday = mondayOf(anchor);

@@ -34,7 +34,6 @@ export interface R1Totals {
 
 /**
  * One booking line of an order: a dish of the day and its portions.
- * @internal exported for its tests only (knip --production)
  */
 export interface OrderLine {
   bookingId: string;
@@ -81,7 +80,6 @@ export function bookingsForDayR1(state: PrintStateR1, iso: IsoDate): BookingR1[]
 
 /**
  * Totals of an R1 list; the detail is shown only when the counters add up to the seats (07 § 3).
- * @internal exported for its tests only (knip --production)
  */
 export function r1Totals(bookings: readonly BookingR1[]): R1Totals {
   const totals: R1Totals = {
@@ -157,7 +155,6 @@ function newOrder(key: string, booking: BookingR2): Order {
 /**
  * R2 orders of a day (07 § 4.1): bookings of the dishes of that day only (a deleted dish leaves its bookings
  * out, D-07), grouped by name, class and contact (trimmed, any case), sorted by class then name.
- * @internal exported for its tests only (knip --production)
  */
 export function ordersForDay(state: PrintStateR2, iso: IsoDate): Order[] {
   const dishes = new Map(
@@ -189,7 +186,6 @@ export function ordersForDay(state: PrintStateR2, iso: IsoDate): Order[] {
 
 /**
  * Per-dish summary of a day, every dish of the day in the order of the sheet (07 § 4.2).
- * @internal exported for its tests only (knip --production)
  */
 export function dishTotals(
   state: PrintStateR2,
@@ -216,7 +212,6 @@ export function dishTotals(
 
 /**
  * "Total du jour" (07 § 4.2): the sum of the orders, one voucher each at most (E-16).
- * @internal exported for its tests only (knip --production)
  */
 export function r2DayTotals(orders: readonly Order[]): R2DayTotals {
   return {

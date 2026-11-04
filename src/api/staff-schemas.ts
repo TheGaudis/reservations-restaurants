@@ -30,7 +30,6 @@ import type {
 
 /**
  * R1 day of the full state, with `OuvertPar` (01 § 2.2).
- * @internal exported for its tests only (knip --production)
  */
 export const StaffServiceDayR1Schema = v.pipe(
   v.object({ ...ApiDayR1.entries, OuvertPar: TextCell }),
@@ -39,7 +38,6 @@ export const StaffServiceDayR1Schema = v.pipe(
 
 /**
  * R2 day of the full state, with `OuvertPar` (01 § 2.4).
- * @internal exported for its tests only (knip --production)
  */
 export const StaffServiceDayR2Schema = v.pipe(
   v.object({ ...ApiDayR2.entries, OuvertPar: TextCell }),
@@ -48,7 +46,6 @@ export const StaffServiceDayR2Schema = v.pipe(
 
 /**
  * R1 booking of the full state (01 § 2.3): counters and total empty on bookings made before the prices.
- * @internal exported for its tests only (knip --production)
  */
 export const BookingR1Schema = v.pipe(
   v.object({
@@ -83,7 +80,6 @@ export const BookingR1Schema = v.pipe(
 
 /**
  * R2 booking line of the full state, one per dish of an order (01 § 2.6).
- * @internal exported for its tests only (knip --production)
  */
 export const BookingR2Schema = v.pipe(
   v.object({

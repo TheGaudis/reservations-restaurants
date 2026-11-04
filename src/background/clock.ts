@@ -17,7 +17,6 @@ const MINUTE_MS = 60_000;
 
 /**
  * Time of the site, in ms. Components read `useToday` or `useIsR2OrderingClosed`, never this store directly.
- * @internal exported for the tests
  */
 export const useClock = create<{ now: number }>()(() => ({ now: Date.now() }));
 

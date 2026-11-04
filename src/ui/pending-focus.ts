@@ -11,7 +11,6 @@ export function requestFocus(key: string): void {
 
 /**
  * Forgets a request that no element took: each test starts without one.
- * @internal exported for the tests
  */
 export function clearFocusRequest(): void {
   pending = null;

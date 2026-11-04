@@ -71,7 +71,6 @@ export interface SummaryR1 {
 
 /**
  * One dish line of the R2 summary: name without the voucher mark, portions granted.
- * @internal exported for its tests only (knip --production)
  */
 export interface SummaryDish {
   name: string;
@@ -187,7 +186,6 @@ export function emailFailed(status: EmailStatus | null): boolean {
 
 /**
  * Some portions were reduced or some dishes left out for lack of stock (04 § 7).
- * @internal exported for its tests only (knip --production)
  */
 export function wasAdjusted(result: BookingResult): boolean {
   return result.adjusted.length > 0 || result.skipped.length > 0;

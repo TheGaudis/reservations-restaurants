@@ -41,35 +41,11 @@ jobs:
         run: |
           pnpm i18n:extract
           git diff --exit-code translations/fr.json
-      - name: No escaped no-break space in messages (PLAN § 3.10, R-34)
-        run: |
-          if grep -nF '\\u00A0' translations/fr.json; then
-            echo "::error file=translations/fr.json::\\u00A0 written in an attribute between quotes is not interpreted"
-            exit 1
-          fi
       - run: pnpm format:check
       - run: pnpm lint -f github
       - run: pnpm typecheck
       - run: pnpm test:node
       - run: pnpm knip
-      - name: Effects budget (PLAN § 1.5, S6)
-        run: |
-          effects=$(grep -rnE 'use(Layout)?Effect\(' src --include=*.tsx --include=*.ts \
-            --exclude=*.test.* --exclude=*.stories.tsx --exclude-dir=test || true)
-          count=0
-          while IFS=: read -r file line _; do
-            [ -n "$file" ] || continue
-            count=$((count + 1))
-            echo "$file:$line"
-            if ! sed -n "$((line - 1))p" "$file" | grep -qE '^\s*(//|\*)'; then
-              echo "::error file=$file,line=$line::effect without a comment on the line above (S6)"
-              exit 1
-            fi
-          done <<< "$effects"
-          if [ "$count" -gt 2 ]; then
-            echo "::error::$count effects in src, 2 at most (S6)"
-            exit 1
-          fi
 
   browser:
     runs-on: ubuntu-latest

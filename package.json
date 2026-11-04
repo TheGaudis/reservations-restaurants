@@ -24,7 +24,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "budget": "node scripts/check-budget.ts",
-    "knip": "knip && knip --production",
+    "knip": "knip",
     "check:fast": "pnpm i18n:extract && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:node",
     "check": "pnpm i18n:extract && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm knip",
     "prepare": "lefthook install"

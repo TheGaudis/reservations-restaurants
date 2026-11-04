@@ -56,7 +56,6 @@ export interface LocalCacheV1 {
  * Reads the v1 format with the schemas of the public state: the same checks and the same idempotent translation
  * (a plain name with `Ticket` stays as it is). Unknown keys are dropped, so nothing else from the storage enters
  * the app.
- * @internal exported for the tests
  */
 export const LocalCacheV1Schema = v.object({
   savedAt: v.number(),
@@ -71,7 +70,6 @@ export const LocalCacheV1Schema = v.object({
 
 /**
  * Public state of a valid copy (`loadCache`, 03 § 1.1): the sums become the public aggregates.
- * @internal exported for the tests
  */
 export function fromLocalCacheV1(copy: v.InferOutput<typeof LocalCacheV1Schema>): PublicState {
   return {
@@ -106,7 +104,6 @@ function apiConfig(settings: Settings): LocalCacheV1["config"] {
 
 /**
  * The copy of `state`, field for field as `saveCache` writes it (03 § 1.1).
- * @internal exported for the tests
  */
 export function toLocalCacheV1(state: PublicState, savedAt: number): LocalCacheV1 {
   return {

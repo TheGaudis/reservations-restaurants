@@ -14,8 +14,3 @@ export function target(testInfo: TestInfo): Target {
 export function currentTarget(): Target {
   return target(test.info());
 }
-
-/** Error thrown by a page object whose body a later session writes; the scenario fails with its name. */
-export function notWritten(phase: string, name: string): Error {
-  return new Error(`Page object ${name} : à écrire en ${phase}.`);
-}

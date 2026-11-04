@@ -28,7 +28,6 @@ import { withVoucherMark } from "@/domain/vouchers";
 
 /**
  * Script key of each setting, sent by `setConfigField` (01 § 2.1, 02 § 4.7).
- * @internal exported for its tests only (knip --production)
  */
 export const SETTINGS_API_KEYS: Readonly<Record<SettingKey, string>> = {
   name1: "name1",

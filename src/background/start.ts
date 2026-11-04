@@ -27,7 +27,6 @@ export function startBackgroundTasks(deps: BackgroundDeps): () => void {
 
 /**
  * Stops the tasks that `getRouter()` started: a test that drives one task with its own doubles.
- * @internal exported for the tests
  */
 export function stopBackgroundTasks(): void {
   stopCurrent?.();

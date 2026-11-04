@@ -8,7 +8,7 @@ import type {
 import { bookingR1, bookingR2, dish, staffDayR1, staffDayR2 } from "@/test/domain-states";
 
 // R1 day of the printed documents in tests and stories: Tuesday 6 October 2026 of the seed (parite.md § 2), with
-// Cyrille Ungerer, Léa Martin, then Jean Petit, booked before the prices. English model only (api-boundary.test.ts).
+// Cyrille Ungerer, Léa Martin, then Jean Petit, booked before the prices. English model only.
 
 export const DAY = "2026-10-06";
 

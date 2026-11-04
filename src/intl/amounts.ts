@@ -88,7 +88,6 @@ export function seatsText(count: number): string {
 
 /**
  * « 1 ticket restaurant », « 2 tickets restaurant » (`ticketsText`, 04 § 8).
- * @internal exported for its tests only (knip --production)
  */
 export function vouchersText(count: number): string {
   return intl.formatMessage(messages.vouchers, { count });

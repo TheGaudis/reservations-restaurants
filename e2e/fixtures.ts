@@ -23,8 +23,6 @@ const LOCAL_URL = /^https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\//u;
 const SCRIPT_HOSTS = new Set(["script.google.com", "script.googleusercontent.com"]);
 
 interface NetworkLog {
-  /** Requests let through to the local servers. */
-  allowed: string[];
   /** Requests aborted before leaving the machine. */
   blocked: string[];
 }
@@ -68,7 +66,6 @@ async function isolate(context: BrowserContext, log: NetworkLog): Promise<void> 
     async (route) => {
       const url = route.request().url();
       if (isLocal(url)) {
-        log.allowed.push(url);
         await route.fallback();
         return;
       }
@@ -85,7 +82,7 @@ export const test = base.extend<Fixtures>({
   fixedTime: [TEST_NOW, { option: true }],
   isolation: [
     async ({ context }, use) => {
-      const log: NetworkLog = { allowed: [], blocked: [] };
+      const log: NetworkLog = { blocked: [] };
       await isolate(context, log);
       await use(log);
     },

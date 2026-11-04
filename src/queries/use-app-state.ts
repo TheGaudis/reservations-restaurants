@@ -15,7 +15,6 @@ import { useSessionStore } from "@/session/session";
 /**
  * Start of this page load. The restored local copy is dated by its `savedAt`, so it alone is older: until a
  * read of the script succeeds, the page shows data from the cache (G-02).
- * @internal exported for the tests
  */
 export const APP_START = Date.now();
 
