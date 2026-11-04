@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
 import { Header } from "@/features/page/Header";
-import { PageColumn, PageLoadError } from "@/features/page/Page";
-import { Columns, Main } from "@/features/page/PageLayout";
+import { Page } from "@/features/page/Page";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { AutoRefresh } from "@/queries/AutoRefresh";
 import { createQueryClient } from "@/queries/client";
@@ -41,13 +40,7 @@ function TestPage({ r1, r2 }: TestPageProps) {
   return (
     <>
       <Header />
-      <Main busy={false}>
-        <PageLoadError />
-        <Columns>
-          <PageColumn restaurant="r1">{r1}</PageColumn>
-          <PageColumn restaurant="r2">{r2}</PageColumn>
-        </Columns>
-      </Main>
+      <Page r1={r1} r2={r2} />
       <AutoRefresh />
     </>
   );

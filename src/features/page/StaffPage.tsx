@@ -1,7 +1,6 @@
 import { DayDetail } from "@/features/calendar/DayCard";
 import { RestaurantCalendar } from "@/features/calendar/RestaurantCalendar";
-import { PageColumn, PageLoadError } from "@/features/page/Page";
-import { Columns, Main } from "@/features/page/PageLayout";
+import { Page } from "@/features/page/Page";
 import { PageSkeleton } from "@/features/page/PageSkeleton";
 import { OpenDayFormR1 } from "@/features/staff/OpenDayFormR1";
 import { OpenDayFormR2 } from "@/features/staff/OpenDayFormR2";
@@ -23,26 +22,31 @@ export function StaffPage() {
   const loggedIn = useSessionStore((session) => session.password !== null);
   if (!loggedIn) return <PageSkeleton />;
   return (
-    <Main busy={false}>
-      <TomorrowPanel />
-      <SettingsPanel />
-      <PageLoadError />
-      <Columns>
-        <PageColumn restaurant="r1">
+    <Page
+      top={
+        <>
+          <TomorrowPanel />
+          <SettingsPanel />
+        </>
+      }
+      r1={
+        <>
           <OpenDayFormR1 />
           <RestaurantCalendar restaurant="r1" />
           <DayDetail restaurant="r1">
             <StaffDayCardR1 />
           </DayDetail>
-        </PageColumn>
-        <PageColumn restaurant="r2">
+        </>
+      }
+      r2={
+        <>
           <OpenDayFormR2 />
           <RestaurantCalendar restaurant="r2" />
           <DayDetail restaurant="r2">
             <StaffDayCardR2 />
           </DayDetail>
-        </PageColumn>
-      </Columns>
-    </Main>
+        </>
+      }
+    />
   );
 }

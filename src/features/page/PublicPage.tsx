@@ -2,8 +2,7 @@ import { BookingColumnsProvider } from "@/features/booking/BookingColumnsProvide
 import { ColumnSummary } from "@/features/booking/BookingSummary";
 import { DayDetail } from "@/features/calendar/DayCard";
 import { RestaurantCalendar } from "@/features/calendar/RestaurantCalendar";
-import { PageColumn, PageLoadError } from "@/features/page/Page";
-import { Columns, Main } from "@/features/page/PageLayout";
+import { Page } from "@/features/page/Page";
 import { DayCardR1 } from "@/features/r1/DayCardR1";
 import { DayCardR2 } from "@/features/r2/DayCardR2";
 
@@ -15,25 +14,26 @@ import { DayCardR2 } from "@/features/r2/DayCardR2";
 export function PublicPage() {
   return (
     <BookingColumnsProvider>
-      <Main busy={false}>
-        <PageLoadError />
-        <Columns>
-          <PageColumn restaurant="r1">
+      <Page
+        r1={
+          <>
             <RestaurantCalendar restaurant="r1" />
             <DayDetail restaurant="r1">
               <ColumnSummary restaurant="r1" />
               <DayCardR1 />
             </DayDetail>
-          </PageColumn>
-          <PageColumn restaurant="r2">
+          </>
+        }
+        r2={
+          <>
             <RestaurantCalendar restaurant="r2" />
             <DayDetail restaurant="r2">
               <ColumnSummary restaurant="r2" />
               <DayCardR2 />
             </DayDetail>
-          </PageColumn>
-        </Columns>
-      </Main>
+          </>
+        }
+      />
     </BookingColumnsProvider>
   );
 }

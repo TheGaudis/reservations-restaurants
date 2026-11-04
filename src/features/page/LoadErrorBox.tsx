@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { defineMessage, FormattedMessage, useIntl } from "react-intl";
 
-import { useOnline } from "@/features/page/use-online";
 import { Button } from "@/ui/button/Button";
 import { Alert } from "@/ui/feedback/Alert";
 
@@ -10,6 +9,23 @@ const retryingMessage = defineMessage({
   defaultMessage: "Nouvelle tentative…",
   description: "00 § 2.3, 03 § 3.2 — bouton « Réessayer » occupé",
 });
+
+function subscribe(onChange: () => void): () => void {
+  window.addEventListener("online", onChange);
+  window.addEventListener("offline", onChange);
+  return () => {
+    window.removeEventListener("online", onChange);
+    window.removeEventListener("offline", onChange);
+  };
+}
+
+/**
+ * `navigator.onLine`, which picks the text of a load failure (03 § 3.1). An external store: the text follows the
+ * connection without an effect.
+ */
+function useOnline(): boolean {
+  return useSyncExternalStore(subscribe, () => navigator.onLine);
+}
 
 interface LoadErrorBoxProps {
   /** The page shows the local copy of the last visit: the box says so (03 § 3.1). */

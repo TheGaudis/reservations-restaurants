@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { FormattedMessage } from "react-intl";
 
-import { Main } from "@/features/page/PageLayout";
+import styles from "@/features/page/PageSkeleton.module.css";
 
 /** Page of the catch-all route (PLAN § 3.2, annexe F), under the header of the root. */
 export function NotFoundPage() {
   return (
-    <Main busy={false}>
+    <main className={styles["main"]} aria-busy={false}>
       <h2>
         <FormattedMessage
           id="common.notFound.title"
@@ -23,6 +23,6 @@ export function NotFoundPage() {
           />
         </Link>
       </p>
-    </Main>
+    </main>
   );
 }

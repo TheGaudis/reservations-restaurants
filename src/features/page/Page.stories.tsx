@@ -1,6 +1,5 @@
 import { Header } from "@/features/page/Header";
-import { PageColumn, PageLoadError } from "@/features/page/Page";
-import { Columns, Main } from "@/features/page/PageLayout";
+import { Page } from "@/features/page/Page";
 import { createFakeAppsScript } from "@/mocks/apps-script";
 import { AutoRefresh } from "@/queries/AutoRefresh";
 
@@ -14,19 +13,20 @@ function TestPage() {
   return (
     <>
       <Header />
-      <Main busy={false}>
-        <PageLoadError />
-        <Columns>
-          <PageColumn restaurant="r1">
+      <Page
+        r1={
+          <>
             <p>Calendrier R1</p>
             <p>Fiche du jour R1</p>
-          </PageColumn>
-          <PageColumn restaurant="r2">
+          </>
+        }
+        r2={
+          <>
             <p>Calendrier R2</p>
             <p>Fiche du jour R2</p>
-          </PageColumn>
-        </Columns>
-      </Main>
+          </>
+        }
+      />
       <AutoRefresh />
     </>
   );
