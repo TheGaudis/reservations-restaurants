@@ -7,6 +7,9 @@ test(
   { tag: ["@parity", "@G-04", "@p4"] },
   async ({ page, fakeScript }) => {
     await gotoHome(page);
+    // Shell served as GitHub Pages serves it (03 § 2.1).
+    await expect(page).toHaveTitle("Réservations — Restaurants pédagogiques");
+    await expect(page.locator("html")).toHaveAttribute("lang", "fr");
 
     await expect(
       page.getByRole("heading", { level: 2, name: "Restaurant Pédagogique" }),

@@ -26,17 +26,11 @@ export default defineConfig({
     // Regression suite (PLAN § 1.5, S1) on the legacy site, then on the React build.
     { name: "legacy", testDir: "e2e/regression", use: { baseURL: legacyUrl } },
     { name: "react", testDir: "e2e/regression", use: { baseURL: reactUrl } },
-    // Tests of the new code only (smoke, hydration, PDF printing, accessibility), on the build:e2e output.
+    // Tests of the new code only (hydration, PDF printing, accessibility), on the build:e2e output.
     {
       name: "react-only",
-      testIgnore: ["regression/**", "smoke-production.spec.ts"],
+      testIgnore: ["regression/**"],
       use: { baseURL: reactUrl },
-    },
-    // Read-only checks of the public site after the switch (P8), started by hand.
-    {
-      name: "production",
-      testMatch: "smoke-production.spec.ts",
-      use: { baseURL: "https://thegaudis.github.io/reservations-restaurants/" },
     },
   ],
   // A server left by another worktree must never answer for this one.

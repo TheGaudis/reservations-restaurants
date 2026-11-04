@@ -20,8 +20,7 @@ import type { FullState } from "@/domain/types";
 import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
 import { fakeScriptPerTest } from "@/test/fake-script-server";
 
-// Bodies of the staff actions (02 § 4.7, 06 § 10), read in the fake script's requests: those of `STAFF_BODIES`
-// (src/mocks/staff.test.ts), which the fake script accepts, with the password first.
+// Bodies of the staff actions (02 § 4.7, 06 § 10), read in the fake script's requests, with the password first.
 
 const start = fakeScriptPerTest();
 const PASSWORD = SEED_PASSWORD;

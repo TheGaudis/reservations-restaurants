@@ -12,7 +12,7 @@ import { createScript, doGet, doPost, LOCK_BUSY } from "@/mocks/script";
  */
 
 /** Every deployment id, the real one written in `legacy/index.html` included (R-33). */
-export const APPS_SCRIPT_URL_PATTERN = "https://script.google.com/macros/s/:deploymentId/exec";
+const APPS_SCRIPT_URL_PATTERN = "https://script.google.com/macros/s/:deploymentId/exec";
 
 const GOOGLE_ERROR_PAGE = "Sorry, unable to open the file at this time.";
 // 02 § 1.2: Apps Script answers with open CORS.
