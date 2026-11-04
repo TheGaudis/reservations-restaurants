@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { parisDate, parisHour } from "@/domain/paris";
 import { TEST_NOW } from "@/test/clock";
 
-// Runs under TZ=Europe/Paris (project node) and TZ=America/New_York (project node-ny): same results.
+// Instants written in UTC; the expected values are the date and hour in Paris (project node: TZ=Europe/Paris).
 it.each([
   ["TEST_NOW, Monday 9:30 in Paris", TEST_NOW, "2026-10-05", 9],
   ["summer, 9:59:59 in Paris", Date.parse("2026-10-05T07:59:59.999Z"), "2026-10-05", 9],

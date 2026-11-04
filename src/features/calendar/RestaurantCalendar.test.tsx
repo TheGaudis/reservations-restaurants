@@ -17,7 +17,6 @@ beforeEach(() => {
 afterEach(() => {
   stopBackgroundTasks();
   vi.useRealTimers();
-  localStorage.clear();
 });
 
 function day(restaurant: "r1" | "r2", name: RegExp) {

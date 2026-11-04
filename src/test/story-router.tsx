@@ -3,29 +3,59 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  RouterProvider,
 } from "@tanstack/react-router";
-import type { ComponentType } from "react";
+import type { AnyRouter } from "@tanstack/react-router";
+import { createContext, Suspense, use } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 import { useClock } from "@/background/clock";
 import { TEST_NOW } from "@/test/clock";
-import { StoryRoot, StoryRouter } from "@/test/StoryRouter";
 
-// Stories of the components that read or write the URL (calendars, day cards): a memory router at a given URL, and
-// the clock of the site at TEST_NOW, the date the fake script's seed is built from (parite.md § 2).
+// Components that read or write the URL (calendars, day cards, mode switch) in stories and tests: a memory router at
+// a given URL whose root renders the component, and the clock of the site at TEST_NOW, the date the fake script's
+// seed is built from (parite.md § 2).
+
+const StoryContent = createContext<ReactNode>(null);
+
+/** Root component of the memory router: the content, once the first read of the fake script answered. */
+function StoryRoot() {
+  return <Suspense fallback={null}>{use(StoryContent)}</Suspense>;
+}
 
 /**
- * Decorator: the story in a memory router at `url` (path and search params, e.g. `/?r1=2026-10-06`). The paths / and
- * /collegue exist and render nothing: the mode switch reads the search params of /.
+ * Memory router at `url` (path and search params, e.g. `/?r1=2026-10-06`). The paths / and /collegue exist and render
+ * nothing: the mode switch reads the search params of /. The route's `validateSearch` and middlewares are left out:
+ * search params are read as written.
  */
-export function atUrl(url: string) {
+export function storyRouter(url: string): AnyRouter {
   const root = createRootRoute({ component: StoryRoot });
   const pages = ["/", "/collegue"].map((path) =>
     createRoute({ getParentRoute: () => root, path, component: () => null }),
   );
-  const router = createRouter({
+  return createRouter({
     routeTree: root.addChildren(pages),
     history: createMemoryHistory({ initialEntries: [url] }),
   });
+}
+
+interface StoryRouterProps {
+  router: AnyRouter;
+  children: ReactNode;
+}
+
+/** `router` (built by `storyRouter`) showing `children`. */
+export function StoryRouter({ router, children }: StoryRouterProps) {
+  return (
+    <StoryContent value={children}>
+      <RouterProvider router={router} />
+    </StoryContent>
+  );
+}
+
+/** Decorator: the story in a memory router at `url` (`storyRouter`). */
+export function atUrl(url: string) {
+  const router = storyRouter(url);
   return (Story: ComponentType) => (
     <StoryRouter router={router}>
       <Story />

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { Header } from "@/features/page/Header";
 import { PageColumn, PageLoadError } from "@/features/page/Page";
@@ -17,10 +17,6 @@ import { renderWithProviders } from "@/test/render";
 
 const ONLINE_TITLE = /^Le service de réservation ne répond pas\./u;
 const FROM_CACHE = /Le calendrier affiché date de votre dernière visite/u;
-
-afterEach(() => {
-  localStorage.clear();
-});
 
 // `{ error }` ends a read at once; a Google error page would let the hedged read at 6 s answer (02 § 1.5).
 

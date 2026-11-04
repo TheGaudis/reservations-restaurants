@@ -13,8 +13,11 @@ beforeAll(async () => {
   await worker.start({ quiet: true, onUnhandledFrame: "error" });
 });
 // One fake script per test (PLAN P1): tables, requests and failures never leak from a test to the next; nor does a
-// focus request that the test ended before an element took (ui/pending-focus.ts).
+// focus request that the test ended before an element took (ui/pending-focus.ts). The test files of a run share one
+// origin, so its storage: a local copy left by another file would enter the cache of getRouter() (03 § 1.1).
 beforeEach(() => {
+  localStorage.clear();
+  sessionStorage.clear();
   installFakeScript();
   useSessionStore.setState(initialSession, true);
   clearFocusRequest();

@@ -1,10 +1,4 @@
-import {
-  createMemoryHistory,
-  createRootRoute,
-  createRoute,
-  createRouter,
-} from "@tanstack/react-router";
-import type { AnyRouter } from "@tanstack/react-router";
+import { useRef } from "react";
 import { describe, expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
@@ -19,22 +13,21 @@ import { fakeScript } from "@/test/browser-fake-script";
 import { publicState } from "@/test/domain-states";
 import { TestProviders } from "@/test/providers";
 import { urlParams } from "@/test/public-page";
-import { StoryRoot, StoryRouter } from "@/test/StoryRouter";
-import { TestToaster } from "@/test/TestToaster";
+import { storyRouter, StoryRouter } from "@/test/story-router";
+import { Toaster } from "@/ui/feedback/Toaster";
 
-// « Client / Collègue » and the login panel (06 § 1.1-1.3, 09 L-01, E-04, E-23), in a memory router with the paths
-// / and /collegue but without the HTML shell: a focused field in `renderRoute` blocks the test page (journal p4c).
-// Like the root, the router keeps the same switch from one path to the other.
+// « Client / Collègue » and the login panel (06 § 1.1-1.3, 09 L-01, E-04, E-23), alone in the memory router of
+// `storyRouter`: like the root, it keeps the same switch from one path to the other.
 
-function memoryRouter(url: string): AnyRouter {
-  const root = createRootRoute({ component: StoryRoot });
-  const routes = ["/", "/collegue"].map((path) =>
-    createRoute({ getParentRoute: () => root, path, component: () => null }),
+/** Toasts of a test, in an element of their own as in __root.tsx (`container`, journal p4a decision 7). */
+function TestToaster() {
+  const container = useRef<HTMLDivElement>(null);
+  return (
+    <>
+      <div ref={container} />
+      <Toaster container={container} />
+    </>
   );
-  return createRouter({
-    routeTree: root.addChildren(routes),
-    history: createMemoryHistory({ initialEntries: [url] }),
-  });
 }
 
 /** The switch at `url`; `fromCache`: the page shows the local copy of the last visit (G-02). */
@@ -43,7 +36,7 @@ async function renderSwitch(url = "/", { fromCache = false } = {}) {
   queryClient.setQueryData(publicStateOptions.queryKey, publicState(), {
     updatedAt: fromCache ? APP_START - 60_000 : Date.now(),
   });
-  const router = memoryRouter(url);
+  const router = storyRouter(url);
   const screen = await render(
     <TestProviders queryClient={queryClient}>
       <StoryRouter router={router}>

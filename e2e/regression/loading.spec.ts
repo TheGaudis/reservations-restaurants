@@ -80,8 +80,8 @@ test(
   { tag: ["@changed:E-47", "@G-02", "@p4"] },
   async ({ page, fakeScript }) => {
     await seedLocalCache(page, fakeScript.db, TEST_NOW - DAY);
-    // First day button of the page: present when the document is parsed (legacy), or in ms after the prerendered
-    // skeleton (`main[aria-busy="true"]`) entered the DOM (React).
+    // First day button of the page: present when the document is parsed (legacy), or in ms after the static
+    // skeleton of index.html (`main[aria-busy="true"]`) entered the DOM (React).
     await page.addInitScript(() => {
       const marks = { skeletonAt: -1, shownAt: -1, shownWhenParsed: false };
       const skeleton = () => document.querySelector('main[aria-busy="true"]') !== null;
@@ -114,7 +114,7 @@ test(
       // The copy replaces the skeleton while the document is parsed (03 § 2.3).
       expect(marks.shownWhenParsed).toBe(true);
     } else {
-      // E-47, S4: skeleton of the prerendered shell until hydration, shown 600 ms at most. Counted from the moment
+      // E-47, S4: static skeleton of index.html until React's first render, shown 600 ms at most. Counted from the moment
       // the skeleton enters the DOM, before its first paint: the time spent before (document and stylesheets routed
       // through the test runner, Playwright's clock script) is not skeleton time.
       expect(marks.skeletonAt).toBeGreaterThan(0);

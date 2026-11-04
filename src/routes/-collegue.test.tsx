@@ -31,8 +31,6 @@ afterEach(() => {
   stopBackgroundTasks();
   vi.useRealTimers();
   vi.restoreAllMocks();
-  localStorage.clear();
-  sessionStorage.clear();
 });
 
 /** What `useLogin` does on success: the full state under the next session number, then the session (PLAN § 3.3.3). */

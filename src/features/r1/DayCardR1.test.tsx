@@ -17,7 +17,6 @@ beforeEach(() => {
 afterEach(() => {
   stopBackgroundTasks();
   vi.useRealTimers();
-  localStorage.clear();
 });
 
 const column = () => columnOf("r1");

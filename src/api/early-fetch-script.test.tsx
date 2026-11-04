@@ -32,12 +32,10 @@ async function requestedUrl(since: string): Promise<string | undefined> {
 }
 
 beforeEach(() => {
-  localStorage.clear();
   window.__EARLY_FETCH__ = undefined;
 });
 
 afterEach(() => {
-  localStorage.clear();
   window.__EARLY_FETCH__ = undefined;
 });
 

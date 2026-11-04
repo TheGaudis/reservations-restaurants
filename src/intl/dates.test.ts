@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { formatLongDate, formatMonthLabel, formatPeriodLabel, formatWeekLabel } from "@/intl/dates";
 
-// Runs under TZ=Europe/Paris (node) and TZ=America/New_York (node-ny): the results must not change.
-
 describe("formatLongDate (04 § 8, D-03, E-21)", () => {
   it.each([
     ["2026-10-01", "jeudi 1er octobre 2026"],

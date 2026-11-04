@@ -1,15 +1,11 @@
 import type { AnyRouter } from "@tanstack/react-router";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { toLocalCacheV1 } from "@/queries/local-cache";
 import { publicStateOptions } from "@/queries/state";
 import { fakeScript } from "@/test/browser-fake-script";
 import { publicState, SETTINGS } from "@/test/domain-states";
 import { renderRoute } from "@/test/render";
-
-afterEach(() => {
-  localStorage.clear();
-});
 
 /** Search params of the page after validation (the location keeps the raw ones), without the absent ones. */
 function validatedSearch(router: AnyRouter): Record<string, unknown> {

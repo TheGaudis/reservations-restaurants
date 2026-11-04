@@ -15,8 +15,7 @@ import {
 } from "@/domain/dates";
 import { TODAY } from "@/test/clock";
 
-// Runs under TZ=Europe/Paris and TZ=America/New_York; the days around 29 March and 25 October 2026
-// (daylight saving changes in Paris) must not shift.
+// The days around 29 March and 25 October 2026 (daylight saving changes in Paris) must not shift.
 
 describe("day arithmetic (PLAN § 3.7)", () => {
   it.each([

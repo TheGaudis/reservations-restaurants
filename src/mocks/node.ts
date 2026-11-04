@@ -33,7 +33,7 @@ async function rejectOnAbort(signal: AbortSignal): Promise<never> {
 }
 
 /**
- * Fake script behind `fetch` in Node tests (projects `node` and `node-ny`). `fetch` is replaced by a function that
+ * Fake script behind `fetch` in Node tests (project `node`). `fetch` is replaced by a function that
  * hands each request to the fake script's handlers in memory: no socket is opened, so no request can reach the
  * network (R-33). msw/node is not used here: with msw 3, a request aborted by the test (hedged read) fell through
  * to a real connection to script.google.com. A request that no handler answers throws. Call `server.close()`

@@ -28,7 +28,6 @@ beforeEach(() => {
 afterEach(() => {
   useClock.setState(initialClock, true);
   vi.useRealTimers();
-  localStorage.clear();
 });
 
 const renderCard = async (url = TUESDAY) => renderColumn(url, "r2", <StaffDayCardR2 />);

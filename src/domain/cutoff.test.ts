@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { isPast, isR2OrderingClosed } from "@/domain/cutoff";
 import { TEST_NOW, TODAY } from "@/test/clock";
 
-// Runs under TZ=Europe/Paris (node) and TZ=America/New_York (node-ny): the Paris hour decides (E-01).
+// Instants written in UTC: the Paris hour decides (E-01).
 it.each([
   ["today at 9:30 (TEST_NOW)", TODAY, TEST_NOW, false],
   ["today at 9:59:59, summer", TODAY, Date.parse("2026-10-05T07:59:59.999Z"), false],

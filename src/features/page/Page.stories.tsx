@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { Header } from "@/features/page/Header";
 import { PageColumn, PageLoadError } from "@/features/page/Page";
 import { Columns, Main } from "@/features/page/PageLayout";
@@ -39,7 +37,7 @@ const meta = preview.meta({ component: TestPage });
 /** G-04: the first read answers; the columns show their content. */
 export const Loaded = meta.story({
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Fiche du jour R1")).toBeVisible();
+    await canvas.findByText("Fiche du jour R1");
   },
 });
 
@@ -51,9 +49,6 @@ export const LoadFailure = meta.story({
     msw.use(...script.handlers);
   },
   play: async ({ canvas }) => {
-    await expect(await canvas.findByRole("alert")).toHaveTextContent(
-      /^Le service de réservation ne répond pas\./u,
-    );
-    await expect(canvas.getByRole("button", { name: "Réessayer" })).toBeVisible();
+    await canvas.findByRole("button", { name: "Réessayer" });
   },
 });

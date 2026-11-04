@@ -35,7 +35,6 @@ afterEach(() => {
   stops = [];
   useClock.setState(initialClock, true);
   vi.useRealTimers();
-  localStorage.clear();
 });
 
 const column = () => page;

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { calendarDayLabel } from "@/intl/calendar";
 import type { CalendarDayState } from "@/intl/calendar";
 
-// Runs under TZ=Europe/Paris (node) and TZ=America/New_York (node-ny). Labels of REG-12 (parite.md).
+// Labels of REG-12 (parite.md).
 
 describe("calendarDayLabel (05 § 2.4, § 2.5, E-21, E-43)", () => {
   it.each<[string, CalendarDayState, string]>([

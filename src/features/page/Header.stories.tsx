@@ -1,5 +1,4 @@
 import { QueryClient } from "@tanstack/react-query";
-import { expect } from "storybook/test";
 
 import { Header } from "@/features/page/Header";
 import { publicStateOptions } from "@/queries/state";
@@ -12,11 +11,7 @@ import preview from "../../../.storybook/preview";
 const meta = preview.meta({ component: Header });
 
 /** 04 § 2, 08 § 7.2: logo, school, title, subtitle. */
-export const Default = meta.story({
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("img", { name: "Lycée Aristide Briand" })).toBeVisible();
-  },
-});
+export const Default = meta.story({});
 
 /** D-24: the title follows the name of the second restaurant. */
 export const RenamedRestaurants = meta.story({
@@ -27,8 +22,6 @@ export const RenamedRestaurants = meta.story({
       publicStateOptions.queryKey,
       publicState({ settings: { ...SETTINGS, name1: "Le Gourmet", name2: "Bistrot" } }),
     );
-    await expect(
-      await canvas.findByText("Réservations des restaurants pédagogiques et Bistrot"),
-    ).toBeVisible();
+    await canvas.findByText("Réservations des restaurants pédagogiques et Bistrot");
   },
 });

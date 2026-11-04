@@ -113,12 +113,13 @@ Les mainteneurs sont des enseignants : code simple, explicite, documenté.
 ## Tests
 
 - Écrits avec le code. Logique pure : tables `it.each` tirées de la spec (projet `node`). Composants, routes et tâches
-  de fond : Vitest Browser Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Une story CSF Next par composant
-  et par état, testée avec axe (projet `storybook`).
-- Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`).
+  de fond : Vitest Browser Mode (`vitest-browser-react`, `page.getByRole`, `userEvent`). Stories CSF Next : une story = un
+  état rendu, contrôlé par axe (projet `storybook`) ; une fonction `play` atteint seulement un état, l'interaction
+  s'affirme dans le `.test.tsx`.
+- Un `QueryClient` neuf et une instance de faux script par test ; store de session réinitialisé (`setState(initial, true)`) ;
+  `localStorage` et `sessionStorage` vidés avant chaque test du navigateur (`src/test/setup-browser.ts`).
 - E2E : `e2e/regression/` (projets `legacy` et `react`, page objects sémantiques de `e2e/pages/`, étiquettes `@parity` ou
-  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (smoke, impression PDF,
-  accessibilité) ; projet `production` en lecture seule (P8).
+  `@changed:E-xx`, identifiant d'écran, phase) ; projet `react-only` pour le nouveau code (impression PDF, accessibilité).
 - Pas de `test.skip`, pas de `retries` local pour masquer un test instable : le noter au journal.
 - Un test rangé dans `src/routes/` porte le préfixe `-` (`-routes.test.tsx`) : sinon le générateur le lit comme une route.
 

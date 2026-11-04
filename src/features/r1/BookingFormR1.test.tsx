@@ -22,7 +22,6 @@ const initialClock = useClock.getState();
 afterEach(() => {
   useClock.setState(initialClock, true);
   vi.useRealTimers();
-  localStorage.clear();
 });
 
 const column = () => page;
