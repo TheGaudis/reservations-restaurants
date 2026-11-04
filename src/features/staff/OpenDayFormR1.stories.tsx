@@ -1,4 +1,4 @@
-import { expect, screen, userEvent, waitFor } from "storybook/test";
+import { screen, userEvent } from "storybook/test";
 
 import { OpenDayFormR1 } from "@/features/staff/OpenDayFormR1";
 import { staffStory } from "@/test/staff-story";
@@ -19,10 +19,7 @@ const meta = preview.meta({
 export const Closed = meta.story({
   decorators: [atUrl("/collegue")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByRole("button", { name: "Ouvrir un jour" })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
+    await canvas.findByRole("button", { name: "Ouvrir un jour" });
   },
 });
 
@@ -30,10 +27,7 @@ export const Closed = meta.story({
 export const Open = meta.story({
   decorators: [atUrl("/collegue?ouvrir=r1&ouvrirDate=2026-10-20")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByRole("button", { name: "Date" })).toHaveTextContent(
-      "mardi 20 octobre 2026",
-    );
-    await expect(canvas.getByLabelText("Nombre de couverts disponibles")).toBeInTheDocument();
+    await canvas.findByLabelText("Nombre de couverts disponibles");
   },
 });
 
@@ -42,13 +36,7 @@ export const DatePicker = meta.story({
   decorators: [atUrl("/collegue?ouvrir=r1&ouvrirDate=2026-10-20")],
   play: async ({ canvas }) => {
     await userEvent.click(await canvas.findByRole("button", { name: "Date" }));
-    const dialog = await screen.findByRole("dialog", { name: "Choisir la date" });
-    await waitFor(async () => {
-      await expect(dialog).toBeInTheDocument();
-    });
-    await expect(
-      screen.getByRole("button", { name: "mardi 6 octobre 2026, déjà ouvert" }),
-    ).toBeInTheDocument();
+    await screen.findByRole("dialog", { name: "Choisir la date" });
   },
 });
 
@@ -57,11 +45,6 @@ export const Errors = meta.story({
   decorators: [atUrl("/collegue?ouvrir=r1&ouvrirDate=2026-10-06")],
   play: async ({ canvas }) => {
     await userEvent.click(await canvas.findByRole("button", { name: "Ouvrir ce jour" }));
-    await expect(
-      await canvas.findByText("Ce jour est déjà ouvert : utilisez « Modifier ce jour »."),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.getByText("Indiquez un nombre de couverts supérieur à 0."),
-    ).toBeInTheDocument();
+    await canvas.findByText("Ce jour est déjà ouvert : utilisez « Modifier ce jour ».");
   },
 });

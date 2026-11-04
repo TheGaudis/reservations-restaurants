@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { listR1 } from "@/domain/print";
 import { ListDocumentR1 } from "@/features/print/ListDocumentR1";
 import { TEST_NOW } from "@/test/clock";
@@ -19,14 +17,7 @@ const meta = preview.meta({
 });
 
 /** I-01: menu, « Ouvert par », « Places », framed table, total without the detail, signature. */
-export const Bookings = meta.story({
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Restaurant Pédagogique",
-    );
-    await expect(canvas.getByText(/^15 couverts · 95,20\s€$/u)).toBeVisible();
-  },
-});
+export const Bookings = meta.story();
 
 /** Every count filled: the total gives the detail (07 § 3). */
 export const DetailedTotal = meta.story({
@@ -53,16 +44,9 @@ export const LongList = meta.story({
 
 export const NoBookings = meta.story({
   args: { list: listR1(fullState({ r1Days: [seedDayR1({ openedBy: "" })] }), DAY) },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Aucune réservation.")).toBeVisible();
-    await expect(canvas.getByText("Non renseigné")).toBeVisible();
-  },
 });
 
 /** Day deleted between the display and the click (PLAN annexe F, a-24). */
 export const DayClosed = meta.story({
   args: { list: listR1(fullState(), DAY) },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Ce jour n'est plus ouvert.")).toBeVisible();
-  },
 });

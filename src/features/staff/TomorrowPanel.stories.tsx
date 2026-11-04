@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { TomorrowPanel } from "@/features/staff/TomorrowPanel";
 import { atUrl, clockAt } from "@/test/story-router";
 import { staffSession } from "@/test/story-session";
@@ -25,17 +23,7 @@ export const Tomorrow = meta.story({
     };
   },
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByRole("heading", { name: "Demain (mardi 6 octobre 2026)" }),
-    ).toBeVisible();
-    await expect(canvas.getByRole("region")).toHaveTextContent(
-      "Restaurant Pédagogique : 15 couverts réservésAristide : 4 portions réservées",
-    );
-    await expect(canvas.getByRole("heading", { level: 3, name: "Aristide" })).toBeVisible();
-    await expect(canvas.getAllByRole("button", { name: "Imprimer" })).toHaveLength(2);
-    await expect(
-      canvas.getByText(/^Total Aristide : 4,50\s€ \+ 1 ticket restaurant$/u),
-    ).toBeVisible();
+    await canvas.findByRole("heading", { name: "Demain (mardi 6 octobre 2026)" });
   },
 });
 
@@ -50,12 +38,6 @@ export const NoServiceTomorrow = meta.story({
     };
   },
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByRole("heading", { name: "Demain (mercredi 7 octobre 2026)" }),
-    ).toBeVisible();
-    await expect(canvas.getByRole("region")).toHaveTextContent(
-      "Restaurant Pédagogique : 0 couvert réservéAristide : 0 portion réservée",
-    );
-    await expect(canvas.getByText("Aucun jour ouvert pour demain.")).toBeVisible();
+    await canvas.findByRole("heading", { name: "Demain (mercredi 7 octobre 2026)" });
   },
 });

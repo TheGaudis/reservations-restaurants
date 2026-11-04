@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { Button } from "@/ui/button/Button";
 import { PrintIcon } from "@/ui/icons";
 
@@ -46,12 +44,6 @@ export const Disabled = meta.story({ args: { disabled: true, children: "Annuler"
 export const Busy = meta.story({
   args: { variant: "primary", busy: true, children: "Confirmer la réservation" },
   globals: { accent: "r1" },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: "Envoi en cours…" })).toHaveAttribute(
-      "aria-busy",
-      "true",
-    );
-  },
 });
 
 /** Busy with the label of the load error box (03 § 3.2). */

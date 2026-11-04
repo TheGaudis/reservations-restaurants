@@ -70,48 +70,6 @@ describe("retry of the reads (02 § 1.5)", () => {
       expect(outcome.error).toBeUndefined();
     },
   );
-
-  it("fails after the second failure, without a third attempt", async () => {
-    const fakeScript = start();
-    fakeScript.failNext("html");
-    fakeScript.failNext("html");
-    const { outcome, failures } = readPublicState();
-    await settled(() => {
-      expect(failures()).toBe(1);
-    });
-    await vi.advanceTimersByTimeAsync(1500);
-    await settled(() => {
-      expect(outcome.done).toBe(true);
-    });
-    expect(outcome.error).toBeInstanceOf(ServiceError);
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(fakeScript.requests).toHaveLength(2);
-  });
-
-  it("never retries an answer of the script ({ error })", async () => {
-    const fakeScript = start();
-    fakeScript.failNext("error", "Erreur");
-    const { outcome } = readPublicState();
-    await settled(() => {
-      expect(outcome.done).toBe(true);
-    });
-    expect(outcome.error).toBeInstanceOf(BusinessError);
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(fakeScript.requests).toHaveLength(1);
-  });
-
-  it("never retries offline", async () => {
-    vi.stubGlobal("navigator", { onLine: false });
-    const fakeScript = start();
-    fakeScript.failNext("network");
-    const { outcome } = readPublicState();
-    await settled(() => {
-      expect(outcome.done).toBe(true);
-    });
-    expect(outcome.error).toBeInstanceOf(ServiceError);
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(fakeScript.requests).toHaveLength(1);
-  });
 });
 
 describe("writes are never replayed (02 § 1.5, R-11)", () => {

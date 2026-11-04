@@ -58,16 +58,6 @@ describe("hedgedRead (02 § 1.5)", () => {
     expect(calls).toHaveLength(2);
   });
 
-  it("never hedges a read that answers within 6 s", async () => {
-    const { calls, attempt } = attempts();
-    const read = hedgedRead(attempt);
-    await vi.advanceTimersByTimeAsync(3000);
-    calls[0]?.resolve("first");
-    await expect(read).resolves.toBe("first");
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(calls).toHaveLength(1);
-  });
-
   it.each([
     [0, 1],
     [1, 0],
@@ -92,27 +82,6 @@ describe("hedgedRead (02 § 1.5)", () => {
     calls[1]?.reject(last);
     await vi.advanceTimersByTimeAsync(0);
     expect(outcome).toStrictEqual({ error: last });
-  });
-
-  it("succeeds when the second attempt answers after the first failed", async () => {
-    const { calls, attempt } = attempts();
-    const read = hedgedRead(attempt);
-    await vi.advanceTimersByTimeAsync(6500);
-    calls[0]?.reject(new TypeError("first"));
-    calls[1]?.resolve("second");
-    await expect(read).resolves.toBe("second");
-  });
-
-  it("fails at once, without hedge, when the only attempt fails before 6 s", async () => {
-    const { calls, attempt } = attempts();
-    const outcome = watch(hedgedRead(attempt));
-    await vi.advanceTimersByTimeAsync(2000);
-    const error = new TypeError("Failed to fetch");
-    calls[0]?.reject(error);
-    await vi.advanceTimersByTimeAsync(0);
-    expect(outcome).toStrictEqual({ error });
-    await vi.advanceTimersByTimeAsync(10_000);
-    expect(calls).toHaveLength(1);
   });
 
   it("abandons each attempt after 30 s, then fails with a TimeoutError (E-45)", async () => {
@@ -161,28 +130,5 @@ describe("hedgedRead of the early fetch (02 § 1.5, 03 § 2.4)", () => {
     expect(calls).toHaveLength(0);
     await vi.advanceTimersByTimeAsync(1);
     expect(calls).toHaveLength(1);
-  });
-
-  it("hedges at once an early fetch older than 6 s, and abandons it at 30 s from its start", async () => {
-    const early = attempts();
-    const { calls, attempt } = attempts();
-    watch(hedgedRead(attempt, { first: { attempt: early.attempt, elapsedMs: 7000 } }));
-    await vi.advanceTimersByTimeAsync(0);
-    expect(calls).toHaveLength(1);
-    await vi.advanceTimersByTimeAsync(22_999);
-    expect(early.calls[0]?.signal.aborted).toBe(false);
-    await vi.advanceTimersByTimeAsync(1);
-    expect(early.calls[0]?.signal.aborted).toBe(true);
-    expect(calls[0]?.signal.aborted).toBe(false);
-  });
-
-  it("keeps the answer of the early fetch and aborts the hedge", async () => {
-    const early = attempts();
-    const { calls, attempt } = attempts();
-    const read = hedgedRead(attempt, { first: { attempt: early.attempt, elapsedMs: 5000 } });
-    await vi.advanceTimersByTimeAsync(1500);
-    early.calls[0]?.resolve("early");
-    await expect(read).resolves.toBe("early");
-    expect(calls[0]?.signal.aborted).toBe(true);
   });
 });

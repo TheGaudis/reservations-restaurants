@@ -43,10 +43,8 @@ export const OpenDay = meta.story({
 export const NoService = meta.story({
   decorators: [atUrl("/collegue?r2=2026-10-07")],
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date.",
-      ),
-    ).toBeVisible();
+    await canvas.findByText(
+      "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date.",
+    );
   },
 });

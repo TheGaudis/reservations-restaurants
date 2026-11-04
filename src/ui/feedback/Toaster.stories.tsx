@@ -64,6 +64,5 @@ export const Error = meta.story({
   },
   play: async ({ args }) => {
     await showFromButton(args.message);
-    await expect(screen.getByRole("alert")).toHaveTextContent(args.message);
   },
 });

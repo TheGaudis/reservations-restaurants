@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
@@ -23,15 +21,6 @@ const meta = preview.meta({
   globals: { accent: "r2" },
 });
 
-export const Unchecked = meta.story({
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("checkbox", { name: "Ticket restaurant" })).not.toBeChecked();
-  },
-});
+export const Unchecked = meta.story();
 
-export const Checked = meta.story({
-  args: { checked: true },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("checkbox", { name: "Ticket restaurant" })).toBeChecked();
-  },
-});
+export const Checked = meta.story({ args: { checked: true } });

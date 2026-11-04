@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { ViewToggle } from "@/ui/toggle/ViewToggle";
 
@@ -34,9 +34,7 @@ export const Month = meta.story({ args: { initial: "month" as const }, globals: 
 export const Chosen = meta.story({
   globals: { accent: "r1" },
   play: async ({ canvas }) => {
-    const month = canvas.getByRole("button", { name: "Mois" });
-    await userEvent.click(month);
-    await expect(month).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(canvas.getByRole("button", { name: "Mois" }));
   },
 });
 

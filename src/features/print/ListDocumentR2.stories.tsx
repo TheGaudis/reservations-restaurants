@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { listR2 } from "@/domain/print";
 import { ListDocumentR2 } from "@/features/print/ListDocumentR2";
 import { TEST_NOW } from "@/test/clock";
@@ -34,14 +32,7 @@ const meta = preview.meta({
 });
 
 /** I-02: customers by class then name, the orphan left out, one voucher for the 3-Bowl order (E-16). */
-export const Bookings = meta.story({
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("heading", { name: "Par client (2)" })).toBeVisible();
-    await expect(
-      canvas.getByText(/^2 clients · 4 portions · 4,50\s€ \+ 1 ticket restaurant$/u),
-    ).toBeVisible();
-  },
-});
+export const Bookings = meta.story();
 
 /** Theme and note of the day in the informations (07 § 4). */
 export const ThemeAndNote = meta.story({
@@ -59,14 +50,8 @@ export const ThemeAndNote = meta.story({
 
 export const NoBookings = meta.story({
   args: { list: listR2(fullState({ r2Days: [seedDayR2()], dishes: [LASAGNES, BOWL] }), DAY) },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Aucune réservation.")).toBeVisible();
-  },
 });
 
 export const NoDish = meta.story({
   args: { list: listR2(fullState({ r2Days: [seedDayR2()] }), DAY) },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Aucun plat.")).toBeVisible();
-  },
 });

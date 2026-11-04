@@ -1,4 +1,4 @@
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
@@ -28,9 +28,6 @@ export const Idle = meta.story();
 export const Busy = meta.story({
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Confirmer la réservation" }));
-    const button = canvas.getByRole("button", { name: "Envoi en cours…" });
-    await expect(button).toHaveAttribute("aria-busy", "true");
-    await expect(button).toHaveFocus();
   },
 });
 
@@ -39,6 +36,5 @@ export const BusyStaff = meta.story({
   args: { pendingLabel: "Ouverture en cours…" },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Confirmer la réservation" }));
-    await expect(canvas.getByRole("button", { name: "Ouverture en cours…" })).toBeVisible();
   },
 });

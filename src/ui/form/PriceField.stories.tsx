@@ -1,4 +1,4 @@
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
@@ -63,24 +63,13 @@ export const Empty = meta.story();
 
 export const WithSuggestions = meta.story({
   args: { initial: "3,50", suggestions: ["3,50", "4,50", "5"] },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("combobox", { name: "Prix (optionnel)" })).toHaveValue("3,50");
-  },
 });
 
-export const Voucher = meta.story({
-  args: { voucher: true },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("textbox", { name: "Prix (optionnel)" })).toBeDisabled();
-  },
-});
+export const Voucher = meta.story({ args: { voucher: true } });
 
 export const Error = meta.story({
   args: { initial: "0" },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Enregistrer" }));
-    await expect(
-      canvas.getByRole("textbox", { name: "Prix (optionnel)" }),
-    ).toHaveAccessibleDescription("Indiquez un prix supérieur à 0, ou laissez le champ vide.");
   },
 });

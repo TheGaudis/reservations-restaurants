@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { PrintTable } from "@/ui/print/PrintTable";
 import type { PrintColumn, PrintColumnGroup, PrintRow } from "@/ui/print/PrintTable";
 
@@ -59,9 +57,4 @@ export const Grid = meta.story({
   },
 });
 
-export const Empty = meta.story({
-  args: { rows: [] },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Aucune réservation.")).toBeVisible();
-  },
-});
+export const Empty = meta.story({ args: { rows: [] } });

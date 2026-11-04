@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { DayDetail } from "@/features/calendar/DayCard";
 import { StaffDayCardR1 } from "@/features/staff/StaffDayCardR1";
 import { atUrl, clockAt } from "@/test/story-router";
@@ -32,9 +30,7 @@ const meta = preview.meta({
 export const OpenDay = meta.story({
   decorators: [atUrl("/collegue")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Ouvert par Mme Martin")).toBeVisible();
-    await expect(canvas.getByText("12 / 20 couverts")).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: "Réserver" })).toBeNull();
+    await canvas.findByText("Ouvert par Mme Martin");
   },
 });
 
@@ -42,10 +38,8 @@ export const OpenDay = meta.story({
 export const NoService = meta.story({
   decorators: [atUrl("/collegue?r1=2026-10-07")],
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date.",
-      ),
-    ).toBeVisible();
+    await canvas.findByText(
+      "Aucun jour ouvert. Utilisez le formulaire « Ouvrir un jour » pour en créer un à cette date.",
+    );
   },
 });

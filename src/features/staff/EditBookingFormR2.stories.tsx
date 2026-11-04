@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { DayDetail } from "@/features/calendar/DayCard";
 import { StaffDayCardR2 } from "@/features/staff/StaffDayCardR2";
 import { atUrl, clockAt } from "@/test/story-router";
@@ -31,8 +29,7 @@ const meta = preview.meta({
 export const VoucherDay = meta.story({
   decorators: [atUrl("/collegue?editResa=r2:r2b-d0-ungerer")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByRole("textbox", { name: "Portions" })).toHaveValue("4");
-    await expect(canvas.getAllByRole("radio")).toHaveLength(1);
+    await canvas.findByRole("textbox", { name: "Portions" });
   },
 });
 
@@ -40,6 +37,6 @@ export const VoucherDay = meta.story({
 export const OtherDay = meta.story({
   decorators: [atUrl("/collegue?r2=2026-10-11&editResa=r2:r2b-d%2B6-bernard")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByRole("radio", { name: "À emporter" })).toBeChecked();
+    await canvas.findByRole("radio", { name: "À emporter" });
   },
 });

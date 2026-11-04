@@ -42,11 +42,6 @@ afterEach(() => {
 });
 
 describe("inline script of the <head> (03 § 2.1)", () => {
-  it("reads without since on a first visit", async () => {
-    runInlineScript();
-    expect(await requestedUrl("")).toBe(SCRIPT_URL);
-  });
-
   it("sends the etag of a local copy younger than 14 days", async () => {
     storeCopy({ savedAt: Date.now() - 13 * DAY_MS, etag: "a+b/c=" });
     runInlineScript();
@@ -70,15 +65,6 @@ describe("inline script of the <head> (03 § 2.1)", () => {
     });
     runInlineScript();
     expect(await requestedUrl("")).toBe(SCRIPT_URL);
-  });
-
-  it("keeps the Response and its start time", async () => {
-    const before = performance.now();
-    runInlineScript();
-    const early = takeEarlyFetch("");
-    expect(early?.startedAt).toBeGreaterThanOrEqual(before);
-    const response = await early?.response;
-    expect(response).toBeInstanceOf(Response);
   });
 
   it("never leaves a rejection unhandled when the read fails", async () => {

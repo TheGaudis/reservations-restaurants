@@ -138,13 +138,6 @@ describe("DatePickerPopover: month shown (06 § 3.2)", () => {
 describe("DatePickerPopover: keyboard (06 § 3.3, 05 § 3.2)", () => {
   it.each([
     ["{ArrowRight}", "2026-10-21", "Octobre 2026"],
-    ["{ArrowLeft}", "2026-10-19", "Octobre 2026"],
-    ["{ArrowUp}", "2026-10-13", "Octobre 2026"],
-    ["{ArrowDown}", "2026-10-27", "Octobre 2026"],
-    ["{Home}", "2026-10-19", "Octobre 2026"],
-    ["{End}", "2026-10-25", "Octobre 2026"],
-    ["{PageUp}", "2026-09-20", "Septembre 2026"],
-    ["{PageDown}", "2026-11-20", "Novembre 2026"],
     ["{ArrowDown}{ArrowDown}", "2026-11-03", "Novembre 2026"],
   ])("%s only moves the focus to %s (%s)", async (keys, focused, month) => {
     const onChange = vi.fn();

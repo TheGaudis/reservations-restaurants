@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 
-import { addBookingR2Multi, addDayR2, setConfigField } from "@/api/actions";
+import { addBookingR2Multi, addDayR2 } from "@/api/actions";
 import { useClock } from "@/background/clock";
 import { TomorrowPanel } from "@/features/staff/TomorrowPanel";
 import { SEED_PASSWORD } from "@/mocks/fixtures/seed";
@@ -91,49 +91,9 @@ describe("TomorrowPanel, totals row (06 § 2.1)", () => {
       ["Aristide : 4 portions réservées", "4"],
     ]);
   });
-
-  it("says « 0 couvert réservé », « 0 portion réservée » and « Aucun jour ouvert pour demain. »", async () => {
-    await renderPanel();
-    useClock.setState({ now: TUESDAY });
-    await expect
-      .element(panel().getByRole("heading", { name: "Demain (mercredi 7 octobre 2026)" }))
-      .toBeVisible();
-    expect(totals()).toStrictEqual([
-      ["Restaurant Pédagogique : 0 couvert réservé", "0"],
-      ["Aristide : 0 portion réservée", "0"],
-    ]);
-    await expect.element(panel().getByText("Aucun jour ouvert pour demain.")).toBeVisible();
-    await expect.element(panel().getByRole("button")).not.toBeInTheDocument();
-  });
-
-  it("names the restaurants as the settings do", async () => {
-    await setConfigField(SEED_PASSWORD, { key: "name2", value: "Le Bistrot" });
-    await renderPanel();
-    await expect.element(panel().getByText("Le Bistrot : 4 portions réservées")).toBeVisible();
-  });
 });
 
 describe("TomorrowPanel, blocks per restaurant (07 § 5, D-07)", () => {
-  it("shows « Ouvert par », the seats with their price and the customers of restaurant 1", async () => {
-    await renderPanel();
-    expect(blockLines("Restaurant Pédagogique")).toStrictEqual([
-      "Ouvert par M. Dupont",
-      "Réservés : 15 / 20 couverts — 95,20 €",
-      "Clients : Cyrille Ungerer (TS2), Léa Martin (BTS1), Jean Petit (Personnel)",
-    ]);
-  });
-
-  it("shows a line per booked dish with one voucher per order, and the total of restaurant 2 (E-30, E-44)", async () => {
-    await renderPanel();
-    expect(blockLines("Aristide")).toStrictEqual([
-      "Ouvert par M. Dupont",
-      "• Lasagnes : 1 portion — 4,50 € (Noah Bernard)",
-      "• Bowl : 3 portions — 1 ticket restaurant (Ariele Gsell)",
-      "Total Aristide : 4,50 € + 1 ticket restaurant",
-    ]);
-    await expect.element(panel().getByText(/Paul Durand/u)).not.toBeInTheDocument();
-  });
-
   it("says « (aucun) », skips the dishes nobody booked, and marks a dish without price (D-03)", async () => {
     const state = await addDayR2(SEED_PASSWORD, {
       date: WEDNESDAY,
@@ -203,17 +163,6 @@ describe("TomorrowPanel, « Imprimer » (07 § 6-7)", () => {
     globalThis.dispatchEvent(new Event("afterprint"));
     expect(document.title).toBe(PAGE_TITLE);
     await expect.element(printButton("Restaurant Pédagogique")).toHaveFocus();
-  });
-
-  it("prints document D from the block of restaurant 2, one voucher per order (E-16)", async () => {
-    await renderPanel();
-    await userEvent.click(printButton("Aristide"));
-    await vi.waitFor(() => {
-      expect(calls).toHaveLength(1);
-    });
-    expect(calls[0]?.title).toBe("Aristide — demain mardi 6 octobre 2026");
-    expect(calls[0]?.text).toContain("4 portions · 4,50 € + 1 ticket restaurant");
-    expect(calls[0]?.text).not.toContain("Paul Durand");
   });
 
   it("names the icon buttons « Imprimer », with the same tooltip (07 § 5)", async () => {

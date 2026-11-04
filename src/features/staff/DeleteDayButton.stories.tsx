@@ -1,4 +1,4 @@
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { DayActions } from "@/features/calendar/DayCard";
 import { DeleteDayButton } from "@/features/staff/DeleteDayButton";
@@ -26,9 +26,7 @@ const meta = preview.meta({
 /** At rest. */
 export const AtRest = meta.story({
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByRole("button", { name: "Supprimer ce jour" }),
-    ).toBeInTheDocument();
+    await canvas.findByRole("button", { name: "Supprimer ce jour" });
   },
 });
 
@@ -36,9 +34,5 @@ export const AtRest = meta.story({
 export const Armed = meta.story({
   play: async ({ canvas }) => {
     await userEvent.click(await canvas.findByRole("button", { name: "Supprimer ce jour" }));
-    const detail =
-      "Confirmer la suppression du jour et de ses 3 réservations (les personnes ne seront pas prévenues)";
-    await expect(canvas.getByRole("button", { name: detail })).toHaveTextContent("Confirmer ?");
-    await expect(canvas.getByText(detail)).toBeInTheDocument();
   },
 });

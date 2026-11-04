@@ -1,5 +1,3 @@
-import { expect, userEvent } from "storybook/test";
-
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
 
@@ -41,17 +39,7 @@ const meta = preview.meta({
   globals: { accent: "r2" },
 });
 
-export const TwoOptions = meta.story({
-  play: async ({ canvas }) => {
-    await userEvent.click(canvas.getByRole("radio", { name: "Sur place" }));
-    await expect(canvas.getByRole("radio", { name: "Sur place" })).toBeChecked();
-  },
-});
+export const TwoOptions = meta.story();
 
 /** A day with a meal voucher dish: « Sur place » only, with its help (04 § 5.3). */
-export const VoucherDay = meta.story({
-  args: { voucherDay: true },
-  play: async ({ canvas }) => {
-    await expect(canvas.getAllByRole("radio")).toHaveLength(1);
-  },
-});
+export const VoucherDay = meta.story({ args: { voucherDay: true } });

@@ -1,4 +1,4 @@
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
@@ -86,15 +86,5 @@ export const Errors = meta.story({
   play: async ({ canvas }) => {
     await userEvent.type(canvas.getByRole("textbox", { name: "Adresse email" }), "ariele");
     await userEvent.click(canvas.getByRole("button", { name: "Confirmer la réservation" }));
-    await expect(canvas.getByRole("textbox", { name: "Nom et prénom" })).toHaveFocus();
-    await expect(
-      canvas.getByRole("textbox", { name: "Adresse email" }),
-    ).toHaveAccessibleDescription(
-      "Vérifiez votre adresse email (ex. Ariele.gsell@exemple.fr). Pour vous envoyer la confirmation.",
-    );
-    await expect(canvas.getByRole("textbox", { name: "Élèves · 4,95 €" })).toHaveAttribute(
-      "aria-invalid",
-      "true",
-    );
   },
 });

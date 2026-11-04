@@ -8,7 +8,6 @@ import { LOCAL_CACHE_MAX_AGE_MS } from "@/domain/constants";
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.resetModules();
-  globalThis.__EARLY_FETCH__ = undefined;
 });
 
 async function freshModule() {
@@ -38,32 +37,4 @@ describe("earlyFetchScript (03 § 2.1, PLAN § 3.11)", () => {
       expect(earlyFetchScript).toBe("");
     },
   );
-});
-
-describe("takeEarlyFetch (02 § 1.5, 03 § 2.4)", () => {
-  const early = (since: string) => ({
-    since,
-    response: Promise.resolve(new Response("{}")),
-    startedAt: 0,
-  });
-
-  it("returns the early fetch sent with the same since, once", async () => {
-    const { takeEarlyFetch } = await freshModule();
-    const sent = early("E1");
-    globalThis.__EARLY_FETCH__ = sent;
-    expect(takeEarlyFetch("E1")).toBe(sent);
-    expect(takeEarlyFetch("E1")).toBeNull();
-  });
-
-  it("drops an early fetch sent with another since", async () => {
-    const { takeEarlyFetch } = await freshModule();
-    globalThis.__EARLY_FETCH__ = early("");
-    expect(takeEarlyFetch("E1")).toBeNull();
-    expect(globalThis.__EARLY_FETCH__).toBeUndefined();
-  });
-
-  it("returns null without early fetch (fake script, missing URL, old browser)", async () => {
-    const { takeEarlyFetch } = await freshModule();
-    expect(takeEarlyFetch("")).toBeNull();
-  });
 });

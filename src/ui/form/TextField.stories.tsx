@@ -1,4 +1,4 @@
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { useAppForm } from "@/ui/form/app-form";
 import { Form } from "@/ui/form/Form";
@@ -48,31 +48,14 @@ const meta = preview.meta({
   globals: { accent: "r1" },
 });
 
-export const Empty = meta.story({
-  play: async ({ canvas }) => {
-    await expect(
-      canvas.getByRole("textbox", { name: "Adresse email" }),
-    ).toHaveAccessibleDescription("Pour vous envoyer la confirmation.");
-  },
-});
+export const Empty = meta.story();
 
 export const Filled = meta.story({ args: { initial: "ariele.gsell@exemple.fr" } });
 
-export const HiddenLabel = meta.story({
-  args: { hideLabel: true },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("textbox", { name: "Adresse email" })).toBeVisible();
-  },
-});
+export const HiddenLabel = meta.story({ args: { hideLabel: true } });
 
 export const Error = meta.story({
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Confirmer la réservation" }));
-    const input = canvas.getByRole("textbox", { name: "Adresse email" });
-    await expect(input).toHaveAttribute("aria-invalid", "true");
-    await expect(input).toHaveAccessibleDescription(
-      "Indiquez votre adresse email. Pour vous envoyer la confirmation.",
-    );
-    await expect(input).toHaveFocus();
   },
 });

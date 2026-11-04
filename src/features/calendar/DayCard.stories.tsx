@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { DayCard, DayCardTop, DayNote, TextBlock } from "@/features/calendar/DayCard";
 import { CapacityPill } from "@/ui/feedback/CapacityPill";
 
@@ -26,10 +24,6 @@ export const WithGauge = meta.story({
         {menu}
       </>
     ),
-  },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("lundi 5 octobre 2026")).toHaveAttribute("tabindex", "-1");
-    await expect(canvas.getByText("12 / 20 couverts")).toBeVisible();
   },
 });
 

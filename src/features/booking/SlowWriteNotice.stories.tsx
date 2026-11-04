@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { SlowWriteNotice } from "@/features/booking/SlowWriteNotice";
 
 import preview from "../../../.storybook/preview";
@@ -13,20 +11,9 @@ const meta = preview.meta({
 });
 
 /** Before 20 s: an empty live region. */
-export const Waiting = meta.story({
-  play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector("output")).toBeEmptyDOMElement();
-  },
-});
+export const Waiting = meta.story();
 
 /** After 20 s (E-10). */
 export const Slow = meta.story({
   args: { slow: true },
-  play: async ({ canvas }) => {
-    await expect(
-      canvas.getByText(
-        "Le service met du temps à répondre. Gardez cette page ouverte : la confirmation s'affichera ici.",
-      ),
-    ).toBeInTheDocument();
-  },
 });

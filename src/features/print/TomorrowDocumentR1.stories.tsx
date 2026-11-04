@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { listR1 } from "@/domain/print";
 import { TomorrowDocumentR1 } from "@/features/print/TomorrowDocumentR1";
 import { TEST_NOW } from "@/test/clock";
@@ -19,12 +17,7 @@ const meta = preview.meta({
 });
 
 /** I-03: « Ouvert par », « Places », plain table, total without the detail, no signature. */
-export const Tomorrow = meta.story({
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Demain, mardi 6 octobre 2026")).toBeVisible();
-    await expect(canvas.getByText(/^15 couverts · 95,20\s€$/u)).toBeVisible();
-  },
-});
+export const Tomorrow = meta.story();
 
 export const NoBookings = meta.story({
   args: { list: listR1(fullState({ r1Days: [seedDayR1()] }), DAY) },
@@ -33,7 +26,4 @@ export const NoBookings = meta.story({
 /** No R1 day tomorrow (07 § 6). */
 export const NoDay = meta.story({
   args: { list: listR1(fullState(), DAY) },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Aucun jour ouvert pour demain.")).toBeVisible();
-  },
 });

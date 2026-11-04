@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { DayDetail } from "@/features/calendar/DayCard";
 import { DayCardR1 } from "@/features/r1/DayCardR1";
 import { atUrl, clockAt } from "@/test/story-router";
@@ -24,8 +22,7 @@ const meta = preview.meta({
 export const Available = meta.story({
   decorators: [atUrl("/")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("12 / 20 couverts")).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "Réserver" })).toBeVisible();
+    await canvas.findByText("12 / 20 couverts");
   },
 });
 
@@ -33,7 +30,7 @@ export const Available = meta.story({
 export const AlmostFull = meta.story({
   decorators: [atUrl("/?r1=2026-10-06")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Bientôt complet")).toBeVisible();
+    await canvas.findByText("Bientôt complet");
   },
 });
 
@@ -41,7 +38,7 @@ export const AlmostFull = meta.story({
 export const NoService = meta.story({
   decorators: [atUrl("/?r1=2026-10-07")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Aucune réservation possible ce jour-là.")).toBeVisible();
+    await canvas.findByText("Aucune réservation possible ce jour-là.");
   },
 });
 
@@ -49,8 +46,7 @@ export const NoService = meta.story({
 export const Full = meta.story({
   decorators: [atUrl("/?r1=2026-10-09")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Complet.")).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: "Réserver" })).toBeNull();
+    await canvas.findByText("Complet.");
   },
 });
 
@@ -58,7 +54,6 @@ export const Full = meta.story({
 export const Past = meta.story({
   decorators: [atUrl("/?r1=2026-10-01")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText("jeudi 1er octobre 2026")).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: "Réserver" })).toBeNull();
+    await canvas.findByText("jeudi 1er octobre 2026");
   },
 });

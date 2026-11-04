@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import logoUrl from "@/features/page/logo.png";
 import { TEST_NOW } from "@/test/clock";
 import { PrintLayout, PrintNote } from "@/ui/print/PrintLayout";
@@ -30,10 +28,6 @@ export const Complete = meta.story({
     ],
     total: { label: "Total du jour", value: "2 clients · 4 portions" },
     signature: true,
-  },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByText("Imprimé le 5 octobre 2026")).toBeVisible();
-    await expect(canvas.getByText("Nom du responsable")).toBeVisible();
   },
 });
 

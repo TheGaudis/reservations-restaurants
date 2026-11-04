@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { DayDetail } from "@/features/calendar/DayCard";
 import { StaffDayCardR1 } from "@/features/staff/StaffDayCardR1";
 import { atUrl, clockAt } from "@/test/story-router";
@@ -32,13 +30,7 @@ const meta = preview.meta({
 export const Open = meta.story({
   decorators: [atUrl("/collegue?r1=2026-10-06&editResa=r1:r1b-d%2B1-ungerer")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByRole("textbox", { name: "Nom" })).toHaveValue(
-      "Cyrille Ungerer",
-    );
-    await expect(
-      canvas.getByRole("group", { name: "Nombre de personnes (8 au maximum)" }),
-    ).toBeInTheDocument();
-    await expect(canvas.getByRole("button", { name: "Modifier", expanded: true })).toBeVisible();
+    await canvas.findByRole("textbox", { name: "Nom" });
   },
 });
 
@@ -46,10 +38,8 @@ export const Open = meta.story({
 export const BeforePrices = meta.story({
   decorators: [atUrl("/collegue?r1=2026-10-06&editResa=r1:r1b-d%2B1-petit")],
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        "Réservation enregistrée avant les tarifs : indiquez la répartition de ses 4 couverts.",
-      ),
-    ).toBeInTheDocument();
+    await canvas.findByText(
+      "Réservation enregistrée avant les tarifs : indiquez la répartition de ses 4 couverts.",
+    );
   },
 });

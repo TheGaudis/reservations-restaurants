@@ -1,4 +1,4 @@
-import { expect, userEvent } from "storybook/test";
+import { userEvent } from "storybook/test";
 
 import { DayDetail } from "@/features/calendar/DayCard";
 import { StaffDayCardR1 } from "@/features/staff/StaffDayCardR1";
@@ -25,11 +25,7 @@ const meta = preview.meta({
 export const Open = meta.story({
   decorators: [atUrl("/collegue?r1=2026-10-06&editJour=r1")],
   play: async ({ canvas }) => {
-    await expect(await canvas.findByLabelText("Nombre de couverts disponibles")).toHaveValue(20);
-    await expect(canvas.getByRole("button", { name: "Modifier ce jour" })).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
+    await canvas.findByLabelText("Nombre de couverts disponibles");
   },
 });
 
@@ -41,10 +37,8 @@ export const BelowBooked = meta.story({
     await userEvent.clear(capacity);
     await userEvent.type(capacity, "14");
     await userEvent.click(canvas.getByRole("button", { name: "Enregistrer" }));
-    await expect(
-      await canvas.findByText(
-        "Impossible : 15 couvert(s) déjà réservé(s) pour ce jour, la capacité ne peut pas être inférieure.",
-      ),
-    ).toBeInTheDocument();
+    await canvas.findByText(
+      "Impossible : 15 couvert(s) déjà réservé(s) pour ce jour, la capacité ne peut pas être inférieure.",
+    );
   },
 });

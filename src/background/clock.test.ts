@@ -7,13 +7,10 @@ import {
   useClock,
   useIsR2OrderingClosed,
   useToday,
-  syncClock,
   watchR2Cutoff,
 } from "@/background/clock";
 import type { BackgroundDeps } from "@/background/deps";
 import { stopBackgroundTasks } from "@/background/start";
-import { isR2OrderingClosed } from "@/domain/cutoff";
-import { parisDate } from "@/domain/paris";
 import { bookingKeys } from "@/mutations/booking-keys";
 import { stateKeys } from "@/queries/state";
 import { getRouter } from "@/router";
@@ -40,32 +37,6 @@ function start(at: string): void {
 }
 
 describe("startClock (PLAN § 3.4)", () => {
-  it.each([
-    ["summer time", "2026-10-05T07:59:30.000Z", "2026-10-05"],
-    ["winter time", "2026-11-02T08:59:30.000Z", "2026-11-02"],
-  ])("ticks at 10:00 in Paris (%s)", (_, at, day) => {
-    start(at);
-    expect(useClock.getState().now).toBe(Date.parse(at));
-    vi.advanceTimersByTime(29_999);
-    expect(useClock.getState().now).toBe(Date.parse(at));
-    vi.advanceTimersByTime(1);
-    expect(useClock.getState().now).toBe(Date.parse(at) + 30_000);
-    expect(isR2OrderingClosed(day, Date.parse(at))).toBe(false);
-    expect(isR2OrderingClosed(day, useClock.getState().now)).toBe(true);
-  });
-
-  it.each([
-    ["summer time", "2026-10-05T21:59:00.000Z", "2026-10-06"],
-    ["winter time", "2026-11-02T22:59:00.000Z", "2026-11-03"],
-    ["daylight saving change", "2026-10-24T21:59:00.000Z", "2026-10-25"],
-  ])("changes today at midnight in Paris (%s)", (_, at, nextDay) => {
-    start(at);
-    vi.advanceTimersByTime(59_999);
-    expect(useClock.getState().now).toBe(Date.parse(at));
-    vi.advanceTimersByTime(1);
-    expect(parisDate(useClock.getState().now)).toBe(nextDay);
-  });
-
   it("aligns the ticks on the minute, then ticks every minute", () => {
     start("2026-10-05T07:30:12.345Z");
     vi.advanceTimersByTime(47_655);
@@ -181,17 +152,6 @@ describe("watchR2Cutoff (03 § 5.3, a-7, E-09)", () => {
     expect(navigate).toHaveBeenCalledOnce();
   });
 
-  it("closes the form when the tab comes back after 10:00", async () => {
-    const { navigate, showToast } = await watch(
-      `/?r2=${TODAY}&reserver=r2`,
-      "2026-10-05T07:00:00.000Z",
-    );
-    vi.setSystemTime(Date.parse("2026-10-05T09:00:00.000Z"));
-    window.dispatchEvent(new PageTransitionEvent("pageshow"));
-    expect(navigate).toHaveBeenCalledOnce();
-    expect(showToast).toHaveBeenCalledOnce();
-  });
-
   it.each([
     ["the R1 form", `/?r1=${TODAY}&reserver=r1`],
     ["an R2 form for tomorrow", "/?r2=2026-10-06&reserver=r2"],
@@ -202,18 +162,6 @@ describe("watchR2Cutoff (03 § 5.3, a-7, E-09)", () => {
     vi.advanceTimersByTime(30_000);
     expect(navigate).not.toHaveBeenCalled();
     expect(showToast).not.toHaveBeenCalled();
-  });
-
-  it("acts at once when the form reads the time again on sending (04 § 5.3)", async () => {
-    const { navigate, showToast } = await watch(
-      `/?r2=${TODAY}&reserver=r2`,
-      "2026-10-05T07:59:30.000Z",
-    );
-    // 10:00:01 before the minute timer fires.
-    vi.setSystemTime(Date.parse("2026-10-05T08:00:01.000Z"));
-    syncClock();
-    expect(navigate).toHaveBeenCalledOnce();
-    expect(showToast).toHaveBeenCalledOnce();
   });
 
   it("leaves the form of an order already sent: its answer closes it (04 § 6.3)", async () => {

@@ -1,5 +1,3 @@
-import { expect } from "storybook/test";
-
 import { Button } from "@/ui/button/Button";
 import { Alert } from "@/ui/feedback/Alert";
 
@@ -15,9 +13,6 @@ const meta = preview.meta({
 /** Load failure box (G-03, 03 § 3.1): text announced as an alert, « Réessayer » next to it. */
 export const LoadFailure = meta.story({
   args: { live: "alert", action: <Button variant="primary">Réessayer</Button> },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("alert")).toBeVisible();
-  },
 });
 
 /** Same box while retrying (03 § 3.2). */

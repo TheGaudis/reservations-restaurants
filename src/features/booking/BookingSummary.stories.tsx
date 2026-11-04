@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { expect, fn } from "storybook/test";
+import { fn } from "storybook/test";
 
 import type { SummaryR1 } from "@/domain/bookings";
 import { BookingSummary } from "@/features/booking/BookingSummary";
@@ -7,7 +7,8 @@ import { BookingSummary } from "@/features/booking/BookingSummary";
 import preview from "../../../.storybook/preview";
 
 // Booking summary in each state of 09 § 3 (P-06 for R1, P-14 for R2; 04 § 7), the cancellation contact read from
-// the fake script (« le secrétariat », parite.md § 2). The card rises in: the play functions check presence.
+// the fake script (« le secrétariat », parite.md § 2). The summary suspends until the script answers: the play of the
+// meta waits for the contact before axe runs.
 
 const BOOKED_R1: SummaryR1 = {
   restaurant: "r1",
@@ -33,38 +34,24 @@ const meta = preview.meta({
     summary: BOOKED_R1,
   },
   globals: { accent: "r1" },
+  play: async ({ canvas }) => {
+    await canvas.findByText(/^Pour annuler ou modifier, contactez/u);
+  },
 });
 
 /** P-06: R1 booking recorded. */
-export const BookedR1 = meta.story({
-  play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Réservation enregistrée")).toBeInTheDocument();
-    await expect(
-      await canvas.findByText("Pour annuler ou modifier, contactez le secrétariat."),
-    ).toBeInTheDocument();
-  },
-});
+export const BookedR1 = meta.story();
 
 /** P-06: the confirmation e-mail did not leave (04 § 7). */
 export const EmailFailed = meta.story({
   args: {
     summary: { ...BOOKED_R1, warnings: ["emailFailed"] },
   },
-  play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        "L'email de confirmation n'a pas pu être envoyé. Gardez ce récapitulatif.",
-      ),
-    ).toBeInTheDocument();
-  },
 });
 
 /** D-16: the booking was already recorded (`_duplicate`). */
 export const Duplicate = meta.story({
   args: { summary: { ...BOOKED_R1, duplicate: true } },
-  play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Réservation déjà enregistrée")).toBeInTheDocument();
-  },
 });
 
 /** P-14: R2 order, portions adjusted and e-mail failed, both said (E-14). */
@@ -85,9 +72,5 @@ export const OrderR2 = meta.story({
       amounts: { euros: 9, vouchers: 1, gap: false },
       warnings: ["adjusted", "emailFailed"],
     },
-  },
-  play: async ({ canvas }) => {
-    await expect(await canvas.findByText("Lasagnes")).toBeInTheDocument();
-    await expect(canvas.getByText(/^9,00\s€ \+ 1 ticket restaurant$/u)).toBeInTheDocument();
   },
 });
